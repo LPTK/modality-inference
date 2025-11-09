@@ -1,0 +1,10 @@
+name = "horn-modes2"
+version = "0.1.0"
+defaultTargets = ["horn-modes2"]
+
+[[lean_lib]]
+name = "HornModes2"
+
+[[lean_exe]]
+name = "horn-modes2"
+root = "Main"
