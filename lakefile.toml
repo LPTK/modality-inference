@@ -2,6 +2,10 @@ name = "horn-modes2"
 version = "0.1.0"
 defaultTargets = ["horn-modes2"]
 
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+
 [[lean_lib]]
 name = "HornModes2"
 
