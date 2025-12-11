@@ -159,10 +159,6 @@ theorem sup_le_sup {n : Nat} [SemilatticeSup α] {M₁ M₂ M₃ M₄ : Mapping 
 theorem const_bot_le {n : Nat} [Preorder α] [OrderBot α] (M : Mapping α n) : const α n ⊥ ≤ M :=
   fun x => by simp [const, Vector.get]
 
-/-- const is monotone -/
-theorem const_mono {n : Nat} [Preorder α] {a b : α} (h : a ≤ b) : const α n a ≤ const α n b :=
-  fun _ => by simp [const, Vector.get]; exact h
-
 /-- Preorder instance for Mapping (pointwise) -/
 instance mappingPreorder {n : Nat} [Preorder α] : Preorder (Mapping α n) where
   le := (· ≤ ·)
@@ -230,36 +226,6 @@ theorem get_update_same [Lattice α] (M : Mapping α n) (i : Fin n) (v : α) :
 theorem get_update_diff [Lattice α] (M : Mapping α n) (i j : Fin n) (v : α) (h : j ≠ i) :
     (update M i v).get j = M.get j := by
   simp [update, Vector.get, h]
-
-/-- Singleton mapping with a single non-⊥ entry at position i -/
-def singleton [Preorder α] [OrderBot α] (i : Fin n) (v : α) : Mapping α n :=
-  Vector.ofFn fun j => if j = i then v else ⊥
-
-@[simp]
-theorem get_singleton_same [Preorder α] [OrderBot α] (i : Fin n) (v : α) :
-    (singleton i v).get i = v := by
-  simp [singleton, Vector.get]
-
-@[simp]
-theorem get_singleton_diff [Preorder α] [OrderBot α] (i j : Fin n) (v : α) (h : j ≠ i) :
-    (singleton i v).get j = ⊥ := by
-  simp [singleton, Vector.get, h]
-
-/-- Singleton is monotone in its value -/
-theorem singleton_mono [Preorder α] [OrderBot α] {i : Fin n} {v₁ v₂ : α} (h : v₁ ≤ v₂) :
-    singleton i v₁ ≤ singleton i v₂ := by
-  intro j
-  by_cases hj : j = i
-  · rw [hj]; simp only [get_singleton_same]; exact h
-  · simp only [get_singleton_diff _ _ _ hj]; exact le_refl _
-
-/-- Singleton at i has only non-⊥ value at position i -/
-theorem singleton_le_const [SemilatticeSup α] [OrderBot α] (i : Fin n) (v : α) :
-    singleton i v ≤ const α n v := by
-  intro j
-  by_cases hj : j = i
-  · simp only [get_singleton_same, get_const, hj]; exact le_refl v
-  · simp only [get_singleton_diff _ _ _ hj, get_const]; exact bot_le
 
 end Mapping
 
@@ -577,25 +543,31 @@ theorem eval_meet_const_of_ge [HeytingAlgebra α] (r : RightExpr α n) (M : Mapp
 end RightExpr
 
 
-/-- An equation in the form `r ≰ l`, meaning r is not less than or equal to l.
+/-- An equation in the form `r ≤ l`.
     Parameterized by carrier type `α` and indexed by number of free variables `n`. -/
 structure Equation (α : Type u) (n : Nat) where
+  /-- The right-hand side of the inequality -/
   right : RightExpr α n
+  /-- The left-hand side of the inequality -/
   left : LeftExpr α n
 
 namespace Equation
 
-/-- Infix notation for equations: `r ≰ l` -/
-infix:50 " ≰ " => Equation.mk
-
-/-- An equation is satisfied by an environment if the right side is not less than or equal
-    to the left side. In other words, it holds when `¬(r ≤ l)`. -/
+/-- An equation is satisfied by an environment if `r ≤ l` holds. -/
 def satisfied [HeytingAlgebra α] (env : Vector α n) (eq : Equation α n) : Prop :=
+  RightExpr.eval env eq.right ≤ LeftExpr.eval env eq.left
+
+/-- An equation is not satisfied by an environment if `r ≰ l`. -/
+def not_satisfied [HeytingAlgebra α] (env : Vector α n) (eq : Equation α n) : Prop :=
   ¬(RightExpr.eval env eq.right ≤ LeftExpr.eval env eq.left)
 
-/-- An equation is solvable if there exists an environment that satisfies it. -/
-def solvable [HeytingAlgebra α] (eq : Equation α n) : Prop :=
-  ∃ env, satisfied env eq
+/-- An equation is valid if all environments satisfy it. -/
+def valid [HeytingAlgebra α] (eq : Equation α n) : Prop :=
+  ∀ env, satisfied env eq
+
+/-- An equation is not valid if there exists an environment that does not satisfy it. -/
+def not_valid [HeytingAlgebra α] (eq : Equation α n) : Prop :=
+  ∃ env, not_satisfied env eq
 
 end Equation
 
@@ -922,23 +894,6 @@ def iterate [HeytingAlgebra α] (k : Nat) (M : Mapping α n) (c : α) (r : Right
   | 0 => M
   | k' + 1 => update (iterate k' M c r) c r
 
-/-- iterate is monotonic in its initial mapping: if M₁ ≤ M₂, then iterate k M₁ ≤ iterate k M₂ -/
-theorem iterate_mono [HeytingAlgebra α] (k : Nat) (M₁ M₂ : Mapping α n) (c : α) (r : RightExpr α n) :
-    M₁ ≤ M₂ → iterate k M₁ c r ≤ iterate k M₂ c r := by
-  intro h
-  induction k generalizing M₁ M₂ with
-  | zero =>
-    simp [iterate]
-    exact h
-  | succ k' ih =>
-    simp [iterate]
-    -- iterate (k'+1) M₁ = update (iterate k' M₁)
-    -- iterate (k'+1) M₂ = update (iterate k' M₂)
-    -- By IH: iterate k' M₁ ≤ iterate k' M₂
-    have h_iter : iterate k' M₁ c r ≤ iterate k' M₂ c r := ih M₁ M₂ h
-    -- By update_mono: update (iterate k' M₁) ≤ update (iterate k' M₂)
-    exact update_mono r (iterate k' M₁ c r) (iterate k' M₂ c r) c h_iter
-
 /-- If M is a fixed point, then iterate k M ≤ M for all k -/
 theorem iterate_least [HeytingAlgebra α] (k : Nat) (M : Mapping α n) (c : α) (r : RightExpr α n)
     (M₀ : Mapping α n) (h_init : M₀ ≤ M) (hfp : update M c r = M) :
@@ -1068,36 +1023,6 @@ def ofFn (f : Fin n → α) : Rvec α n :=
   | 0 => nil
   | n + 1 => snoc (ofFn fun i => f ⟨i.val, Nat.lt_trans i.isLt (Nat.lt_succ_self n)⟩) (f ⟨n, Nat.lt_succ_self n⟩)
 
-/-- Map a function over a Rvec. -/
-def map (f : α → β) : Rvec α n → Rvec β n
-  | nil => nil
-  | snoc xs x => snoc (map f xs) (f x)
-
-theorem get_ofFn (f : Fin n → α) (i : Fin n) : (ofFn f).get i = f i := by
-  induction n with
-  | zero => exact i.elim0
-  | succ n ih =>
-    simp only [ofFn]
-    unfold get
-    by_cases h : i.val = n
-    · simp only [h, ↓reduceDIte]
-      congr 1
-      exact Fin.ext h.symm
-    · simp only [h, ↓reduceDIte]
-      rw [ih]
-
-/-- Elements of a Rvec have smaller sizeOf than the Rvec itself. -/
-theorem sizeOf_get_lt [SizeOf α] (v : Rvec α n) (i : Fin n) : sizeOf (v.get i) < sizeOf v := by
-  match n, v with
-  | m + 1, snoc xs x =>
-    unfold get
-    by_cases h : i.val = m
-    · simp only [h, ↓reduceDIte, Rvec.snoc.sizeOf_spec]
-      omega
-    · simp only [h, ↓reduceDIte, Rvec.snoc.sizeOf_spec]
-      have := sizeOf_get_lt xs ⟨i.val, Nat.lt_of_le_of_ne (Nat.lt_succ_iff.mp i.isLt) h⟩
-      omega
-
 /-- Convert Rvec to a list (in natural index order, so index 0 first). -/
 def toList : Rvec α n → List α
   | nil => []
@@ -1131,16 +1056,12 @@ theorem toVector_get (v : Rvec α n) (i : Fin n) : v.toVector.get i = v.get i :=
   simp only [toVector, Vector.get, List.getElem_toArray]
   exact toList_get v i
 
-/-- Convert Vector to Rvec. -/
-def ofVector : Vector α n → Rvec α n :=
-  fun v => ofFn (v.get)
-
 end Rvec
 
 /-- Tree structure representing complete (but possibly pruned) update sequences.
     - `leaf`: base case, evaluates to a provided mapping
     - `branch children`: for each variable v, children[v] = (active, subtree) where:
-      * active = true: value at v is M'.get v ⊔ partial_update_value v M' c r (where M' = eval subtree)
+      * active = true: value at v is M'.get v ⊔ partial_update v M' c r (where M' = eval subtree)
       * active = false: value at v is just M'.get v (projection only, no new contribution)
     This representation ensures evaluation always produces full mappings at each level. -/
 inductive UpdateTree (n : Nat) where
@@ -1152,17 +1073,13 @@ namespace UpdateTree
 /-- Compute the value that would be written to variable v by propagating
     constraint c through right expression r.
     Returns the value that should be joined with M(v). -/
-def partial_update_value [HeytingAlgebra α] (v : Fin n) (M : Mapping α n) (c : α) : RightExpr α n → α
+def partial_update [HeytingAlgebra α] (v : Fin n) (M : Mapping α n) (c : α) : RightExpr α n → α
   | var i => if v = i then c else ⊥
   | const _ => ⊥
-  | meet r₁ r₂ => partial_update_value v M c r₁ ⊔ partial_update_value v M c r₂
+  | meet r₁ r₂ => partial_update v M c r₁ ⊔ partial_update v M c r₂
   | imply l r =>
       let c' := c ⊓ LeftExpr.eval M l
-      partial_update_value v M c' r
-
-/-- Create a singleton mapping with the partial update contribution at variable v. -/
-def partial_update [HeytingAlgebra α] (v : Fin n) (M : Mapping α n) (c : α) (r : RightExpr α n) : Mapping α n :=
-  Mapping.singleton v (M.get v ⊔ partial_update_value v M c r)
+      partial_update v M c' r
 
 mutual
 /-- Evaluate an update tree given a base mapping (for leaves), constraint, and expression. -/
@@ -1183,7 +1100,7 @@ def evalRvec [HeytingAlgebra α] (k : Nat) (hk : k ≤ n) (children : Rvec (Bool
         (match children with
          | .snoc _ (active, subtree) =>
            let M' := eval subtree M c r
-           if active then M'.get ⟨k', by omega⟩ ⊔ partial_update_value ⟨k', by omega⟩ M' c r
+           if active then M'.get ⟨k', by omega⟩ ⊔ partial_update ⟨k', by omega⟩ M' c r
            else M'.get ⟨k', by omega⟩)
 end
 
@@ -1244,21 +1161,12 @@ def pruned (d : Nat) (n : Nat) : UpdateTree n := pruned_aux d n ∅
 
 /-! ### Update Tree Theorems -/
 
-/-- Helper: partial_update only affects the specified variable, all others are ⊥. -/
-theorem partial_update_get [HeytingAlgebra α] (v : Fin n) (M : Mapping α n) (c : α) (r : RightExpr α n) (j : Fin n) :
-    (partial_update v M c r).get j = if j = v then M.get v ⊔ partial_update_value v M c r else ⊥ := by
-  simp only [partial_update]
-  by_cases h : j = v
-  · subst h
-    simp only [Mapping.get_singleton_same, ↓reduceIte]
-  · simp only [Mapping.get_singleton_diff v j _ h, if_neg h]
-
-/-- Helper: the value at position i after update equals M.get i ⊔ partial_update_value i. -/
+/-- Helper: the value at position i after update equals M.get i ⊔ partial_update i. -/
 theorem update_get_eq_partial [HeytingAlgebra α] (M : Mapping α n) (c : α) (r : RightExpr α n) (i : Fin n) :
-    (update M c r).get i = M.get i ⊔ partial_update_value i M c r := by
+    (update M c r).get i = M.get i ⊔ partial_update i M c r := by
   induction r generalizing c with
   | var j =>
-    simp only [update, partial_update_value]
+    simp only [update, partial_update]
     by_cases h : i = j
     · -- i = j: both sides are M.get i ⊔ c
       subst h
@@ -1266,124 +1174,79 @@ theorem update_get_eq_partial [HeytingAlgebra α] (M : Mapping α n) (c : α) (r
     · -- i ≠ j: LHS is M.get i, RHS is M.get i ⊔ ⊥ = M.get i
       simp only [Mapping.get_update_diff M j i c h, if_neg h, sup_bot_eq]
   | const _ =>
-    simp only [update, partial_update_value, sup_bot_eq]
+    simp only [update, partial_update, sup_bot_eq]
   | meet r₁ r₂ ih₁ ih₂ =>
-    simp only [update, partial_update_value, Mapping.get_sup]
+    simp only [update, partial_update, Mapping.get_sup]
     rw [ih₁, ih₂]
-    -- Goal: (M.get i ⊔ partial_update_value i M c r₁) ⊔ (M.get i ⊔ partial_update_value i M c r₂) =
-    --       M.get i ⊔ (partial_update_value i M c r₁ ⊔ partial_update_value i M c r₂)
+    -- Goal: (M.get i ⊔ partial_update i M c r₁) ⊔ (M.get i ⊔ partial_update i M c r₂) =
+    --       M.get i ⊔ (partial_update i M c r₁ ⊔ partial_update i M c r₂)
     ac_rfl
   | imply l r ih =>
-    simp only [update, partial_update_value]
+    simp only [update, partial_update]
     exact ih (c ⊓ LeftExpr.eval M l)
 
-/-- Helper: update can be expressed as a join of partial updates for all variables. -/
-theorem update_eq_join_partial [HeytingAlgebra α] (M : Mapping α n) (c : α) (r : RightExpr α n) :
-    update M c r = (List.finRange n).foldl (fun acc v => acc ⊔ partial_update v M c r) (Mapping.const α n ⊥) := by
-  -- Prove equality of vectors by extensionality
-  apply Vector.ext
-  intro i hi
-  show (update M c r).get ⟨i, hi⟩ = ((List.finRange n).foldl (fun acc v => acc ⊔ partial_update v M c r) (Mapping.const α n ⊥)).get ⟨i, hi⟩
-  -- LHS: (update M c r).get ⟨i, hi⟩ = M.get ⟨i, hi⟩ ⊔ partial_update_value ⟨i, hi⟩ M c r
-  rw [update_get_eq_partial M c r ⟨i, hi⟩]
-  -- RHS: need to show the fold gives M.get i ⊔ partial_update_value i M c r at position i
-  have h_mem : ⟨i, hi⟩ ∈ List.finRange n := by
-    unfold List.finRange
-    rw [List.mem_ofFn]
-    exact ⟨⟨i, hi⟩, rfl⟩
-  -- The fold at position ⟨i, hi⟩ gives M.get i ⊔ partial_update_value i M c r (since ⟨i, hi⟩ is in finRange n)
-  suffices h : ∀ (l : List (Fin n)) (acc : Mapping α n),
-      (l.foldl (fun acc v => acc ⊔ partial_update v M c r) acc).get ⟨i, hi⟩ =
-      acc.get ⟨i, hi⟩ ⊔ (if ⟨i, hi⟩ ∈ l then M.get ⟨i, hi⟩ ⊔ partial_update_value ⟨i, hi⟩ M c r else ⊥) by
-    have := h (List.finRange n) (Mapping.const α n ⊥)
-    simp only [Mapping.get_const, bot_sup_eq, h_mem, ↓reduceIte] at this
-    exact this.symm
-  -- Prove the generalized statement by induction on the list
-  intro l
-  induction l with
-  | nil =>
-    intro acc
-    simp only [List.foldl_nil, List.not_mem_nil, ↓reduceIte, sup_bot_eq]
-  | cons v vs ih =>
-    intro acc
-    simp only [List.foldl_cons, List.mem_cons]
-    rw [ih]
-    -- Simplify the LHS: (acc ⊔ partial_update v M c r).get ⟨i, hi⟩ ⊔ ...
-    rw [Mapping.get_sup, partial_update_get]
-    by_cases hv : ⟨i, hi⟩ = v
-    · -- ⟨i, hi⟩ = v: we pick up M.get i ⊔ partial_update_value
-      subst hv
-      simp only [↓reduceIte, true_or]
-      by_cases hvs_mem : ⟨i, hi⟩ ∈ vs
-      · simp only [hvs_mem, ↓reduceIte]
-        -- Goal: acc.i ⊔ (M.i ⊔ pv_i) ⊔ (M.i ⊔ pv_i) = acc.i ⊔ (M.i ⊔ pv_i)
-        rw [sup_assoc, sup_idem]
-      · simp only [hvs_mem, ↓reduceIte, sup_bot_eq]
-    · -- ⟨i, hi⟩ ≠ v: partial_update v gives ⊥ at this position
-      simp only [hv, ↓reduceIte, false_or, sup_bot_eq]
-
-/-- partial_update_value is monotone in the constraint c. -/
-theorem partial_update_value_mono_c [HeytingAlgebra α] (v : Fin n) (M : Mapping α n) (c₁ c₂ : α) (r : RightExpr α n)
-    (h : c₁ ≤ c₂) : partial_update_value v M c₁ r ≤ partial_update_value v M c₂ r := by
+/-- partial_update is monotone in the constraint c. -/
+theorem partial_update_mono_c [HeytingAlgebra α] (v : Fin n) (M : Mapping α n) (c₁ c₂ : α) (r : RightExpr α n)
+    (h : c₁ ≤ c₂) : partial_update v M c₁ r ≤ partial_update v M c₂ r := by
   induction r generalizing c₁ c₂ with
   | var j =>
-    simp only [partial_update_value]
+    simp only [partial_update]
     by_cases hj : v = j
     · simp only [hj, ↓reduceIte]; exact h
     · simp only [hj, ↓reduceIte]; exact le_refl ⊥
-  | const _ => simp only [partial_update_value]; exact le_refl ⊥
+  | const _ => simp only [partial_update]; exact le_refl ⊥
   | meet r₁ r₂ ih₁ ih₂ =>
-    simp only [partial_update_value]
+    simp only [partial_update]
     exact sup_le_sup (ih₁ c₁ c₂ h) (ih₂ c₁ c₂ h)
   | imply l r ih =>
-    simp only [partial_update_value]
+    simp only [partial_update]
     have h' : c₁ ⊓ LeftExpr.eval M l ≤ c₂ ⊓ LeftExpr.eval M l := inf_le_inf_right _ h
     exact ih (c₁ ⊓ LeftExpr.eval M l) (c₂ ⊓ LeftExpr.eval M l) h'
 
-/-- partial_update_value is monotone in the mapping. -/
-theorem partial_update_value_mono [HeytingAlgebra α] (v : Fin n) (M₁ M₂ : Mapping α n) (c : α) (r : RightExpr α n)
-    (h : M₁ ≤ M₂) : partial_update_value v M₁ c r ≤ partial_update_value v M₂ c r := by
+/-- partial_update is monotone in the mapping. -/
+theorem partial_update_mono [HeytingAlgebra α] (v : Fin n) (M₁ M₂ : Mapping α n) (c : α) (r : RightExpr α n)
+    (h : M₁ ≤ M₂) : partial_update v M₁ c r ≤ partial_update v M₂ c r := by
   induction r generalizing c with
   | var j =>
-    simp only [partial_update_value]
+    simp only [partial_update]
     by_cases hj : v = j
     · simp only [hj, ↓reduceIte]; exact le_refl c
     · simp only [hj, ↓reduceIte]; exact le_refl ⊥
-  | const _ => simp only [partial_update_value]; exact le_refl ⊥
+  | const _ => simp only [partial_update]; exact le_refl ⊥
   | meet r₁ r₂ ih₁ ih₂ =>
-    simp only [partial_update_value]
+    simp only [partial_update]
     exact sup_le_sup (ih₁ c) (ih₂ c)
   | imply l r ih =>
-    simp only [partial_update_value]
+    simp only [partial_update]
     -- LeftExpr.eval is monotone, so LeftExpr.eval M₁ l ≤ LeftExpr.eval M₂ l
     have h_left : LeftExpr.eval M₁ l ≤ LeftExpr.eval M₂ l := LeftExpr.eval_mono l h
     have h_inf : c ⊓ LeftExpr.eval M₁ l ≤ c ⊓ LeftExpr.eval M₂ l := inf_le_inf_left c h_left
-    calc partial_update_value v M₁ (c ⊓ LeftExpr.eval M₁ l) r
-        ≤ partial_update_value v M₂ (c ⊓ LeftExpr.eval M₁ l) r := ih (c ⊓ LeftExpr.eval M₁ l)
-      _ ≤ partial_update_value v M₂ (c ⊓ LeftExpr.eval M₂ l) r :=
-          partial_update_value_mono_c v M₂ _ _ r h_inf
+    calc partial_update v M₁ (c ⊓ LeftExpr.eval M₁ l) r
+        ≤ partial_update v M₂ (c ⊓ LeftExpr.eval M₁ l) r := ih (c ⊓ LeftExpr.eval M₁ l)
+      _ ≤ partial_update v M₂ (c ⊓ LeftExpr.eval M₂ l) r :=
+          partial_update_mono_c v M₂ _ _ r h_inf
 
-/-- partial_update_value distributes over join in the constraint (up to inequality). -/
-theorem partial_update_value_sup_c [HeytingAlgebra α] (v : Fin n) (M : Mapping α n) (c₁ c₂ : α) (r : RightExpr α n) :
-    partial_update_value v M (c₁ ⊔ c₂) r ≤ partial_update_value v M c₁ r ⊔ c₂ := by
+/-- partial_update distributes over join in the constraint (up to inequality). -/
+theorem partial_update_sup_c [HeytingAlgebra α] (v : Fin n) (M : Mapping α n) (c₁ c₂ : α) (r : RightExpr α n) :
+    partial_update v M (c₁ ⊔ c₂) r ≤ partial_update v M c₁ r ⊔ c₂ := by
   induction r generalizing c₁ c₂ with
   | var i =>
-    simp only [partial_update_value]
+    simp only [partial_update]
     by_cases h : v = i
     · simp only [h, ↓reduceIte]
       -- Goal: c₁ ⊔ c₂ ≤ c₁ ⊔ c₂
       exact le_refl _
     · simp only [h, ↓reduceIte]; exact bot_le
   | const _ =>
-    simp only [partial_update_value]; exact bot_le
+    simp only [partial_update]; exact bot_le
   | meet r₁ r₂ ih₁ ih₂ =>
-    simp only [partial_update_value]
-    calc partial_update_value v M (c₁ ⊔ c₂) r₁ ⊔ partial_update_value v M (c₁ ⊔ c₂) r₂
-        ≤ (partial_update_value v M c₁ r₁ ⊔ c₂) ⊔ (partial_update_value v M c₁ r₂ ⊔ c₂) :=
+    simp only [partial_update]
+    calc partial_update v M (c₁ ⊔ c₂) r₁ ⊔ partial_update v M (c₁ ⊔ c₂) r₂
+        ≤ (partial_update v M c₁ r₁ ⊔ c₂) ⊔ (partial_update v M c₁ r₂ ⊔ c₂) :=
             sup_le_sup (ih₁ c₁ c₂) (ih₂ c₁ c₂)
-      _ = (partial_update_value v M c₁ r₁ ⊔ partial_update_value v M c₁ r₂) ⊔ c₂ := by ac_rfl
+      _ = (partial_update v M c₁ r₁ ⊔ partial_update v M c₁ r₂) ⊔ c₂ := by ac_rfl
   | imply l r' ih =>
-    simp only [partial_update_value]
+    simp only [partial_update]
     -- constraint is (c₁ ⊔ c₂) ⊓ eval M l = (c₁ ⊓ eval M l) ⊔ (c₂ ⊓ eval M l)
     have h_eq : (c₁ ⊔ c₂) ⊓ LeftExpr.eval M l = (c₁ ⊓ LeftExpr.eval M l) ⊔ (c₂ ⊓ LeftExpr.eval M l) := by
       let e := LeftExpr.eval M l
@@ -1391,22 +1254,11 @@ theorem partial_update_value_sup_c [HeytingAlgebra α] (v : Fin n) (M : Mapping 
         _ = (e ⊓ c₁) ⊔ (e ⊓ c₂) := inf_sup_left e c₁ c₂
         _ = (c₁ ⊓ e) ⊔ (c₂ ⊓ e) := by rw [inf_comm e c₁, inf_comm e c₂]
     rw [h_eq]
-    calc partial_update_value v M ((c₁ ⊓ LeftExpr.eval M l) ⊔ (c₂ ⊓ LeftExpr.eval M l)) r'
-        ≤ partial_update_value v M (c₁ ⊓ LeftExpr.eval M l) r' ⊔ (c₂ ⊓ LeftExpr.eval M l) :=
+    calc partial_update v M ((c₁ ⊓ LeftExpr.eval M l) ⊔ (c₂ ⊓ LeftExpr.eval M l)) r'
+        ≤ partial_update v M (c₁ ⊓ LeftExpr.eval M l) r' ⊔ (c₂ ⊓ LeftExpr.eval M l) :=
             ih (c₁ ⊓ LeftExpr.eval M l) (c₂ ⊓ LeftExpr.eval M l)
-      _ ≤ partial_update_value v M (c₁ ⊓ LeftExpr.eval M l) r' ⊔ c₂ := by
+      _ ≤ partial_update v M (c₁ ⊓ LeftExpr.eval M l) r' ⊔ c₂ := by
             apply sup_le_sup_left; exact inf_le_left
-
-/-- partial_update is monotone in the mapping. -/
-theorem partial_update_mono [HeytingAlgebra α] (v : Fin n) (M₁ M₂ : Mapping α n) (c : α) (r : RightExpr α n)
-    (h : M₁ ≤ M₂) : partial_update v M₁ c r ≤ partial_update v M₂ c r := by
-  intro j
-  rw [partial_update_get, partial_update_get]
-  by_cases hj : j = v
-  · simp only [hj, ↓reduceIte]
-    exact sup_le_sup (h v) (partial_update_value_mono v M₁ M₂ c r h)
-  · simp only [hj, ↓reduceIte]
-    exact le_refl ⊥
 
 mutual
 /-- eval is monotone in the base mapping. -/
@@ -1438,9 +1290,9 @@ theorem evalRvec_mono [HeytingAlgebra α] (k : Nat) (hk : k ≤ n) (children : R
       · simp only [hactive, ↓reduceIte]
         have h1 : (eval subtree M₁ c r).get ⟨k', by omega⟩ ≤ (eval subtree M₂ c r).get ⟨k', by omega⟩ :=
           h_sub ⟨k', by omega⟩
-        have h2 : partial_update_value ⟨k', by omega⟩ (eval subtree M₁ c r) c r ≤
-                  partial_update_value ⟨k', by omega⟩ (eval subtree M₂ c r) c r :=
-          partial_update_value_mono ⟨k', by omega⟩ (eval subtree M₁ c r) (eval subtree M₂ c r) c r h_sub
+        have h2 : partial_update ⟨k', by omega⟩ (eval subtree M₁ c r) c r ≤
+                  partial_update ⟨k', by omega⟩ (eval subtree M₂ c r) c r :=
+          partial_update_mono ⟨k', by omega⟩ (eval subtree M₁ c r) (eval subtree M₂ c r) c r h_sub
         exact sup_le_sup h1 h2
       · simp only [hactive]
         exact h_sub ⟨k', by omega⟩
@@ -1479,7 +1331,7 @@ theorem M_le_evalRvec [HeytingAlgebra α] (k : Nat) (hk : k ≤ n) (children : R
       · simp only [hactive, ↓reduceIte]
         calc M.get ⟨k', by omega⟩
             ≤ (eval subtree M c r).get ⟨k', by omega⟩ := h_sub ⟨k', by omega⟩
-          _ ≤ (eval subtree M c r).get ⟨k', by omega⟩ ⊔ partial_update_value ⟨k', by omega⟩ (eval subtree M c r) c r := le_sup_left
+          _ ≤ (eval subtree M c r).get ⟨k', by omega⟩ ⊔ partial_update ⟨k', by omega⟩ (eval subtree M c r) c r := le_sup_left
       · simp only [hactive]
         exact h_sub ⟨k', by omega⟩
     · -- i is in restChildren
@@ -1487,32 +1339,13 @@ theorem M_le_evalRvec [HeytingAlgebra α] (k : Nat) (hk : k ≤ n) (children : R
       exact M_le_evalRvec k' (by omega) restChildren M c r ⟨i.val, Nat.lt_of_le_of_ne (Nat.lt_succ_iff.mp i.isLt) hi⟩
 end
 
-/-- Helper: evalRvec on Rvec.ofFn with constant (true, t) entries gives the expected value at each position.
-    With snoc, result position j corresponds to variable j. -/
-theorem evalRvec_ofFn_const_true [HeytingAlgebra α] (k : Nat) (hk : k ≤ n) (t : UpdateTree n)
-    (M : Mapping α n) (c : α) (r : RightExpr α n) (j : Fin k) :
-    (evalRvec k hk (Rvec.ofFn fun _ => (true, t)) M c r).get j =
-    (eval t M c r).get ⟨j.val, Nat.lt_of_lt_of_le j.isLt hk⟩ ⊔
-      partial_update_value ⟨j.val, Nat.lt_of_lt_of_le j.isLt hk⟩ (eval t M c r) c r := by
-  induction k with
-  | zero => exact j.elim0
-  | succ k' ih =>
-    simp only [Rvec.ofFn, evalRvec]
-    unfold Rvec.get
-    by_cases hj : j.val = k'
-    · -- j is the last element
-      simp only [hj, ↓reduceDIte, ↓reduceIte]
-    · -- j is in the rest
-      simp only [hj, ↓reduceDIte]
-      exact ih (by omega) ⟨j.val, Nat.lt_of_le_of_ne (Nat.lt_succ_iff.mp j.isLt) hj⟩
-
 /-- Helper: evalRvec on completeRvec gives the expected value at each position.
     With snoc, result position j corresponds to variable j. -/
 theorem evalRvec_completeRvec [HeytingAlgebra α] (d : Nat) (k : Nat) (hk : k ≤ n)
     (M : Mapping α n) (c : α) (r : RightExpr α n) (j : Fin k) :
     (evalRvec k hk (completeRvec d n k hk) M c r).get j =
     (eval (complete d n) M c r).get ⟨j.val, Nat.lt_of_lt_of_le j.isLt hk⟩ ⊔
-      partial_update_value ⟨j.val, Nat.lt_of_lt_of_le j.isLt hk⟩ (eval (complete d n) M c r) c r := by
+      partial_update ⟨j.val, Nat.lt_of_lt_of_le j.isLt hk⟩ (eval (complete d n) M c r) c r := by
   induction k with
   | zero => exact j.elim0
   | succ k' ih =>
@@ -1539,12 +1372,12 @@ theorem complete_eq_iterate [HeytingAlgebra α] (k : Nat) (M : Mapping α n) (c 
     show (evalRvec n (le_refl n) (completeRvec k' n n (le_refl n)) M c r).toVector.get ⟨i, hi⟩ =
          (update (iterate k' M c r) c r).get ⟨i, hi⟩
     rw [Rvec.toVector_get]
-    -- At position i, evalRvec gives: M'.get i ⊔ partial_update_value i M' c r
+    -- At position i, evalRvec gives: M'.get i ⊔ partial_update i M' c r
     -- where M' = eval (complete k' n) M c r = iterate k' M c r (by IH)
     rw [evalRvec_completeRvec k' n (le_refl n) M c r ⟨i, hi⟩]
-    -- Now we have: (eval (complete k' n) M c r).get ⟨i, hi⟩ ⊔ partial_update_value ⟨i, hi⟩ (eval (complete k' n) M c r) c r
+    -- Now we have: (eval (complete k' n) M c r).get ⟨i, hi⟩ ⊔ partial_update ⟨i, hi⟩ (eval (complete k' n) M c r) c r
     rw [ih]
-    -- Now we have: (iterate k' M c r).get ⟨i, hi⟩ ⊔ partial_update_value ⟨i, hi⟩ (iterate k' M c r) c r
+    -- Now we have: (iterate k' M c r).get ⟨i, hi⟩ ⊔ partial_update ⟨i, hi⟩ (iterate k' M c r) c r
     -- RHS: (update (iterate k' M c r) c r).get ⟨i, hi⟩
     rw [update_get_eq_partial]
 
@@ -1554,61 +1387,34 @@ theorem complete_eval_depth_mono [HeytingAlgebra α] (k₁ k₂ : Nat) (M : Mapp
   rw [complete_eq_iterate, complete_eq_iterate]
   exact iterate_le_of_le M c r h
 
-/-- Key lemma: partial_update_value at a position is bounded by c (the constraint).
-    This follows by structural induction on r. -/
-theorem partial_update_value_le_c [HeytingAlgebra α] (v : Fin n) (M : Mapping α n) (c : α) (r : RightExpr α n) :
-    partial_update_value v M c r ≤ c := by
+/-- Key lemma: partial_update with mapping P ⊔ const d is bounded by
+    partial_update with mapping P, plus d.
+    This captures how constant corrections propagate through partial_update. -/
+theorem partial_update_sup_const [HeytingAlgebra α] (v : Fin n) (P : Mapping α n) (c d : α) (r : RightExpr α n) :
+    partial_update v (P ⊔ Mapping.const α n d) c r ≤ partial_update v P c r ⊔ d := by
   induction r generalizing c with
   | var i =>
-    simp only [partial_update_value]
-    by_cases h : v = i
-    · simp only [h, ↓reduceIte]; exact le_refl c
-    · simp only [h, ↓reduceIte]; exact bot_le
-  | const _ => simp only [partial_update_value]; exact bot_le
-  | meet r₁ r₂ ih₁ ih₂ =>
-    simp only [partial_update_value]
-    exact sup_le (ih₁ c) (ih₂ c)
-  | imply l r' ih =>
-    simp only [partial_update_value]
-    calc partial_update_value v M (c ⊓ LeftExpr.eval M l) r'
-        ≤ c ⊓ LeftExpr.eval M l := ih (c ⊓ LeftExpr.eval M l)
-      _ ≤ c := inf_le_left
-
-/-- Helper lemma: For any E ≤ update M c r, partial_update v applied to E is bounded
-    by partial_update v applied to update M c r, and specifically at position v this gives:
-    (partial_update v E c r).get v ≤ (partial_update v (update M c r) c r).get v -/
-theorem partial_update_le_after_update [HeytingAlgebra α] (v : Fin n) (M E : Mapping α n) (c : α) (r : RightExpr α n)
-    (h : E ≤ update M c r) : partial_update v E c r ≤ partial_update v (update M c r) c r :=
-  partial_update_mono v E (update M c r) c r h
-
-/-- Key lemma: partial_update_value with mapping P ⊔ const d is bounded by
-    partial_update_value with mapping P, plus d.
-    This captures how constant corrections propagate through partial_update_value. -/
-theorem partial_update_value_sup_const [HeytingAlgebra α] (v : Fin n) (P : Mapping α n) (c d : α) (r : RightExpr α n) :
-    partial_update_value v (P ⊔ Mapping.const α n d) c r ≤ partial_update_value v P c r ⊔ d := by
-  induction r generalizing c with
-  | var i =>
-    simp only [partial_update_value]
+    simp only [partial_update]
     by_cases h : v = i
     · simp only [h, ↓reduceIte]; exact le_sup_left
     · simp only [h, ↓reduceIte]; exact bot_le
   | const _ =>
-    simp only [partial_update_value]; exact bot_le
+    simp only [partial_update]; exact bot_le
   | meet r₁ r₂ ih₁ ih₂ =>
-    simp only [partial_update_value]
-    calc partial_update_value v (P ⊔ Mapping.const α n d) c r₁ ⊔
-         partial_update_value v (P ⊔ Mapping.const α n d) c r₂
-        ≤ (partial_update_value v P c r₁ ⊔ d) ⊔ (partial_update_value v P c r₂ ⊔ d) :=
+    simp only [partial_update]
+    calc partial_update v (P ⊔ Mapping.const α n d) c r₁ ⊔
+         partial_update v (P ⊔ Mapping.const α n d) c r₂
+        ≤ (partial_update v P c r₁ ⊔ d) ⊔ (partial_update v P c r₂ ⊔ d) :=
             sup_le_sup (ih₁ c) (ih₂ c)
-      _ = (partial_update_value v P c r₁ ⊔ partial_update_value v P c r₂) ⊔ d := by ac_rfl
+      _ = (partial_update v P c r₁ ⊔ partial_update v P c r₂) ⊔ d := by ac_rfl
   | imply l r' ih =>
-    simp only [partial_update_value]
+    simp only [partial_update]
     -- c' := c ⊓ LeftExpr.eval (P ⊔ const d) l
     -- c'' := c ⊓ LeftExpr.eval P l
-    -- Need: partial_update_value v (P ⊔ const d) c' r' ≤ partial_update_value v P c'' r' ⊔ d
+    -- Need: partial_update v (P ⊔ const d) c' r' ≤ partial_update v P c'' r' ⊔ d
     let c' := c ⊓ LeftExpr.eval (P ⊔ Mapping.const α n d) l
     let c'' := c ⊓ LeftExpr.eval P l
-    -- By IH: partial_update_value v (P ⊔ const d) c' r' ≤ partial_update_value v P c' r' ⊔ d
+    -- By IH: partial_update v (P ⊔ const d) c' r' ≤ partial_update v P c' r' ⊔ d
     have h_ih := ih c'
     -- By eval_sup_le_max: LeftExpr.eval (P ⊔ const d) l ≤ LeftExpr.eval P l ⊔ d
     have h_eval : LeftExpr.eval (P ⊔ Mapping.const α n d) l ≤ LeftExpr.eval P l ⊔ d := by
@@ -1636,107 +1442,46 @@ theorem partial_update_value_sup_const [HeytingAlgebra α] (v : Fin n) (P : Mapp
         _ ≤ c ⊓ (LeftExpr.eval P l ⊔ d) := inf_le_inf_left c h_eval
         _ = (c ⊓ LeftExpr.eval P l) ⊔ (c ⊓ d) := inf_sup_left c (LeftExpr.eval P l) d
         _ = c'' ⊔ (c ⊓ d) := rfl
-    -- By monotonicity in constraint: partial_update_value v P c' r' ≤ partial_update_value v P (c'' ⊔ (c ⊓ d)) r'
-    have h_mono : partial_update_value v P c' r' ≤ partial_update_value v P (c'' ⊔ (c ⊓ d)) r' :=
-      partial_update_value_mono_c v P c' (c'' ⊔ (c ⊓ d)) r' h_c'
-    -- partial_update_value v P (c'' ⊔ (c ⊓ d)) r' ≤ partial_update_value v P c'' r' ⊔ (c ⊓ d)
-    -- This follows from partial_update_value_sup_c
-    have h_dist : partial_update_value v P (c'' ⊔ (c ⊓ d)) r' ≤ partial_update_value v P c'' r' ⊔ (c ⊓ d) :=
-      partial_update_value_sup_c v P c'' (c ⊓ d) r'
-    calc partial_update_value v (P ⊔ Mapping.const α n d) c' r'
-        ≤ partial_update_value v P c' r' ⊔ d := h_ih
-      _ ≤ partial_update_value v P (c'' ⊔ (c ⊓ d)) r' ⊔ d := sup_le_sup_right h_mono d
-      _ ≤ (partial_update_value v P c'' r' ⊔ (c ⊓ d)) ⊔ d := sup_le_sup_right h_dist d
-      _ = partial_update_value v P c'' r' ⊔ d := by
-          calc (partial_update_value v P c'' r' ⊔ (c ⊓ d)) ⊔ d
-              = partial_update_value v P c'' r' ⊔ ((c ⊓ d) ⊔ d) := by ac_rfl
-            _ = partial_update_value v P c'' r' ⊔ d := by
+    -- By monotonicity in constraint: partial_update v P c' r' ≤ partial_update v P (c'' ⊔ (c ⊓ d)) r'
+    have h_mono : partial_update v P c' r' ≤ partial_update v P (c'' ⊔ (c ⊓ d)) r' :=
+      partial_update_mono_c v P c' (c'' ⊔ (c ⊓ d)) r' h_c'
+    -- partial_update v P (c'' ⊔ (c ⊓ d)) r' ≤ partial_update v P c'' r' ⊔ (c ⊓ d)
+    -- This follows from partial_update_sup_c
+    have h_dist : partial_update v P (c'' ⊔ (c ⊓ d)) r' ≤ partial_update v P c'' r' ⊔ (c ⊓ d) :=
+      partial_update_sup_c v P c'' (c ⊓ d) r'
+    calc partial_update v (P ⊔ Mapping.const α n d) c' r'
+        ≤ partial_update v P c' r' ⊔ d := h_ih
+      _ ≤ partial_update v P (c'' ⊔ (c ⊓ d)) r' ⊔ d := sup_le_sup_right h_mono d
+      _ ≤ (partial_update v P c'' r' ⊔ (c ⊓ d)) ⊔ d := sup_le_sup_right h_dist d
+      _ = partial_update v P c'' r' ⊔ d := by
+          calc (partial_update v P c'' r' ⊔ (c ⊓ d)) ⊔ d
+              = partial_update v P c'' r' ⊔ ((c ⊓ d) ⊔ d) := by ac_rfl
+            _ = partial_update v P c'' r' ⊔ d := by
                 have h : (c ⊓ d) ⊔ d = d := sup_of_le_right (inf_le_right (a := c) (b := d))
                 rw [h]
 
-/-- General version: partial_update_value with M ⊔ N is bounded by pv M ⊔ max N.
-    This captures how arbitrary corrections propagate through partial_update_value. -/
-theorem partial_update_value_sup_max [HeytingAlgebra α] (v : Fin n) (M N : Mapping α n) (c : α) (r : RightExpr α n) :
-    partial_update_value v (M ⊔ N) c r ≤ partial_update_value v M c r ⊔ Mapping.max N := by
-  -- This follows from partial_update_value_sup_const with k = Mapping.max N
+/-- General version: partial_update with M ⊔ N is bounded by pu M ⊔ max N.
+    This captures how arbitrary corrections propagate through partial_update. -/
+theorem partial_update_sup_max [HeytingAlgebra α] (v : Fin n) (M N : Mapping α n) (c : α) (r : RightExpr α n) :
+    partial_update v (M ⊔ N) c r ≤ partial_update v M c r ⊔ Mapping.max N := by
+  -- This follows from partial_update_sup_const with k = Mapping.max N
   -- since M ⊔ N ≤ M ⊔ const (max N)
   have h_le : M ⊔ N ≤ M ⊔ Mapping.const α n (Mapping.max N) := by
     intro j
     simp only [Mapping.get_sup, Mapping.get_const]
     exact sup_le_sup_left (Mapping.get_le_max N j) _
-  calc partial_update_value v (M ⊔ N) c r
-      ≤ partial_update_value v (M ⊔ Mapping.const α n (Mapping.max N)) c r :=
-        partial_update_value_mono v (M ⊔ N) (M ⊔ Mapping.const α n (Mapping.max N)) c r h_le
-    _ ≤ partial_update_value v M c r ⊔ Mapping.max N :=
-        partial_update_value_sup_const v M c (Mapping.max N) r
-
-/-- partial_update with mapping M ⊔ const k is bounded by partial_update M ⊔ const k.
-    This follows from partial_update_value_sup_const. -/
-theorem partial_update_sup_const [HeytingAlgebra α] (v : Fin n) (M : Mapping α n) (c k : α) (r : RightExpr α n) :
-    partial_update v (M ⊔ Mapping.const α n k) c r ≤ partial_update v M c r ⊔ Mapping.const α n k := by
-  intro j
-  simp only [partial_update_get, Mapping.get_sup, Mapping.get_const]
-  by_cases hj : j = v
-  · -- Position v: need (M.v ⊔ k) ⊔ pv v (M ⊔ const k) ≤ (M.v ⊔ pv v M) ⊔ k
-    simp only [hj, ↓reduceIte]
-    have h := partial_update_value_sup_const v M c k r
-    calc M.get v ⊔ k ⊔ partial_update_value v (M ⊔ Mapping.const α n k) c r
-        ≤ M.get v ⊔ k ⊔ (partial_update_value v M c r ⊔ k) := sup_le_sup_left h _
-      _ = M.get v ⊔ partial_update_value v M c r ⊔ k := by ac_rfl
-  · -- Position j ≠ v: LHS is ⊥, RHS is ⊥ ⊔ k = k
-    simp only [hj, ↓reduceIte, bot_sup_eq]
-    exact bot_le
-
-/-- Helper: foldl with sup is monotone in accumulator -/
-theorem foldl_sup_mono' [HeytingAlgebra α] (ts : List (UpdateTree n)) (M : Mapping α n) (c : α) (r : RightExpr α n)
-    {acc₁ acc₂ : Mapping α n} (h : acc₁ ≤ acc₂) :
-    ts.foldl (fun acc t' => acc ⊔ eval t' M c r) acc₁ ≤ ts.foldl (fun acc t' => acc ⊔ eval t' M c r) acc₂ := by
-  induction ts generalizing acc₁ acc₂ with
-  | nil => simp only [List.foldl_nil]; exact h
-  | cons t' ts' ih =>
-    simp only [List.foldl_cons]
-    apply ih
-    exact Mapping.sup_le_sup h (fun j => le_refl _)
-
-/-- Helper: accumulator is ≤ foldl result -/
-theorem le_foldl_sup' [HeytingAlgebra α] (ts : List (UpdateTree n)) (M : Mapping α n) (c : α) (r : RightExpr α n)
-    (acc : Mapping α n) : acc ≤ ts.foldl (fun acc t' => acc ⊔ eval t' M c r) acc := by
-  induction ts generalizing acc with
-  | nil => simp only [List.foldl_nil]; intro j; exact le_refl _
-  | cons t' ts' ih =>
-    simp only [List.foldl_cons]
-    have h1 : acc ≤ acc ⊔ eval t' M c r := Mapping.le_sup_left _ _
-    have h2 := ih (acc ⊔ eval t' M c r)
-    exact Mapping.le_trans h1 h2
-
-/-- Helper: foldl with sup is bounded when accumulator and all elements are bounded -/
-theorem foldl_sup_le_bound_aux' [HeytingAlgebra α] (ts : List (UpdateTree n)) (M : Mapping α n) (c : α) (r : RightExpr α n)
-    (B acc : Mapping α n) (h_acc : acc ≤ B)
-    (h_all : ∀ t' ∈ ts, eval t' M c r ≤ B) :
-    ts.foldl (fun acc t' => acc ⊔ eval t' M c r) acc ≤ B := by
-  induction ts generalizing acc with
-  | nil => simp only [List.foldl_nil]; exact h_acc
-  | cons t ts' ih =>
-    simp only [List.foldl_cons]
-    have h_t : eval t M c r ≤ B := h_all t List.mem_cons_self
-    have h_ts' : ∀ t' ∈ ts', eval t' M c r ≤ B := fun t' h => h_all t' (List.mem_cons_of_mem t h)
-    have h_new_acc : acc ⊔ eval t M c r ≤ B := Mapping.sup_le h_acc h_t
-    exact ih (acc ⊔ eval t M c r) h_new_acc h_ts'
-
-/-- Helper: if all elements are bounded by B then foldl sup starting from ⊥ is bounded by B. -/
-theorem foldl_sup_le_bound' [HeytingAlgebra α] (ts : List (UpdateTree n)) (M : Mapping α n) (c : α) (r : RightExpr α n)
-    (B : Mapping α n) (h_all : ∀ t' ∈ ts, eval t' M c r ≤ B) :
-    ts.foldl (fun acc t' => acc ⊔ eval t' M c r) (Mapping.const α n ⊥) ≤ B := by
-  apply foldl_sup_le_bound_aux'
-  · exact Mapping.const_bot_le B
-  · exact h_all
+  calc partial_update v (M ⊔ N) c r
+      ≤ partial_update v (M ⊔ Mapping.const α n (Mapping.max N)) c r :=
+        partial_update_mono v (M ⊔ N) (M ⊔ Mapping.const α n (Mapping.max N)) c r h_le
+    _ ≤ partial_update v M c r ⊔ Mapping.max N :=
+        partial_update_sup_const v M c (Mapping.max N) r
 
 /-! ### Auxiliary Lemmas for pruned_eval_ge
 
 The key insight is that pruning can only deactivate nodes (changing active→inactive),
 which can only decrease the result at each position. However, the correction term
 accounts for this: the variables in `seen` have already contributed their maximum
-effect, which is bounded by `partial_update_value`.
+effect, which is bounded by `partial_update`.
 
 Key lemma used: `eval_sup_le_max` bounds how much an increase in a child's mapping
 can affect the parent's mapping. This bound can be absorbed by the correction term
@@ -1784,10 +1529,10 @@ theorem prunedRvec_eval_depth_mono [HeytingAlgebra α] (d : Nat) (n : Nat) (k : 
         exact pruned_aux_eval_depth_mono d seen M c r ⟨k', by omega⟩
       · -- v ∉ seen: child is (true, pruned_aux d n (seen ∪ {v})), active = true
         simp only [hv, ↓reduceIte]
-        -- LHS: (eval (pruned_aux d n (seen ∪ {v})) M c r).get v ⊔ pv_v(...)
-        -- RHS: (eval (pruned_aux (d+1) n (seen ∪ {v})) M c r).get v ⊔ pv_v(...)
+        -- LHS: (eval (pruned_aux d n (seen ∪ {v})) M c r).get v ⊔ pu_v(...)
+        -- RHS: (eval (pruned_aux (d+1) n (seen ∪ {v})) M c r).get v ⊔ pu_v(...)
         have h := pruned_aux_eval_depth_mono d (seen ∪ {⟨k', by omega⟩}) M c r
-        exact sup_le_sup (h ⟨k', by omega⟩) (partial_update_value_mono ⟨k', by omega⟩ _ _ c r h)
+        exact sup_le_sup (h ⟨k', by omega⟩) (partial_update_mono ⟨k', by omega⟩ _ _ c r h)
     · -- i is in rest
       simp only [hi, ↓reduceDIte]
       exact prunedRvec_eval_depth_mono d n k' (by omega) seen M c r ⟨i.val, Nat.lt_of_le_of_ne (Nat.lt_succ_iff.mp i.isLt) hi⟩
@@ -1832,7 +1577,7 @@ theorem prunedRvec_eval_seen_mono [HeytingAlgebra α] (d : Nat) (n : Nat) (k : N
         · -- v ∉ S₂: S₁ inactive, S₂ active
           simp only [hv₂, ↓reduceIte]
           -- LHS: (eval (pruned_aux d n S₁)).get v
-          -- RHS: (eval (pruned_aux d n (S₂ ∪ {v}))).get v ⊔ pv_v(...)
+          -- RHS: (eval (pruned_aux d n (S₂ ∪ {v}))).get v ⊔ pu_v(...)
           have h_S₁_sub : S₂ ∪ {⟨k', by omega⟩} ⊆ S₁ := by
             intro x hx
             simp only [Finset.mem_union, Finset.mem_singleton] at hx
@@ -1843,14 +1588,14 @@ theorem prunedRvec_eval_seen_mono [HeytingAlgebra α] (d : Nat) (n : Nat) (k : N
               ≤ (eval (pruned_aux d n (S₂ ∪ {⟨k', by omega⟩})) M c r).get ⟨k', by omega⟩ :=
                 pruned_aux_eval_seen_mono d S₁ (S₂ ∪ {⟨k', by omega⟩}) h_S₁_sub M c r ⟨k', by omega⟩
             _ ≤ (eval (pruned_aux d n (S₂ ∪ {⟨k', by omega⟩})) M c r).get ⟨k', by omega⟩ ⊔
-                partial_update_value ⟨k', by omega⟩ (eval (pruned_aux d n (S₂ ∪ {⟨k', by omega⟩})) M c r) c r := le_sup_left
+                partial_update ⟨k', by omega⟩ (eval (pruned_aux d n (S₂ ∪ {⟨k', by omega⟩})) M c r) c r := le_sup_left
       · -- v ∉ S₁, so also v ∉ S₂ (since S₂ ⊆ S₁)
         have hv₂ : (⟨k', by omega⟩ : Fin n) ∉ S₂ := fun h => hv₁ (h_sub h)
         simp only [hv₁, hv₂, ↓reduceIte]
         -- Both active with sets S₁ ∪ {v} and S₂ ∪ {v}
         have h_sub' : S₂ ∪ {v} ⊆ S₁ ∪ {v} := Finset.union_subset_union h_sub (Finset.Subset.refl {v})
         have h := pruned_aux_eval_seen_mono d (S₁ ∪ {v}) (S₂ ∪ {v}) h_sub' M c r
-        exact sup_le_sup (h v) (partial_update_value_mono v _ _ c r h)
+        exact sup_le_sup (h v) (partial_update_mono v _ _ c r h)
     · -- i is in rest
       simp only [hi, ↓reduceDIte]
       exact prunedRvec_eval_seen_mono d n k' (by omega) S₁ S₂ h_sub M c r ⟨i.val, Nat.lt_of_le_of_ne (Nat.lt_succ_iff.mp i.isLt) hi⟩
@@ -1864,7 +1609,7 @@ theorem pruned_aux_eval_ge [HeytingAlgebra α] (d : Nat) (seen : Finset (Fin n))
     (M : Mapping α n) (c : α) (r : RightExpr α n) :
     eval (complete d n) M c r ≤ eval (pruned_aux d n seen) M c r ⊔
       seen.sup (fun v => Mapping.const α n
-        (partial_update_value v (eval (pruned_aux d n seen) M c r) c r)) := by
+        (partial_update v (eval (pruned_aux d n seen) M c r) c r)) := by
   match d with
   | 0 =>
     simp only [complete, pruned_aux, eval]
@@ -1888,7 +1633,7 @@ theorem prunedRvec_eval_ge [HeytingAlgebra α] (d : Nat) (n : Nat) (k : Nat) (hk
     (seen : Finset (Fin n)) (M : Mapping α n) (c : α) (r : RightExpr α n) (i : Fin k) :
     (evalRvec k hk (completeRvec d n k hk) M c r).get i ≤
       (evalRvec k hk (prunedRvec d n k hk seen) M c r).get i ⊔
-      seen.sup (fun v => partial_update_value v (eval (pruned_aux (d + 1) n seen) M c r) c r) := by
+      seen.sup (fun v => partial_update v (eval (pruned_aux (d + 1) n seen) M c r) c r) := by
   match k with
   | 0 => exact i.elim0
   | k' + 1 =>
@@ -1901,119 +1646,119 @@ theorem prunedRvec_eval_ge [HeytingAlgebra α] (d : Nat) (n : Nat) (k : Nat) (hk
       let E := eval (complete d n) M c r  -- complete tree eval
       let P := eval (pruned_aux d n seen) M c r  -- pruned tree eval at depth d
       let P' := eval (pruned_aux (d + 1) n seen) M c r  -- pruned tree eval at depth d+1
-      let correction := seen.sup (fun u => partial_update_value u P' c r)
+      let correction := seen.sup (fun u => partial_update u P' c r)
       have hn : 0 < n := by omega
-      -- LHS: E.get v ⊔ pv_v(E)
+      -- LHS: E.get v ⊔ pu_v(E)
       -- RHS depends on whether v ∈ seen
       by_cases hv : v ∈ seen
       · -- v ∈ seen: child is (false, pruned_aux d n seen), active = false
         -- RHS: P.get v ⊔ correction
         simp only [↓reduceIte]
-        -- From IH: E ≤ P ⊔ seen.sup (fun u => Mapping.const (pv_u(P)))
+        -- From IH: E ≤ P ⊔ seen.sup (fun u => Mapping.const (pu_u(P)))
         have ih := pruned_aux_eval_ge d seen M c r
         -- For E.get v:
-        have h_E_v : E.get v ≤ P.get v ⊔ seen.sup (fun u => partial_update_value u P c r) := by
+        have h_E_v : E.get v ≤ P.get v ⊔ seen.sup (fun u => partial_update u P c r) := by
           have := ih v
           simp only [Mapping.get_sup, Mapping.sup_const_eq_const_sup, Mapping.get_const] at this
           exact this
-        -- For pv_v(E): Use partial_update_value_sup_max
-        have h_pv_E : partial_update_value v E c r ≤
-            partial_update_value v P c r ⊔ seen.sup (fun u => partial_update_value u P c r) := by
-          have h_E_le : E ≤ P ⊔ seen.sup (fun u => Mapping.const α n (partial_update_value u P c r)) := ih
-          calc partial_update_value v E c r
-              ≤ partial_update_value v (P ⊔ seen.sup (fun u => Mapping.const α n (partial_update_value u P c r))) c r :=
-                partial_update_value_mono v E _ c r h_E_le
-            _ ≤ partial_update_value v P c r ⊔ Mapping.max (seen.sup (fun u => Mapping.const α n (partial_update_value u P c r))) :=
-                partial_update_value_sup_max v P _ c r
-            _ ≤ partial_update_value v P c r ⊔ seen.sup (fun u => partial_update_value u P c r) :=
+        -- For pu_v(E): Use partial_update_sup_max
+        have h_pu_E : partial_update v E c r ≤
+            partial_update v P c r ⊔ seen.sup (fun u => partial_update u P c r) := by
+          have h_E_le : E ≤ P ⊔ seen.sup (fun u => Mapping.const α n (partial_update u P c r)) := ih
+          calc partial_update v E c r
+              ≤ partial_update v (P ⊔ seen.sup (fun u => Mapping.const α n (partial_update u P c r))) c r :=
+                partial_update_mono v E _ c r h_E_le
+            _ ≤ partial_update v P c r ⊔ Mapping.max (seen.sup (fun u => Mapping.const α n (partial_update u P c r))) :=
+                partial_update_sup_max v P _ c r
+            _ ≤ partial_update v P c r ⊔ seen.sup (fun u => partial_update u P c r) :=
                 sup_le_sup_left (Mapping.max_finset_sup_const_le hn seen _) _
-        -- Combine E.get v ⊔ pv_v(E)
-        have h_combined : E.get v ⊔ partial_update_value v E c r ≤
-            P.get v ⊔ seen.sup (fun u => partial_update_value u P c r) := by
-          have h1 : partial_update_value v P c r ≤ seen.sup (fun u => partial_update_value u P c r) :=
-            Finset.le_sup (f := fun u => partial_update_value u P c r) hv
-          calc E.get v ⊔ partial_update_value v E c r
-              ≤ (P.get v ⊔ seen.sup (fun u => partial_update_value u P c r)) ⊔
-                (partial_update_value v P c r ⊔ seen.sup (fun u => partial_update_value u P c r)) :=
-                  sup_le_sup h_E_v h_pv_E
-            _ = P.get v ⊔ partial_update_value v P c r ⊔ seen.sup (fun u => partial_update_value u P c r) := by ac_rfl
-            _ ≤ P.get v ⊔ seen.sup (fun u => partial_update_value u P c r) ⊔ seen.sup (fun u => partial_update_value u P c r) :=
+        -- Combine E.get v ⊔ pu_v(E)
+        have h_combined : E.get v ⊔ partial_update v E c r ≤
+            P.get v ⊔ seen.sup (fun u => partial_update u P c r) := by
+          have h1 : partial_update v P c r ≤ seen.sup (fun u => partial_update u P c r) :=
+            Finset.le_sup (f := fun u => partial_update u P c r) hv
+          calc E.get v ⊔ partial_update v E c r
+              ≤ (P.get v ⊔ seen.sup (fun u => partial_update u P c r)) ⊔
+                (partial_update v P c r ⊔ seen.sup (fun u => partial_update u P c r)) :=
+                  sup_le_sup h_E_v h_pu_E
+            _ = P.get v ⊔ partial_update v P c r ⊔ seen.sup (fun u => partial_update u P c r) := by ac_rfl
+            _ ≤ P.get v ⊔ seen.sup (fun u => partial_update u P c r) ⊔ seen.sup (fun u => partial_update u P c r) :=
                 sup_le_sup_right (sup_le_sup_left h1 _) _
-            _ = P.get v ⊔ seen.sup (fun u => partial_update_value u P c r) := by
+            _ = P.get v ⊔ seen.sup (fun u => partial_update u P c r) := by
                 rw [sup_assoc, sup_idem]
         -- Now relate P to P' using depth monotonicity
         have h_depth : P ≤ P' := pruned_aux_eval_depth_mono d seen M c r
-        have h_pv_mono : ∀ b ∈ seen, partial_update_value b P c r ≤ partial_update_value b P' c r :=
-          fun u _ => partial_update_value_mono u P P' c r h_depth
+        have h_pu_mono : ∀ b ∈ seen, partial_update b P c r ≤ partial_update b P' c r :=
+          fun u _ => partial_update_mono u P P' c r h_depth
         -- First show the RHS simplifies to P.get v ⊔ correction
         have h_rhs : (if (if v ∈ seen then (false, pruned_aux d n seen) else (true, pruned_aux d n (seen ∪ {v}))).1 = true
             then (eval (if v ∈ seen then (false, pruned_aux d n seen) else (true, pruned_aux d n (seen ∪ {v}))).2 M c r).get ⟨k', by omega⟩ ⊔
-                 partial_update_value ⟨k', by omega⟩ (eval (if v ∈ seen then (false, pruned_aux d n seen) else (true, pruned_aux d n (seen ∪ {v}))).2 M c r) c r
+                 partial_update ⟨k', by omega⟩ (eval (if v ∈ seen then (false, pruned_aux d n seen) else (true, pruned_aux d n (seen ∪ {v}))).2 M c r) c r
             else (eval (if v ∈ seen then (false, pruned_aux d n seen) else (true, pruned_aux d n (seen ∪ {v}))).2 M c r).get ⟨k', by omega⟩) ⊔ correction
             = P.get v ⊔ correction := by simp only [hv, ↓reduceIte, Bool.false_eq_true]; rfl
         rw [h_rhs]
-        calc E.get v ⊔ partial_update_value v E c r
-            ≤ P.get v ⊔ seen.sup (fun u => partial_update_value u P c r) := h_combined
-          _ ≤ P.get v ⊔ seen.sup (fun u => partial_update_value u P' c r) :=
-              sup_le_sup_left (Finset.sup_mono_fun h_pv_mono) _
+        calc E.get v ⊔ partial_update v E c r
+            ≤ P.get v ⊔ seen.sup (fun u => partial_update u P c r) := h_combined
+          _ ≤ P.get v ⊔ seen.sup (fun u => partial_update u P' c r) :=
+              sup_le_sup_left (Finset.sup_mono_fun h_pu_mono) _
           _ ≤ P.get v ⊔ correction := le_refl _
       · -- v ∉ seen: child is (true, pruned_aux d n (seen ∪ {v})), active = true
-        -- RHS: Q.get v ⊔ pv_v(Q) ⊔ correction where Q = eval (pruned_aux d n (seen ∪ {v}))
+        -- RHS: Q.get v ⊔ pu_v(Q) ⊔ correction where Q = eval (pruned_aux d n (seen ∪ {v}))
         simp only [↓reduceIte]
         let Q := eval (pruned_aux d n (seen ∪ {v})) M c r
-        -- From IH: E ≤ Q ⊔ (seen ∪ {v}).sup (fun u => Mapping.const (pv_u(Q)))
+        -- From IH: E ≤ Q ⊔ (seen ∪ {v}).sup (fun u => Mapping.const (pu_u(Q)))
         have ih := pruned_aux_eval_ge d (seen ∪ {v}) M c r
         -- Similar to above but for Q instead of P
-        have h_E_v : E.get v ≤ Q.get v ⊔ (seen ∪ {v}).sup (fun u => partial_update_value u Q c r) := by
+        have h_E_v : E.get v ≤ Q.get v ⊔ (seen ∪ {v}).sup (fun u => partial_update u Q c r) := by
           have := ih v
           simp only [Mapping.get_sup, Mapping.sup_const_eq_const_sup, Mapping.get_const] at this
           exact this
-        have h_pv_E : partial_update_value v E c r ≤
-            partial_update_value v Q c r ⊔ (seen ∪ {v}).sup (fun u => partial_update_value u Q c r) := by
-          have h_E_le : E ≤ Q ⊔ (seen ∪ {v}).sup (fun u => Mapping.const α n (partial_update_value u Q c r)) := ih
-          calc partial_update_value v E c r
-              ≤ partial_update_value v (Q ⊔ (seen ∪ {v}).sup (fun u => Mapping.const α n (partial_update_value u Q c r))) c r :=
-                partial_update_value_mono v E _ c r h_E_le
-            _ ≤ partial_update_value v Q c r ⊔ Mapping.max ((seen ∪ {v}).sup (fun u => Mapping.const α n (partial_update_value u Q c r))) :=
-                partial_update_value_sup_max v Q _ c r
-            _ ≤ partial_update_value v Q c r ⊔ (seen ∪ {v}).sup (fun u => partial_update_value u Q c r) :=
+        have h_pu_E : partial_update v E c r ≤
+            partial_update v Q c r ⊔ (seen ∪ {v}).sup (fun u => partial_update u Q c r) := by
+          have h_E_le : E ≤ Q ⊔ (seen ∪ {v}).sup (fun u => Mapping.const α n (partial_update u Q c r)) := ih
+          calc partial_update v E c r
+              ≤ partial_update v (Q ⊔ (seen ∪ {v}).sup (fun u => Mapping.const α n (partial_update u Q c r))) c r :=
+                partial_update_mono v E _ c r h_E_le
+            _ ≤ partial_update v Q c r ⊔ Mapping.max ((seen ∪ {v}).sup (fun u => Mapping.const α n (partial_update u Q c r))) :=
+                partial_update_sup_max v Q _ c r
+            _ ≤ partial_update v Q c r ⊔ (seen ∪ {v}).sup (fun u => partial_update u Q c r) :=
                 sup_le_sup_left (Mapping.max_finset_sup_const_le hn (seen ∪ {v}) _) _
-        -- Expand (seen ∪ {v}).sup = seen.sup ⊔ pv_v(Q)
-        have h_expand : (seen ∪ {v}).sup (fun u => partial_update_value u Q c r) =
-            seen.sup (fun u => partial_update_value u Q c r) ⊔ partial_update_value v Q c r := by
+        -- Expand (seen ∪ {v}).sup = seen.sup ⊔ pu_v(Q)
+        have h_expand : (seen ∪ {v}).sup (fun u => partial_update u Q c r) =
+            seen.sup (fun u => partial_update u Q c r) ⊔ partial_update v Q c r := by
           rw [Finset.sup_union, Finset.sup_singleton]
         -- Combine and simplify
-        have h_combined : E.get v ⊔ partial_update_value v E c r ≤
-            Q.get v ⊔ partial_update_value v Q c r ⊔ seen.sup (fun u => partial_update_value u Q c r) := by
-          calc E.get v ⊔ partial_update_value v E c r
-              ≤ (Q.get v ⊔ (seen ∪ {v}).sup (fun u => partial_update_value u Q c r)) ⊔
-                (partial_update_value v Q c r ⊔ (seen ∪ {v}).sup (fun u => partial_update_value u Q c r)) :=
-                  sup_le_sup h_E_v h_pv_E
-            _ = Q.get v ⊔ (seen ∪ {v}).sup (fun u => partial_update_value u Q c r) ⊔ partial_update_value v Q c r := by ac_rfl
-            _ = Q.get v ⊔ (seen.sup (fun u => partial_update_value u Q c r) ⊔ partial_update_value v Q c r) ⊔
-                partial_update_value v Q c r := by rw [h_expand]
-            _ = Q.get v ⊔ partial_update_value v Q c r ⊔ seen.sup (fun u => partial_update_value u Q c r) := by ac_rfl
-        -- Now need: seen.sup (fun u => pv_u(Q)) ≤ correction = seen.sup (fun u => pv_u(P'))
+        have h_combined : E.get v ⊔ partial_update v E c r ≤
+            Q.get v ⊔ partial_update v Q c r ⊔ seen.sup (fun u => partial_update u Q c r) := by
+          calc E.get v ⊔ partial_update v E c r
+              ≤ (Q.get v ⊔ (seen ∪ {v}).sup (fun u => partial_update u Q c r)) ⊔
+                (partial_update v Q c r ⊔ (seen ∪ {v}).sup (fun u => partial_update u Q c r)) :=
+                  sup_le_sup h_E_v h_pu_E
+            _ = Q.get v ⊔ (seen ∪ {v}).sup (fun u => partial_update u Q c r) ⊔ partial_update v Q c r := by ac_rfl
+            _ = Q.get v ⊔ (seen.sup (fun u => partial_update u Q c r) ⊔ partial_update v Q c r) ⊔
+                partial_update v Q c r := by rw [h_expand]
+            _ = Q.get v ⊔ partial_update v Q c r ⊔ seen.sup (fun u => partial_update u Q c r) := by ac_rfl
+        -- Now need: seen.sup (fun u => pu_u(Q)) ≤ correction = seen.sup (fun u => pu_u(P'))
         -- This requires Q ≤ P', which needs seen monotonicity + depth monotonicity
         -- Q = eval (pruned_aux d n (seen ∪ {v})) ≤ eval (pruned_aux d n seen) ≤ eval (pruned_aux (d+1) n seen) = P'
         have h_seen_sub : seen ⊆ seen ∪ {v} := Finset.subset_union_left
         have h_Q_le_P : Q ≤ P := pruned_aux_eval_seen_mono d (seen ∪ {v}) seen h_seen_sub M c r
         have h_P_le_P' : P ≤ P' := pruned_aux_eval_depth_mono d seen M c r
         have h_Q_le_P' : Q ≤ P' := Mapping.le_trans h_Q_le_P h_P_le_P'
-        have h_pv_mono : ∀ b ∈ seen, partial_update_value b Q c r ≤ partial_update_value b P' c r :=
-          fun u _ => partial_update_value_mono u Q P' c r h_Q_le_P'
+        have h_pu_mono : ∀ b ∈ seen, partial_update b Q c r ≤ partial_update b P' c r :=
+          fun u _ => partial_update_mono u Q P' c r h_Q_le_P'
         -- First show RHS simplifies
         have h_rhs : (if (if v ∈ seen then (false, pruned_aux d n seen) else (true, pruned_aux d n (seen ∪ {v}))).1 = true
             then (eval (if v ∈ seen then (false, pruned_aux d n seen) else (true, pruned_aux d n (seen ∪ {v}))).2 M c r).get ⟨k', by omega⟩ ⊔
-                 partial_update_value ⟨k', by omega⟩ (eval (if v ∈ seen then (false, pruned_aux d n seen) else (true, pruned_aux d n (seen ∪ {v}))).2 M c r) c r
+                 partial_update ⟨k', by omega⟩ (eval (if v ∈ seen then (false, pruned_aux d n seen) else (true, pruned_aux d n (seen ∪ {v}))).2 M c r) c r
             else (eval (if v ∈ seen then (false, pruned_aux d n seen) else (true, pruned_aux d n (seen ∪ {v}))).2 M c r).get ⟨k', by omega⟩) ⊔ correction
-            = Q.get v ⊔ partial_update_value v Q c r ⊔ correction := by simp only [hv, ↓reduceIte]; rfl
+            = Q.get v ⊔ partial_update v Q c r ⊔ correction := by simp only [hv, ↓reduceIte]; rfl
         rw [h_rhs]
-        calc E.get v ⊔ partial_update_value v E c r
-            ≤ Q.get v ⊔ partial_update_value v Q c r ⊔ seen.sup (fun u => partial_update_value u Q c r) := h_combined
-          _ ≤ Q.get v ⊔ partial_update_value v Q c r ⊔ seen.sup (fun u => partial_update_value u P' c r) :=
-              sup_le_sup_left (Finset.sup_mono_fun h_pv_mono) _
-          _ = Q.get v ⊔ partial_update_value v Q c r ⊔ correction := rfl
+        calc E.get v ⊔ partial_update v E c r
+            ≤ Q.get v ⊔ partial_update v Q c r ⊔ seen.sup (fun u => partial_update u Q c r) := h_combined
+          _ ≤ Q.get v ⊔ partial_update v Q c r ⊔ seen.sup (fun u => partial_update u P' c r) :=
+              sup_le_sup_left (Finset.sup_mono_fun h_pu_mono) _
+          _ = Q.get v ⊔ partial_update v Q c r ⊔ correction := rfl
     · -- Position i ≠ k', in rest of Rvec
       -- evalRvec at k'+1 produces .snoc, and get at i≠k' returns from the init part
       simp only [prunedRvec, completeRvec, evalRvec, Rvec.get_snoc_ne hi]
@@ -2128,7 +1873,7 @@ theorem complete_maximal_rvec [HeytingAlgebra α] (k : Nat) (hk : k ≤ n) (chil
       -- By IH on subtree: eval subtree ≤ eval (complete (depth subtree) n)
       have ih := complete_maximal subtree M c r
       by_cases hactive : active
-      · -- Active child: contributes M'.get k' ⊔ pv_k'(M') where M' = eval subtree
+      · -- Active child: contributes M'.get k' ⊔ pu_k'(M') where M' = eval subtree
         simp only [hactive, ↓reduceIte]
         -- d = max (1 + depth subtree) (depthRvec restChildren)
         -- depth subtree ≤ d - 1 since d ≥ 1 + depth subtree
@@ -2142,18 +1887,18 @@ theorem complete_maximal_rvec [HeytingAlgebra α] (k : Nat) (hk : k ≤ n) (chil
         have h2 : (eval subtree M c r).get ⟨k', by omega⟩ ≤
                   (eval (complete (max (1 + depth subtree) (depthRvec restChildren) - 1) n) M c r).get ⟨k', by omega⟩ :=
           h1 ⟨k', by omega⟩
-        have h3 : partial_update_value ⟨k', by omega⟩ (eval subtree M c r) c r ≤
-                  partial_update_value ⟨k', by omega⟩ (eval (complete (max (1 + depth subtree) (depthRvec restChildren) - 1) n) M c r) c r :=
-          partial_update_value_mono _ _ _ c r h1
-        have h_bound : (eval subtree M c r).get ⟨k', by omega⟩ ⊔ partial_update_value ⟨k', by omega⟩ (eval subtree M c r) c r ≤
+        have h3 : partial_update ⟨k', by omega⟩ (eval subtree M c r) c r ≤
+                  partial_update ⟨k', by omega⟩ (eval (complete (max (1 + depth subtree) (depthRvec restChildren) - 1) n) M c r) c r :=
+          partial_update_mono _ _ _ c r h1
+        have h_bound : (eval subtree M c r).get ⟨k', by omega⟩ ⊔ partial_update ⟨k', by omega⟩ (eval subtree M c r) c r ≤
                        (eval (complete (max (1 + depth subtree) (depthRvec restChildren) - 1) n) M c r).get ⟨k', by omega⟩ ⊔
-                       partial_update_value ⟨k', by omega⟩ (eval (complete (max (1 + depth subtree) (depthRvec restChildren) - 1) n) M c r) c r :=
+                       partial_update ⟨k', by omega⟩ (eval (complete (max (1 + depth subtree) (depthRvec restChildren) - 1) n) M c r) c r :=
           sup_le_sup h2 h3
-        -- The complete tree at position k' gives M'.get k' ⊔ pv_k'(M') where M' = eval (complete (d-1) n) M c r
+        -- The complete tree at position k' gives M'.get k' ⊔ pu_k'(M') where M' = eval (complete (d-1) n) M c r
         -- And this equals (eval (complete d n) M c r).get k'
         have h_complete : (eval (complete (max (1 + depth subtree) (depthRvec restChildren)) n) M c r).get ⟨k', by omega⟩ =
             (eval (complete (max (1 + depth subtree) (depthRvec restChildren) - 1) n) M c r).get ⟨k', by omega⟩ ⊔
-            partial_update_value ⟨k', by omega⟩ (eval (complete (max (1 + depth subtree) (depthRvec restChildren) - 1) n) M c r) c r := by
+            partial_update ⟨k', by omega⟩ (eval (complete (max (1 + depth subtree) (depthRvec restChildren) - 1) n) M c r) c r := by
           -- max (1 + depth subtree) (depthRvec restChildren) ≥ 1
           have h_pos : max (1 + depth subtree) (depthRvec restChildren) ≥ 1 := by
             have : 1 + depth subtree ≥ 1 := by omega
@@ -2421,8 +2166,10 @@ Phase 2 of the algorithm: solve for a single element e such that:
     When evaluated with x = e, this is equivalent to evaluating the original
     left expression with environment (S ⊓ Mapping.const α n e). -/
 structure LeftCanonical (α : Type u) where
-  joinConst : α  -- constant to join with variable
-  meetConst : α  -- constant to meet with result
+  /-- constant to join with variable -/
+  joinConst : α
+  /-- constant to meet with result -/
+  meetConst : α
 
 namespace LeftCanonical
 
@@ -2633,8 +2380,9 @@ theorem solveSingleVar_complete [HeytingAlgebra α] [DecidableRel (· ≤ · : �
     -- This contradicts h_e_not_le_meet
     exact h_e_not_le_meet h_e_le_meet
 
-/-- The complete solving algorithm combining both phases. -/
-def solve [HeytingAlgebra α] [DecidableRel (· ≤ · : α → α → Prop)]
+/-- Attempts to find a counterexample to the equation r ≤ l.
+    Returns Some env if a counterexample exists, None if the equation is valid. -/
+def find_counterexample [HeytingAlgebra α] [DecidableRel (· ≤ · : α → α → Prop)]
     [DecidableRel (· ≤ · : Mapping α n → Mapping α n → Prop)]
     (eq : Equation α n) : Option (Mapping α n) :=
   let S := RightExpr.hornSolve ⊤ eq.right
@@ -2642,15 +2390,23 @@ def solve [HeytingAlgebra α] [DecidableRel (· ≤ · : α → α → Prop)]
   | none => none
   | some e => some (S ⊓ Mapping.const α n e)
 
+/-- Decides whether the equation r ≤ l is valid.
+    Returns true if valid, false if a counterexample exists. -/
+def decide [HeytingAlgebra α] [DecidableRel (· ≤ · : α → α → Prop)]
+    [DecidableRel (· ≤ · : Mapping α n → Mapping α n → Prop)]
+    (eq : Equation α n) : Bool :=
+  (find_counterexample eq).isNone
+
 /-! ## Correctness Proofs -/
 
-/-- If solve returns a solution, it satisfies the equation. -/
-theorem solve_sound [HeytingAlgebra α] [DecidableRel (· ≤ · : α → α → Prop)]
+/-- If find_counterexample returns an environment, that environment is a counterexample
+    where r ≰ l. -/
+theorem find_counterexample_sound [HeytingAlgebra α] [DecidableRel (· ≤ · : α → α → Prop)]
     [DecidableRel (· ≤ · : Mapping α n → Mapping α n → Prop)]
     (eq : Equation α n) (env : Mapping α n) :
-    solve eq = some env → satisfied env eq := by
+    find_counterexample eq = some env → not_satisfied env eq := by
   intro h
-  unfold solve at h
+  unfold find_counterexample at h
   simp only at h
   let S := RightExpr.hornSolve ⊤ eq.right
   cases he : solveSingleVar S eq.right eq.left with
@@ -2661,15 +2417,14 @@ theorem solve_sound [HeytingAlgebra α] [DecidableRel (· ≤ · : α → α →
     rw [he] at h
     simp at h
     cases h
-    unfold satisfied
+    unfold not_satisfied
     have hsv : satisfiesSingleVar S eq.right eq.left e := solveSingleVar_sound S eq.right eq.left e he
     unfold satisfiesSingleVar at hsv
     obtain ⟨hr, hl⟩ := hsv
     intro hcontra
-    -- We have: S(r) ≥ e and RightExpr.eval (S ⊓ Mapping.const α n e) eq.right ≥ LeftExpr.eval (S ⊓ Mapping.const α n e) eq.left
-    -- Need to show contradiction with: ¬(e ≤ LeftExpr.eval (S ⊓ Mapping.const α n e) eq.left)
+    -- We have: S(r) ≥ e and ¬(e ≤ LeftExpr.eval (S ⊓ Mapping.const α n e) eq.left)
+    -- Need to show contradiction with hcontra: r ≤ l
     -- By eval_meet_const_of_ge: since S(r) ≥ e, we have (S ⊓ const e)(r) ≥ e
-    -- We use c := e, so we need S(r) ≥ e ⊓ e = e, which we have from hr
     have h_right_ge : RightExpr.eval (S ⊓ Mapping.const α n e) eq.right ≥ e := by
       have : RightExpr.eval S eq.right ≥ e ⊓ e := by rw [inf_idem]; exact hr
       have := RightExpr.eval_meet_const_of_ge eq.right S e e this
@@ -2681,13 +2436,13 @@ theorem solve_sound [HeytingAlgebra α] [DecidableRel (· ≤ · : α → α →
     -- This contradicts hl
     exact hl h_e_le_left
 
-/-- If the equation is solvable, solve finds a solution. -/
-theorem solve_complete [HeytingAlgebra α] [DecidableRel (· ≤ · : α → α → Prop)]
+/-- If the equation is not valid (has a counterexample), find_counterexample finds one. -/
+theorem find_counterexample_complete [HeytingAlgebra α] [DecidableRel (· ≤ · : α → α → Prop)]
     [DecidableRel (· ≤ · : Mapping α n → Mapping α n → Prop)]
     (eq : Equation α n) :
-    solvable eq → solve eq ≠ none := by
+    not_valid eq → find_counterexample eq ≠ none := by
   intro ⟨env, hsat⟩
-  unfold solve
+  unfold find_counterexample
   simp only
   let S := RightExpr.hornSolve ⊤ eq.right
   by_contra h
@@ -2699,7 +2454,7 @@ theorem solve_complete [HeytingAlgebra α] [DecidableRel (· ≤ · : α → α 
     rw [he] at h
     apply solveSingleVar_complete S eq.right eq.left at he
     apply he
-    unfold satisfied at hsat
+    unfold not_satisfied at hsat
     let e := RightExpr.eval env eq.right
     use e
     unfold satisfiesSingleVar
@@ -2730,16 +2485,24 @@ theorem solve_complete [HeytingAlgebra α] [DecidableRel (· ≤ · : α → α 
             -- By monotonicity of left expressions
             exact LeftExpr.eval_mono eq.left hmin
 
-/-- Main correctness theorem: solve succeeds iff the equation is solvable. -/
-theorem solve_correct [HeytingAlgebra α] [DecidableRel (· ≤ · : α → α → Prop)]
+/-- Main correctness theorem: decide returns true iff the equation is valid. -/
+theorem decide_correct [HeytingAlgebra α] [DecidableRel (· ≤ · : α → α → Prop)]
     [DecidableRel (· ≤ · : Mapping α n → Mapping α n → Prop)]
     (eq : Equation α n) :
-    (solve eq ≠ none) ↔ solvable eq := by
+    decide eq = true ↔ valid eq := by
+  unfold decide
+  simp only [Option.isNone_iff_eq_none]
   constructor
-  · intro h
+  · intro h env
+    by_contra hsat
+    have : not_valid eq := ⟨env, hsat⟩
+    have := find_counterexample_complete eq this
+    contradiction
+  · intro hvalid
+    by_contra h
     obtain ⟨env, heq⟩ := Option.ne_none_iff_exists.mp h
-    have : solve eq = some env := heq.symm
-    exact ⟨env, solve_sound eq env this⟩
-  · exact solve_complete eq
+    have : find_counterexample eq = some env := heq.symm
+    have hsat := find_counterexample_sound eq env this
+    exact hsat (hvalid env)
 
 end Equation
