@@ -1,14 +1,10 @@
-name = "horn-modes2"
+name = "modality-inference"
 version = "0.1.0"
-defaultTargets = ["horn-modes2"]
+defaultTargets = ["ModalityInference"]
 
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
 
 [[lean_lib]]
-name = "HornModes2"
-
-[[lean_exe]]
-name = "horn-modes2"
-root = "Main"
+name = "ModalityInference"

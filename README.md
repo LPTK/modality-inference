@@ -1,1 +1,1 @@
-# horn-modes2
+# modality-inference
