@@ -1,5 +1,6 @@
 import ModalityInference.Proofs.Structural
 import ModalityInference.Proofs.Evaluation
+import ModalityInference.Proofs.Interpretation
 
 namespace ModalityInference.Deferred
 /-- DEFERRED. Prerequisites: ground realization commutes with substitution;
@@ -51,15 +52,19 @@ theorem ownership_bound {Δ Γ t a ρ w γ ground supplies v}
     (hs : w.Compatible supplies γ) (he : Eval supplies γ t v) :
     ∀ l, Owns ρ v ground l → EnvironmentOwns ρ γ Γ l ∨ supplies.FreshLocation l := by sorry
 
-/-- DEFERRED. Prerequisites: structural ground interpretation induction. -/
+/-- Proved by structural induction on the concrete interpretation. -/
 theorem global_references {ρ w t v}
     (hv : ValueInterpretation ρ w t Mode.identity v) (hg : t.mode.isLocal = false) :
-    ∀ l, References v l → HeapLocation l := by sorry
-/-- DEFERRED. Prerequisites: type-indexed support induction and the many-closure clause. -/
+    ∀ l, References v l → HeapLocation l :=
+  hv.global_references (by simpa [Mode.compose, Mode.identity] using hg)
+/-- Proved by type-indexed support induction, including the many-closure clause. -/
 theorem shared_support {ρ w t v}
     (hv : ValueInterpretation ρ w t Mode.identity v)
     (hm : t.mode.once = false) (ha : t.mode.unique = false) :
-    ∀ l, ¬ Owns ρ v t l := by sorry
+    ∀ l, ¬ Owns ρ v t l := by
+  simpa only [GroundTy.modal_identity] using hv.shared_support
+    (by simpa [Mode.compose, Mode.identity] using hm)
+    (by simpa [Mode.compose, Mode.identity] using ha)
 
 /-- Proved by structural fuel induction; no typing hypotheses. -/
 theorem evalFuel_monotone {n supplies γ t v}
