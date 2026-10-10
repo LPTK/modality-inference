@@ -5,7 +5,8 @@ Modalities in OxCaml*, including the POPL response's **closed-RHS restriction on
 polymorphic `def`**. It contains independent declarative judgments, concrete
 semantic definitions, executable algorithms, and constructor-based examples.
 
-**Proof status:** the original generic modality solver is proved. Full-system
+**Proof status:** the original generic modality solver and the evaluator's
+soundness, completeness, determinism, and fuel stability are proved. Full-system
 metatheory is deferred: its theorem statements use isolated `sorry`s under
 `ModalityInference/Proofs/`. Neither the public library nor the executables nor the
 original solver import those files. An executable acceptance report is data,
@@ -154,7 +155,8 @@ All paths below are relative to `ModalityInference/`.
 | §5 future/past projection and `Fin n` normalization | `ModeBackend` | Executable bridge to established solver |
 | §5 generic concrete modality solver | `Subsumption` | **Existing proved correctness and stabilization, unchanged** |
 | Core programs and regressions | `Examples`, `Regression` | Executed during validation/CI |
-| Structural, semantic and algorithmic metatheory | `Proofs/Structural`, `Proofs/Soundness`, `Proofs/Algorithms` | Explicit admitted obligations |
+| Evaluator metatheory | `Proofs/Evaluation` | Proved soundness, completeness, determinism and fuel stability; no admissions |
+| Remaining structural, semantic and algorithmic metatheory | `Proofs/Structural`, `Proofs/Soundness`, `Proofs/Algorithms` | Explicit admitted obligations |
 
 ```text
 Core/Mode → Core/Syntax → Core/Scoping
@@ -210,7 +212,7 @@ They exercise every term constructor and both sum branches.
 
 ## Deferred proof work and prerequisites
 
-Each of the 37 deferred theorems has a prerequisite comment immediately above it.
+Each of the 34 remaining deferred theorems has a prerequisite comment immediately above it.
 These are obligations to prove and, if counterexamples arise, refine; the
 prototype and stated theorems are not advertised as a verified full system.
 

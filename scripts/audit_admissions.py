@@ -51,10 +51,13 @@ constants = [
     'ModalityInference.infer', 'ModalityInference.solve',
     'ModalityInference.checkSubsumption', 'ModalityInference.evalFuel',
     'ModalityInference.Typing', 'ModalityInference.ValueInterpretation',
+    'ModalityInference.evalFuel_sound', 'ModalityInference.Eval.fuel_complete',
+    'ModalityInference.Eval.deterministic', 'ModalityInference.evalFuel_stable',
+    'ModalityInference.evalFuel_monotone', 'ModalityInference.Eval.no_rejection',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
-    path.write_text('import ModalityInference\n' + '\n'.join(
+    path.write_text('import ModalityInference\nimport ModalityInference.Proofs.Evaluation\n' + '\n'.join(
         f'#print axioms {name}' for name in constants) + '\n')
     result = subprocess.run(['lake', 'env', 'lean', str(path)], cwd=ROOT,
                             text=True, capture_output=True, check=True)

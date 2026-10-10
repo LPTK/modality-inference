@@ -1,4 +1,5 @@
 import ModalityInference.Proofs.Structural
+import ModalityInference.Proofs.Evaluation
 
 namespace ModalityInference.Deferred
 /-- DEFERRED. Prerequisites: ground realization commutes with substitution;
@@ -17,13 +18,14 @@ theorem semantic_soundness {Δ Γ t a ρ w γ ground}
     (hγ : EnvironmentInterpretation ρ w Γ γ) (ha : a.realize ρ = some ground) :
     SemanticEvaluation ρ w Γ γ t ground := by sorry
 
-/-- DEFERRED. Prerequisites: induction on the fuelled evaluator. No typing needed. -/
+/-- Proved by induction on the fuelled evaluator. No typing needed. -/
 theorem evalFuel_sound {fuel supplies γ t v}
-    (h : evalFuel fuel supplies γ t = .success v) : Eval supplies γ t v := by sorry
+    (h : evalFuel fuel supplies γ t = .success v) : Eval supplies γ t v :=
+  ModalityInference.evalFuel_sound h
 
-/-- DEFERRED. Prerequisites: induction on `Eval`, monotonicity in fuel. -/
+/-- Proved by induction on `Eval`, with an explicit sufficient fuel bound. -/
 theorem evalFuel_complete {supplies γ t v} (h : Eval supplies γ t v) :
-    ∃ n, ∀ fuel ≥ n, evalFuel fuel supplies γ t = .success v := by sorry
+    ∃ n, ∀ fuel ≥ n, evalFuel fuel supplies γ t = .success v := h.fuel_complete
 
 /-- DEFERRED. Prerequisites: semantic soundness and both evaluator correspondences.
 An arbitrary small fuel budget is explicitly allowed to exhaust. -/
@@ -59,8 +61,8 @@ theorem shared_support {ρ w t v}
     (hm : t.mode.once = false) (ha : t.mode.unique = false) :
     ∀ l, ¬ Owns ρ v t l := by sorry
 
-/-- DEFERRED. Prerequisites: structural fuel induction; no typing hypotheses. -/
+/-- Proved by structural fuel induction; no typing hypotheses. -/
 theorem evalFuel_monotone {n supplies γ t v}
     (h : evalFuel n supplies γ t = .success v) :
-    ∀ fuel ≥ n, evalFuel fuel supplies γ t = .success v := by sorry
+    ∀ fuel ≥ n, evalFuel fuel supplies γ t = .success v := ModalityInference.evalFuel_monotone h
 end ModalityInference.Deferred
