@@ -2,6 +2,7 @@ import ModalityInference.Core.Scoping
 import ModalityInference.Inference
 import ModalityInference.Generation
 import ModalityInference.Semantics
+import ModalityInference.Proofs.Erasure
 
 /-! DEFERRED: these statements are a proof worklist, not established results.
 Nothing outside `Proofs` imports this module. See README for prerequisites. -/
@@ -53,8 +54,8 @@ theorem locking_semantics {ρ w Γ Γ' γ Δ m}
     EnvironmentInterpretation ρ w Γ' γ ∧
       ∀ l, EnvironmentOwns ρ γ Γ' l → EnvironmentOwns ρ γ Γ l := by sorry
 
-/-- Prerequisites: annotations do not select captures; syntax FVs do. -/
+/-- Proved independently by induction on evaluation; capture selection uses syntax FVs. -/
 theorem annotation_erasure {s γ δ t u v}
     (hγ : List.Forall₂ ValueErasure γ δ) (ht : t.erase = u.erase)
-    (h : Eval s γ t v) : ∃ w, Eval s δ u w ∧ ValueErasure v w := by sorry
+    (h : Eval s γ t v) : ∃ w, Eval s δ u w ∧ ValueErasure v w := h.annotation_erasure hγ ht
 end ModalityInference.Deferred

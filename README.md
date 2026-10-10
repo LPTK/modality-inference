@@ -8,7 +8,8 @@ semantic definitions, executable algorithms, and constructor-based examples.
 **Proof status:** the original generic modality solver and the evaluator's
 soundness, completeness, determinism, and fuel stability are proved. The semantic
 interpretation's global-reference and empty shared-support properties are also
-proved, including nested fields and polymorphic closure captures. Full-system
+proved, including nested fields and polymorphic closure captures. Annotation
+erasure preserves evaluation and the runtime structure of results. Full-system
 metatheory is deferred: its theorem statements use isolated `sorry`s under
 `ModalityInference/Proofs/`. Neither the public library nor the executables nor the
 original solver import those files. An executable acceptance report is data,
@@ -159,6 +160,7 @@ All paths below are relative to `ModalityInference/`.
 | Core programs and regressions | `Examples`, `Regression` | Executed during validation/CI |
 | Evaluator metatheory | `Proofs/Evaluation` | Proved soundness, completeness, determinism and fuel stability; no admissions |
 | Interpretation properties | `Proofs/Interpretation` | Proved global references and empty shared ownership; no admissions |
+| Annotation erasure | `Proofs/Erasure` | Proved for all evaluation rules and capture trimming; no admissions |
 | Remaining structural, semantic and algorithmic metatheory | `Proofs/Structural`, `Proofs/Soundness`, `Proofs/Algorithms` | Explicit admitted obligations |
 
 ```text
@@ -215,13 +217,13 @@ They exercise every term constructor and both sum branches.
 
 ## Deferred proof work and prerequisites
 
-Each of the 32 remaining deferred theorems has a prerequisite comment immediately above it.
+Each of the 31 remaining deferred theorems has a prerequisite comment immediately above it.
 These are obligations to prove and, if counterexamples arise, refine; the
 prototype and stated theorems are not advertised as a verified full system.
 
 | Proof module | Obligations | Prerequisites/dependencies |
 | --- | --- | --- |
-| `Structural` | Type substitution composition, scoped term substitution, subtyping substitution, weakening, closed term substitution, context splitting, lazy lock lookup, semantic context joins/locks, annotation erasure | De Bruijn lifting, freshening and alpha-renaming, scheme instantiation, type-indexed support and semantic subtyping |
+| `Structural` | Type substitution composition, scoped term substitution, subtyping substitution, weakening, closed term substitution, context splitting, lazy lock lookup, semantic context joins/locks | De Bruijn lifting, freshening and alpha-renaming, scheme instantiation, type-indexed support and semantic subtyping |
 | `Soundness` | Semantic subtyping/support monotonicity, semantic soundness, termination/no-stuck, live results, ownership bound | Structural lemmas, fresh supply partitioning, region liveness, closure interpretation and closed-definition generalization |
 | `Algorithms` | Local rewrite equivalence, solution preservation, scheduled termination, worklist correspondence, solve soundness/consistency/completeness, principal factorization, generation correspondence/soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, backend reduction, scheme-subsumption soundness/completeness | Guarded residual adjunctions, substitution invariants, freshness, representative-search completeness, rigid entailment, Boolean projection/CNF correctness, modal witness reconstruction, established `Equation.decide_correct` |
 
