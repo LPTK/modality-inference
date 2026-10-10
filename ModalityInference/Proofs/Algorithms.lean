@@ -12,11 +12,20 @@ subtyping decomposition and closure orientation. This is a local equivalence. -/
 theorem rewrite_sound {cs ds ρ} (h : ConstraintReduction cs ds) :
     GroundModels ρ cs ↔ GroundModels ρ ds := by sorry
 
+/-- Ground solutions are observed on an explicit original domain, modulo
+mutual ground subtyping; fresh auxiliary variables are existentially hidden. -/
+def ConfigModels (scope : Scope) (s : RewriteConfig) (ρ : GroundAssignment) : Prop :=
+  ∃ η : GroundAssignment, GroundModels η s.constraints ∧
+    (∀ v ∈ scope.types, ∃ t, (s.substitution.type v).realize η = some t ∧
+      Subtype [] t.reify (ρ.types v).reify ∧ Subtype [] (ρ.types v).reify t.reify) ∧
+    (∀ v ∈ scope.modes, (s.substitution.mode v).eval (some ∘ η.modes) = some (ρ.modes v))
+
 /-- DEFERRED. Prerequisites: substitution bookkeeping, fresh shape expansion,
-local rewrite equivalence. Fresh variables are existentially extended. -/
-theorem rewrite_solution_preservation {s t} (h : Rewrites s t) :
-    (∃ Δ σ, BoundsSatisfiable Δ ∧ Solution s.constraints Δ σ) ↔
-      (∃ Δ σ, BoundsSatisfiable Δ ∧ Solution t.constraints Δ σ) := by sorry
+local rewrite equivalence. This preserves every solution on the original domain,
+not merely the existence of some solution. -/
+theorem rewrite_solution_preservation {s t scope} (h : Rewrites s t)
+    (ht : scope.types ⊆ s.typeVars) (hm : scope.modes ⊆ s.modVars) :
+    ∀ ρ, ConfigModels scope s ρ ↔ ConfigModels scope t ρ := by sorry
 
 /-- DEFERRED. Prerequisites: fixed identifier orientation, duplicate suppression,
 occurs checks, finite propagation. No polynomial complexity claim is made. -/
@@ -26,7 +35,9 @@ theorem rewrite_termination (s : SolverState) :
 /-- DEFERRED. Prerequisites: each worklist transition is simulated by abstract
 rewriting (including normalization and justified duplicate discharge). -/
 theorem runSolver_correspondence {fuel s t}
-    (hσ : s.substitution = {}) (hΔ : s.bounds = [])
+    (hft : ∀ v ∈ (s.pending ++ s.bounds).typeVariables, v.index < s.nextType)
+    (hfm : ∀ v ∈ (s.pending ++ s.bounds).modeVariables, v.index < s.nextMode)
+    (hσ : s.substitution = {}) (hΔ : s.bounds = []) (hseen : s.seen = [])
     (h : runSolver fuel s = .success t) :
     RewriteStar ⟨s.pending, s.bounds, s.substitution⟩
       ⟨t.pending, t.bounds, t.substitution⟩ := by sorry
@@ -85,6 +96,14 @@ theorem closed_definition_generalization {rhs a cs residual σ}
     ∀ θ, Instantiates (Scheme.generalize residual (σ.ty a)) θ →
       EntailsAll [] (θ.bounds residual) → RawTyping [] [] rhs (θ.ty (σ.ty a)) := by sorry
 
+/-- DEFERRED. Prerequisites: generation soundness, solver soundness, fresh scheme
+instantiation and substitution of typed capture annotations. This checks the actual
+elaborated term, not just the existence of some typing annotation. -/
+theorem inference_sound {fuel Γ t result scope}
+    (hΓ : Context.Scoped scope Γ) (h : infer fuel Γ t = .success result) :
+    result.elaborated.erase = t ∧
+      Typing result.residual (Γ.subst result.substitution) result.elaborated result.scheme.body := by sorry
+
 /-- DEFERRED. Prerequisites: freshness invariants, solver completeness and generator
 correspondence. Fuel is not part of the declarative typing relation. -/
 theorem inference_complete {t a} (h : RawTyping [] [] t a) :
@@ -101,6 +120,9 @@ theorem backend_reduction {fuel e report}
 modal witness reconstruction after Boolean existential elimination, backend reduction.
 The returned evidence is data until this theorem is proved. -/
 theorem scheme_subsumption_sound {fuel source target evidence}
+    (hs : source.typeParams.Nodup ∧ source.modParams.Nodup)
+    (ht : target.typeParams.Nodup ∧ target.modParams.Nodup)
+    (hb : Residual target.bounds)
     (h : checkSubsumption fuel source target = .success evidence) :
     Subsumes [] source target := by sorry
 
@@ -108,6 +130,9 @@ theorem scheme_subsumption_sound {fuel source target evidence}
 representatives and projections, freshening/skolemization of body-only variables,
 normalization/search termination. -/
 theorem scheme_subsumption_complete {source target}
+    (hs : source.typeParams.Nodup ∧ source.modParams.Nodup)
+    (ht : target.typeParams.Nodup ∧ target.modParams.Nodup)
+    (hb : Residual target.bounds)
     (h : Subsumes [] source target) :
     ∃ n, ∀ fuel ≥ n, ∃ evidence,
       checkSubsumption fuel source target = .success evidence := by sorry

@@ -198,11 +198,50 @@ def solverStep (s : SolverState) : RunResult SolverState := do
                         substitution := s.substitution.extendType n t
                         trace := .substitute :: s.trace }
 
-def runSolver : Nat → SolverState → RunResult SolverState
+/-- Subtyping preserves finite constructor shape. This separate unification check
+catches indirect cycles (α ≤ β, β ≤ α → unit) before shallow expansion can keep
+creating fresh variables. Its temporary variable identifications are *not* used
+as the principal type substitution: modality-bearing bounds remain independent. -/
+def TypeExpr.eraseModes : Ty → Ty
+  | .var v => .var v
+  | .unit => .unit
+  | .credit => .credit
+  | .prod a b => .prod a.eraseModes b.eraseModes
+  | .sum a b => .sum a.eraseModes b.eraseModes
+  | .fn a b => .fn a.eraseModes b.eraseModes
+  | .modal a _ => a.eraseModes
+
+def checkShapePairs : Nat → List (Ty × Ty) → RunResult Unit
+  | 0, _ => .exhausted
+  | _+1, [] => .success ()
+  | fuel+1, (a,b)::rest =>
+    if a == b then checkShapePairs fuel rest
+    else match a,b with
+    | .var v,t | t,.var v =>
+      if t.typeVariables.contains v then .rejected "occurs check failed through type-bound cycle"
+      else
+        let replace := fun w => if w == v then t else TypeExpr.var w
+        checkShapePairs fuel (rest.map fun (x,y) =>
+          (x.subst replace ModExpr.var, y.subst replace ModExpr.var))
+    | .prod a b,.prod c d | .sum a b,.sum c d | .fn a b,.fn c d =>
+      checkShapePairs fuel ((a,c)::(b,d)::rest)
+    | _,_ => .rejected "incompatible finite type shapes"
+
+def checkShapes (fuel : Nat) (cs : Bounds) : RunResult Unit :=
+  checkShapePairs fuel (cs.filterMap fun c => match c with
+    | .sub a b | .equiv a b => some (a.eraseModes,b.eraseModes)
+    | .equal v t => some (.var v,t.eraseModes)
+    | _ => none)
+
+def runWorklist : Nat → SolverState → RunResult SolverState
   | 0, _ => .exhausted
   | fuel + 1, s => if s.pending.isEmpty then .success s else do
       let next ← solverStep s
-      runSolver fuel next
+      runWorklist fuel next
+
+def runSolver (fuel : Nat) (s : SolverState) : RunResult SolverState := do
+  checkShapes fuel (s.pending ++ s.bounds)
+  runWorklist fuel s
 
 structure Solved where
   substitution : Substitution

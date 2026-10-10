@@ -187,4 +187,12 @@ def queries : List BoolExpr :=
 #guard ((ConcreteBackend.atomFin [7,100,42] 100).map Fin.val) = some 1
 #guard (ConcreteBackend.atomFin [7,100,42] 9).isNone
 
+-- Indirect cycles must reject rather than expand an unbounded sequence of shapes.
+#guard rejected (solve 500 [.sub (.var (.flex 0)) (.var (.flex 1)),
+  .sub (.var (.flex 1)) (.fn (.var (.flex 0)) .unit)])
+#guard Mode.all.all fun a => Mode.all.all fun b =>
+  match solve 500 [.mode (.const a) x, .mode x (.const b)] with
+  | .success _ => Mode.le a b
+  | .rejected _ => !Mode.le a b
+  | .exhausted => false
 end ModalityInference.Regression

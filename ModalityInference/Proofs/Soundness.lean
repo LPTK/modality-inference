@@ -53,4 +53,14 @@ theorem ownership_bound {Δ Γ t a ρ w γ ground supplies v}
 theorem global_references {ρ w t v}
     (hv : ValueInterpretation ρ w t Mode.identity v) (hg : t.mode.isLocal = false) :
     ∀ l, References v l → HeapLocation l := by sorry
+/-- DEFERRED. Prerequisites: type-indexed support induction and the many-closure clause. -/
+theorem shared_support {ρ w t v}
+    (hv : ValueInterpretation ρ w t Mode.identity v)
+    (hm : t.mode.once = false) (ha : t.mode.unique = false) :
+    ∀ l, ¬ Owns ρ v t l := by sorry
+
+/-- DEFERRED. Prerequisites: structural fuel induction; no typing hypotheses. -/
+theorem evalFuel_monotone {n supplies γ t v}
+    (h : evalFuel n supplies γ t = .success v) :
+    ∀ fuel ≥ n, evalFuel fuel supplies γ t = .success v := by sorry
 end ModalityInference.Deferred
