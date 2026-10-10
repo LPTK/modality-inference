@@ -140,7 +140,7 @@ structure Report where
 
 def decideFormula (fuel : Nat) (e : BoolExpr) : RunResult Report := do
   let cs ← toCNF fuel true e
-  let atoms := e.atoms
+  let atoms := e.atoms.mergeSort (· ≤ ·)
   let mut valid := true
   for c in cs do
     match equation atoms c with

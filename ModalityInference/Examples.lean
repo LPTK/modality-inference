@@ -22,14 +22,21 @@ def duplicateCredit : RawTerm := .split heapPair
   (.pair (.reuse (.var 0) .unit .unit) (.reuse (.var 0) .unit .unit))
 def initialSupplies : Supplies := {}
 
-#eval (infer 2000 [] heapPair).isSuccess
-#eval (infer 2000 [] identity).isSuccess
-#eval (infer 2000 [] stackScoped).isSuccess
-#eval (infer 2000 [] stackEscape).isSuccess
-#eval (infer 5000 [] polyIdentity).isSuccess
-#eval (infer 2000 [] branchUsage).isSuccess
-#eval (infer 2000 [] inconsistentUnused).isSuccess
-#eval (infer 2000 [] nonClosedDef).isSuccess
-#eval (infer 4000 [] duplicateCredit).isSuccess
+def rejected {α : Type} : RunResult α → Bool
+  | .rejected _ => true
+  | _ => false
+def exhausted {α : Type} : RunResult α → Bool
+  | .exhausted => true
+  | _ => false
+
+#guard (infer 2000 [] heapPair).isSuccess
+#guard (infer 2000 [] identity).isSuccess
+#guard (infer 2000 [] stackScoped).isSuccess
+#guard rejected (infer 2000 [] stackEscape)
+#guard (infer 5000 [] polyIdentity).isSuccess
+#guard (infer 2000 [] branchUsage).isSuccess
+#guard rejected (infer 2000 [] inconsistentUnused)
+#guard rejected (infer 2000 [] nonClosedDef)
+#guard rejected (infer 4000 [] duplicateCredit)
 
 end ModalityInference.Examples

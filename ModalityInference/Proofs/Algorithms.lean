@@ -23,6 +23,14 @@ occurs checks, finite propagation. No polynomial complexity claim is made. -/
 theorem rewrite_termination (s : SolverState) :
     ∃ n, ∀ fuel ≥ n, runSolver fuel s ≠ .exhausted := by sorry
 
+/-- DEFERRED. Prerequisites: each worklist transition is simulated by abstract
+rewriting (including normalization and justified duplicate discharge). -/
+theorem runSolver_correspondence {fuel s t}
+    (hσ : s.substitution = {}) (hΔ : s.bounds = [])
+    (h : runSolver fuel s = .success t) :
+    RewriteStar ⟨s.pending, s.bounds, s.substitution⟩
+      ⟨t.pending, t.bounds, t.substitution⟩ := by sorry
+
 /-- DEFERRED. Prerequisites: executable normalization simulates relational rewrites,
 finite mode consistency checking, acyclic substitution composition. -/
 theorem solve_sound {fuel cs result} (h : solve fuel cs = .success result) :

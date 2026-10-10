@@ -12,3 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: leanprover/lean-action@v1
+      - name: Build executable regressions and deferred theorem statements
+        run: lake build ModalityInference.Regression ModalityInference.Proofs
+      - name: Audit admission isolation
+        run: python3 scripts/audit_admissions.py

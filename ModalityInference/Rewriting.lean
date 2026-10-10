@@ -24,6 +24,11 @@ def FreshFor (old fresh : Ty) (s : RewriteConfig) : Prop :=
   (∀ v ∈ fresh.modVars, v ∉ old.modVars ∪ s.constraints.modVars)
 
 inductive Rewrites : RewriteConfig → RewriteConfig → Prop where
+  | equivalence {cs ds : Bounds} {s : RewriteConfig} :
+      (∀ Δ, EntailsAll Δ cs ↔ EntailsAll Δ ds) →
+      Rewrites {s with pending := cs ++ s.pending} {s with pending := ds ++ s.pending}
+  | discharge {c : Constraint} {s : RewriteConfig} : Entails s.bounds c →
+      Rewrites {s with pending := c :: s.pending} s
   | reduce {cs ds : Bounds} {s : RewriteConfig} : ConstraintReduction cs ds →
       Rewrites {s with pending := cs ++ s.pending} {s with pending := ds ++ s.pending}
   | record {c : Constraint} {s : RewriteConfig} : c ∉ s.bounds →

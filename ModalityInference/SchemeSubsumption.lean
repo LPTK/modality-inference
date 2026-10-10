@@ -170,9 +170,9 @@ def checkSubsumption (fuel : Nat) (inferred declared : Scheme) : RunResult Subsu
     pending := cs ++ [.sub source target]
     nextType := ft + inferred.typeParams.length
     nextMode := fm + inferred.modParams.length}
-  let flex := s.bounds.typeVariables.filterMap fun v => match v with
+  let flex := (s.bounds.typeVariables.filterMap fun v => match v with
     | .flex n => if n >= ft then some n else none
-    | _ => none
+    | _ => none).mergeSort (· ≤ ·)
   let rigids := (assumptions.typeVariables ++ target.typeVariables ++ s.bounds.typeVariables).dedup.filter
     fun v => match v with | .rigid _ => true | .flex n => n < ft
   checkCandidates fuel fm assumptions rigids fuel [⟨s,flex⟩] false

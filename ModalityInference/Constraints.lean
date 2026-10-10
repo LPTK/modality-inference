@@ -112,7 +112,8 @@ def stepMode (s : SolverState) (a b : ModExpr) : RunResult SolverState := do
   | .leftResidual x y, _ =>
     if ModExpr.minimumLE x.minVar y.minVar && ModExpr.minimumLE x.minVar b.minVar then
       return s.emit .sub1 (guard ++ [.mode x (.compose y b)])
-    else if ModExpr.minimumLE y.minVar b.minVar && y.minVar != x.minVar then
+    else if ModExpr.minimumLE y.minVar x.minVar && y.minVar != x.minVar &&
+        ModExpr.minimumLE y.minVar b.minVar then
       return s.emit .sub2 (guard ++ [.mode (.leftResidual x b) y])
     else return s.retain .projection (.mode a b)
   | _, .rightResidual x y =>
@@ -126,7 +127,8 @@ def stepMode (s : SolverState) (a b : ModExpr) : RunResult SolverState := do
   | .compose x y, _ =>
     if ModExpr.minimumLE x.minVar y.minVar && ModExpr.minimumLE x.minVar b.minVar then
       return s.emit .left1 (guard ++ [.mode x (.rightResidual y b)])
-    else if ModExpr.minimumLE y.minVar b.minVar then
+    else if ModExpr.minimumLE y.minVar x.minVar && y.minVar != x.minVar &&
+        ModExpr.minimumLE y.minVar b.minVar then
       return s.emit .left2 (guard ++ [.mode y (.rightResidual x b)])
     else return s.retain .projection (.mode a b)
   | _, .compose x y =>
