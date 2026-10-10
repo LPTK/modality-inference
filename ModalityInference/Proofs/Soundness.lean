@@ -1,16 +1,18 @@
 import ModalityInference.Proofs.Structural
 import ModalityInference.Proofs.Evaluation
 import ModalityInference.Proofs.Interpretation
+import ModalityInference.Proofs.Subtyping
 
 namespace ModalityInference.Deferred
-/-- DEFERRED. Prerequisites: ground realization commutes with substitution;
-induction on subtyping, field-sensitive support and closure interpretation. -/
+/-- Proved independently by subtyping induction, preserving field-sensitive
+support, symbolic bounds and partial-modality definedness. -/
 theorem semantic_subtyping {ρ w Δ a b x y v}
     (hΔ : GroundModels ρ Δ) (h : Subtype Δ a b)
     (ha : a.realize ρ = some x) (hb : b.realize ρ = some y)
     (hv : ValueInterpretation ρ w x Mode.identity v) :
     ValueInterpretation ρ w y Mode.identity v ∧
-      ∀ l, Owns ρ v y l → Owns ρ v x l := by sorry
+      ∀ l, Owns ρ v y l → Owns ρ v x l := by
+  simpa only [GroundTy.modal_identity] using h.semantic hΔ ha hb hv
 
 /-- REFUTED for the current symbolic capture interpretation; see the admission-free
 `PolymorphicCapture.no_unrestricted_soundness`. Retain the target as a proposition,

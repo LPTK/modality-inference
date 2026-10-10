@@ -9,7 +9,9 @@ semantic definitions, executable algorithms, and constructor-based examples.
 soundness, completeness, determinism, and fuel stability are proved. The semantic
 interpretation's global-reference and empty shared-support properties are also
 proved, including nested fields and polymorphic closure captures. Annotation
-erasure preserves evaluation and the runtime structure of results. Full-system
+erasure preserves evaluation and the runtime structure of results. Every
+declarative subtyping rule preserves the interpretation and decreases ownership,
+with symbolic bounds and partial-modality definedness accounted for. Full-system
 metatheory is deferred: its theorem statements use isolated `sorry`s under
 `ModalityInference/Proofs/`. Neither the public library nor the executables nor the
 original solver import those files. An executable acceptance report is data,
@@ -170,6 +172,7 @@ All paths below are relative to `ModalityInference/`.
 | Core programs and regressions | `Examples`, `Regression` | Executed during validation/CI |
 | Evaluator metatheory | `Proofs/Evaluation` | Proved soundness, completeness, determinism and fuel stability; no admissions |
 | Interpretation properties | `Proofs/Interpretation` | Proved global references and empty shared ownership; no admissions |
+| Semantic subtyping | `Proofs/Mode`, `Proofs/Subtyping` | Proved all declarative subtyping rules preserve interpretation, decrease ownership, and preserve definedness under modeled bounds; no admissions |
 | Annotation erasure | `Proofs/Erasure` | Proved for all evaluation rules and capture trimming; no admissions |
 | Recursive annotation transport | `Annotations`, `Proofs/Annotations` | Executable value substitution; proved evaluation, erasure, reference and freshness preservation |
 | Simultaneous substitution | `Proofs/Substitution` | Proved composition for types and modality expressions, including overlapping substitution tables; no admissions |
@@ -233,7 +236,7 @@ They exercise every term constructor and both sum branches.
 
 ## Deferred proof work and prerequisites
 
-Each of the 25 remaining deferred theorems has a prerequisite comment immediately above it.
+Each of the 24 remaining deferred theorems has a prerequisite comment immediately above it.
 The fundamental semantic soundness claim is separately recorded as a proposition:
 its current formulation is refuted, so it cannot responsibly remain an admitted theorem.
 These are obligations to prove and, if counterexamples arise, refine; the
@@ -255,7 +258,7 @@ assignment. This is a checked repair witness, not a proof of the full system.
 | Proof module | Obligations | Prerequisites/dependencies |
 | --- | --- | --- |
 | `Structural` | Subtyping substitution, closed term substitution, semantic context joins/locks | Freshening and alpha-renaming, scheme instantiation, type-indexed support and semantic subtyping; substitution composition, term scope, weakening, usage splitting and symbolic lookup are proved |
-| `Soundness` | Semantic subtyping/support monotonicity, semantic soundness, termination/no-stuck, live results, ownership bound | Structural lemmas, fresh supply partitioning, region liveness, closure interpretation and closed-definition generalization |
+| `Soundness` | Semantic soundness, termination/no-stuck, live results, ownership bound | Structural lemmas, fresh supply partitioning, region liveness, closure interpretation and closed-definition generalization; semantic subtyping and support monotonicity are proved |
 | `Algorithms` | Local rewrite equivalence, solution preservation, scheduled termination, worklist correspondence, solve soundness/consistency/completeness, principal factorization, generation correspondence/soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, backend reduction, scheme-subsumption soundness/completeness | Guarded residual adjunctions, substitution invariants, freshness, representative-search completeness, rigid entailment, Boolean projection/CNF correctness, modal witness reconstruction, established `Equation.decide_correct` |
 
 Completeness statements require a sufficiently large fuel budget. Rewrite
