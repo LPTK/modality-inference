@@ -15,6 +15,12 @@ metatheory is deferred: its theorem statements use isolated `sorry`s under
 original solver import those files. An executable acceptance report is data,
 not a kernel-checked proof of scheme subsumption.
 
+**Known semantic defect:** `Proofs/PolymorphicCapture` proves that the current
+fundamental semantic soundness statement is false. Scheme instantiation changes
+the result type without transporting the closure's symbolic capture metadata.
+The false assertion has been replaced by the proposition `Deferred.SemanticSoundness`;
+repairing the semantics and proving the corrected theorem remain required.
+
 ## Build and run
 
 Use the existing pins; do not run `lake update` for this milestone:
@@ -161,6 +167,7 @@ All paths below are relative to `ModalityInference/`.
 | Evaluator metatheory | `Proofs/Evaluation` | Proved soundness, completeness, determinism and fuel stability; no admissions |
 | Interpretation properties | `Proofs/Interpretation` | Proved global references and empty shared ownership; no admissions |
 | Annotation erasure | `Proofs/Erasure` | Proved for all evaluation rules and capture trimming; no admissions |
+| Polymorphic capture diagnostic | `Proofs/PolymorphicCapture` | Proved counterexample to the current fundamental statement; no admissions |
 | Remaining structural, semantic and algorithmic metatheory | `Proofs/Structural`, `Proofs/Soundness`, `Proofs/Algorithms` | Explicit admitted obligations |
 
 ```text
@@ -217,9 +224,21 @@ They exercise every term constructor and both sum branches.
 
 ## Deferred proof work and prerequisites
 
-Each of the 31 remaining deferred theorems has a prerequisite comment immediately above it.
+Each of the 30 remaining deferred theorems has a prerequisite comment immediately above it.
+The fundamental semantic soundness claim is separately recorded as a proposition:
+its current formulation is refuted, so it cannot responsibly remain an admitted theorem.
 These are obligations to prove and, if counterexamples arise, refine; the
 prototype and stated theorems are not advertised as a verified full system.
+
+The counterexample binds a closure with scheme `∀μ. unit → credit@μ`. Its capture
+metadata assigns the captured heap credit type `credit@μ`. The current scheme
+interpretation accepts this closure for every ground choice of `μ`. Looking up
+the binding with `μ := unique` returns the same closure, while the ambient
+assignment can still interpret its capture's `μ` as aliased. Calling the closure
+then returns an owned credit with empty captured ownership, no argument ownership,
+and no fresh allocation. `no_unrestricted_soundness` proves the contradiction
+using a typed variable, a satisfying environment and compatible supplies.
+The issue concerns ghost capture metadata; no runtime stack escape is asserted.
 
 | Proof module | Obligations | Prerequisites/dependencies |
 | --- | --- | --- |

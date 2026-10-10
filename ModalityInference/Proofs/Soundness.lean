@@ -12,12 +12,16 @@ theorem semantic_subtyping {ρ w Δ a b x y v}
     ValueInterpretation ρ w y Mode.identity v ∧
       ∀ l, Owns ρ v y l → Owns ρ v x l := by sorry
 
-/-- DEFERRED. Prerequisites: structural lemmas, fresh/disjoint allocation splitting,
-closed-definition generalization, typed closure captures, region liveness. -/
-theorem semantic_soundness {Δ Γ t a ρ w γ ground}
-    (ht : Typing Δ Γ t a) (hΔ : GroundModels ρ Δ)
-    (hγ : EnvironmentInterpretation ρ w Γ γ) (ha : a.realize ρ = some ground) :
-    SemanticEvaluation ρ w Γ γ t ground := by sorry
+/-- REFUTED for the current symbolic capture interpretation; see the admission-free
+`PolymorphicCapture.no_unrestricted_soundness`. Retain the target as a proposition,
+not an admitted assertion of a false claim. Repairing instantiation of capture
+metadata and proving the corrected fundamental theorem remain required work.
+Further prerequisites: structural lemmas, disjoint allocation splitting,
+closed-definition generalization and region liveness. -/
+def SemanticSoundness : Prop := ∀ {Δ Γ t a ρ w γ ground},
+    Typing Δ Γ t a → GroundModels ρ Δ →
+    EnvironmentInterpretation ρ w Γ γ → a.realize ρ = some ground →
+    SemanticEvaluation ρ w Γ γ t ground
 
 /-- Proved by induction on the fuelled evaluator. No typing needed. -/
 theorem evalFuel_sound {fuel supplies γ t v}

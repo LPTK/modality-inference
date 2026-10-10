@@ -57,12 +57,14 @@ constants = [
     'ModalityInference.ValueInterpretation.global_references',
     'ModalityInference.ValueInterpretation.shared_support',
     'ModalityInference.Eval.annotation_erasure',
+    'ModalityInference.PolymorphicCapture.no_unrestricted_soundness',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
     path.write_text('import ModalityInference\nimport ModalityInference.Proofs.Evaluation\n'
                     'import ModalityInference.Proofs.Interpretation\n'
-                    'import ModalityInference.Proofs.Erasure\n' + '\n'.join(
+                    'import ModalityInference.Proofs.Erasure\n'
+                    'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(
         f'#print axioms {name}' for name in constants) + '\n')
     result = subprocess.run(['lake', 'env', 'lean', str(path)], cwd=ROOT,
                             text=True, capture_output=True, check=True)
