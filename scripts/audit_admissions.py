@@ -62,12 +62,15 @@ constants = [
     'ModalityInference.Value.mapAnnotation_erasure', 'ModalityInference.ValueErasure.references',
     'ModalityInference.World.compatible_mapAnnotation',
     'ModalityInference.PolymorphicCapture.transported_interpreted',
+    'ModalityInference.Substitution.ty_compose',
+    'ModalityInference.ModExpr.subst_compose',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
     path.write_text('import ModalityInference\nimport ModalityInference.Proofs.Evaluation\n'
                     'import ModalityInference.Proofs.Interpretation\n'
                     'import ModalityInference.Proofs.Erasure\n'
+                    'import ModalityInference.Proofs.Substitution\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(
         f'#print axioms {name}' for name in constants) + '\n')
     result = subprocess.run(['lake', 'env', 'lean', str(path)], cwd=ROOT,

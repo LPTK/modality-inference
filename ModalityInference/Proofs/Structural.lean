@@ -3,14 +3,15 @@ import ModalityInference.Inference
 import ModalityInference.Generation
 import ModalityInference.Semantics
 import ModalityInference.Proofs.Erasure
+import ModalityInference.Proofs.Substitution
 
 /-! DEFERRED: these statements are a proof worklist, not established results.
 Nothing outside `Proofs` imports this module. See README for prerequisites. -/
 namespace ModalityInference.Deferred
 
-/-- Prerequisites: alpha-renaming of scheme binders, composition of simultaneous substitutions. -/
+/-- Proved independently by composition of lookup tables and structural induction. -/
 theorem type_substitution_composition (t : Ty) (σ τ : Substitution) :
-    τ.ty (σ.ty t) = (τ.compose σ).ty t := by sorry
+    τ.ty (σ.ty t) = (τ.compose σ).ty t := Substitution.ty_compose t σ τ
 
 /-- Prerequisites: de Bruijn lifting and induction on all term constructors. -/
 theorem term_substitution_scoped (t : RawTerm) (σ : Nat → RawTerm) (n k : Nat)
