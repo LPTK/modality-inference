@@ -58,6 +58,10 @@ constants = [
     'ModalityInference.ValueInterpretation.shared_support',
     'ModalityInference.Eval.annotation_erasure',
     'ModalityInference.PolymorphicCapture.no_unrestricted_soundness',
+    'ModalityInference.Value.substTypes', 'ModalityInference.Eval.substTypes',
+    'ModalityInference.Value.mapAnnotation_erasure', 'ModalityInference.ValueErasure.references',
+    'ModalityInference.World.compatible_mapAnnotation',
+    'ModalityInference.PolymorphicCapture.transported_interpreted',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'

@@ -1,5 +1,6 @@
 import ModalityInference.Proofs.Interpretation
 import ModalityInference.Proofs.Evaluation
+import ModalityInference.Proofs.Annotations
 
 /-! A focused check of scheme instantiation and symbolic closure captures. -/
 namespace ModalityInference.PolymorphicCapture
@@ -130,5 +131,36 @@ theorem no_unrestricted_soundness : ¬ (∀ {Δ Γ t a ρ w γ ground},
   intro h
   exact variable_not_semantic (h variable_typed (by simp [GroundModels])
     environment_interpreted instance_realizes)
+
+/-- Transporting the same instantiation into the capture makes its ownership
+annotation concrete; it leaves the heap cell and the closure body unchanged. -/
+theorem transported_value : value.substTypes uniqueInstance =
+    .closure [.credit (.heap 0)] [some (.mono (.modal .credit (.const Mode.identity)))]
+      (.var 1) := by
+  simp [Value.substTypes, Value.mapAnnotation, value, uniqueInstance, creditScheme,
+    Scheme.mono, Scheme.subst, Scheme.instantiate, Scheme.freshSubstitution,
+    Substitution.bounds, Substitution.ty, Substitution.mode,
+    TypeExpr.subst, ModExpr.subst, Term.mapAnnotation]
+
+theorem transported_capture_owns (ρ : GroundAssignment) :
+    EnvironmentOwns ρ [.credit (.heap 0)]
+      [some (.mono (.modal .credit (.const Mode.identity)))] (.heap 0) := by
+  refine ⟨0, _, _, rfl, rfl, ρ, .credit Mode.identity, ?_, rfl, .credit rfl⟩
+  simp [GroundInstantiates, GroundModels, Scheme.mono]
+
+/-- The transported closure satisfies the unique-result contract under every
+ambient assignment, including the aliased assignment in the counterexample. -/
+theorem transported_interpreted (ρ : GroundAssignment) (w : World) :
+    ValueInterpretation ρ w
+      (.fn (.unit Mode.identity) (.credit Mode.identity) Mode.identity)
+      Mode.identity (value.substTypes uniqueInstance) := by
+  have hv : w.ValidValue (value.substTypes uniqueInstance) :=
+    (Value.valid_mapAnnotation _ _ _).mpr (interpreted ρ w).1
+  rw [transported_value] at hv ⊢
+  refine ⟨hv, (fun h => Bool.noConfusion h), (fun h => Bool.noConfusion h), ?_⟩
+  intro w' x hγ _ _ s _
+  refine ⟨.credit (.heap 0), .var rfl, ⟨hγ _ (by simp), Or.inr trivial⟩, ?_⟩
+  intro l ho
+  cases ho; exact Or.inl (transported_capture_owns ρ)
 
 end ModalityInference.PolymorphicCapture

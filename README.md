@@ -20,6 +20,10 @@ fundamental semantic soundness statement is false. Scheme instantiation changes
 the result type without transporting the closure's symbolic capture metadata.
 The false assertion has been replaced by the proposition `Deferred.SemanticSoundness`;
 repairing the semantics and proving the corrected theorem remain required.
+`Annotations` now provides `Value.substTypes`, which transports substitutions
+through captured values, capture schemes and closure bodies. Its runtime
+preservation properties and the repaired captured-credit witness are proved;
+integration into polymorphic elaboration and the fundamental theorem remains open.
 
 ## Build and run
 
@@ -167,6 +171,7 @@ All paths below are relative to `ModalityInference/`.
 | Evaluator metatheory | `Proofs/Evaluation` | Proved soundness, completeness, determinism and fuel stability; no admissions |
 | Interpretation properties | `Proofs/Interpretation` | Proved global references and empty shared ownership; no admissions |
 | Annotation erasure | `Proofs/Erasure` | Proved for all evaluation rules and capture trimming; no admissions |
+| Recursive annotation transport | `Annotations`, `Proofs/Annotations` | Executable value substitution; proved evaluation, erasure, reference and freshness preservation |
 | Polymorphic capture diagnostic | `Proofs/PolymorphicCapture` | Proved counterexample to the current fundamental statement; no admissions |
 | Remaining structural, semantic and algorithmic metatheory | `Proofs/Structural`, `Proofs/Soundness`, `Proofs/Algorithms` | Explicit admitted obligations |
 
@@ -239,6 +244,9 @@ then returns an owned credit with empty captured ownership, no argument ownershi
 and no fresh allocation. `no_unrestricted_soundness` proves the contradiction
 using a typed variable, a satisfying environment and compatible supplies.
 The issue concerns ghost capture metadata; no runtime stack escape is asserted.
+`transported_interpreted` proves that applying the same instantiation to the
+captured value restores this example's unique-result contract under every ambient
+assignment. This is a checked repair witness, not a proof of the full system.
 
 | Proof module | Obligations | Prerequisites/dependencies |
 | --- | --- | --- |

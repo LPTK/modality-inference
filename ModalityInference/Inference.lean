@@ -1,4 +1,5 @@
 import ModalityInference.Constraints
+import ModalityInference.Annotations
 
 namespace ModalityInference
 
@@ -58,9 +59,6 @@ def captureContext (Γ : AlgorithmicContext) (used : Finset Nat) : Capture :=
   (List.range n).map fun i => if i ∈ used then
     match lookupScheme Γ i with | .success s => some s | _ => none
     else none
-
-def AnnotatedTerm.substTypes (t : AnnotatedTerm) (σ : Substitution) : AnnotatedTerm :=
-  t.mapAnnotation fun Γ => Γ.map (Option.map (fun s => s.subst σ))
 
 structure Generated where
   type : Ty
