@@ -173,6 +173,9 @@ All paths below are relative to `ModalityInference/`.
 | Annotation erasure | `Proofs/Erasure` | Proved for all evaluation rules and capture trimming; no admissions |
 | Recursive annotation transport | `Annotations`, `Proofs/Annotations` | Executable value substitution; proved evaluation, erasure, reference and freshness preservation |
 | Simultaneous substitution | `Proofs/Substitution` | Proved composition for types and modality expressions, including overlapping substitution tables; no admissions |
+| Term scope | `Proofs/Scoping` | Proved capture-avoiding substitution and renaming preserve scope for every term constructor; no admissions |
+| Context routing and lookup | `Proofs/Generation` | Proved usage splitting and both directions of symbolic lookup correspondence; no admissions |
+| Declarative weakening | `Proofs/Declarative` | Proved context weakening for annotated and raw typing; no admissions |
 | Polymorphic capture diagnostic | `Proofs/PolymorphicCapture` | Proved counterexample to the current fundamental statement; no admissions |
 | Remaining structural, semantic and algorithmic metatheory | `Proofs/Structural`, `Proofs/Soundness`, `Proofs/Algorithms` | Explicit admitted obligations |
 
@@ -230,7 +233,7 @@ They exercise every term constructor and both sum branches.
 
 ## Deferred proof work and prerequisites
 
-Each of the 29 remaining deferred theorems has a prerequisite comment immediately above it.
+Each of the 25 remaining deferred theorems has a prerequisite comment immediately above it.
 The fundamental semantic soundness claim is separately recorded as a proposition:
 its current formulation is refuted, so it cannot responsibly remain an admitted theorem.
 These are obligations to prove and, if counterexamples arise, refine; the
@@ -251,7 +254,7 @@ assignment. This is a checked repair witness, not a proof of the full system.
 
 | Proof module | Obligations | Prerequisites/dependencies |
 | --- | --- | --- |
-| `Structural` | Scoped term substitution, subtyping substitution, weakening, closed term substitution, context splitting, lazy lock lookup, semantic context joins/locks | De Bruijn lifting, freshening and alpha-renaming, scheme instantiation, type-indexed support and semantic subtyping; type substitution composition is proved |
+| `Structural` | Subtyping substitution, closed term substitution, semantic context joins/locks | Freshening and alpha-renaming, scheme instantiation, type-indexed support and semantic subtyping; substitution composition, term scope, weakening, usage splitting and symbolic lookup are proved |
 | `Soundness` | Semantic subtyping/support monotonicity, semantic soundness, termination/no-stuck, live results, ownership bound | Structural lemmas, fresh supply partitioning, region liveness, closure interpretation and closed-definition generalization |
 | `Algorithms` | Local rewrite equivalence, solution preservation, scheduled termination, worklist correspondence, solve soundness/consistency/completeness, principal factorization, generation correspondence/soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, backend reduction, scheme-subsumption soundness/completeness | Guarded residual adjunctions, substitution invariants, freshness, representative-search completeness, rigid entailment, Boolean projection/CNF correctness, modal witness reconstruction, established `Equation.decide_correct` |
 

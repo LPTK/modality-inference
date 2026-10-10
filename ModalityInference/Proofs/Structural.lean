@@ -4,6 +4,9 @@ import ModalityInference.Generation
 import ModalityInference.Semantics
 import ModalityInference.Proofs.Erasure
 import ModalityInference.Proofs.Substitution
+import ModalityInference.Proofs.Scoping
+import ModalityInference.Proofs.Generation
+import ModalityInference.Proofs.Declarative
 
 /-! DEFERRED: these statements are a proof worklist, not established results.
 Nothing outside `Proofs` imports this module. See README for prerequisites. -/
@@ -13,17 +16,18 @@ namespace ModalityInference.Deferred
 theorem type_substitution_composition (t : Ty) (σ τ : Substitution) :
     τ.ty (σ.ty t) = (τ.compose σ).ty t := Substitution.ty_compose t σ τ
 
-/-- Prerequisites: de Bruijn lifting and induction on all term constructors. -/
+/-- Proved by de Bruijn lifting and induction on every term constructor. -/
 theorem term_substitution_scoped (t : RawTerm) (σ : Nat → RawTerm) (n k : Nat)
-    (ht : t.Scoped n) (hσ : ∀ i < n, (σ i).Scoped k) : (t.subst σ).Scoped k := by sorry
+    (ht : t.Scoped n) (hσ : ∀ i < n, (σ i).Scoped k) : (t.subst σ).Scoped k :=
+  t.subst_scoped σ n k ht hσ
 
 /-- Prerequisites: scheme binder renaming and substitution through declarative bounds. -/
 theorem subtyping_substitution {Δ : Bounds} {a b : Ty} (σ : Substitution)
     (h : Subtype Δ a b) : Subtype (σ.bounds Δ) (σ.ty a) (σ.ty b) := by sorry
 
-/-- Prerequisites: reflexivity of scheme subsumption, transitivity of context weakening. -/
+/-- Proved directly from declarative subsumption and type reflexivity. -/
 theorem typing_weakening {Δ Γ Γ' t a} (h : RawTyping Δ Γ t a)
-    (hc : ContextLe Δ Γ' Γ) : RawTyping Δ Γ' t a := by sorry
+    (hc : ContextLe Δ Γ' Γ) : RawTyping Δ Γ' t a := h.weakening hc
 
 /-- Closed replacements avoid duplicating resources from a shared ambient context.
 Prerequisites: instantiation/substitution lemmas and the closed-definition lemma. -/
@@ -33,13 +37,13 @@ theorem closed_term_substitution {Δ Γ t a} (h : RawTyping Δ Γ t a)
       EntailsAll Δ (θ.bounds s.bounds) → RawTyping Δ [] (σ i) (θ.ty s.body)) :
     RawTyping Δ [] (t.subst σ) a := by sorry
 
-/-- Prerequisites: context routing, polymorphic shared-binding restrictions. -/
+/-- Proved independently against the relational usage-context specification. -/
 theorem split_context_spec (Γ : AlgorithmicContext) (X Y : Finset Nat) :
-    UsageSplit Γ (splitContext X Y Γ).1 (splitContext X Y Γ).2 := by sorry
+    UsageSplit Γ (splitContext X Y Γ).1 (splitContext X Y Γ).2 := splitContext_spec Γ X Y
 
-/-- Prerequisites: independent `Lookup` induction, symbolic future/capture equations. -/
+/-- Proved by context induction; the converse is `Lookup.lookupScheme`. -/
 theorem symbolic_lock_lookup {Γ i s} (h : lookupScheme Γ i = .success s) :
-    Lookup Γ i s := by sorry
+    Lookup Γ i s := lookupScheme_sound h
 
 /-- Prerequisites: semantic subtyping, support antimonotonicity, scheme unions. -/
 theorem context_join_semantics {ρ w Γ Γ₁ Γ₂ γ Δ}
