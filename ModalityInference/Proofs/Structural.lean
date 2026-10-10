@@ -7,6 +7,7 @@ import ModalityInference.Proofs.Substitution
 import ModalityInference.Proofs.Scoping
 import ModalityInference.Proofs.Generation
 import ModalityInference.Proofs.Declarative
+import ModalityInference.Proofs.PartialSubstitution
 
 /-! DEFERRED: these statements are a proof worklist, not established results.
 Nothing outside `Proofs` imports this module. See README for prerequisites. -/
@@ -21,9 +22,13 @@ theorem term_substitution_scoped (t : RawTerm) (σ : Nat → RawTerm) (n k : Nat
     (ht : t.Scoped n) (hσ : ∀ i < n, (σ i).Scoped k) : (t.subst σ).Scoped k :=
   t.subst_scoped σ n k ht hσ
 
-/-- Prerequisites: scheme binder renaming and substitution through declarative bounds. -/
+/-- Proved with the necessary definedness condition on modality images. The
+unrestricted former statement is refuted in `PartialSubstitution`; ordinary
+modality images satisfy the condition automatically. -/
 theorem subtyping_substitution {Δ : Bounds} {a b : Ty} (σ : Substitution)
-    (h : Subtype Δ a b) : Subtype (σ.bounds Δ) (σ.ty a) (σ.ty b) := by sorry
+    (h : Subtype Δ a b)
+    (hσ : ∀ η, ModeModels (σ.bounds Δ) η → ∀ v, (σ.mode v).WellFormed η) :
+    Subtype (σ.bounds Δ) (σ.ty a) (σ.ty b) := h.substitute σ hσ
 
 /-- Proved directly from declarative subsumption and type reflexivity. -/
 theorem typing_weakening {Δ Γ Γ' t a} (h : RawTyping Δ Γ t a)

@@ -176,6 +176,7 @@ All paths below are relative to `ModalityInference/`.
 | Annotation erasure | `Proofs/Erasure` | Proved for all evaluation rules and capture trimming; no admissions |
 | Recursive annotation transport | `Annotations`, `Proofs/Annotations` | Executable value substitution; proved evaluation, erasure, reference and freshness preservation |
 | Simultaneous substitution | `Proofs/Substitution` | Proved composition for types and modality expressions, including overlapping substitution tables; no admissions |
+| Subtyping substitution | `Proofs/PartialSubstitution` | Proved with explicit definedness of modality images, and for all ordinary modality images; proved counterexample to the former unrestricted statement |
 | Term scope | `Proofs/Scoping` | Proved capture-avoiding substitution and renaming preserve scope for every term constructor; no admissions |
 | Context routing and lookup | `Proofs/Generation` | Proved usage splitting and both directions of symbolic lookup correspondence; no admissions |
 | Declarative weakening | `Proofs/Declarative` | Proved context weakening for annotated and raw typing; no admissions |
@@ -224,6 +225,7 @@ corrections. The POPL reviews and response are in the enclosing paper repository
 | Closure adjoint orientation | Exhaustive 64 comparisons; same-operator swap has a counterexample |
 | Partial residual side conditions survive rewrites | Both undefined residuals reject, including inside type-variable bounds |
 | Substitution updates residual bounds and previous images | `α = β; β = unit`; conflicting repeated assignments reject |
+| Subtyping substitution requires defined modality images | `unit@μ ≤ unit@top` fails after substituting the undefined residual `top / bottom`; checked in `Proofs/PartialSubstitution` |
 | Cycles and occurs checks | Benign mode cycle succeeds; direct and indirect recursive type bounds reject |
 | All target quantifiers skolemized; assumptions retained | `polyId` versus a monomorphic identity; `bounded` with/without its declared assumption |
 | Allocation source, exclusive upper index and future-frame partition | Tail slices start at 1 and 2; distinct branches enter distinct fresh frames |
@@ -236,7 +238,7 @@ They exercise every term constructor and both sum branches.
 
 ## Deferred proof work and prerequisites
 
-Each of the 24 remaining deferred theorems has a prerequisite comment immediately above it.
+Each of the 23 remaining deferred theorems has a prerequisite comment immediately above it.
 The fundamental semantic soundness claim is separately recorded as a proposition:
 its current formulation is refuted, so it cannot responsibly remain an admitted theorem.
 These are obligations to prove and, if counterexamples arise, refine; the
@@ -255,9 +257,18 @@ The issue concerns ghost capture metadata; no runtime stack escape is asserted.
 captured value restores this example's unique-result contract under every ambient
 assignment. This is a checked repair witness, not a proof of the full system.
 
+The former unrestricted subtyping-substitution statement also had a missing
+precondition: arbitrary internal modality expressions include undefined residuals.
+`PartialSubstitution.no_unrestricted_subtyping_substitution` refutes that statement
+without admissions. The corrected `Subtype.substitute` is proved assuming each
+modality image is defined in every model of the substituted bounds.
+`Subtype.substitute_ordinary` discharges that condition for ordinary modalities;
+their evaluations are proved total. Residual substitutions must retain their
+definedness obligations.
+
 | Proof module | Obligations | Prerequisites/dependencies |
 | --- | --- | --- |
-| `Structural` | Subtyping substitution, closed term substitution, semantic context joins/locks | Freshening and alpha-renaming, scheme instantiation, type-indexed support and semantic subtyping; substitution composition, term scope, weakening, usage splitting and symbolic lookup are proved |
+| `Structural` | Closed term substitution, semantic context joins/locks | Freshening and alpha-renaming, scheme instantiation, type-indexed support and semantic subtyping; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting and symbolic lookup are proved |
 | `Soundness` | Semantic soundness, termination/no-stuck, live results, ownership bound | Structural lemmas, fresh supply partitioning, region liveness, closure interpretation and closed-definition generalization; semantic subtyping and support monotonicity are proved |
 | `Algorithms` | Local rewrite equivalence, solution preservation, scheduled termination, worklist correspondence, solve soundness/consistency/completeness, principal factorization, generation correspondence/soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, backend reduction, scheme-subsumption soundness/completeness | Guarded residual adjunctions, substitution invariants, freshness, representative-search completeness, rigid entailment, Boolean projection/CNF correctness, modal witness reconstruction, established `Equation.decide_correct` |
 
