@@ -5,179 +5,107 @@ Modalities in OxCaml*, including the POPL response's **closed-RHS restriction on
 polymorphic `def`**. It contains independent declarative judgments, concrete
 semantic definitions, executable algorithms, and constructor-based examples.
 
-**Proof status:** the original generic modality solver and the evaluator's
-soundness, completeness, determinism, and fuel stability are proved. The semantic
-interpretation's global-reference and empty shared-support properties are also
-proved, including nested fields and polymorphic closure captures. Annotation
-erasure preserves evaluation and the runtime structure of results. Every
-declarative subtyping rule preserves the interpretation and decreases ownership,
-with symbolic bounds and partial-modality definedness accounted for. The Boolean
-reduction is also proved: successful backend reports characterize validity
-under every Boolean valuation, through polarity-aware CNF normalization and an
-explicit identifier-to-`Fin n` translation to the original solver. Modality
-projection is proved for all operations, preserving residual definedness and the
-reversed uniqueness comparison. Backend modality entailment agrees with
-`ModeModels`, and positive inequality reports yield the independent `Submode`
-judgment. Executable scheme comparison still has separate proof obligations.
-Full-system metatheory remains incomplete: deferred theorem statements use isolated `sorry`s under
-`ModalityInference/Proofs/`. Neither the public library nor the executables nor the
-original solver import those files. An executable acceptance report is data,
-not a kernel-checked proof of scheme subsumption.
+**Semantic soundness is proved for the whole corrected core.**
+`Typing.resource_semantic` in `Proofs/ResourceSoundness` covers every typing
+constructor. A typed term in an interpreted, separated environment evaluates
+under every compatible supply to a live result with ownership drawn from the
+input reserves or fresh allocation. `Proofs/Soundness` now proves
+`semantic_soundness`, `termination_no_stuck`, `live_result`, and `ownership_bound`
+without admissions. Small fuel budgets may exhaust; no budget rejects a typed
+term satisfying those premises. `Typing.resource_closed` additionally gives
+a closed program's ground result, evaluation, interpretation, and fresh-only
+ownership without assuming an interpreted value or an already realized type.
 
-**Known semantic defect:** `Proofs/PolymorphicCapture` proves that the current
-fundamental semantic soundness statement is false. Scheme instantiation changes
-the result type without transporting the closure's symbolic capture metadata.
-The false assertion has been replaced by the proposition `Deferred.SemanticSoundness`;
-repairing the semantics and proving the corrected theorem remain required.
-`Annotations` now provides `Value.substTypes`, which transports substitutions
-through captured values, capture schemes and closure bodies. Its runtime
-preservation properties and the repaired captured-credit witness are proved;
-integration into polymorphic elaboration and the fundamental theorem remains open.
-`Value.substCapturedTypes` now follows each captured scheme's own binder renaming,
-and `SchemeValue.subst` transports a scheme and its value together. These operations
-preserve runtime structure, references and liveness; evaluation is preserved up to
-annotation erasure. The nested witness in `Proofs/ScopedCaptures` checks why uniform
-transport is insufficient when a captured scheme itself quantifies variables.
-`SchemeValue.instantiate` now applies ordered type and modality arguments to both
-the scheme and its value, retaining definedness guards even for unused arguments.
-Its substitution-domain and erasure contracts are proved, as is the unique-credit
-witness after instantiation. This operation generates bounds for the caller to
-discharge; it is not yet integrated into `infer` or `evalFuel`.
+**The overall verification objective is still incomplete: 17 admissions remain.**
+They are closed term substitution and 16 algorithmic obligations, including
+rewriting, solver correctness/completeness/principality, generation, elaborated
+inference, and scheme subsumption. The public library and executables do not
+import proof-worklist modules. The original generic solver is unchanged and its
+correctness/stabilization results remain admission-independent. The audit checks
+201 public or established declarations transitively, including the complete
+fundamental theorem and all three soundness corollaries.
 
-An alternative repair is under development in `ResourceSemantics`: ownership
-evidence accompanies each ground instance of a value, instead of reading
-authoritative ownership from symbolic runtime annotations. Credits and product
-cells still own their location exactly when unique; fields retain their complete
-types, and a closure must account for its result using captured, argument, or
-fresh resources. A scheme reserves enough resources for every admissible instance.
-`Proofs/Resources` proves annotation-erasure invariance with the same ownership
-set, global-reference preservation, empty ownership for many aliased values, and
-semantic lookup. `Proofs/ResourceCapture` proves that the recorded polymorphic
-counterexample satisfies this lookup contract with the original runtime closure.
-`Proofs/ResourceSubtyping` now proves that every declarative subtyping rule
-transports this ownership evidence to a subset of the source resources, under
-arbitrary modeled bounds and inherited modalities. The proof includes both
-function variances, future-only closure comparison, credit conversion, and
-pairwise separation of product cells and fields.
-`Proofs/GroundAssignment` proves that fresh quantified instantiation preserves
-ambient bounds and lock expressions. `Proofs/ResourceContexts` uses that result
-to prove polymorphic sharing with empty ownership and the complete context-join
-contract: both component environments are valid, own subsets of the original
-resources, and have disjoint ownership. `Deferred.context_join_semantics` now
-uses this proved contract in place of its annotation-dependent admission.
-The same module proves semantic locking: each retained polymorphic binding
-satisfies its captured type within its original reserve, separation is preserved,
-and the locked context owns a subset of the original resources.
-`Deferred.locking_semantics` now uses that proved resource contract.
-This route changes no term constructor or evaluation rule. Its connection to all
-declarative typing rules remains unfinished; it is not yet a replacement
-fundamental soundness theorem.
+## Corrected semantics and proof
 
-**Intermediate type correction:** typing now checks definedness when introducing
-a variable instance, a unit modality, a lambda's domain and outer modality, or an
-unused sum branch. `Proofs/TypingDefinedness` proves that every typed result has a
-ground realization under modeled bounds, by induction over all typing rules.
-It also proves that all ordinary source types satisfy these guards automatically.
-`Proofs/UndefinedDomain` records the former rules' counterexample: with the
-undefined residual `r = top / bottom`, a binding of type `(unit@r) → unit` could
-be interpreted by the unit value, because that function type has no ground
-realization. The old rules typed `x () : unit`, which the evaluator rejects as an
-application of a non-function. The corrected rules reject the invalid function
-type in every context. All term constructors and closed-RHS `def` are retained.
+The former annotation-dependent fundamental assertion is false and remains
+recorded as the proposition `Deferred.SemanticSoundness`.
+`Proofs/PolymorphicCapture.no_unrestricted_soundness` is the checked counterexample:
+a scheme instance changes a closure's result type while its old symbolic capture
+annotations remain interpreted under a different ambient assignment.
 
-**Constraint definedness correction:** entailment of subtype and type-equality
-constraints now requires definedness of their type operands. Reflexive subtyping
-alone does not establish satisfaction of an undefined constraint.
-`Proofs/UndefinedBounds` archives the earlier entailment and the resulting
-`x ()` counterexample: the bound `unit@r ≤ unit@r`, where `r = top / bottom`,
-has no ground instance but was discharged by reflexivity. Even a fully defined
-function body type then accepted a non-function value vacuously. The new rules
-reject this bound under every instantiation and as a closed-definition
-consistency witness. Lean proves the guards automatic for ordinary source
-subtyping and both forms of type equality. Equality elimination in the solver
-and abstract rewriting now retains the substituted type's definedness guards;
-regressions cover undefined and defined images, including nested function types.
+`ResourceSemantics` repairs that defect by attaching erasable ownership evidence
+to **each ground instance**. A credit owns its location exactly when unique.
+Products retain full field types and separation between the cell and both fields.
+A closure owns only actual capture references, has no ownership when reusable,
+and accounts for every call result using captured, argument, or fresh resources.
+Each scheme binding reserves enough resources for every admissible instance;
+lookup chooses the evidence for the selected instance within that common reserve.
+The interpretation does not read authoritative ownership from old annotations.
+`Proofs/ResourceCapture` checks the original captured-credit witness against this
+contract without changing its runtime value.
 
-`Proofs/GroundSubtyping` now proves that every declarative subtyping rule
-preserves ground subtyping and that constraint entailment preserves all modeled
-bounds. `Proofs/GroundInstantiation` constructs a ground scheme instance from
-every syntactic instantiation with satisfied bounds and a defined result. It
-preserves all non-quantified identifiers, including skolems, and does not require
-unused substitution images to be defined. The variable lookup theorem now follows
-from these actual declarative premises, with its resource bound. A separate
-proved corollary shows that `BoundsSatisfiable` supplies a genuine ground model
-for the closed-definition rule. These are ingredients of the still-unfinished
-fundamental theorem, not a complete typing induction.
-`Proofs/GroundSchemes` proves that the resource interpretation of a scheme depends
-only on its free identifiers, while retaining the full quantified-domain condition
-on each instance. `Proofs/ResourceWorlds` transports values, schemes, and
-environments between worlds when their actual references remain live, preserving
-exact ownership sets. `Lock.resource_many_semantics` strengthens semantic locking
-for reusable closures: every retained binding admits an empty resource reserve,
-uniformly across its polymorphic instances. Closure construction and the full
-typing induction still require further work.
-`Proofs/TypingScope` proves that every free variable of a typed term has an
-available context binding, for all constructors; empty-context typing therefore
-implies closure, including the existing `def` RHS premise.
-`Proofs/ResourceRestriction` proves that restricting context usage and trimming
-unused runtime captures preserve the same resource evidence on retained bindings.
-The stronger induction over the bindings actually read remains to be completed.
-`Proofs/ResourceSubsumption` now proves that declarative scheme subsumption
-preserves the resource interpretation of every admissible instance, within the
-same reserve. Context subsumption consequently preserves interpreted bindings,
-pairwise separation, and a subset of the source context's resources.
-`Proofs/GroundSkolemization` realizes fresh target skolems while preserving all
-ambient bounds and source free identifiers; repeated scheme parameter names
-require no additional premise. `Proofs/GroundSubstitution` proves the needed
-commutation of ground interpretation with substitution, including partial
-modalities and both forms of type equality. This establishes the semantic
-context-subsumption ingredient, not correctness of the executable comparison
-algorithm or the full typing induction.
-`Proofs/TypingInstances` proves a stronger whole-language invariant: every binding
-actually read by a typed term has an admissible ground instance under modeled
-bounds. Arbitrary unused schemes need not be inhabited. All context relations
-are preserved by common usage restriction (`Proofs/ContextRestriction`).
-`Proofs/ResourceCaptures` then proves liveness of trimmed capture environments and
-that a global lock permits only heap references in those captures.
-`Proofs/ResourceClosure` now establishes the complete lambda step assuming the
-body induction hypothesis, with its quantified application contract in every live
-calling world. `Proofs/ResourceBindings` supplies separated argument extension and
-the resource bound for bindings actually read by the body. The closure owns only
-captured resources, and its reusable case owns none. This is an admission-free
-induction step; the remaining term cases and full fundamental theorem are open.
-`Proofs/Allocation` proves branch disjointness for heap cells, current-frame cells,
-and future frames, and preservation of supply compatibility.
-`Proofs/EvaluationReferences` proves that every evaluation result references only
-its input environment or supply, for all constructors and without typing premises.
-`Proofs/ResourceDefinitions` uses these results to prove the closed `def` induction
-step. Consistency gives one RHS evaluation; determinism makes the same runtime
-value support every admissible generalized instance. Its common resource reserve
-contains only fresh RHS references and remains separated from the ambient context
-and the body's allocation supply. Both RHS and body induction hypotheses are
-explicit. This proves semantic generalization as an induction ingredient; the
-algorithmic generalization theorem and full fundamental theorem remain open.
+The repair changes no term constructor or evaluation rule. Annotation erasure
+preserves evaluation, references, and the same resource evidence. The fundamental
+proof strengthens the induction to the bindings actually read, while the ordinary
+theorem accepts a full interpreted environment. Used bindings are proved to have
+an admissible ground instance; unused schemes need not be inhabited.
 
-`Proofs/ResourceApplication` proves the application induction step with both
-induction hypotheses explicit. Used-context splitting and three fresh allocation
-branches keep function, argument, and call resources separate; evaluation reference
-containment establishes compatibility of the call supply with both runtime values.
-The closure contract then supplies the result and the full resource bound.
+The proved ingredients include:
 
-`Proofs/ResourceProducts` proves both heap and stack pair induction steps. A
-reserved cell is excluded from all subsequent allocations, including future
-frames (`Proofs/AllocationCells`); both fields are disjoint from it and each other.
-The stack rule uses its actual modality comparison to weaken field resources
-and its locality premise to validate the current-frame cell. Complete field types
-and the final ownership bound are preserved. Other term cases remain open.
+- Semantic subtyping and scheme/context subsumption, preserving resource subsets;
+  fresh target skolems preserve ambient bounds and source free identifiers.
+- Context joins, polymorphic sharing, and symbolic locks, preserving separation;
+  reusable captures admit empty reserves across every instance.
+- Trimmed closure construction and application in every live calling world,
+  with separate supplies for function evaluation, argument evaluation, and call.
+- Heap/stack allocation, fresh-cell exclusion, and three-component credit reuse.
+- Both sum eliminations and split's three bindings, with their original usage routing.
+- Region entry into a fresh frame and exit using globality of **all references**,
+  including aliased ones.
+- Closed `def`: consistency supplies one RHS evaluation, and determinism makes
+  that same value satisfy every generalized ground instance in one fresh reserve.
 
-`Proofs/ResourceReuse` proves the reuse induction step: the unique-credit premise
-establishes cell ownership, the credit comparison preserves locality, and the
-three context components keep the cell and new fields separated.
-`Proofs/ResourceRegions` proves region entry and exit. Entry adds the fresh frame
-to the live world and preserves interpreted bindings; the global result contract
-excludes all stack references, including aliased ones, so exit restores the
-original world and preserves the resource bound. These steps retain the original
-evaluation rules; eliminations and the full fundamental theorem remain open.
+These results are in `Proofs/ResourceSubtyping`, `ResourceSubsumption`,
+`ResourceContexts`, `ResourceClosure`, `ResourceApplication`, `ResourceProducts`,
+`ResourceReuse`, `ResourceRegions`, `ResourceEliminations`, and `ResourceDefinitions`.
+The full induction uses these proved steps without assuming its own conclusion.
+The separate algorithmic generalization theorem is still open.
+
+## Corrections and retained witnesses
+
+`GroundInstantiates` fixes every identifier outside the quantified domain,
+including identifiers absent from a scheme. Sharing and locking require scheme
+binders fresh for ambient bounds; locking also requires freshness for its symbolic
+modality. `ContextScoping` checks that the former collision between an ambient
+`aliased ≤ μ₀` and independently quantified `∀μ₀. credit@μ₀` allowed two owned
+copies, and that alpha-renaming satisfies the corrected conditions.
+`SubsumptionScope` records a separate target-skolem collision and proves the
+corrected comparison fresh for ambient bounds as well as both schemes.
+
+Typing checks definedness of introduced internal types and modalities.
+`Typing.realize_defined` covers every rule, and the guards hold automatically
+for ordinary source types. `UndefinedDomain` records the former non-function
+application counterexample using `top / bottom` as an undefined function-domain
+modality. `UndefinedBounds` records a second vacuous instance whose reflexive
+bound had no ground model. Entailment now guards type operands, and equality
+elimination retains the substituted type's well-formedness bounds. Both witnesses
+are rejected by the corrected rules without narrowing the source language.
+
+`PartialSubstitution` refutes unrestricted subtyping substitution for undefined
+residual images. `Subtype.substitute` includes the necessary definedness premise;
+`Subtype.substitute_ordinary` discharges it for ordinary modalities.
+`Annotations` retains an independently proved alternative repair mechanism:
+binder-aware transport and `SchemeValue.instantiate` preserve runtime structure,
+references, liveness, and instantiation guards. The nested `ScopedCaptures`
+witness records why uniform annotation substitution is insufficient. Those
+operations are not required by the proved resource semantics and are not inserted
+into `infer` or `evalFuel`.
+
+Evaluator correspondence, determinism, fuel stability, Boolean CNF reduction,
+and all-axis modality projection are also proved independently. Backend modality
+entailment agrees with `ModeModels`; a positive inequality report establishes
+`Submode`. An executable scheme-comparison report is still data pending the
+remaining algorithmic proofs.
 
 ## Build and run
 
@@ -287,7 +215,7 @@ normalization work. It is not a machine-instruction counter or a complexity boun
 - `ModeBackend` keeps future and past comparisons in opposite directions. CNF
   clauses become `Equation Bool n` using an explicit sorted identifier list and
   checked `Fin n` lookup. The existing `Equation.decide` discharges those queries.
-  The new projection/normalization/reduction proofs remain deferred.
+  Projection, normalization, and reduction correctness are proved.
 
 ## Evaluation, ownership and liveness
 
@@ -303,14 +231,15 @@ frames separately. Soundness requires `World.Compatible`: positive strides, an
 active current frame, fresh future frames and no collision with any input
 reference. Evaluation itself is not a dynamic ownership or liveness checker.
 
-`GroundTy`, `ValueInterpretation`, `GroundInstantiates`,
-`SchemeInterpretation`, `EnvironmentInterpretation` and `SemanticEvaluation`
-are concrete definitions, not interpretation axioms. `Owns` depends on the full
-type and composes inherited modes with each field's own annotation. Closures
-retain typed capture schemes; ownership is the union over their admissible
-instances. `References` separately includes aliased locations. Separation uses
-ownership; world validity uses references. `firstOrderSupport` is executable on
-first-order values and intentionally does not guess an instance for closures.
+`GroundTy` and `GroundInstantiates` define ground types and quantified assignments.
+`ResourceInterpretation`, `ResourceSchemeInterpretation`,
+`ResourceEnvironmentInterpretation`, and `ResourceSemanticEvaluation` are the
+corrected concrete contracts used by whole-core soundness. `References` includes
+aliased locations; separation uses owned resource sets while world validity uses
+all references. The earlier `ValueInterpretation`, `Owns`, and associated scheme,
+environment, and evaluation definitions are retained to state the historical
+counterexample and their independently proved properties. `firstOrderSupport`
+is executable on first-order values and does not guess an instance for closures.
 
 The critical counterexample is a unique pair at heap cell 0 containing an aliased
 credit for stack cell `(9,1)`. At the declared type its ownership support is only
@@ -327,7 +256,7 @@ All paths below are relative to `ModalityInference/`.
 | §3 syntax, three axes, polarized grammar and residuals | `Core/Mode`, `Core/Syntax`, `Core/Scoping` | Definitions and exhaustive finite regressions |
 | §3 subtyping, schemes, weakening, joins, locks, all typing rules | `Declarative` | Independent inductive judgments |
 | §3 allocation and environment semantics | `Evaluation` | Independent judgment plus runnable evaluator |
-| §3 semantic interpretation, typed support, separation and liveness | `Semantics` | Concrete definitions; metatheory deferred |
+| §3 ground types, ownership, separation and liveness | `Semantics`, `ResourceSemantics` | Ground definitions and corrected instance-indexed resource interpretation; old annotation-dependent interpretation retained for its counterexample |
 | §4 independent constraint-generation relation | `Generation` | Inductive rules, including closed `def` and `region` |
 | §4 inference and elaboration | `Inference` | Executable prototype |
 | §4 constraint rewriting | `Rewriting`, `Constraints` | Independent relation and executable worklist |
@@ -343,7 +272,7 @@ All paths below are relative to `ModalityInference/`.
 | Recursive annotation transport | `Annotations`, `Proofs/Annotations` | Executable value substitution; proved evaluation, erasure, reference and freshness preservation |
 | Simultaneous substitution | `Proofs/Substitution` | Proved composition for types, modalities, constraints and bounds, plus agreement of scheme substitution with its exposed binder action; no admissions |
 | Transport through scheme binders | `Annotations`, `Proofs/Annotations`, `Proofs/ScopedCaptures` | Executable per-capture binder transport and paired scheme/value substitution; proved erasure, reference, liveness and evaluation preservation; nested polymorphic witness |
-| Explicit value instantiation | `Annotations`, `Proofs/Instantiation`, `Proofs/ScopedCaptures` | Ordered arguments transport metadata; proved instantiation, definedness-guard and erasure contracts; integration with typing and evaluation remains open |
+| Explicit value instantiation | `Annotations`, `Proofs/Instantiation`, `Proofs/ScopedCaptures` | Ordered arguments transport metadata; proved instantiation, definedness-guard and erasure contracts; optional transport route, not required by resource soundness |
 | Subtyping substitution | `Proofs/PartialSubstitution` | Proved with explicit definedness of modality images, and for all ordinary modality images; proved counterexample to the former unrestricted statement |
 | Term scope | `Proofs/Scoping` | Proved capture-avoiding substitution and renaming preserve scope for every term constructor; no admissions |
 | Context routing and lookup | `Proofs/Generation` | Proved usage splitting and both directions of symbolic lookup correspondence; no admissions |
@@ -351,11 +280,12 @@ All paths below are relative to `ModalityInference/`.
 | Well-formed intermediate types | `Proofs/TypingDefinedness`, `Proofs/UndefinedDomain` | Proved ground definedness for every typing rule and automatic guards for ordinary source types; retained and excluded the former undefined-domain counterexample |
 | Ambient assignment and quantified scope | `Proofs/Grounding`, `Proofs/ContextScoping` | Scheme instantiation fixes all non-quantified identifiers; proved monomorphic contracts and a witness requiring fresh quantifiers in sharing/locking |
 | Ambient skolem scope | `Proofs/SubsumptionScope` | Proved the former comparison could confuse an ambient rigid identifier with a new quantifier; corrected skolem indices avoid every ambient type and modality identifier |
-| Ownership evidence for ground instances | `ResourceSemantics`, `Proofs/Resources`, `Proofs/ResourceCapture` | Candidate semantic repair; proved erasure invariance, global references, empty shared ownership, semantic lookup, and the original captured-credit witness; full typing connection remains open |
+| Ownership evidence for ground instances | `ResourceSemantics`, `Proofs/Resources`, `Proofs/ResourceCapture` | Proved semantic repair; erasure invariance, global references, empty shared ownership, semantic lookup, and the original captured-credit witness |
 | Resource interpretation under subtyping | `Proofs/ResourceSubtyping` | Proved all declarative subtyping rules preserve instance-indexed interpretation while shrinking ownership, including symbolic bounds and arbitrary inherited modalities; no admissions |
 | Semantic context joins | `Proofs/GroundAssignment`, `Proofs/ResourceContexts` | Proved fresh ground instantiation, empty ownership for polymorphic sharing, and valid, contained, disjoint component environments for every join rule |
-| Polymorphic capture diagnostic | `Proofs/PolymorphicCapture` | Proved counterexample to the current fundamental statement; no admissions |
-| Remaining structural, semantic and algorithmic metatheory | `Proofs/Structural`, `Proofs/Soundness`, `Proofs/Algorithms` | Explicit admitted obligations |
+| Polymorphic capture diagnostic | `Proofs/PolymorphicCapture` | Proved counterexample to the former annotation-dependent fundamental statement; no admissions |
+| Whole-core fundamental theorem and corollaries | `Proofs/ResourceSoundness`, `Proofs/Soundness` | Proved for every typing constructor, with termination/no-stuck, live references, resource bounds, and a closed-program corollary; no admissions |
+| Remaining structural and algorithmic metatheory | `Proofs/Structural`, `Proofs/Algorithms` | 17 explicit admitted obligations |
 
 ```text
 Core/Mode → Core/Syntax → Core/Scoping
@@ -373,8 +303,8 @@ Definitions + executables → Proofs/Structural → Proofs/Soundness
 
 `import ModalityInference` includes the complete definitions and executables.
 `import ModalityInference.Subsumption` retains the original independent solver API.
-Only `import ModalityInference.Proofs` brings the admitted theorem worklist into
-an environment. Tests do not import it. The audit scans source imports and also
+The optional `import ModalityInference.Proofs` includes the admitted theorem
+worklist alongside the established proofs. Tests do not import it. The audit scans source imports and also
 uses Lean's `#print axioms` to check transitive dependencies of all public
 executables, declarative/semantic definitions, and the two established solver
 results.
@@ -415,11 +345,12 @@ They exercise every term constructor and both sum branches.
 
 ## Deferred proof work and prerequisites
 
-Each of the 20 remaining deferred theorems has a prerequisite comment immediately above it.
-The fundamental semantic soundness claim is separately recorded as a proposition:
-its current formulation is refuted, so it cannot responsibly remain an admitted theorem.
-These are obligations to prove and, if counterexamples arise, refine; the
-prototype and stated theorems are not advertised as a verified full system.
+Each of the 17 remaining deferred theorems has a prerequisite comment immediately above it.
+The former annotation-dependent fundamental claim remains separately recorded
+as a refuted proposition. Its corrected resource formulation and corollaries are
+proved for the whole core; this does not discharge the algorithmic obligations.
+Each remaining statement must still be validated and proved, with any required
+correction justified by retained evidence.
 
 `GroundInstantiates` fixes every identifier outside the quantified domain, including
 ones absent from a scheme's body and bounds. This preserves the interpretation of
@@ -429,8 +360,8 @@ fresh for its symbolic modality. The checked counterexample uses the ambient
 bound `aliased ≤ μ₀` with the separately quantified scheme `∀μ₀. credit@μ₀`:
 the former sharing premise holds but both components own the same credit at a
 unique instance. `ContextScoping.renamed_fresh` verifies that alpha-renaming makes
-the scope valid while retaining polymorphism. These scoping repairs do not resolve
-the distinct variable-instantiation metadata defect below.
+the scope valid while retaining polymorphism. The resource interpretation resolves the distinct variable-instantiation metadata
+defect below; the historical interpretation and its counterexample are retained.
 
 Scheme comparison also freshens its target skolems above ambient bounds, not only
 above the two schemes. `SubsumptionScope.former_weakening_unsound` proves that the
@@ -451,7 +382,8 @@ using a typed variable, a satisfying environment and compatible supplies.
 The issue concerns ghost capture metadata; no runtime stack escape is asserted.
 `transported_interpreted` proves that applying the same instantiation to the
 captured value restores this example's unique-result contract under every ambient
-assignment. This is a checked repair witness, not a proof of the full system.
+assignment. This is a checked annotation-transport witness; whole-core soundness is now
+proved by the independent resource interpretation.
 
 A second capture witness tests nested polymorphism. Substituting into a closure
 that captures `∀μ₀. unit → credit@μ₀` renames that capture scheme's binder to `μ₁`.
@@ -459,8 +391,9 @@ Uniform annotation mapping leaves the nested captured value's credit annotated
 with `μ₀`. `substCapturedTypes` transports that value using the scheme's exposed
 `substitutionAction`, so its annotation becomes `μ₁` too. The example proves both
 the difference in annotations and equality of runtime structure after erasure.
-These mechanisms remain prerequisites for integrating polymorphic instantiation
-into elaboration and proving the corrected fundamental theorem.
+These mechanisms remain available for annotation-aware elaboration. The proved
+fundamental theorem instead uses instance-indexed resource evidence with the
+original evaluator.
 
 The former unrestricted subtyping-substitution statement also had a missing
 precondition: arbitrary internal modality expressions include undefined residuals.
@@ -474,7 +407,7 @@ definedness obligations.
 | Proof module | Obligations | Prerequisites/dependencies |
 | --- | --- | --- |
 | `Structural` | Closed term substitution | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup, instance-indexed context joins and locking are proved |
-| `Soundness` | Semantic soundness, termination/no-stuck, live results, ownership bound | Structural lemmas, fresh supply partitioning, region liveness, closure interpretation and closed-definition generalization; semantic subtyping and support monotonicity are proved |
+| `Soundness` | None: corrected fundamental soundness, termination/no-stuck, live results, and ownership bound are proved | Complete typing induction in `ResourceSoundness`, with resource semantics independent of capture metadata |
 | `Algorithms` | Local rewrite equivalence, solution preservation, scheduled termination, worklist correspondence, solve soundness/consistency/completeness, principal factorization, generation correspondence/soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, backend reduction, scheme-subsumption soundness/completeness | Guarded residual adjunctions, substitution invariants, freshness, representative-search completeness, rigid entailment, Boolean projection/CNF correctness, modal witness reconstruction, established `Equation.decide_correct` |
 
 Completeness statements require a sufficiently large fuel budget. Rewrite

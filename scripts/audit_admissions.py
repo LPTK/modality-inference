@@ -221,6 +221,17 @@ constants = [
     'ModalityInference.ResourceEnvironmentInterpretation.world_mono',
     'ModalityInference.World.Compatible.enter',
     'ModalityInference.Typing.resource_region',
+    'ModalityInference.ResourceEnvironmentInterpretation.split_used',
+    'ModalityInference.ContextResources.split_used_subset',
+    'ModalityInference.Typing.resource_split',
+    'ModalityInference.Typing.resource_case',
+    'ModalityInference.Typing.resource_semantic_used',
+    'ModalityInference.Typing.resource_semantic',
+    'ModalityInference.Typing.resource_closed',
+    'ModalityInference.Deferred.semantic_soundness',
+    'ModalityInference.Deferred.termination_no_stuck',
+    'ModalityInference.Deferred.live_result',
+    'ModalityInference.Deferred.ownership_bound',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -252,6 +263,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ResourceApplication\n'
                     'import ModalityInference.Proofs.ResourceProducts\n'
                     'import ModalityInference.Proofs.ResourceRegions\n'
+                    'import ModalityInference.Proofs.Soundness\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

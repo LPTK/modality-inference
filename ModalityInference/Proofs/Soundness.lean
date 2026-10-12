@@ -2,6 +2,7 @@ import ModalityInference.Proofs.Structural
 import ModalityInference.Proofs.Evaluation
 import ModalityInference.Proofs.Interpretation
 import ModalityInference.Proofs.Subtyping
+import ModalityInference.Proofs.ResourceSoundness
 
 namespace ModalityInference.Deferred
 /-- Proved independently by subtyping induction, preserving field-sensitive
@@ -14,16 +15,22 @@ theorem semantic_subtyping {ρ w Δ a b x y v}
       ∀ l, Owns ρ v y l → Owns ρ v x l := by
   simpa only [GroundTy.modal_identity] using h.semantic hΔ ha hb hv
 
-/-- REFUTED for the current symbolic capture interpretation; see the admission-free
-`PolymorphicCapture.no_unrestricted_soundness`. Retain the target as a proposition,
-not an admitted assertion of a false claim. Repairing instantiation of capture
-metadata and proving the corrected fundamental theorem remain required work.
-Further prerequisites: structural lemmas, disjoint allocation splitting,
-closed-definition generalization and region liveness. -/
+/-- REFUTED historical annotation-dependent formulation; see the admission-free
+`PolymorphicCapture.no_unrestricted_soundness`. It remains recorded as a proposition.
+The corrected `semantic_soundness` below carries ownership evidence for each
+ground instance instead of interpreting old capture metadata under a new assignment.
+It preserves every core constructor and the original operational semantics. -/
 def SemanticSoundness : Prop := ∀ {Δ Γ t a ρ w γ ground},
     Typing Δ Γ t a → GroundModels ρ Δ →
     EnvironmentInterpretation ρ w Γ γ → a.realize ρ = some ground →
     SemanticEvaluation ρ w Γ γ t ground
+
+/-- Corrected fundamental soundness, proved for the entire core by typing induction. -/
+theorem semantic_soundness {Δ Γ t a ρ w γ reserved ground}
+    (ht : Typing Δ Γ t a) (hΔ : GroundModels ρ Δ)
+    (hγ : ResourceEnvironmentInterpretation ρ w Γ γ reserved) (ha : a.realize ρ = some ground) :
+    ResourceSemanticEvaluation w γ t ground (ContextResources Γ reserved) :=
+  ht.resource_semantic hΔ hγ ha
 
 /-- Proved by induction on the fuelled evaluator. No typing needed. -/
 theorem evalFuel_sound {fuel supplies γ t v}
@@ -34,29 +41,39 @@ theorem evalFuel_sound {fuel supplies γ t v}
 theorem evalFuel_complete {supplies γ t v} (h : Eval supplies γ t v) :
     ∃ n, ∀ fuel ≥ n, evalFuel fuel supplies γ t = .success v := h.fuel_complete
 
-/-- DEFERRED. Prerequisites: semantic soundness and both evaluator correspondences.
-An arbitrary small fuel budget is explicitly allowed to exhaust. -/
-theorem termination_no_stuck {Δ Γ t a ρ w γ ground supplies}
+/-- Termination and absence of rejection for every typed core term. An arbitrary
+small fuel budget may still exhaust. -/
+theorem termination_no_stuck {Δ Γ t a ρ w γ reserved ground supplies}
     (ht : Typing Δ Γ t a) (hΔ : GroundModels ρ Δ)
-    (hγ : EnvironmentInterpretation ρ w Γ γ) (ha : a.realize ρ = some ground)
+    (hγ : ResourceEnvironmentInterpretation ρ w Γ γ reserved) (ha : a.realize ρ = some ground)
     (hs : w.Compatible supplies γ) :
     (∃ v n, ∀ fuel ≥ n, evalFuel fuel supplies γ t = .success v) ∧
-      ∀ fuel diagnostic, evalFuel fuel supplies γ t ≠ .rejected diagnostic := by sorry
+      ∀ fuel diagnostic, evalFuel fuel supplies γ t ≠ .rejected diagnostic := by
+  obtain ⟨v, _, he, _, _⟩ := ht.resource_semantic hΔ hγ ha supplies hs
+  obtain ⟨n, hn⟩ := he.fuel_complete
+  exact ⟨⟨v, n, hn⟩, he.no_rejection⟩
 
-/-- DEFERRED. Prerequisites: semantic soundness, including *reference* validity,
-which cannot be derived from empty ownership of aliased fields. -/
-theorem live_result {Δ Γ t a ρ w γ ground supplies v}
+/-- Every result reference remains live, including aliased fields and captures. -/
+theorem live_result {Δ Γ t a ρ w γ reserved ground supplies v}
     (ht : Typing Δ Γ t a) (hΔ : GroundModels ρ Δ)
-    (hγ : EnvironmentInterpretation ρ w Γ γ) (ha : a.realize ρ = some ground)
+    (hγ : ResourceEnvironmentInterpretation ρ w Γ γ reserved) (ha : a.realize ρ = some ground)
     (hs : w.Compatible supplies γ) (he : Eval supplies γ t v) :
-    w.ValidValue v := by sorry
+    w.ValidValue v := by
+  obtain ⟨v', _, he', hv, _⟩ := ht.resource_semantic hΔ hγ ha supplies hs
+  cases he'.deterministic he
+  exact hv.valid
 
-/-- DEFERRED. Prerequisites: typed support, freshness, context split/lock lemmas. -/
-theorem ownership_bound {Δ Γ t a ρ w γ ground supplies v}
+/-- Ownership is evidence for the selected ground instance. Every owned result
+location comes from a context reserve or this evaluation's fresh supply. -/
+theorem ownership_bound {Δ Γ t a ρ w γ reserved ground supplies v}
     (ht : Typing Δ Γ t a) (hΔ : GroundModels ρ Δ)
-    (hγ : EnvironmentInterpretation ρ w Γ γ) (ha : a.realize ρ = some ground)
+    (hγ : ResourceEnvironmentInterpretation ρ w Γ γ reserved) (ha : a.realize ρ = some ground)
     (hs : w.Compatible supplies γ) (he : Eval supplies γ t v) :
-    ∀ l, Owns ρ v ground l → EnvironmentOwns ρ γ Γ l ∨ supplies.FreshLocation l := by sorry
+    ∃ owned, ResourceInterpretation w ground Mode.identity v owned ∧
+      ∀ l ∈ owned, l ∈ ContextResources Γ reserved ∨ supplies.FreshLocation l := by
+  obtain ⟨v', owned, he', hv, ho⟩ := ht.resource_semantic hΔ hγ ha supplies hs
+  cases he'.deterministic he
+  exact ⟨owned, hv, fun _ hl => ho hl⟩
 
 /-- Proved by structural induction on the concrete interpretation. -/
 theorem global_references {ρ w t v}
