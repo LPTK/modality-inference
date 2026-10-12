@@ -116,6 +116,12 @@ exact ownership sets. `Lock.resource_many_semantics` strengthens semantic lockin
 for reusable closures: every retained binding admits an empty resource reserve,
 uniformly across its polymorphic instances. Closure construction and the full
 typing induction still require further work.
+`Proofs/TypingScope` proves that every free variable of a typed term has an
+available context binding, for all constructors; empty-context typing therefore
+implies closure, including the existing `def` RHS premise.
+`Proofs/ResourceRestriction` proves that restricting context usage and trimming
+unused runtime captures preserve the same resource evidence on retained bindings.
+The stronger induction over the bindings actually read remains to be completed.
 
 ## Build and run
 
