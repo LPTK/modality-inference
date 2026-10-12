@@ -87,4 +87,13 @@ theorem ResourceEnvironmentInterpretation.references {ρ w Γ γ reserved}
     let ⟨v, hv, hs⟩ := h.1 i s hi
     ⟨v, List.mem_of_getElem? hv, hs.1 l hl⟩
 
+theorem ResourceEnvironmentInterpretation.nil {ρ w γ reserved} :
+    ResourceEnvironmentInterpretation ρ w [] γ reserved := by
+  simp [ResourceEnvironmentInterpretation]
+
+@[simp] theorem ContextResources.nil (reserved : Nat → Resources) :
+    ContextResources [] reserved = ∅ := by
+  ext l
+  simp [ContextResources]
+
 end ModalityInference

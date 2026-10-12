@@ -138,12 +138,24 @@ actually read by a typed term has an admissible ground instance under modeled
 bounds. Arbitrary unused schemes need not be inhabited. All context relations
 are preserved by common usage restriction (`Proofs/ContextRestriction`).
 `Proofs/ResourceCaptures` then proves liveness of trimmed capture environments and
-that a global lock permits only heap references in those captures. `Proofs/ResourceClosure` now establishes the complete lambda step assuming the
+that a global lock permits only heap references in those captures.
+`Proofs/ResourceClosure` now establishes the complete lambda step assuming the
 body induction hypothesis, with its quantified application contract in every live
 calling world. `Proofs/ResourceBindings` supplies separated argument extension and
 the resource bound for bindings actually read by the body. The closure owns only
 captured resources, and its reusable case owns none. This is an admission-free
 induction step; the remaining term cases and full fundamental theorem are open.
+`Proofs/Allocation` proves branch disjointness for heap cells, current-frame cells,
+and future frames, and preservation of supply compatibility.
+`Proofs/EvaluationReferences` proves that every evaluation result references only
+its input environment or supply, for all constructors and without typing premises.
+`Proofs/ResourceDefinitions` uses these results to prove the closed `def` induction
+step. Consistency gives one RHS evaluation; determinism makes the same runtime
+value support every admissible generalized instance. Its common resource reserve
+contains only fresh RHS references and remains separated from the ambient context
+and the body's allocation supply. Both RHS and body induction hypotheses are
+explicit. This proves semantic generalization as an induction ingredient; the
+algorithmic generalization theorem and full fundamental theorem remain open.
 
 ## Build and run
 
