@@ -31,6 +31,7 @@ import ModalityInference.Proofs.GenerationDefinedness
 import ModalityInference.Proofs.TypeElimination
 import ModalityInference.Proofs.SolverEntry
 import ModalityInference.Proofs.Normalization
+import ModalityInference.Proofs.SolverResidual
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

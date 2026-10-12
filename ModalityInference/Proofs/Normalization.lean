@@ -171,4 +171,9 @@ theorem Rewrites.normalize_pending (s : RewriteConfig) :
     (cs := s.pending) (ds := s.pending.map Constraint.normalize)
     fun Δ => (EntailsAll.normalize s.pending Δ).symm)
 
+@[simp] theorem TypeExpr.normalize_typeVars (a : Ty) : a.normalize.typeVars = a.typeVars := by
+  induction a <;> simp_all [TypeExpr.normalize, TypeExpr.typeVars]
+  split <;> simp_all [TypeExpr.typeVars]
+  split <;> simp_all [TypeExpr.typeVars]
+
 end ModalityInference

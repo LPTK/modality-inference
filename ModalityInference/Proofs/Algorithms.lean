@@ -4,6 +4,7 @@ import ModalityInference.SchemeSubsumption
 import ModalityInference.Proofs.Backend
 import ModalityInference.Proofs.Reduction
 import ModalityInference.Proofs.RewriteSoundness
+import ModalityInference.Proofs.SolverResidual
 
 namespace ModalityInference.Deferred
 
@@ -37,11 +38,13 @@ theorem runSolver_correspondence {fuel s t}
     RewriteStar ⟨s.pending, s.bounds, s.substitution⟩
       ⟨t.pending, t.bounds, t.substitution⟩ := by sorry
 
-/-- DEFERRED. Prerequisites: executable normalization simulates relational rewrites,
-finite mode consistency checking, acyclic substitution composition. -/
+/-- DEFERRED solution entailment. Executable normalization, residual output form,
+and acyclic substitution preservation are proved independently. The remaining
+component needs semantic worklist simulation and its duplicate invariant. -/
 theorem solve_sound {fuel cs result} (h : solve fuel cs = .success result) :
     Solution cs result.bounds result.substitution ∧ Residual result.bounds ∧
-      result.substitution.Acyclic := by sorry
+      result.substitution.Acyclic :=
+  ⟨by sorry, solve_residual h, solve_acyclic h⟩
 
 /-- DEFERRED. Prerequisites: finite DPLL completeness and ground instantiation of
 remaining flexible type variables. This rules out inconsistent unused `def`s. -/
