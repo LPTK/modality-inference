@@ -54,6 +54,11 @@ fresh resources. A scheme reserves enough resources for every admissible instanc
 set, global-reference preservation, empty ownership for many aliased values, and
 semantic lookup. `Proofs/ResourceCapture` proves that the recorded polymorphic
 counterexample satisfies this lookup contract with the original runtime closure.
+`Proofs/ResourceSubtyping` now proves that every declarative subtyping rule
+transports this ownership evidence to a subset of the source resources, under
+arbitrary modeled bounds and inherited modalities. The proof includes both
+function variances, future-only closure comparison, credit conversion, and
+pairwise separation of product cells and fields.
 This route changes no term constructor or evaluation rule. Its connection to all
 declarative typing rules remains unfinished; it is not yet a replacement
 fundamental soundness theorem.
@@ -243,6 +248,7 @@ All paths below are relative to `ModalityInference/`.
 | Ambient assignment and quantified scope | `Proofs/Grounding`, `Proofs/ContextScoping` | Scheme instantiation fixes all non-quantified identifiers; proved monomorphic contracts and a witness requiring fresh quantifiers in sharing/locking |
 | Ambient skolem scope | `Proofs/SubsumptionScope` | Proved the former comparison could confuse an ambient rigid identifier with a new quantifier; corrected skolem indices avoid every ambient type and modality identifier |
 | Ownership evidence for ground instances | `ResourceSemantics`, `Proofs/Resources`, `Proofs/ResourceCapture` | Candidate semantic repair; proved erasure invariance, global references, empty shared ownership, semantic lookup, and the original captured-credit witness; full typing connection remains open |
+| Resource interpretation under subtyping | `Proofs/ResourceSubtyping` | Proved all declarative subtyping rules preserve instance-indexed interpretation while shrinking ownership, including symbolic bounds and arbitrary inherited modalities; no admissions |
 | Polymorphic capture diagnostic | `Proofs/PolymorphicCapture` | Proved counterexample to the current fundamental statement; no admissions |
 | Remaining structural, semantic and algorithmic metatheory | `Proofs/Structural`, `Proofs/Soundness`, `Proofs/Algorithms` | Explicit admitted obligations |
 
