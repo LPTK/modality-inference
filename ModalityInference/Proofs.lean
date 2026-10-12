@@ -7,6 +7,8 @@ import ModalityInference.Proofs.ContextScoping
 import ModalityInference.Proofs.SubsumptionScope
 import ModalityInference.Proofs.Resources
 import ModalityInference.Proofs.ResourceCapture
+import ModalityInference.Proofs.TypingDefinedness
+import ModalityInference.Proofs.UndefinedDomain
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

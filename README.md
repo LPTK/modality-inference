@@ -55,8 +55,20 @@ set, global-reference preservation, empty ownership for many aliased values, and
 semantic lookup. `Proofs/ResourceCapture` proves that the recorded polymorphic
 counterexample satisfies this lookup contract with the original runtime closure.
 This route changes no term constructor or evaluation rule. Its connection to all
-declarative typing rules, including well-formedness of intermediate types, remains
-unfinished; it is not yet a replacement fundamental soundness theorem.
+declarative typing rules remains unfinished; it is not yet a replacement
+fundamental soundness theorem.
+
+**Intermediate type correction:** typing now checks definedness when introducing
+a variable instance, a unit modality, a lambda's domain and outer modality, or an
+unused sum branch. `Proofs/TypingDefinedness` proves that every typed result has a
+ground realization under modeled bounds, by induction over all typing rules.
+It also proves that all ordinary source types satisfy these guards automatically.
+`Proofs/UndefinedDomain` records the former rules' counterexample: with the
+undefined residual `r = top / bottom`, a binding of type `(unit@r) → unit` could
+be interpreted by the unit value, because that function type has no ground
+realization. The old rules typed `x () : unit`, which the evaluator rejects as an
+application of a non-function. The corrected rules reject the invalid function
+type in every context. All term constructors and closed-RHS `def` are retained.
 
 ## Build and run
 
@@ -227,6 +239,7 @@ All paths below are relative to `ModalityInference/`.
 | Term scope | `Proofs/Scoping` | Proved capture-avoiding substitution and renaming preserve scope for every term constructor; no admissions |
 | Context routing and lookup | `Proofs/Generation` | Proved usage splitting and both directions of symbolic lookup correspondence; no admissions |
 | Declarative weakening | `Proofs/Declarative` | Proved context weakening for annotated and raw typing; no admissions |
+| Well-formed intermediate types | `Proofs/TypingDefinedness`, `Proofs/UndefinedDomain` | Proved ground definedness for every typing rule and automatic guards for ordinary source types; retained and excluded the former undefined-domain counterexample |
 | Ambient assignment and quantified scope | `Proofs/Grounding`, `Proofs/ContextScoping` | Scheme instantiation fixes all non-quantified identifiers; proved monomorphic contracts and a witness requiring fresh quantifiers in sharing/locking |
 | Ambient skolem scope | `Proofs/SubsumptionScope` | Proved the former comparison could confuse an ambient rigid identifier with a new quantifier; corrected skolem indices avoid every ambient type and modality identifier |
 | Ownership evidence for ground instances | `ResourceSemantics`, `Proofs/Resources`, `Proofs/ResourceCapture` | Candidate semantic repair; proved erasure invariance, global references, empty shared ownership, semantic lookup, and the original captured-credit witness; full typing connection remains open |

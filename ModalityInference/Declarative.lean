@@ -119,11 +119,13 @@ inductive Lock (Δ : Bounds) (m : ModExpr) : Context → Context → Prop where
 
 inductive Typing : Bounds → Context → AnnotatedTerm → Ty → Prop where
   | var {Δ Γ i s σ} : Γ[i]? = some (some s) → Instantiates s σ →
-      EntailsAll Δ (σ.bounds s.bounds) → Typing Δ Γ (.var i) (σ.ty s.body)
-  | unit {Δ Γ m} : Typing Δ Γ .unit (.modal .unit m)
+      EntailsAll Δ (σ.bounds s.bounds) → EntailsAll Δ (σ.ty s.body).wellFormedBounds →
+      Typing Δ Γ (.var i) (σ.ty s.body)
+  | unit {Δ Γ m} : Entails Δ (.defined m) → Typing Δ Γ .unit (.modal .unit m)
   | subs {Δ Γ Γ' t a b} : Typing Δ Γ t a → ContextLe Δ Γ' Γ → Subtype Δ a b →
       Typing Δ Γ' t b
-  | lam {Δ Γ captured t a b m} : Lock Δ m Γ captured →
+  | lam {Δ Γ captured t a b m} : EntailsAll Δ a.wellFormedBounds →
+      Entails Δ (.defined m) → Lock Δ m Γ captured →
       Typing Δ (some (Scheme.mono a) :: captured) t b →
       Typing Δ Γ (.lam (captured.restrict (t.freeVars 1)) t) (.modal (.fn a b) m)
   | app {Δ Γ Γ₁ Γ₂ f x a b} : ContextJoin Δ Γ₁ Γ₂ Γ →
@@ -135,9 +137,11 @@ inductive Typing : Bounds → Context → AnnotatedTerm → Ty → Prop where
       Typing Δ Γ₁ t (.modal a m) → Typing Δ Γ₂ u (.modal b m) →
       Submode Δ m n → Submode Δ (.const Mode.localLower) n →
       Typing Δ Γ (.stackPair t u) (.modal (.prod a b) n)
-  | inl {Δ Γ a b t m} : Typing Δ Γ t (.modal a m) →
+  | inl {Δ Γ a b t m} : EntailsAll Δ b.wellFormedBounds →
+      Typing Δ Γ t (.modal a m) →
       Typing Δ Γ (.inl t) (.modal (.sum a b) m)
-  | inr {Δ Γ a b t m} : Typing Δ Γ t (.modal b m) →
+  | inr {Δ Γ a b t m} : EntailsAll Δ a.wellFormedBounds →
+      Typing Δ Γ t (.modal b m) →
       Typing Δ Γ (.inr t) (.modal (.sum a b) m)
   | case {Δ Γ Γ₁ Γ₂ a b c t u v m} : ContextJoin Δ Γ₁ Γ₂ Γ →
       Typing Δ Γ₁ t (.modal (.sum a b) m) →

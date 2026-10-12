@@ -88,6 +88,8 @@ theorem variable_typed : Typing [] [some functionScheme] (.var 0)
     (uniqueInstance.ty functionScheme.body) := by
   apply Typing.var (σ := uniqueInstance) rfl
   all_goals simp [Instantiates, uniqueInstance, functionScheme, EntailsAll, Substitution.bounds]
+  change ∀ c ∈ [.defined (.const Mode.identity)], Entails [] c
+  simp [Entails, ModExpr.WellFormed, ModExpr.eval]
 
 theorem environment_interpreted :
     EnvironmentInterpretation assignment world [some functionScheme] [value] := by
