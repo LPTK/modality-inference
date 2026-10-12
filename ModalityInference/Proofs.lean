@@ -24,6 +24,7 @@ import ModalityInference.Proofs.ResourceCaptures
 import ModalityInference.Proofs.ResourceClosure
 import ModalityInference.Proofs.ResourceDefinitions
 import ModalityInference.Proofs.ResourceApplication
+import ModalityInference.Proofs.ResourceProducts
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

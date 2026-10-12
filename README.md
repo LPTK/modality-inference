@@ -163,6 +163,13 @@ branches keep function, argument, and call resources separate; evaluation refere
 containment establishes compatibility of the call supply with both runtime values.
 The closure contract then supplies the result and the full resource bound.
 
+`Proofs/ResourceProducts` proves both heap and stack pair induction steps. A
+reserved cell is excluded from all subsequent allocations, including future
+frames (`Proofs/AllocationCells`); both fields are disjoint from it and each other.
+The stack rule uses its actual modality comparison to weaken field resources
+and its locality premise to validate the current-frame cell. Complete field types
+and the final ownership bound are preserved. Other term cases remain open.
+
 ## Build and run
 
 Use the existing pins; do not run `lake update` for this milestone:
