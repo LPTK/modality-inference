@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-241 public or established declarations transitively, including the complete
+257 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -96,6 +96,14 @@ equivalence, discharge, reduction, recording, hypotheses, both expansions,
 substitution, propagation, and permutation. Every original observed solution is
 preserved, with fresh auxiliaries hidden existentially. Executable correspondence,
 termination, and the solver/inference results remain separate obligations.
+
+`Proofs/Normalization` proves that executable modality normalization preserves
+partial evaluation exactly, and type normalization preserves ground realization.
+It also proves mutual declarative subtyping for every defined type, preservation
+of each constraint's declarative entailment, and simulation of pending-list
+normalization by the existing `Rewrites.equivalence` rule. Undefined residuals
+remain undefined. This discharges normalization as a prerequisite of executable
+correspondence; the complete correspondence theorem remains open.
 
 ## Corrections and retained witnesses
 
@@ -308,6 +316,7 @@ All paths below are relative to `ModalityInference/`.
 | §3 ground types, ownership, separation and liveness | `Semantics`, `ResourceSemantics` | Ground definitions and corrected instance-indexed resource interpretation; old annotation-dependent interpretation retained for its counterexample |
 | §4 independent constraint-generation relation | `Generation` | Inductive rules, including closed `def` and `region` |
 | §4 inference and elaboration | `Inference` | Executable prototype |
+| Executable normalization | `Proofs/Normalization` | Proved preservation of partial evaluation, ground realization, definedness and declarative entailment; simulated by abstract rewriting |
 | §4 constraint rewriting | `Rewriting`, `Constraints` | Independent relation and executable worklist |
 | §5 scheme subsumption | `SchemeSubsumption` | Executable prototype; reduction correctness deferred |
 | §5 future/past projection and modality entailment | `ModeBackend`, `Proofs/Projection` | Proved all expression projections, partial definedness, both flexible/rigid identifier encodings, bounds entailment and positive-query declarative soundness |

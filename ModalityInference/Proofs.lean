@@ -30,6 +30,7 @@ import ModalityInference.Proofs.ResourceSoundness
 import ModalityInference.Proofs.GenerationDefinedness
 import ModalityInference.Proofs.TypeElimination
 import ModalityInference.Proofs.SolverEntry
+import ModalityInference.Proofs.Normalization
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

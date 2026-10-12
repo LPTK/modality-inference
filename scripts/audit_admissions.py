@@ -272,6 +272,22 @@ constants = [
     'ModalityInference.SolverEntry.former_shape_precheck',
     'ModalityInference.SolverEntry.former_exhausted_twenty',
     'ModalityInference.SolverEntry.corrected_rejects',
+    'ModalityInference.ModExpr.foldConstants_eval',
+    'ModalityInference.ModExpr.normalize_eval',
+    'ModalityInference.TypeExpr.normalize_realize',
+    'ModalityInference.Constraint.normalize_ground',
+    'ModalityInference.GroundModels.normalize',
+    'ModalityInference.TypeExpr.normalize_definedUnder',
+    'ModalityInference.Submode.normalize',
+    'ModalityInference.ModExpr.normalize_submode',
+    'ModalityInference.Subtype.prod_congr',
+    'ModalityInference.Subtype.sum_congr',
+    'ModalityInference.Subtype.fn_congr',
+    'ModalityInference.TypeExpr.normalize_subtype',
+    'ModalityInference.Subtype.normalize_iff',
+    'ModalityInference.Constraint.normalize_entails',
+    'ModalityInference.EntailsAll.normalize',
+    'ModalityInference.Rewrites.normalize_pending',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -308,6 +324,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.Algorithms\n'
                     'import ModalityInference.Proofs.TypeElimination\n'
                     'import ModalityInference.Proofs.SolverEntry\n'
+                    'import ModalityInference.Proofs.Normalization\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(
