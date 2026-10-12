@@ -157,6 +157,12 @@ and the body's allocation supply. Both RHS and body induction hypotheses are
 explicit. This proves semantic generalization as an induction ingredient; the
 algorithmic generalization theorem and full fundamental theorem remain open.
 
+`Proofs/ResourceApplication` proves the application induction step with both
+induction hypotheses explicit. Used-context splitting and three fresh allocation
+branches keep function, argument, and call resources separate; evaluation reference
+containment establishes compatibility of the call supply with both runtime values.
+The closure contract then supplies the result and the full resource bound.
+
 ## Build and run
 
 Use the existing pins; do not run `lake update` for this milestone:
