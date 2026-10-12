@@ -22,6 +22,11 @@ def duplicateCredit : RawTerm := .split heapPair
   (.pair (.reuse (.var 0) .unit .unit) (.reuse (.var 0) .unit .unit))
 def initialSupplies : Supplies := {}
 
+def capturedCreditScheme : Scheme := .mono (.modal .credit (.var (.flex 0)))
+def polymorphicCapturedCredit : SchemeValue :=
+  ⟨{modParams := [0], body := .fn .unit capturedCreditScheme.body},
+    .closure [.credit (.heap 0)] [some capturedCreditScheme] (.var 1)⟩
+
 def rejected {α : Type} : RunResult α → Bool
   | .rejected _ => true
   | _ => false

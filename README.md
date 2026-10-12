@@ -31,6 +31,11 @@ and `SchemeValue.subst` transports a scheme and its value together. These operat
 preserve runtime structure, references and liveness; evaluation is preserved up to
 annotation erasure. The nested witness in `Proofs/ScopedCaptures` checks why uniform
 transport is insufficient when a captured scheme itself quantifies variables.
+`SchemeValue.instantiate` now applies ordered type and modality arguments to both
+the scheme and its value, retaining definedness guards even for unused arguments.
+Its substitution-domain and erasure contracts are proved, as is the unique-credit
+witness after instantiation. This operation generates bounds for the caller to
+discharge; it is not yet integrated into `infer` or `evalFuel`.
 
 ## Build and run
 
@@ -74,6 +79,19 @@ def program : RawTerm := .defn idTerm
   (.generalize [] (.fn (.var (.flex 0)) (.var (.flex 0))))
   (.mono (.fn .unit .unit))).isSuccess  -- true
 ```
+
+Explicit scheme/value instantiation is also runnable:
+
+```lean
+import ModalityInference.Examples
+open ModalityInference
+#eval Examples.polymorphicCapturedCredit.instantiate [] [.const Mode.identity]
+```
+
+The result includes the instantiated type, transported closure, substitution and
+residual obligations. Supplying an undefined residual still produces a definedness
+obligation when its parameter does not occur in the body; solving those bounds
+rejects the instance.
 
 The API is in namespace `ModalityInference`:
 
@@ -182,6 +200,7 @@ All paths below are relative to `ModalityInference/`.
 | Recursive annotation transport | `Annotations`, `Proofs/Annotations` | Executable value substitution; proved evaluation, erasure, reference and freshness preservation |
 | Simultaneous substitution | `Proofs/Substitution` | Proved composition for types, modalities, constraints and bounds, plus agreement of scheme substitution with its exposed binder action; no admissions |
 | Transport through scheme binders | `Annotations`, `Proofs/Annotations`, `Proofs/ScopedCaptures` | Executable per-capture binder transport and paired scheme/value substitution; proved erasure, reference, liveness and evaluation preservation; nested polymorphic witness |
+| Explicit value instantiation | `Annotations`, `Proofs/Instantiation`, `Proofs/ScopedCaptures` | Ordered arguments transport metadata; proved instantiation, definedness-guard and erasure contracts; integration with typing and evaluation remains open |
 | Subtyping substitution | `Proofs/PartialSubstitution` | Proved with explicit definedness of modality images, and for all ordinary modality images; proved counterexample to the former unrestricted statement |
 | Term scope | `Proofs/Scoping` | Proved capture-avoiding substitution and renaming preserve scope for every term constructor; no admissions |
 | Context routing and lookup | `Proofs/Generation` | Proved usage splitting and both directions of symbolic lookup correspondence; no admissions |
@@ -238,7 +257,7 @@ corrections. The POPL reviews and response are in the enclosing paper repository
 | Typed ownership and separate reference validity | `aliasedField` inside a unique pair and a dead stack frame |
 | Fuel is not rejection | Small-budget inference/evaluation exhaust; larger budgets succeed |
 
-The 89 regression checks also compare small two-mode queries and all concrete mode
+The 97 regression checks also compare small two-mode queries and all concrete mode
 comparisons against exhaustive valuation checking before accepting backend results.
 They exercise every term constructor and both sum branches.
 

@@ -117,6 +117,15 @@ end Constraint
 
 abbrev Bounds := List Constraint
 
+/-- Definedness obligations for every modality in a type argument. -/
+def TypeExpr.wellFormedBounds : Ty → Bounds
+  | .var _ | .unit | .credit => []
+  | .prod a b | .sum a b | .fn a b => a.wellFormedBounds ++ b.wellFormedBounds
+  | .modal a m => a.wellFormedBounds ++ [.defined m]
+
+def instantiationGuards (types : List Ty) (modes : List ModExpr) : Bounds :=
+  types.flatMap TypeExpr.wellFormedBounds ++ modes.map Constraint.defined
+
 def Bounds.typeVars (cs : Bounds) : Finset TypeVar := cs.foldl (· ∪ ·.typeVars) ∅
 def Bounds.modVars (cs : Bounds) : Finset ModVar := cs.foldl (· ∪ ·.modVars) ∅
 def Bounds.typeVariables (cs : Bounds) : List TypeVar := (cs.flatMap Constraint.typeVariables).dedup

@@ -59,6 +59,37 @@ def captureAvoidance : Scheme :=
 #guard ((Scheme.generalize [] (.var (.flex 0))).instantiate 7 9 true).2 == .var (.rigid 7)
 #guard ({typeParams := [40], body := .unit} : Scheme).freshTypeIndex = 41
 
+-- Scheme instantiation transports captured metadata, including after alpha-renaming.
+def instantiatedCreditAt (m : Mode) : RunResult InstantiatedValue → Bool
+  | .success r =>
+    r.type == .fn .unit (.modal .credit (.const m)) &&
+      match r.value with
+      | .closure [.credit (.heap 0)] [some captured] (.var 1) =>
+        captured.body == .modal .credit (.const m)
+      | _ => false
+  | _ => false
+#guard Mode.all.all fun m =>
+  instantiatedCreditAt m (polymorphicCapturedCredit.instantiate [] [.const m])
+#guard Mode.all.all fun m =>
+  instantiatedCreditAt m ((polymorphicCapturedCredit.subst {}).instantiate [] [.const m])
+#guard rejected (polymorphicCapturedCredit.instantiate [] [])
+#guard rejected (polymorphicCapturedCredit.instantiate [.unit] [.const Mode.identity])
+
+-- Definedness is retained even for unused quantified arguments.
+def badArgument : ModExpr := .leftResidual (.const Mode.identity) (.const Mode.bottom)
+def checkInstantiation (p : SchemeValue) (types : List Ty) (modes : List ModExpr) :
+    RunResult Solved := do
+  let r ← p.instantiate types modes
+  solve 500 r.bounds
+def unusedArguments : SchemeValue :=
+  ⟨{typeParams := [0], modParams := [0], body := .unit}, .unit⟩
+#guard rejected (checkInstantiation polymorphicCapturedCredit [] [badArgument])
+#guard rejected (checkInstantiation unusedArguments [.unit] [badArgument])
+#guard rejected (checkInstantiation unusedArguments
+  [.fn .unit (.prod .unit (.modal .credit badArgument))] [.const Mode.identity])
+#guard Mode.all.all fun m =>
+  (checkInstantiation unusedArguments [.modal .credit (.const m)] [.const m]).isSuccess
+
 -- All constructors, both case alternatives, closed polymorphism and locality.
 def evaluate (t : RawTerm) : RunResult Value := do
   let r ← infer 5000 [] t

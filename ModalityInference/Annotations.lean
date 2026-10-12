@@ -43,4 +43,26 @@ structure SchemeValue where
 def SchemeValue.subst (p : SchemeValue) (σ : Substitution) : SchemeValue :=
   ⟨p.scheme.subst σ, p.value.substCapturedTypes (p.scheme.substitutionAction σ)⟩
 
+/-- Instantiation generates obligations; the caller must establish these bounds
+before treating the resulting value as having the instantiated type. -/
+structure InstantiatedValue where
+  substitution : Substitution
+  bounds : Bounds
+  type : Ty
+  value : Value
+  deriving Repr
+
+/-- Arguments follow the scheme's quantified order. This keeps uses independent
+of the particular names chosen for its binders. -/
+def SchemeValue.instantiate (p : SchemeValue) (types : List Ty) (modes : List ModExpr) :
+    RunResult InstantiatedValue := do
+  if types.length != p.scheme.typeParams.length then
+    return ← .rejected "wrong number of type arguments"
+  if modes.length != p.scheme.modParams.length then
+    return ← .rejected "wrong number of modality arguments"
+  let σ : Substitution :=
+    ⟨p.scheme.typeParams.zip types, p.scheme.modParams.zip modes⟩
+  return ⟨σ, σ.bounds p.scheme.bounds ++ instantiationGuards types modes,
+    σ.ty p.scheme.body, p.value.substCapturedTypes σ⟩
+
 end ModalityInference

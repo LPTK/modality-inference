@@ -81,6 +81,12 @@ constants = [
     'ModalityInference.Eval.substCapturedTypes_erasure',
     'ModalityInference.ScopedCaptures.nested_transport',
     'ModalityInference.ScopedCaptures.uniform_and_scoped_differ',
+    'ModalityInference.SchemeValue.instantiate',
+    'ModalityInference.TypeExpr.wellFormedBounds_spec',
+    'ModalityInference.instantiationGuards_spec',
+    'ModalityInference.SchemeValue.instantiate_spec',
+    'ModalityInference.SchemeValue.instantiate_erasure',
+    'ModalityInference.ScopedCaptures.unique_instantiation_contract',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'

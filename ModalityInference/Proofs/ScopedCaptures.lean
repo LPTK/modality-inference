@@ -1,5 +1,6 @@
 import ModalityInference.Proofs.PolymorphicCapture
 import ModalityInference.Proofs.Substitution
+import ModalityInference.Proofs.Instantiation
 
 /-! Binder transport for a polymorphic value nested inside another closure. -/
 namespace ModalityInference.ScopedCaptures
@@ -49,5 +50,36 @@ theorem uniform_and_scoped_differ : nested.substTypes {} ≠ nested.substCapture
 theorem same_runtime : ValueErasure (nested.substTypes {}) (nested.substCapturedTypes {}) := by
   rw [uniform_transport, nested_transport]
   exact .closure (.cons (.closure (.cons .credit .nil) rfl) .nil) rfl
+
+def uniqueResult : InstantiatedValue :=
+  ⟨PolymorphicCapture.uniqueInstance, [.defined (.const Mode.identity)],
+    PolymorphicCapture.uniqueInstance.ty package.scheme.body,
+    PolymorphicCapture.value.substTypes PolymorphicCapture.uniqueInstance⟩
+
+theorem unique_instantiation : package.instantiate [] [.const Mode.identity] =
+    .success uniqueResult := by
+  simp [SchemeValue.instantiate, package, uniqueResult, PolymorphicCapture.uniqueInstance,
+    PolymorphicCapture.functionScheme, PolymorphicCapture.creditScheme, PolymorphicCapture.value,
+    Value.substCapturedTypes, Value.substTypes, Value.mapAnnotation, AnnotatedTerm.substTypes,
+    Term.mapAnnotation, Scheme.mono, Scheme.subst, Scheme.fresheningIndices,
+    Scheme.instantiate, Scheme.freshSubstitution, Substitution.bounds, Substitution.ty,
+    Substitution.mode, TypeExpr.subst, ModExpr.subst, bind, pure, RunResult.bind,
+    instantiationGuards]
+
+theorem missing_argument : package.instantiate [] [] =
+    .rejected "wrong number of modality arguments" := rfl
+
+theorem extra_type_argument : package.instantiate [.unit] [.const Mode.identity] =
+    .rejected "wrong number of type arguments" := rfl
+
+/-- Unlike the old variable rule's unchanged closure, explicit instantiation
+establishes the unique-credit contract under every ambient assignment. -/
+theorem unique_instantiation_contract {r} (h : package.instantiate [] [.const Mode.identity] = .success r)
+    (ρ : GroundAssignment) (w : World) :
+    ValueInterpretation ρ w (.fn (.unit Mode.identity) (.credit Mode.identity) Mode.identity)
+      Mode.identity r.value := by
+  rw [unique_instantiation] at h
+  cases h
+  exact PolymorphicCapture.transported_interpreted ρ w
 
 end ModalityInference.ScopedCaptures
