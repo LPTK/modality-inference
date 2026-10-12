@@ -3,7 +3,7 @@ import ModalityInference.Rewriting
 import ModalityInference.SchemeSubsumption
 import ModalityInference.Proofs.Backend
 import ModalityInference.Proofs.Reduction
-import ModalityInference.Proofs.RewriteModels
+import ModalityInference.Proofs.RewriteSoundness
 
 namespace ModalityInference.Deferred
 
@@ -15,12 +15,12 @@ both partial residual adjunctions, definedness guards, and closure orientation. 
 theorem rewrite_sound {cs ds ρ} (h : ConstraintReduction cs ds) :
     GroundModels ρ cs ↔ GroundModels ρ ds := h.groundModels
 
-/-- DEFERRED. Prerequisites: substitution bookkeeping, fresh shape expansion,
-local rewrite equivalence. This preserves every solution on the original domain,
-not merely the existence of some solution. -/
+/-- Proved for every abstract rewrite constructor, including substitution, fresh
+shape expansion, and local equivalence. Every solution is preserved on the
+original observed domain, modulo mutual ground subtyping. -/
 theorem rewrite_solution_preservation {s t scope} (h : Rewrites s t)
     (ht : scope.types ⊆ s.typeVars) (hm : scope.modes ⊆ s.modVars) :
-    ∀ ρ, ConfigModels scope s ρ ↔ ConfigModels scope t ρ := by sorry
+    ∀ ρ, ConfigModels scope s ρ ↔ ConfigModels scope t ρ := Rewrites.configModels h ht hm
 
 /-- DEFERRED. Prerequisites: fixed identifier orientation, duplicate suppression,
 occurs checks, finite propagation. No polynomial complexity claim is made. -/

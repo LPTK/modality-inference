@@ -258,6 +258,13 @@ constants = [
     'ModalityInference.TypeExpr.realize_setType',
     'ModalityInference.Deferred.ConfigModels.congr',
     'ModalityInference.Deferred.ConfigModels.substitute',
+    'ModalityInference.Shape.realize_fresh',
+    'ModalityInference.RewriteConfig.type_image_scoped',
+    'ModalityInference.RewriteConfig.mode_image_scoped',
+    'ModalityInference.Deferred.ConfigModels.expand',
+    'ModalityInference.Deferred.ConfigModels.redundant',
+    'ModalityInference.Deferred.Rewrites.configModels',
+    'ModalityInference.Deferred.rewrite_solution_preservation',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'

@@ -21,4 +21,14 @@ theorem ConfigModels.congr {scope s t ρ} (hσ : s.substitution = t.substitution
   simp only [ConfigModels, hσ]
   exact exists_congr fun η => and_congr (h η) Iff.rfl
 
+theorem ConfigModels.redundant {scope ρ c} {s : RewriteConfig}
+    (hc : ∀ η, GroundModels η s.constraints → GroundSatisfies η c) :
+    ConfigModels scope {s with pending := c :: s.pending} ρ ↔ ConfigModels scope s ρ := by
+  apply ConfigModels.congr
+  · rfl
+  intro η
+  change GroundModels η (c :: s.constraints) ↔ GroundModels η s.constraints
+  simp only [GroundModels, List.mem_cons, or_imp, forall_and, forall_eq]
+  exact ⟨And.right, fun h => ⟨hc η h, h⟩⟩
+
 end ModalityInference.Deferred
