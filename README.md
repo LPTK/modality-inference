@@ -65,6 +65,10 @@ to prove polymorphic sharing with empty ownership and the complete context-join
 contract: both component environments are valid, own subsets of the original
 resources, and have disjoint ownership. `Deferred.context_join_semantics` now
 uses this proved contract in place of its annotation-dependent admission.
+The same module proves semantic locking: each retained polymorphic binding
+satisfies its captured type within its original reserve, separation is preserved,
+and the locked context owns a subset of the original resources.
+`Deferred.locking_semantics` now uses that proved resource contract.
 This route changes no term constructor or evaluation rule. Its connection to all
 declarative typing rules remains unfinished; it is not yet a replacement
 fundamental soundness theorem.
@@ -317,7 +321,7 @@ They exercise every term constructor and both sum branches.
 
 ## Deferred proof work and prerequisites
 
-Each of the 21 remaining deferred theorems has a prerequisite comment immediately above it.
+Each of the 20 remaining deferred theorems has a prerequisite comment immediately above it.
 The fundamental semantic soundness claim is separately recorded as a proposition:
 its current formulation is refuted, so it cannot responsibly remain an admitted theorem.
 These are obligations to prove and, if counterexamples arise, refine; the
@@ -375,7 +379,7 @@ definedness obligations.
 
 | Proof module | Obligations | Prerequisites/dependencies |
 | --- | --- | --- |
-| `Structural` | Closed term substitution, semantic locking | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup and instance-indexed context joins are proved |
+| `Structural` | Closed term substitution | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup, instance-indexed context joins and locking are proved |
 | `Soundness` | Semantic soundness, termination/no-stuck, live results, ownership bound | Structural lemmas, fresh supply partitioning, region liveness, closure interpretation and closed-definition generalization; semantic subtyping and support monotonicity are proved |
 | `Algorithms` | Local rewrite equivalence, solution preservation, scheduled termination, worklist correspondence, solve soundness/consistency/completeness, principal factorization, generation correspondence/soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, backend reduction, scheme-subsumption soundness/completeness | Guarded residual adjunctions, substitution invariants, freshness, representative-search completeness, rigid entailment, Boolean projection/CNF correctness, modal witness reconstruction, established `Equation.decide_correct` |
 

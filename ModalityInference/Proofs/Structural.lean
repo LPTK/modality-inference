@@ -65,12 +65,14 @@ theorem context_join_semantics {ρ w Γ Γ₁ Γ₂ γ Δ reserved}
       Disjoint (ContextResources Γ₁ left) (ContextResources Γ₂ right) :=
   h.resource_semantics hΔ hγ
 
-/-- Prerequisites: future crossing, closure support interpretation, scheme substitution. -/
-theorem locking_semantics {ρ w Γ Γ' γ Δ m}
+/-- Proved for instance-indexed ownership: each retained binding satisfies its
+captured type, and the locked context uses only its original resource reserves. -/
+theorem locking_semantics {ρ w Γ Γ' γ Δ m reserved}
     (hΔ : GroundModels ρ Δ) (h : Lock Δ m Γ Γ')
-    (hγ : EnvironmentInterpretation ρ w Γ γ) :
-    EnvironmentInterpretation ρ w Γ' γ ∧
-      ∀ l, EnvironmentOwns ρ γ Γ' l → EnvironmentOwns ρ γ Γ l := by sorry
+    (hγ : ResourceEnvironmentInterpretation ρ w Γ γ reserved) :
+    ResourceEnvironmentInterpretation ρ w Γ' γ reserved ∧
+      ContextResources Γ' reserved ⊆ ContextResources Γ reserved :=
+  h.resource_semantics hΔ hγ
 
 /-- Proved independently by induction on evaluation; capture selection uses syntax FVs. -/
 theorem annotation_erasure {s γ δ t u v}

@@ -142,6 +142,9 @@ constants = [
     'ModalityInference.ResourceSchemeInterpretation.shared',
     'ModalityInference.ContextJoin.resource_semantics',
     'ModalityInference.Deferred.context_join_semantics',
+    'ModalityInference.ResourceSchemeInterpretation.capture',
+    'ModalityInference.Lock.resource_semantics',
+    'ModalityInference.Deferred.locking_semantics',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
