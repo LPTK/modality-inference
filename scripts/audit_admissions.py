@@ -91,6 +91,12 @@ constants = [
     'ModalityInference.ConcreteBackend.atomFin_lookup',
     'ModalityInference.ConcreteBackend.equation_correct',
     'ModalityInference.ConcreteBackend.decideFormula_correct',
+    'ModalityInference.projectedModes_encodeModes',
+    'ModalityInference.ModExpr.project_correct',
+    'ModalityInference.modeFormula_correct',
+    'ModalityInference.boundsModeFormula_correct',
+    'ModalityInference.ConcreteBackend.entails_correct',
+    'ModalityInference.ConcreteBackend.entails_submode',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -105,6 +111,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.PartialSubstitution\n'
                     'import ModalityInference.Proofs.ScopedCaptures\n'
                     'import ModalityInference.Proofs.Backend\n'
+                    'import ModalityInference.Proofs.Projection\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(
         f'#print axioms {name}' for name in constants) + '\n')
     result = subprocess.run(['lake', 'env', 'lean', str(path)], cwd=ROOT,

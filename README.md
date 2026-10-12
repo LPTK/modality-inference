@@ -15,7 +15,10 @@ with symbolic bounds and partial-modality definedness accounted for. The Boolean
 reduction is also proved: successful backend reports characterize validity
 under every Boolean valuation, through polarity-aware CNF normalization and an
 explicit identifier-to-`Fin n` translation to the original solver. Modality
-projection and full scheme subsumption still have separate proof obligations.
+projection is proved for all operations, preserving residual definedness and the
+reversed uniqueness comparison. Backend modality entailment agrees with
+`ModeModels`, and positive inequality reports yield the independent `Submode`
+judgment. Full scheme subsumption still has separate proof obligations.
 Full-system metatheory remains incomplete: deferred theorem statements use isolated `sorry`s under
 `ModalityInference/Proofs/`. Neither the public library nor the executables nor the
 original solver import those files. An executable acceptance report is data,
@@ -194,7 +197,7 @@ All paths below are relative to `ModalityInference/`.
 | §4 inference and elaboration | `Inference` | Executable prototype |
 | §4 constraint rewriting | `Rewriting`, `Constraints` | Independent relation and executable worklist |
 | §5 scheme subsumption | `SchemeSubsumption` | Executable prototype; reduction correctness deferred |
-| §5 future/past projection and `Fin n` normalization | `ModeBackend` | Executable bridge to established solver |
+| §5 future/past projection and modality entailment | `ModeBackend`, `Proofs/Projection` | Proved all expression projections, partial definedness, both flexible/rigid identifier encodings, bounds entailment and positive-query declarative soundness |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
 | §5 generic concrete modality solver | `Subsumption` | **Existing proved correctness and stabilization, unchanged** |
 | Core programs and regressions | `Examples`, `Regression` | Executed during validation/CI |

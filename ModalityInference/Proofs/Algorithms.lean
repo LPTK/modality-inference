@@ -112,8 +112,8 @@ theorem inference_complete {t a} (h : RawTyping [] [] t a) :
 
 /-- Proved by polarity-aware CNF normalization, clause translation with an explicit
 identifier-to-Fin lookup, and the existing `Equation.decide_correct` theorem.
-This theorem concerns Boolean formulas; modality projection correctness remains
-a separate prerequisite of scheme subsumption. -/
+This theorem concerns Boolean formulas; modality projection correctness is proved
+separately in `Proofs/Projection`. Full scheme subsumption remains deferred. -/
 theorem backend_reduction {fuel e report}
     (h : ConcreteBackend.decideFormula fuel e = .success report) :
     report.valid = true ↔ ∀ valuation, e.eval valuation = true :=
