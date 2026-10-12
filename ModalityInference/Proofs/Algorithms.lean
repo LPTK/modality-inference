@@ -78,7 +78,9 @@ theorem generator_correspondence {fuel Γ t s r}
     ∃ cs, Generates Γ t r.type cs ∧ r.state.constraints.Perm (s.constraints ++ cs) := by sorry
 
 /-- DEFERRED. Prerequisites: generation rule induction, context splitting/locking,
-substitution, and generalization under the empty term context. -/
+substitution, and generalization under the empty term context. Generation now
+emits guards for lookup, lambda domains/modes and unused sum branches;
+`Generates.definedUnder` proves result definedness under every solution. -/
 theorem generation_sound {Γ : Context} {t a cs Δ σ}
     (h : Generates (Γ.map ContextEntry.binding) t a cs) (hs : Solution cs Δ σ) :
     RawTyping Δ (Γ.subst σ) t (σ.ty a) := by sorry

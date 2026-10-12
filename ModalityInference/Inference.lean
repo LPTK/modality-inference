@@ -20,7 +20,7 @@ def instantiate (s : InferenceState) (scheme : Scheme) : Ty × InferenceState :=
   let (cs, t) := scheme.instantiate s.nextType s.nextMode
   (t, {nextType := s.nextType + scheme.typeParams.length
        nextMode := s.nextMode + scheme.modParams.length
-       constraints := s.constraints ++ cs})
+       constraints := s.constraints ++ cs ++ [.sub t t]})
 end InferenceState
 
 /-- Restrictions on a polymorphic binding remain under its quantifiers. Each use
@@ -82,7 +82,7 @@ def generate : Nat → AlgorithmicContext → RawTerm → InferenceState → Run
       let captured := .lock m :: Γ
       let r ← generate fuel (.binding (some (.mono a)) :: captured) body s
       return ⟨.modal (.fn a r.type) m,
-        .lam (captureContext captured (body.freeVars 1)) r.term, r.state⟩
+        .lam (captureContext captured (body.freeVars 1)) r.term, r.state.emit [.sub a a, .defined m]⟩
     | .app f x => do
       let (Γ₁,Γ₂) := splitContext f.freeVars x.freeVars Γ
       let f ← generate fuel Γ₁ f s
@@ -109,7 +109,8 @@ def generate : Nat → AlgorithmicContext → RawTerm → InferenceState → Run
       let (b,s) := s.freshType
       let (m,s) := s.freshMode
       return ⟨.modal (.sum a b) m, if left then .inl x.term else .inr x.term,
-        s.emit [.sub x.type (.modal (if left then a else b) m)]⟩
+        s.emit [.sub x.type (.modal (if left then a else b) m),
+          .sub (if left then b else a) (if left then b else a)]⟩
     | .split x body => do
       let (Γ₁,Γ₂) := splitContext x.freeVars (body.freeVars 3) Γ
       let x ← generate fuel Γ₁ x s

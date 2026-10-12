@@ -22,7 +22,7 @@ rewriting, solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-201 public or established declarations transitively, including the complete
+207 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -100,6 +100,18 @@ references, liveness, and instantiation guards. The nested `ScopedCaptures`
 witness records why uniform annotation substitution is insufficient. Those
 operations are not required by the proved resource semantics and are not inserted
 into `infer` or `evalFuel`.
+
+`GenerationDefinedness` records a further algorithmic mismatch: the former
+variable-inference path accepted an undefined function type, and a generated
+unused lambda domain could later be replaced by an undefined type under a vacuous
+solution. The corrected generator and independent `Generates` relation emit
+reflexive type guards for lookup, lambda domains, and unused sum branches, plus
+a definedness constraint for lambda modes. A type guard is retained as `a ≤ a`,
+so it survives later type substitution; inspecting only the modalities already
+written in a type variable would emit no guard. `Generates.definedUnder` proves
+that every generated result is defined under every declarative solution, for all
+constructors. The counterexamples and corrected rejection proofs are checked
+without admissions. Full generation and inference soundness remain open.
 
 Evaluator correspondence, determinism, fuel stability, Boolean CNF reduction,
 and all-axis modality projection are also proved independently. Backend modality
@@ -327,6 +339,7 @@ corrections. The POPL reviews and response are in the enclosing paper repository
 | Case routing includes both branches, excluding binders | `branchUsage`: right branch alone uses the outer argument |
 | Reversed past projection in `ModSplit` | Unique-to-aliased succeeds; aliased-to-unique rejects |
 | Closure adjoint orientation | Exhaustive 64 comparisons; same-operator swap has a counterexample |
+| Definedness survives generation and later type substitution | `GenerationDefinedness`: former variable inference accepted an undefined function; an unconstrained lambda domain admitted a partial image; corrected guards reject both |
 | Partial residual side conditions survive rewrites | Both undefined residuals reject, including inside type-variable bounds |
 | Substitution updates residual bounds and previous images | `α = β; β = unit`; conflicting repeated assignments reject |
 | Subtyping substitution requires defined modality images | `unit@μ ≤ unit@top` fails after substituting the undefined residual `top / bottom`; checked in `Proofs/PartialSubstitution` |
@@ -339,7 +352,7 @@ corrections. The POPL reviews and response are in the enclosing paper repository
 | Scheme-comparison skolems are fresh for ambient bounds | `SubsumptionScope`: under `unit ≤ rigid₁`, the former comparison incorrectly accepted `unit` as `∀α. α`; the corrected comparison chooses `rigid₂` |
 | Fuel is not rejection | Small-budget inference/evaluation exhaust; larger budgets succeed |
 
-The 99 regression checks also compare small two-mode queries and all concrete mode
+The regression checks also compare small two-mode queries and all concrete mode
 comparisons against exhaustive valuation checking before accepting backend results.
 They exercise every term constructor and both sum branches.
 

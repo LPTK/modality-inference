@@ -2,6 +2,8 @@ import ModalityInference.Declarative
 
 /-! Relational constraint generation. Fresh choices and constraint order are not
 fixed by this specification; it never calls `generate`, `infer`, or `solve`.
+Reflexive type constraints retain definedness even when a later substitution
+replaces an otherwise unconstrained type variable by an internal partial type.
 -/
 namespace ModalityInference
 
@@ -37,11 +39,12 @@ def Solves (cs residual : Bounds) (σ : Substitution) : Prop :=
 
 inductive Generates : AlgorithmicContext → RawTerm → Ty → Bounds → Prop where
   | var {Γ i s σ} : Lookup Γ i s → Instantiates s σ →
-      Generates Γ (.var i) (σ.ty s.body) (σ.bounds s.bounds)
+      Generates Γ (.var i) (σ.ty s.body)
+        (σ.bounds s.bounds ++ [.sub (σ.ty s.body) (σ.ty s.body)])
   | unit {Γ} : Generates Γ .unit (.modal .unit .bottom) []
   | lam {Γ t a b m cs} :
       Generates (.binding (some (.mono a)) :: .lock m :: Γ) t b cs →
-      Generates Γ (.lam () t) (.modal (.fn a b) m) cs
+      Generates Γ (.lam () t) (.modal (.fn a b) m) (cs ++ [.sub a a, .defined m])
   | app {Γ Γ₁ Γ₂ f x a b c m cs ds} : UsageSplit Γ Γ₁ Γ₂ →
       Generates Γ₁ f a cs → Generates Γ₂ x b ds →
       Generates Γ (.app f x) c (cs ++ ds ++ [.sub a (.modal (.fn b c) m)])
@@ -54,9 +57,9 @@ inductive Generates : AlgorithmicContext → RawTerm → Ty → Bounds → Prop 
       Generates Γ (.stackPair x y) (.modal (.prod c d) m)
         (cs ++ ds ++ [.sub a (.modal c m), .sub b (.modal d m), .mode (.const Mode.localLower) m])
   | inl {Γ x a b c m cs} : Generates Γ x a cs →
-      Generates Γ (.inl x) (.modal (.sum b c) m) (cs ++ [.sub a (.modal b m)])
+      Generates Γ (.inl x) (.modal (.sum b c) m) (cs ++ [.sub a (.modal b m), .sub c c])
   | inr {Γ x a b c m cs} : Generates Γ x a cs →
-      Generates Γ (.inr x) (.modal (.sum b c) m) (cs ++ [.sub a (.modal c m)])
+      Generates Γ (.inr x) (.modal (.sum b c) m) (cs ++ [.sub a (.modal c m), .sub b b])
   | split {Γ Γ₁ Γ₂ x body a b c d m cs ds} : UsageSplit Γ Γ₁ Γ₂ →
       Generates Γ₁ x a cs →
       Generates (.binding (some (.mono (.modal .credit m))) ::

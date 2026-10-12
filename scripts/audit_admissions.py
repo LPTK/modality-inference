@@ -232,6 +232,12 @@ constants = [
     'ModalityInference.Deferred.termination_no_stuck',
     'ModalityInference.Deferred.live_result',
     'ModalityInference.Deferred.ownership_bound',
+    'ModalityInference.Generates.definedUnder',
+    'ModalityInference.GenerationDefinedness.no_former_generation_sound',
+    'ModalityInference.GenerationDefinedness.former_inference_success',
+    'ModalityInference.GenerationDefinedness.no_inference_derivation',
+    'ModalityInference.GenerationDefinedness.corrected_solution_rejected',
+    'ModalityInference.GenerationDefinedness.corrected_inference_rejected',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -264,6 +270,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ResourceProducts\n'
                     'import ModalityInference.Proofs.ResourceRegions\n'
                     'import ModalityInference.Proofs.Soundness\n'
+                    'import ModalityInference.Proofs.GenerationDefinedness\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

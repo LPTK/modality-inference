@@ -238,4 +238,8 @@ def undefinedType : Ty := .modal .unit
 #guard rejected (solve 500 [.equiv undefinedType undefinedType])
 #guard rejected (solve 500 [.equal (.flex 0) (.fn .unit undefinedType)])
 #guard (solve 500 [.equal (.flex 0) (.fn .unit (.modal .unit .epsilon))]).isSuccess
+-- Returned types require definedness even without application or elimination.
+#guard rejected (infer 500 [some (Scheme.mono (.fn undefinedType .unit))] (.var 0))
+#guard rejected (infer 500 [some (Scheme.mono (.sum .unit undefinedType))] (.var 0))
+
 end ModalityInference.Regression
