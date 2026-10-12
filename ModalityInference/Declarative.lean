@@ -68,10 +68,20 @@ def Scheme.freshTypeIndex (s : Scheme) : Nat :=
 def Scheme.freshModeIndex (s : Scheme) : Nat :=
   (s.modParams.map ModVar.flex ++ s.body.modeVariables ++ s.bounds.modeVariables).foldl (fun n v => max n (v.index + 1)) 0
 
-/-- The target's universally quantified variables are rigid, including body-only variables. -/
+def Bounds.freshTypeIndex (Δ : Bounds) : Nat :=
+  Δ.typeVariables.foldl (fun n v => max n (v.index + 1)) 0
+def Bounds.freshModeIndex (Δ : Bounds) : Nat :=
+  Δ.modeVariables.foldl (fun n v => max n (v.index + 1)) 0
+
+/-- Skolems are fresh for ambient assumptions as well as both schemes. -/
+def Scheme.subsumptionIndices (Δ : Bounds) (source target : Scheme) : Nat × Nat :=
+  (max (max source.freshTypeIndex target.freshTypeIndex) Δ.freshTypeIndex,
+   max (max source.freshModeIndex target.freshModeIndex) Δ.freshModeIndex)
+
+/-- The target's universally quantified variables are rigid, including body-only
+variables, and cannot be constrained by an existing ambient assumption. -/
 def Subsumes (Δ : Bounds) (source target : Scheme) : Prop :=
-  let nt := max source.freshTypeIndex target.freshTypeIndex
-  let nm := max source.freshModeIndex target.freshModeIndex
+  let (nt, nm) := source.subsumptionIndices Δ target
   let (assumptions, t) := target.instantiate nt nm true
   ∃ σ, Instantiates source σ ∧ EntailsAll (Δ ++ assumptions) (σ.bounds source.bounds) ∧
     Subtype (Δ ++ assumptions) (σ.ty source.body) t

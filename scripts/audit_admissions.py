@@ -105,6 +105,13 @@ constants = [
     'ModalityInference.AmbientCaptureScope.unquantified_change_rejected',
     'ModalityInference.ContextScoping.old_sharing_premise_insufficient',
     'ModalityInference.ContextScoping.renamed_fresh',
+    'ModalityInference.Scheme.subsumptionIndices_type_fresh',
+    'ModalityInference.Scheme.subsumptionIndices_mode_fresh',
+    'ModalityInference.Scheme.subsumption_type_skolem_fresh',
+    'ModalityInference.Scheme.subsumption_mode_skolem_fresh',
+    'ModalityInference.Scheme.subsumptionIndices_empty',
+    'ModalityInference.SubsumptionScope.former_weakening_unsound',
+    'ModalityInference.SubsumptionScope.corrected_comparison_rejects',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -121,6 +128,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.Backend\n'
                     'import ModalityInference.Proofs.Projection\n'
                     'import ModalityInference.Proofs.ContextScoping\n'
+                    'import ModalityInference.Proofs.SubsumptionScope\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(
         f'#print axioms {name}' for name in constants) + '\n')
     result = subprocess.run(['lake', 'env', 'lean', str(path)], cwd=ROOT,

@@ -214,6 +214,7 @@ All paths below are relative to `ModalityInference/`.
 | Context routing and lookup | `Proofs/Generation` | Proved usage splitting and both directions of symbolic lookup correspondence; no admissions |
 | Declarative weakening | `Proofs/Declarative` | Proved context weakening for annotated and raw typing; no admissions |
 | Ambient assignment and quantified scope | `Proofs/Grounding`, `Proofs/ContextScoping` | Scheme instantiation fixes all non-quantified identifiers; proved monomorphic contracts and a witness requiring fresh quantifiers in sharing/locking |
+| Ambient skolem scope | `Proofs/SubsumptionScope` | Proved the former comparison could confuse an ambient rigid identifier with a new quantifier; corrected skolem indices avoid every ambient type and modality identifier |
 | Polymorphic capture diagnostic | `Proofs/PolymorphicCapture` | Proved counterexample to the current fundamental statement; no admissions |
 | Remaining structural, semantic and algorithmic metatheory | `Proofs/Structural`, `Proofs/Soundness`, `Proofs/Algorithms` | Explicit admitted obligations |
 
@@ -266,6 +267,7 @@ corrections. The POPL reviews and response are in the enclosing paper repository
 | Typed ownership and separate reference validity | `aliasedField` inside a unique pair and a dead stack frame |
 | Instantiation fixes every non-quantified identifier | `AmbientCaptureScope`: a variable absent from the scheme can still occur in capture metadata; changing it is rejected |
 | Scheme binders are fresh for ambient bounds and symbolic locks | `ContextScoping`: the former sharing premise allows two copies of the same owned credit; alpha-renaming removes the bound/quantifier collision |
+| Scheme-comparison skolems are fresh for ambient bounds | `SubsumptionScope`: under `unit ≤ rigid₁`, the former comparison incorrectly accepted `unit` as `∀α. α`; the corrected comparison chooses `rigid₂` |
 | Fuel is not rejection | Small-budget inference/evaluation exhaust; larger budgets succeed |
 
 The 99 regression checks also compare small two-mode queries and all concrete mode
@@ -290,6 +292,14 @@ the former sharing premise holds but both components own the same credit at a
 unique instance. `ContextScoping.renamed_fresh` verifies that alpha-renaming makes
 the scope valid while retaining polymorphism. These scoping repairs do not resolve
 the distinct variable-instantiation metadata defect below.
+
+Scheme comparison also freshens its target skolems above ambient bounds, not only
+above the two schemes. `SubsumptionScope.former_weakening_unsound` proves that the
+former rule accepts `unit` as `∀α. α` under the satisfiable bound `unit ≤ rigid₁`:
+it reused `rigid₁` for the target quantifier. The unit value fails the credit
+instance of that scheme. The corrected `Scheme.subsumptionIndices` accounts for
+ambient type and modality identifiers, with general freshness proofs. Closed
+scheme comparison retains its previous indices; the generic solver is unchanged.
 
 The counterexample binds a closure with scheme `∀μ. unit → credit@μ`. Its capture
 metadata assigns the captured heap credit type `credit@μ`. The current scheme
