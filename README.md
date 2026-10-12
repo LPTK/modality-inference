@@ -170,6 +170,15 @@ The stack rule uses its actual modality comparison to weaken field resources
 and its locality premise to validate the current-frame cell. Complete field types
 and the final ownership bound are preserved. Other term cases remain open.
 
+`Proofs/ResourceReuse` proves the reuse induction step: the unique-credit premise
+establishes cell ownership, the credit comparison preserves locality, and the
+three context components keep the cell and new fields separated.
+`Proofs/ResourceRegions` proves region entry and exit. Entry adds the fresh frame
+to the live world and preserves interpreted bindings; the global result contract
+excludes all stack references, including aliased ones, so exit restores the
+original world and preserves the resource bound. These steps retain the original
+evaluation rules; eliminations and the full fundamental theorem remain open.
+
 ## Build and run
 
 Use the existing pins; do not run `lake update` for this milestone:
