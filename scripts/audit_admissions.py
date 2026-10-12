@@ -248,6 +248,16 @@ constants = [
     'ModalityInference.Mode.le_rightResidual_iff',
     'ModalityInference.ConstraintReduction.groundModels',
     'ModalityInference.Deferred.rewrite_sound',
+    'ModalityInference.Constraint.assumptions_ground',
+    'ModalityInference.Constraint.assumptions_entail',
+    'ModalityInference.GroundModels.entailment_equivalence',
+    'ModalityInference.TypeExpr.realize_equivalent',
+    'ModalityInference.GroundSatisfies.equivalent',
+    'ModalityInference.GroundModels.equivalent',
+    'ModalityInference.Substitution.extendType_type',
+    'ModalityInference.TypeExpr.realize_setType',
+    'ModalityInference.Deferred.ConfigModels.congr',
+    'ModalityInference.Deferred.ConfigModels.substitute',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -282,6 +292,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.Soundness\n'
                     'import ModalityInference.Proofs.GenerationDefinedness\n'
                     'import ModalityInference.Proofs.Algorithms\n'
+                    'import ModalityInference.Proofs.TypeElimination\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

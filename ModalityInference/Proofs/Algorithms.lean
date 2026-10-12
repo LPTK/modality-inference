@@ -3,6 +3,7 @@ import ModalityInference.Rewriting
 import ModalityInference.SchemeSubsumption
 import ModalityInference.Proofs.Backend
 import ModalityInference.Proofs.Reduction
+import ModalityInference.Proofs.RewriteModels
 
 namespace ModalityInference.Deferred
 
@@ -13,14 +14,6 @@ def FlexibleBounds (cs : Bounds) : Prop :=
 both partial residual adjunctions, definedness guards, and closure orientation. -/
 theorem rewrite_sound {cs ds ρ} (h : ConstraintReduction cs ds) :
     GroundModels ρ cs ↔ GroundModels ρ ds := h.groundModels
-
-/-- Ground solutions are observed on an explicit original domain, modulo
-mutual ground subtyping; fresh auxiliary variables are existentially hidden. -/
-def ConfigModels (scope : Scope) (s : RewriteConfig) (ρ : GroundAssignment) : Prop :=
-  ∃ η : GroundAssignment, GroundModels η s.constraints ∧
-    (∀ v ∈ scope.types, ∃ t, (s.substitution.type v).realize η = some t ∧
-      Subtype [] t.reify (ρ.types v).reify ∧ Subtype [] (ρ.types v).reify t.reify) ∧
-    (∀ v ∈ scope.modes, (s.substitution.mode v).eval (some ∘ η.modes) = some (ρ.modes v))
 
 /-- DEFERRED. Prerequisites: substitution bookkeeping, fresh shape expansion,
 local rewrite equivalence. This preserves every solution on the original domain,

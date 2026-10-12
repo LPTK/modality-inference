@@ -28,6 +28,7 @@ import ModalityInference.Proofs.ResourceProducts
 import ModalityInference.Proofs.ResourceRegions
 import ModalityInference.Proofs.ResourceSoundness
 import ModalityInference.Proofs.GenerationDefinedness
+import ModalityInference.Proofs.TypeElimination
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

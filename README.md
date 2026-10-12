@@ -22,7 +22,7 @@ configuration solution preservation, solver correctness/completeness/principalit
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-217 public or established declarations transitively, including the complete
+227 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -83,8 +83,13 @@ For products and sums with different outer modes `m ≤ n`, the composed mode
 prove exact equivalence of ground solutions for every local reduction: structural
 decomposition, joins, meets, both guarded residual adjunctions, closure, and
 reduction inside a larger constraint list. This removes one algorithmic admission.
-Fresh shape expansion, substitution configurations, executable correspondence,
-and termination remain separate obligations.
+`Proofs/TypeElimination` also proves the complete equality-elimination step,
+including prior substitution images, definedness guards, and preservation of
+every observed solution modulo mutual ground subtyping. `GroundEquivalence`
+proves congruence for realized types and constraint models; `ConstraintModels`
+connects declarative entailment equivalence with ground solution equivalence.
+Fresh shape expansion, the complete configuration theorem, executable
+correspondence, and termination remain separate obligations.
 
 ## Corrections and retained witnesses
 
