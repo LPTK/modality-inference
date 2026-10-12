@@ -98,6 +98,17 @@ subtyping and both forms of type equality. Equality elimination in the solver
 and abstract rewriting now retains the substituted type's definedness guards;
 regressions cover undefined and defined images, including nested function types.
 
+`Proofs/GroundSubtyping` now proves that every declarative subtyping rule
+preserves ground subtyping and that constraint entailment preserves all modeled
+bounds. `Proofs/GroundInstantiation` constructs a ground scheme instance from
+every syntactic instantiation with satisfied bounds and a defined result. It
+preserves all non-quantified identifiers, including skolems, and does not require
+unused substitution images to be defined. The variable lookup theorem now follows
+from these actual declarative premises, with its resource bound. A separate
+proved corollary shows that `BoundsSatisfiable` supplies a genuine ground model
+for the closed-definition rule. These are ingredients of the still-unfinished
+fundamental theorem, not a complete typing induction.
+
 ## Build and run
 
 Use the existing pins; do not run `lake update` for this milestone:

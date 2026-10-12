@@ -13,6 +13,8 @@ import ModalityInference.Proofs.UndefinedBounds
 import ModalityInference.Proofs.ResourceSubtyping
 import ModalityInference.Proofs.GroundAssignment
 import ModalityInference.Proofs.ResourceContexts
+import ModalityInference.Proofs.GroundSubtyping
+import ModalityInference.Proofs.GroundInstantiation
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
