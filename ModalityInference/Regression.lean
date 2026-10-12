@@ -224,6 +224,13 @@ def queries : List BoolExpr :=
 -- Indirect cycles must reject rather than expand an unbounded sequence of shapes.
 #guard rejected (solve 500 [.sub (.var (.flex 0)) (.var (.flex 1)),
   .sub (.var (.flex 1)) (.fn (.var (.flex 0)) .unit)])
+-- Supplied worklist states must also validate their accumulated substitution.
+#guard rejected (runSolver 100
+  { pending := [.sub (.var (.flex 0)) (.var (.flex 1))]
+    substitution := { types := [(0, .fn (.var (.flex 0)) .unit)] }, nextType := 2 })
+#guard rejected (runSolver 100
+  { pending := [.mode (.var (.flex 0)) (.var (.flex 1))]
+    substitution := { modes := [(0, .compose (.var (.flex 0)) (.const Mode.many))] }, nextMode := 2 })
 #guard Mode.all.all fun a => Mode.all.all fun b =>
   match solve 500 [.mode (.const a) x, .mode x (.const b)] with
   | .success _ => Mode.le a b

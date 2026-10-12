@@ -265,6 +265,13 @@ constants = [
     'ModalityInference.Deferred.ConfigModels.redundant',
     'ModalityInference.Deferred.Rewrites.configModels',
     'ModalityInference.Deferred.rewrite_solution_preservation',
+    'ModalityInference.Substitution.checkAcyclic_iff',
+    'ModalityInference.runSolver_input_acyclic',
+    'ModalityInference.SolverEntry.empty_input_unchanged',
+    'ModalityInference.SolverEntry.cyclic_not_acyclic',
+    'ModalityInference.SolverEntry.former_shape_precheck',
+    'ModalityInference.SolverEntry.former_exhausted_twenty',
+    'ModalityInference.SolverEntry.corrected_rejects',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -300,6 +307,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.GenerationDefinedness\n'
                     'import ModalityInference.Proofs.Algorithms\n'
                     'import ModalityInference.Proofs.TypeElimination\n'
+                    'import ModalityInference.Proofs.SolverEntry\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

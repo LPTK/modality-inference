@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-234 public or established declarations transitively, including the complete
+241 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -98,6 +98,17 @@ preserved, with fresh auxiliaries hidden existentially. Executable correspondenc
 termination, and the solver/inference results remain separate obligations.
 
 ## Corrections and retained witnesses
+
+The worklist entry validates its accumulated substitution with
+`Substitution.checkAcyclic`; `checkAcyclic_iff` proves that the executable check
+matches `Substitution.Acyclic`, including distinct keys and normalized images.
+The former entry checked only pending/residual type shapes. `SolverEntry`
+records a supplied state with `α₀ ↦ α₀ → unit`: the former precheck succeeds and
+the former entry exhausts twenty steps; the corrected entry rejects it at every
+fuel budget. Empty-substitution behavior is proved unchanged for every fuel
+budget, covering the entry states used by inference. These are finite checked
+witnesses and an entry-invariant proof; full worklist termination remains open.
+
 
 `GroundInstantiates` fixes every identifier outside the quantified domain,
 including identifiers absent from a scheme. Sharing and locking require scheme

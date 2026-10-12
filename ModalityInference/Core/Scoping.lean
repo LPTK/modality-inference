@@ -28,6 +28,13 @@ def Substitution.Acyclic (σ : Substitution) : Prop :=
   (∀ n t, (n,t) ∈ σ.types → ∀ k ∈ σ.types.map Prod.fst, .flex k ∉ t.typeVars) ∧
   (∀ n m, (n,m) ∈ σ.modes → ∀ k ∈ σ.modes.map Prod.fst, .flex k ∉ m.vars)
 
+/-- Validate the finite substitution invariant at an executable solver entry.
+Stored images are simultaneous and contain no identifier in their own domain. -/
+def Substitution.checkAcyclic (σ : Substitution) : Bool :=
+  decide ((σ.types.map Prod.fst).Nodup ∧ (σ.modes.map Prod.fst).Nodup) &&
+    σ.types.all (fun p => (σ.types.map Prod.fst).all (fun k => decide (TypeVar.flex k ∉ p.2.typeVars))) &&
+    σ.modes.all (fun p => (σ.modes.map Prod.fst).all (fun k => decide (ModVar.flex k ∉ p.2.vars)))
+
 def Context.subst (Γ : Context) (σ : Substitution) : Context :=
   Γ.map (Option.map (fun s => s.subst σ))
 

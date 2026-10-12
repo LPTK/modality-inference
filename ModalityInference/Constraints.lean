@@ -1,5 +1,6 @@
 import ModalityInference.ModeBackend
 import ModalityInference.Declarative
+import ModalityInference.Core.Scoping
 
 namespace ModalityInference
 
@@ -240,6 +241,8 @@ def runWorklist : Nat → SolverState → RunResult SolverState
       runWorklist fuel next
 
 def runSolver (fuel : Nat) (s : SolverState) : RunResult SolverState := do
+  if !s.substitution.checkAcyclic then
+    return ← .rejected "initial solver substitution is cyclic, duplicated, or not normalized"
   checkShapes fuel (s.pending ++ s.bounds)
   runWorklist fuel s
 
