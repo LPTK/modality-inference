@@ -238,6 +238,16 @@ constants = [
     'ModalityInference.GenerationDefinedness.no_inference_derivation',
     'ModalityInference.GenerationDefinedness.corrected_solution_rejected',
     'ModalityInference.GenerationDefinedness.corrected_inference_rejected',
+    'ModalityInference.GroundOrder.refl',
+    'ModalityInference.GroundOrder.trans',
+    'ModalityInference.GroundOrder.modal',
+    'ModalityInference.GroundOrder.to_subtype',
+    'ModalityInference.GroundOrder.of_subtype',
+    'ModalityInference.GroundOrder.iff_subtype',
+    'ModalityInference.Mode.leftResidual_le_iff',
+    'ModalityInference.Mode.le_rightResidual_iff',
+    'ModalityInference.ConstraintReduction.groundModels',
+    'ModalityInference.Deferred.rewrite_sound',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -271,6 +281,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ResourceRegions\n'
                     'import ModalityInference.Proofs.Soundness\n'
                     'import ModalityInference.Proofs.GenerationDefinedness\n'
+                    'import ModalityInference.Proofs.Algorithms\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

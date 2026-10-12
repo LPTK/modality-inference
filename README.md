@@ -16,13 +16,13 @@ term satisfying those premises. `Typing.resource_closed` additionally gives
 a closed program's ground result, evaluation, interpretation, and fresh-only
 ownership without assuming an interpreted value or an already realized type.
 
-**The overall verification objective is still incomplete: 17 admissions remain.**
-They are closed term substitution and 16 algorithmic obligations, including
-rewriting, solver correctness/completeness/principality, generation, elaborated
+**The overall verification objective is still incomplete: 16 admissions remain.**
+They are closed term substitution and 15 algorithmic obligations, including
+configuration solution preservation, solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-207 public or established declarations transitively, including the complete
+217 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -70,6 +70,21 @@ These results are in `Proofs/ResourceSubtyping`, `ResourceSubsumption`,
 `ResourceReuse`, `ResourceRegions`, `ResourceEliminations`, and `ResourceDefinitions`.
 The full induction uses these proved steps without assuming its own conclusion.
 The separate algorithmic generalization theorem is still open.
+
+## Proved local constraint rewriting
+
+`Proofs/GroundOrder` characterizes ground declarative subtyping by constructor,
+including inherited field modes, function variance and future comparison, and
+credit affinity. Both directions are proved using the original declarative rules.
+For products and sums with different outer modes `m ≤ n`, the composed mode
+`m ∘ n` mediates the common-mode rule; no new subtyping rule is assumed.
+
+`ConstraintReduction.groundModels` and the preserved `Deferred.rewrite_sound`
+prove exact equivalence of ground solutions for every local reduction: structural
+decomposition, joins, meets, both guarded residual adjunctions, closure, and
+reduction inside a larger constraint list. This removes one algorithmic admission.
+Fresh shape expansion, substitution configurations, executable correspondence,
+and termination remain separate obligations.
 
 ## Corrections and retained witnesses
 
@@ -297,7 +312,7 @@ All paths below are relative to `ModalityInference/`.
 | Semantic context joins | `Proofs/GroundAssignment`, `Proofs/ResourceContexts` | Proved fresh ground instantiation, empty ownership for polymorphic sharing, and valid, contained, disjoint component environments for every join rule |
 | Polymorphic capture diagnostic | `Proofs/PolymorphicCapture` | Proved counterexample to the former annotation-dependent fundamental statement; no admissions |
 | Whole-core fundamental theorem and corollaries | `Proofs/ResourceSoundness`, `Proofs/Soundness` | Proved for every typing constructor, with termination/no-stuck, live references, resource bounds, and a closed-program corollary; no admissions |
-| Remaining structural and algorithmic metatheory | `Proofs/Structural`, `Proofs/Algorithms` | 17 explicit admitted obligations |
+| Remaining structural and algorithmic metatheory | `Proofs/Structural`, `Proofs/Algorithms` | 16 explicit admitted obligations |
 
 ```text
 Core/Mode → Core/Syntax → Core/Scoping
@@ -358,7 +373,7 @@ They exercise every term constructor and both sum branches.
 
 ## Deferred proof work and prerequisites
 
-Each of the 17 remaining deferred theorems has a prerequisite comment immediately above it.
+Each of the 16 remaining deferred theorems has a prerequisite comment immediately above it.
 The former annotation-dependent fundamental claim remains separately recorded
 as a refuted proposition. Its corrected resource formulation and corollaries are
 proved for the whole core; this does not discharge the algorithmic obligations.
@@ -421,7 +436,7 @@ definedness obligations.
 | --- | --- | --- |
 | `Structural` | Closed term substitution | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup, instance-indexed context joins and locking are proved |
 | `Soundness` | None: corrected fundamental soundness, termination/no-stuck, live results, and ownership bound are proved | Complete typing induction in `ResourceSoundness`, with resource semantics independent of capture metadata |
-| `Algorithms` | Local rewrite equivalence, solution preservation, scheduled termination, worklist correspondence, solve soundness/consistency/completeness, principal factorization, generation correspondence/soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, backend reduction, scheme-subsumption soundness/completeness | Guarded residual adjunctions, substitution invariants, freshness, representative-search completeness, rigid entailment, Boolean projection/CNF correctness, modal witness reconstruction, established `Equation.decide_correct` |
+| `Algorithms` | Solution preservation, scheduled termination, worklist correspondence, solve soundness/consistency/completeness, principal factorization, generation correspondence/soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, scheme-subsumption soundness/completeness | Local rewrite equivalence and backend reduction are proved; remaining prerequisites include substitution invariants, freshness, representative-search completeness, rigid entailment, Boolean projection/CNF correctness, modal witness reconstruction, established `Equation.decide_correct` |
 
 Completeness statements require a sufficiently large fuel budget. Rewrite
 expansion requires distinct flexible variables fresh for the complete original

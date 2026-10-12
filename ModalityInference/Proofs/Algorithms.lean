@@ -2,16 +2,17 @@ import ModalityInference.Proofs.Structural
 import ModalityInference.Rewriting
 import ModalityInference.SchemeSubsumption
 import ModalityInference.Proofs.Backend
+import ModalityInference.Proofs.Reduction
 
 namespace ModalityInference.Deferred
 
 def FlexibleBounds (cs : Bounds) : Prop :=
   (∀ v ∈ cs.typeVars, ∃ n, v = .flex n) ∧ (∀ v ∈ cs.modVars, ∃ n, v = .flex n)
 
-/-- DEFERRED. Prerequisites: every guarded residual adjunction, structural
-subtyping decomposition and closure orientation. This is a local equivalence. -/
+/-- Proved local equivalence, including structural ground subtyping decomposition,
+both partial residual adjunctions, definedness guards, and closure orientation. -/
 theorem rewrite_sound {cs ds ρ} (h : ConstraintReduction cs ds) :
-    GroundModels ρ cs ↔ GroundModels ρ ds := by sorry
+    GroundModels ρ cs ↔ GroundModels ρ ds := h.groundModels
 
 /-- Ground solutions are observed on an explicit original domain, modulo
 mutual ground subtyping; fresh auxiliary variables are existentially hidden. -/
