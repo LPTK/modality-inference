@@ -138,7 +138,7 @@ theorem transported_value : value.substTypes uniqueInstance =
     .closure [.credit (.heap 0)] [some (.mono (.modal .credit (.const Mode.identity)))]
       (.var 1) := by
   simp [Value.substTypes, Value.mapAnnotation, value, uniqueInstance, creditScheme,
-    Scheme.mono, Scheme.subst, Scheme.instantiate, Scheme.freshSubstitution,
+    Scheme.mono, Scheme.subst, Scheme.fresheningIndices, Scheme.instantiate, Scheme.freshSubstitution,
     Substitution.bounds, Substitution.ty, Substitution.mode,
     TypeExpr.subst, ModExpr.subst, Term.mapAnnotation]
 

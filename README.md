@@ -26,6 +26,11 @@ repairing the semantics and proving the corrected theorem remain required.
 through captured values, capture schemes and closure bodies. Its runtime
 preservation properties and the repaired captured-credit witness are proved;
 integration into polymorphic elaboration and the fundamental theorem remains open.
+`Value.substCapturedTypes` now follows each captured scheme's own binder renaming,
+and `SchemeValue.subst` transports a scheme and its value together. These operations
+preserve runtime structure, references and liveness; evaluation is preserved up to
+annotation erasure. The nested witness in `Proofs/ScopedCaptures` checks why uniform
+transport is insufficient when a captured scheme itself quantifies variables.
 
 ## Build and run
 
@@ -175,7 +180,8 @@ All paths below are relative to `ModalityInference/`.
 | Semantic subtyping | `Proofs/Mode`, `Proofs/Subtyping` | Proved all declarative subtyping rules preserve interpretation, decrease ownership, and preserve definedness under modeled bounds; no admissions |
 | Annotation erasure | `Proofs/Erasure` | Proved for all evaluation rules and capture trimming; no admissions |
 | Recursive annotation transport | `Annotations`, `Proofs/Annotations` | Executable value substitution; proved evaluation, erasure, reference and freshness preservation |
-| Simultaneous substitution | `Proofs/Substitution` | Proved composition for types and modality expressions, including overlapping substitution tables; no admissions |
+| Simultaneous substitution | `Proofs/Substitution` | Proved composition for types, modalities, constraints and bounds, plus agreement of scheme substitution with its exposed binder action; no admissions |
+| Transport through scheme binders | `Annotations`, `Proofs/Annotations`, `Proofs/ScopedCaptures` | Executable per-capture binder transport and paired scheme/value substitution; proved erasure, reference, liveness and evaluation preservation; nested polymorphic witness |
 | Subtyping substitution | `Proofs/PartialSubstitution` | Proved with explicit definedness of modality images, and for all ordinary modality images; proved counterexample to the former unrestricted statement |
 | Term scope | `Proofs/Scoping` | Proved capture-avoiding substitution and renaming preserve scope for every term constructor; no admissions |
 | Context routing and lookup | `Proofs/Generation` | Proved usage splitting and both directions of symbolic lookup correspondence; no admissions |
@@ -256,6 +262,15 @@ The issue concerns ghost capture metadata; no runtime stack escape is asserted.
 `transported_interpreted` proves that applying the same instantiation to the
 captured value restores this example's unique-result contract under every ambient
 assignment. This is a checked repair witness, not a proof of the full system.
+
+A second capture witness tests nested polymorphism. Substituting into a closure
+that captures `∀μ₀. unit → credit@μ₀` renames that capture scheme's binder to `μ₁`.
+Uniform annotation mapping leaves the nested captured value's credit annotated
+with `μ₀`. `substCapturedTypes` transports that value using the scheme's exposed
+`substitutionAction`, so its annotation becomes `μ₁` too. The example proves both
+the difference in annotations and equality of runtime structure after erasure.
+These mechanisms remain prerequisites for integrating polymorphic instantiation
+into elaboration and proving the corrected fundamental theorem.
 
 The former unrestricted subtyping-substitution statement also had a missing
 precondition: arbitrary internal modality expressions include undefined residuals.

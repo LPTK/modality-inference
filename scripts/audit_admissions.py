@@ -73,6 +73,14 @@ constants = [
     'ModalityInference.Subtype.substitute', 'ModalityInference.Subtype.substitute_ordinary',
     'ModalityInference.ModExpr.eval_subst',
     'ModalityInference.PartialSubstitution.no_unrestricted_subtyping_substitution',
+    'ModalityInference.Substitution.constraint_compose',
+    'ModalityInference.Substitution.bounds_compose',
+    'ModalityInference.Scheme.subst_body_action', 'ModalityInference.Scheme.subst_bounds_action',
+    'ModalityInference.Value.substCapturedTypes', 'ModalityInference.SchemeValue.subst',
+    'ModalityInference.Value.substCapturedTypes_erasure',
+    'ModalityInference.Eval.substCapturedTypes_erasure',
+    'ModalityInference.ScopedCaptures.nested_transport',
+    'ModalityInference.ScopedCaptures.uniform_and_scoped_differ',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -85,6 +93,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.Declarative\n'
                     'import ModalityInference.Proofs.Subtyping\n'
                     'import ModalityInference.Proofs.PartialSubstitution\n'
+                    'import ModalityInference.Proofs.ScopedCaptures\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(
         f'#print axioms {name}' for name in constants) + '\n')
     result = subprocess.run(['lake', 'env', 'lean', str(path)], cwd=ROOT,

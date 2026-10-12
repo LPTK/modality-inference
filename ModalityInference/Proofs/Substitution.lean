@@ -66,4 +66,37 @@ theorem Substitution.ty_compose (t : Ty) (σ τ : Substitution) :
   induction t <;>
     simp_all [Substitution.ty, TypeExpr.subst, Substitution.type_compose, ModExpr.subst_compose]
 
+private theorem subst_eq_ty (σ : Substitution) (t : Ty) :
+    t.subst σ.type σ.mode = σ.ty t := rfl
+
+private theorem lookup_types_compose (σ τ : Substitution) (n : Nat) :
+    (τ.compose σ).types.lookup n = ((σ.types.lookup n).map τ.ty).or (τ.types.lookup n) :=
+  lookup_compose σ.types τ.types τ.ty n
+
+theorem Substitution.constraint_compose (c : Constraint) (σ τ : Substitution) :
+    τ.constraint (σ.constraint c) = (τ.compose σ).constraint c := by
+  cases c <;>
+    simp only [Substitution.constraint, Constraint.subst, subst_eq_ty,
+      Substitution.ty_compose, ModExpr.subst_compose]
+  rename_i v t
+  cases v with
+  | rigid n => simp [Substitution.ty_compose]
+  | flex n =>
+    cases hs : σ.types.lookup n <;> cases ht : τ.types.lookup n <;>
+      simp [lookup_types_compose, hs, ht, Substitution.ty_compose]
+
+theorem Substitution.bounds_compose (cs : Bounds) (σ τ : Substitution) :
+    τ.bounds (σ.bounds cs) = (τ.compose σ).bounds cs := by
+  simp only [Substitution.bounds, List.map_map, Function.comp_def, Substitution.constraint_compose]
+
+theorem Scheme.subst_body_action (s : Scheme) (σ : Substitution) :
+    (s.subst σ).body = (s.substitutionAction σ).ty s.body := by
+  simp only [Scheme.subst, Scheme.substitutionAction, Scheme.binderRenaming,
+    Scheme.instantiate, Substitution.ty_compose]
+
+theorem Scheme.subst_bounds_action (s : Scheme) (σ : Substitution) :
+    (s.subst σ).bounds = (s.substitutionAction σ).bounds s.bounds := by
+  simp only [Scheme.subst, Scheme.substitutionAction, Scheme.binderRenaming,
+    Scheme.instantiate, Substitution.bounds_compose]
+
 end ModalityInference

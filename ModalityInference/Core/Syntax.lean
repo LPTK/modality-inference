@@ -193,8 +193,8 @@ def freshSubstitution (s : Scheme) (nextT nextM : Nat) (rigid : Bool := false) :
 def instantiate (s : Scheme) (nextT nextM : Nat) (rigid : Bool := false) : Bounds × Ty :=
   let σ := s.freshSubstitution nextT nextM rigid
   (σ.bounds s.bounds, σ.ty s.body)
-/-- Rename binders above both the scheme and substitution before applying it. -/
-def subst (s : Scheme) (σ : Substitution) : Scheme :=
+/-- Starting indices for alpha-renaming, above the scheme and substitution. -/
+def fresheningIndices (s : Scheme) (σ : Substitution) : Nat × Nat :=
   let tv := s.typeParams.map TypeVar.flex ++ s.body.typeVariables ++ s.bounds.typeVariables ++
     σ.types.flatMap (fun p => .flex p.1 :: p.2.typeVariables)
   let mv := s.modParams.map ModVar.flex ++ s.body.modeVariables ++ s.bounds.modeVariables ++
@@ -202,6 +202,17 @@ def subst (s : Scheme) (σ : Substitution) : Scheme :=
     σ.modes.flatMap (fun p => .flex p.1 :: p.2.freeVariables)
   let nt := tv.foldl (fun n v => max n (v.index + 1)) 0
   let nm := mv.foldl (fun n v => max n (v.index + 1)) 0
+  (nt, nm)
+/-- The binder renaming used by `subst`, exposed for transporting value metadata. -/
+def binderRenaming (s : Scheme) (σ : Substitution) : Substitution :=
+  let (nt, nm) := s.fresheningIndices σ
+  s.freshSubstitution nt nm
+/-- Action on the body of a scheme, including its renamed quantified variables. -/
+def substitutionAction (s : Scheme) (σ : Substitution) : Substitution :=
+  σ.compose (s.binderRenaming σ)
+/-- Rename binders above both the scheme and substitution before applying it. -/
+def subst (s : Scheme) (σ : Substitution) : Scheme :=
+  let (nt, nm) := s.fresheningIndices σ
   let (cs, t) := s.instantiate nt nm
   { typeParams := (List.range s.typeParams.length).map (nt + ·)
     modParams := (List.range s.modParams.length).map (nm + ·)

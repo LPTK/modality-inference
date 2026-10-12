@@ -78,4 +78,39 @@ theorem Eval.substTypes {s γ t v} (h : Eval s γ t v) (σ : Substitution) :
     Eval s (γ.map (fun v => v.substTypes σ)) (t.substTypes σ) (v.substTypes σ) :=
   h.mapAnnotation _
 
+theorem Value.substCapturedTypes_erasure (v : Value) (σ : Substitution) :
+    ValueErasure v (v.substCapturedTypes σ) := by
+  induction v using Value.rec
+    (motive_2 := fun γ => ∀ f : Nat → Substitution,
+      List.Forall₂ ValueErasure γ
+        ((γ.map Value.substCapturedTypes).mapIdx fun i subst => subst (f i))) generalizing σ
+  all_goals simp only [Value.substCapturedTypes, List.map_cons, List.map_nil,
+    List.mapIdx_cons, List.mapIdx_nil]
+  all_goals try solve_by_elim (config := {maxDepth := 6}) [ValueErasure.unit,
+    ValueErasure.credit, ValueErasure.pair, ValueErasure.inl, ValueErasure.inr,
+    List.Forall₂.nil, List.Forall₂.cons]
+  case closure _ _ _ ih => exact .closure (ih _) (Term.erase_mapAnnotation _ _).symm
+
+@[simp] theorem Value.references_substCapturedTypes (v : Value) (σ : Substitution) (l) :
+    References (v.substCapturedTypes σ) l ↔ References v l :=
+  ((v.substCapturedTypes_erasure σ).references l).symm
+
+@[simp] theorem Value.valid_substCapturedTypes (v : Value) (σ : Substitution) (w : World) :
+    w.ValidValue (v.substCapturedTypes σ) ↔ w.ValidValue v := by
+  simp only [World.ValidValue, Value.references_substCapturedTypes]
+
+theorem SchemeValue.subst_erasure (p : SchemeValue) (σ : Substitution) :
+    ValueErasure p.value (p.subst σ).value := p.value.substCapturedTypes_erasure _
+
+/-- Evaluation is insensitive to this change of metadata. The result is related
+by erasure; no unproved equality with a chosen result annotation is asserted. -/
+theorem Eval.substCapturedTypes_erasure {s γ t v} (h : Eval s γ t v) (σ : Substitution) :
+    ∃ u, Eval s (γ.map (fun v => v.substCapturedTypes σ)) (t.substTypes σ) u ∧
+      ValueErasure v u := by
+  apply h.annotation_erasure ?_ (Term.erase_mapAnnotation _ _).symm
+  clear h
+  induction γ with
+  | nil => exact .nil
+  | cons v γ ih => exact .cons (v.substCapturedTypes_erasure σ) ih
+
 end ModalityInference
