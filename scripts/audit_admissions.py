@@ -194,6 +194,12 @@ constants = [
     'ModalityInference.ResourceEnvironmentInterpretation.trim_valid',
     'ModalityInference.ResourceSchemeInterpretation.capture_global',
     'ModalityInference.Lock.trim_global',
+    'ModalityInference.ResourceSchemeInterpretation.mono',
+    'ModalityInference.ResourceEnvironmentInterpretation.cons',
+    'ModalityInference.ResourceEnvironmentInterpretation.cons_used',
+    'ModalityInference.ContextResources.cons_used_subset',
+    'ModalityInference.ResourceEnvironmentInterpretation.references',
+    'ModalityInference.Typing.resource_lam',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -220,6 +226,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ResourceRestriction\n'
                     'import ModalityInference.Proofs.ResourceSubsumption\n'
                     'import ModalityInference.Proofs.ResourceCaptures\n'
+                    'import ModalityInference.Proofs.ResourceClosure\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

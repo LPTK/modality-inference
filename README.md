@@ -138,8 +138,12 @@ actually read by a typed term has an admissible ground instance under modeled
 bounds. Arbitrary unused schemes need not be inhabited. All context relations
 are preserved by common usage restriction (`Proofs/ContextRestriction`).
 `Proofs/ResourceCaptures` then proves liveness of trimmed capture environments and
-that a global lock permits only heap references in those captures. The closure
-application contract and full fundamental induction remain to be completed.
+that a global lock permits only heap references in those captures. `Proofs/ResourceClosure` now establishes the complete lambda step assuming the
+body induction hypothesis, with its quantified application contract in every live
+calling world. `Proofs/ResourceBindings` supplies separated argument extension and
+the resource bound for bindings actually read by the body. The closure owns only
+captured resources, and its reusable case owns none. This is an admission-free
+induction step; the remaining term cases and full fundamental theorem are open.
 
 ## Build and run
 
