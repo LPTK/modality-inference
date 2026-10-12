@@ -217,6 +217,9 @@ def queries : List BoolExpr :=
   backendAgrees (modeFormula (.const a) (.const b))
 #guard ((ConcreteBackend.atomFin [7,100,42] 100).map Fin.val) = some 1
 #guard (ConcreteBackend.atomFin [7,100,42] 9).isNone
+#guard [.const true, .const false, .atom 42, .imp (.atom 42) (.atom 42)].all backendAgrees
+-- A false validity accumulator still visits subsequent clauses and reports missing atoms.
+#guard rejected (ConcreteBackend.decideClauses [] [[], [(42, true)]] true)
 
 -- Indirect cycles must reject rather than expand an unbounded sequence of shapes.
 #guard rejected (solve 500 [.sub (.var (.flex 0)) (.var (.flex 1)),

@@ -123,14 +123,17 @@ def atomFin (atoms : List Nat) (v : Nat) : Option (Fin atoms.length) :=
   let i := atoms.idxOf v
   if h : i < atoms.length then some ⟨i, h⟩ else none
 
-def equation (atoms : List Nat) (clause : Clause) : Option (Equation Bool atoms.length) := do
-  let mut hypothesis : RightExpr Bool atoms.length := .const true
-  let mut goal : LeftExpr Bool atoms.length := .const false
-  for (v, positive) in clause do
+/-- Accumulate a clause in source order, exposing the state used by the reduction proof. -/
+def equationFrom (atoms : List Nat) : Clause → RightExpr Bool atoms.length →
+    LeftExpr Bool atoms.length → Option (Equation Bool atoms.length)
+  | [], hypothesis, goal => some ⟨hypothesis, goal⟩
+  | (v, positive) :: clause, hypothesis, goal => do
     let i ← atomFin atoms v
-    if positive then goal := .join goal (.var i)
-    else hypothesis := .meet hypothesis (.var i)
-  return ⟨hypothesis, goal⟩
+    if positive then equationFrom atoms clause hypothesis (.join goal (.var i))
+    else equationFrom atoms clause (.meet hypothesis (.var i)) goal
+
+def equation (atoms : List Nat) (clause : Clause) : Option (Equation Bool atoms.length) :=
+  equationFrom atoms clause (.const true) (.const false)
 
 structure Report where
   atoms : List Nat
@@ -138,14 +141,18 @@ structure Report where
   valid : Bool
   deriving Repr, DecidableEq
 
+/-- Check every clause; a false accumulator does not suppress malformed-atom diagnostics. -/
+def decideClauses (atoms : List Nat) : CNF → Bool → RunResult Bool
+  | [], valid => .success valid
+  | c :: cs, valid =>
+    match equation atoms c with
+    | none => .rejected "internal error: clause atom missing from query domain"
+    | some q => decideClauses atoms cs (valid && Equation.decide q)
+
 def decideFormula (fuel : Nat) (e : BoolExpr) : RunResult Report := do
   let cs ← toCNF fuel true e
   let atoms := e.atoms.mergeSort (· ≤ ·)
-  let mut valid := true
-  for c in cs do
-    match equation atoms c with
-    | none => return ← RunResult.rejected "internal error: clause atom missing from query domain"
-    | some q => valid := valid && Equation.decide q
+  let valid ← decideClauses atoms cs true
   return ⟨atoms, cs, valid⟩
 
 def entails (fuel : Nat) (assumptions goals : Bounds) : RunResult Report :=

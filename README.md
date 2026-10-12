@@ -11,8 +11,12 @@ interpretation's global-reference and empty shared-support properties are also
 proved, including nested fields and polymorphic closure captures. Annotation
 erasure preserves evaluation and the runtime structure of results. Every
 declarative subtyping rule preserves the interpretation and decreases ownership,
-with symbolic bounds and partial-modality definedness accounted for. Full-system
-metatheory is deferred: its theorem statements use isolated `sorry`s under
+with symbolic bounds and partial-modality definedness accounted for. The Boolean
+reduction is also proved: successful backend reports characterize validity
+under every Boolean valuation, through polarity-aware CNF normalization and an
+explicit identifier-to-`Fin n` translation to the original solver. Modality
+projection and full scheme subsumption still have separate proof obligations.
+Full-system metatheory remains incomplete: deferred theorem statements use isolated `sorry`s under
 `ModalityInference/Proofs/`. Neither the public library nor the executables nor the
 original solver import those files. An executable acceptance report is data,
 not a kernel-checked proof of scheme subsumption.
@@ -191,6 +195,7 @@ All paths below are relative to `ModalityInference/`.
 | §4 constraint rewriting | `Rewriting`, `Constraints` | Independent relation and executable worklist |
 | §5 scheme subsumption | `SchemeSubsumption` | Executable prototype; reduction correctness deferred |
 | §5 future/past projection and `Fin n` normalization | `ModeBackend` | Executable bridge to established solver |
+| Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
 | §5 generic concrete modality solver | `Subsumption` | **Existing proved correctness and stabilization, unchanged** |
 | Core programs and regressions | `Examples`, `Regression` | Executed during validation/CI |
 | Evaluator metatheory | `Proofs/Evaluation` | Proved soundness, completeness, determinism and fuel stability; no admissions |
@@ -257,13 +262,13 @@ corrections. The POPL reviews and response are in the enclosing paper repository
 | Typed ownership and separate reference validity | `aliasedField` inside a unique pair and a dead stack frame |
 | Fuel is not rejection | Small-budget inference/evaluation exhaust; larger budgets succeed |
 
-The 97 regression checks also compare small two-mode queries and all concrete mode
+The 99 regression checks also compare small two-mode queries and all concrete mode
 comparisons against exhaustive valuation checking before accepting backend results.
 They exercise every term constructor and both sum branches.
 
 ## Deferred proof work and prerequisites
 
-Each of the 23 remaining deferred theorems has a prerequisite comment immediately above it.
+Each of the 22 remaining deferred theorems has a prerequisite comment immediately above it.
 The fundamental semantic soundness claim is separately recorded as a proposition:
 its current formulation is refuted, so it cannot responsibly remain an admitted theorem.
 These are obligations to prove and, if counterexamples arise, refine; the

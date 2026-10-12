@@ -1,6 +1,7 @@
 import ModalityInference.Proofs.Structural
 import ModalityInference.Rewriting
 import ModalityInference.SchemeSubsumption
+import ModalityInference.Proofs.Backend
 
 namespace ModalityInference.Deferred
 
@@ -109,12 +110,14 @@ correspondence. Fuel is not part of the declarative typing relation. -/
 theorem inference_complete {t a} (h : RawTyping [] [] t a) :
     ∃ n, ∀ fuel ≥ n, ∃ result, infer fuel [] t = .success result := by sorry
 
-/-- DEFERRED. Prerequisites: Boolean projections (including reversed past), residual
-well-formedness, CNF equivalence, identifier-to-Fin bijection. The final solver
-`Equation.decide_correct` is already proved and is not admitted here. -/
+/-- Proved by polarity-aware CNF normalization, clause translation with an explicit
+identifier-to-Fin lookup, and the existing `Equation.decide_correct` theorem.
+This theorem concerns Boolean formulas; modality projection correctness remains
+a separate prerequisite of scheme subsumption. -/
 theorem backend_reduction {fuel e report}
     (h : ConcreteBackend.decideFormula fuel e = .success report) :
-    report.valid = true ↔ ∀ valuation, e.eval valuation = true := by sorry
+    report.valid = true ↔ ∀ valuation, e.eval valuation = true :=
+  ConcreteBackend.decideFormula_correct h
 
 /-- DEFERRED. Prerequisites: rigid bound entailment, finite representative theorem,
 modal witness reconstruction after Boolean existential elimination, backend reduction.
