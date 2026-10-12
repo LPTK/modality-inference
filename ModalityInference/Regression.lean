@@ -229,4 +229,13 @@ def queries : List BoolExpr :=
   | .success _ => Mode.le a b
   | .rejected _ => !Mode.le a b
   | .exhausted => false
+
+-- Solving an equality must retain the definedness of its substituted type image.
+def undefinedType : Ty := .modal .unit
+  (.leftResidual (.const Mode.top) (.const Mode.bottom))
+#guard rejected (solve 500 [.equal (.flex 0) undefinedType])
+#guard rejected (solve 500 [.sub undefinedType undefinedType])
+#guard rejected (solve 500 [.equiv undefinedType undefinedType])
+#guard rejected (solve 500 [.equal (.flex 0) (.fn .unit undefinedType)])
+#guard (solve 500 [.equal (.flex 0) (.fn .unit (.modal .unit .epsilon))]).isSuccess
 end ModalityInference.Regression

@@ -56,7 +56,7 @@ inductive Rewrites : RewriteConfig → RewriteConfig → Prop where
   | substitute {v : Nat} {t : Ty} {s : RewriteConfig} : .flex v ∉ t.typeVars →
       v ∉ s.substitution.types.map Prod.fst →
       Rewrites {s with pending := .equal (.flex v) t :: s.pending}
-        {pending := (Substitution.mk [(v,t)] []).bounds s.constraints
+        {pending := (Substitution.mk [(v,t)] []).bounds (s.constraints ++ t.wellFormedBounds)
          bounds := []
          substitution := s.substitution.extendType v t}
   | propagate {a b c} {s : RewriteConfig} : Constraint.mode a b ∈ s.bounds → Constraint.mode b c ∈ s.bounds →

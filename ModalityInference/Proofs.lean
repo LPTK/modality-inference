@@ -9,6 +9,7 @@ import ModalityInference.Proofs.Resources
 import ModalityInference.Proofs.ResourceCapture
 import ModalityInference.Proofs.TypingDefinedness
 import ModalityInference.Proofs.UndefinedDomain
+import ModalityInference.Proofs.UndefinedBounds
 import ModalityInference.Proofs.ResourceSubtyping
 import ModalityInference.Proofs.GroundAssignment
 import ModalityInference.Proofs.ResourceContexts

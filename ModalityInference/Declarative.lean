@@ -45,12 +45,17 @@ inductive Subtype (Δ : Bounds) : Ty → Ty → Prop where
   | credit {m n} : Submode Δ (.compose m (.const Mode.many)) n →
       Subtype Δ (.modal .credit m) (.modal .credit n)
 
+/-- Internal type constraints are meaningful only when every modality occurring
+in them is defined under the ambient modality assumptions. -/
+def TypeExpr.DefinedUnder (a : Ty) (Δ : Bounds) : Prop :=
+  ∀ σ, ModeModels Δ σ → ModeModels a.wellFormedBounds σ
+
 def Entails (Δ : Bounds) : Constraint → Prop
-  | .sub a b => Subtype Δ a b
+  | .sub a b => Subtype Δ a b ∧ a.DefinedUnder Δ ∧ b.DefinedUnder Δ
   | .mode a b => Submode Δ a b
   | .defined a => ∀ σ, ModeModels Δ σ → a.WellFormed σ
-  | .equal v t => Subtype Δ (.var v) t ∧ Subtype Δ t (.var v)
-  | .equiv a b => Subtype Δ a b ∧ Subtype Δ b a
+  | .equal v t => Subtype Δ (.var v) t ∧ Subtype Δ t (.var v) ∧ t.DefinedUnder Δ
+  | .equiv a b => Subtype Δ a b ∧ Subtype Δ b a ∧ a.DefinedUnder Δ ∧ b.DefinedUnder Δ
 
 def EntailsAll (Δ cs : Bounds) : Prop := ∀ c ∈ cs, Entails Δ c
 

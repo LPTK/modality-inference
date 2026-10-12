@@ -85,6 +85,19 @@ realization. The old rules typed `x () : unit`, which the evaluator rejects as a
 application of a non-function. The corrected rules reject the invalid function
 type in every context. All term constructors and closed-RHS `def` are retained.
 
+**Constraint definedness correction:** entailment of subtype and type-equality
+constraints now requires definedness of their type operands. Reflexive subtyping
+alone does not establish satisfaction of an undefined constraint.
+`Proofs/UndefinedBounds` archives the earlier entailment and the resulting
+`x ()` counterexample: the bound `unit@r ≤ unit@r`, where `r = top / bottom`,
+has no ground instance but was discharged by reflexivity. Even a fully defined
+function body type then accepted a non-function value vacuously. The new rules
+reject this bound under every instantiation and as a closed-definition
+consistency witness. Lean proves the guards automatic for ordinary source
+subtyping and both forms of type equality. Equality elimination in the solver
+and abstract rewriting now retains the substituted type's definedness guards;
+regressions cover undefined and defined images, including nested function types.
+
 ## Build and run
 
 Use the existing pins; do not run `lake update` for this milestone:

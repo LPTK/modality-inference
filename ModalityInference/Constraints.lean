@@ -193,7 +193,7 @@ def solverStep (s : SolverState) : RunResult SolverState := do
         if t == .var v then return s
         if t.typeVariables.contains v then return ← .rejected "occurs check failed"
         let one : Substitution := { types := [(n, t)] }
-        return { s with pending := one.bounds (s.pending ++ s.bounds)
+        return { s with pending := one.bounds (s.pending ++ s.bounds ++ t.wellFormedBounds)
                         bounds := [], seen := []
                         substitution := s.substitution.extendType n t
                         trace := .substitute :: s.trace }

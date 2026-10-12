@@ -145,6 +145,17 @@ constants = [
     'ModalityInference.ResourceSchemeInterpretation.capture',
     'ModalityInference.Lock.resource_semantics',
     'ModalityInference.Deferred.locking_semantics',
+    'ModalityInference.TypeExpr.DefinedUnder.realize_defined',
+    'ModalityInference.Entails.source_sub_iff',
+    'ModalityInference.Entails.source_equal_iff',
+    'ModalityInference.Entails.source_equiv_iff',
+    'ModalityInference.UndefinedBounds.former_typed',
+    'ModalityInference.UndefinedBounds.no_ground_instance',
+    'ModalityInference.UndefinedBounds.interpreted',
+    'ModalityInference.UndefinedBounds.rejected',
+    'ModalityInference.UndefinedBounds.not_semantic',
+    'ModalityInference.UndefinedBounds.corrected_instantiation_rejected',
+    'ModalityInference.UndefinedBounds.corrected_consistency_rejected',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -164,6 +175,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SubsumptionScope\n'
                     'import ModalityInference.Proofs.ResourceCapture\n'
                     'import ModalityInference.Proofs.UndefinedDomain\n'
+                    'import ModalityInference.Proofs.UndefinedBounds\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(
