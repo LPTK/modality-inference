@@ -108,6 +108,14 @@ from these actual declarative premises, with its resource bound. A separate
 proved corollary shows that `BoundsSatisfiable` supplies a genuine ground model
 for the closed-definition rule. These are ingredients of the still-unfinished
 fundamental theorem, not a complete typing induction.
+`Proofs/GroundSchemes` proves that the resource interpretation of a scheme depends
+only on its free identifiers, while retaining the full quantified-domain condition
+on each instance. `Proofs/ResourceWorlds` transports values, schemes, and
+environments between worlds when their actual references remain live, preserving
+exact ownership sets. `Lock.resource_many_semantics` strengthens semantic locking
+for reusable closures: every retained binding admits an empty resource reserve,
+uniformly across its polymorphic instances. Closure construction and the full
+typing induction still require further work.
 
 ## Build and run
 

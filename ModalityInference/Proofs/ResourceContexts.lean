@@ -54,6 +54,23 @@ theorem ResourceSchemeInterpretation.capture {ρ w Δ s m v reserved}
       (by simp [Mode.le, Mode.future, Mode.capture]) w Mode.identity v middle hfuture
   exact ⟨target, htarget.trans (hmiddle.trans hsub), ht ▸ hcapture⟩
 
+theorem ResourceSchemeInterpretation.capture_many {ρ w Δ s m v reserved n}
+    (hΔ : GroundModels ρ Δ) (hf : s.FreshForBounds Δ) (hfm : s.FreshForMode m)
+    (hs : Subtype (Δ ++ s.bounds) s.body (.modal s.body (.future m)))
+    (hv : ResourceSchemeInterpretation ρ w s v reserved)
+    (hm : m.eval (some ∘ ρ.modes) = some n) (hn : n.once = false) :
+    ResourceSchemeInterpretation ρ w (s.modal (.capture m)) v ∅ := by
+  refine ⟨fun _ h => h.elim, ?_⟩
+  intro η t hη ht
+  obtain ⟨owned, _, hr⟩ := (hv.capture hΔ hf hs).2 η t hη ht
+  have he := (show GroundInstantiates ρ s η from hη).eval_fresh hfm
+  cases ha : s.body.realize η <;>
+    simp [Scheme.modal, TypeExpr.realize, ModExpr.eval, ha, he, hm] at ht
+  subst t
+  have hz := (ResourceInterpretation.modal_iff.mp hr).shared_resources
+    (by simp [Mode.compose, Mode.capture, hn]) (by simp [Mode.compose, Mode.capture, hn])
+  exact ⟨∅, Set.Subset.rfl, hz ▸ hr⟩
+
 theorem ContextJoin.left_present {Δ Γ Γ₁ Γ₂} (h : ContextJoin Δ Γ₁ Γ₂ Γ)
     {i : Nat} {s : Scheme} (hi : Γ₁[i]? = some (some s)) : ∃ t, Γ[i]? = some (some t) := by
   induction h generalizing i
@@ -150,5 +167,16 @@ theorem Lock.resource_semantics {ρ w Δ m Γ Γ' γ reserved}
     exact fun l ⟨i, t, hi, hl⟩ =>
       let ⟨s, hs, _⟩ := h.kept hi
       ⟨i, s, hs, hl⟩
+
+theorem Lock.resource_many_semantics {ρ w Δ m Γ Γ' γ reserved n}
+    (hΔ : GroundModels ρ Δ) (h : Lock Δ m Γ Γ')
+    (hγ : ResourceEnvironmentInterpretation ρ w Γ γ reserved)
+    (hm : m.eval (some ∘ ρ.modes) = some n) (hn : n.once = false) :
+    ResourceEnvironmentInterpretation ρ w Γ' γ (fun _ => ∅) :=
+  ⟨fun i _ hi =>
+    let ⟨s, hs, ht, hf, hfm, hcross⟩ := h.kept hi
+    let ⟨v, hvalue, hv⟩ := hγ.1 i s hs
+    ⟨v, hvalue, ht ▸ hv.capture_many hΔ hf hfm hcross hm hn⟩,
+    fun _ _ _ _ _ _ _ => disjoint_bot_left⟩
 
 end ModalityInference
