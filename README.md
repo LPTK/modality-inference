@@ -44,6 +44,20 @@ Its substitution-domain and erasure contracts are proved, as is the unique-credi
 witness after instantiation. This operation generates bounds for the caller to
 discharge; it is not yet integrated into `infer` or `evalFuel`.
 
+An alternative repair is under development in `ResourceSemantics`: ownership
+evidence accompanies each ground instance of a value, instead of reading
+authoritative ownership from symbolic runtime annotations. Credits and product
+cells still own their location exactly when unique; fields retain their complete
+types, and a closure must account for its result using captured, argument, or
+fresh resources. A scheme reserves enough resources for every admissible instance.
+`Proofs/Resources` proves annotation-erasure invariance with the same ownership
+set, global-reference preservation, empty ownership for many aliased values, and
+semantic lookup. `Proofs/ResourceCapture` proves that the recorded polymorphic
+counterexample satisfies this lookup contract with the original runtime closure.
+This route changes no term constructor or evaluation rule. Its connection to all
+declarative typing rules, including well-formedness of intermediate types, remains
+unfinished; it is not yet a replacement fundamental soundness theorem.
+
 ## Build and run
 
 Use the existing pins; do not run `lake update` for this milestone:
@@ -215,6 +229,7 @@ All paths below are relative to `ModalityInference/`.
 | Declarative weakening | `Proofs/Declarative` | Proved context weakening for annotated and raw typing; no admissions |
 | Ambient assignment and quantified scope | `Proofs/Grounding`, `Proofs/ContextScoping` | Scheme instantiation fixes all non-quantified identifiers; proved monomorphic contracts and a witness requiring fresh quantifiers in sharing/locking |
 | Ambient skolem scope | `Proofs/SubsumptionScope` | Proved the former comparison could confuse an ambient rigid identifier with a new quantifier; corrected skolem indices avoid every ambient type and modality identifier |
+| Ownership evidence for ground instances | `ResourceSemantics`, `Proofs/Resources`, `Proofs/ResourceCapture` | Candidate semantic repair; proved erasure invariance, global references, empty shared ownership, semantic lookup, and the original captured-credit witness; full typing connection remains open |
 | Polymorphic capture diagnostic | `Proofs/PolymorphicCapture` | Proved counterexample to the current fundamental statement; no admissions |
 | Remaining structural, semantic and algorithmic metatheory | `Proofs/Structural`, `Proofs/Soundness`, `Proofs/Algorithms` | Explicit admitted obligations |
 
