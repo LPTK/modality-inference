@@ -133,6 +133,13 @@ commutation of ground interpretation with substitution, including partial
 modalities and both forms of type equality. This establishes the semantic
 context-subsumption ingredient, not correctness of the executable comparison
 algorithm or the full typing induction.
+`Proofs/TypingInstances` proves a stronger whole-language invariant: every binding
+actually read by a typed term has an admissible ground instance under modeled
+bounds. Arbitrary unused schemes need not be inhabited. All context relations
+are preserved by common usage restriction (`Proofs/ContextRestriction`).
+`Proofs/ResourceCaptures` then proves liveness of trimmed capture environments and
+that a global lock permits only heap references in those captures. The closure
+application contract and full fundamental induction remain to be completed.
 
 ## Build and run
 
