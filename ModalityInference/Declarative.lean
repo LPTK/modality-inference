@@ -91,6 +91,7 @@ inductive ContextJoin (Δ : Bounds) : Context → Context → Context → Prop w
   | right {Γ Γ₁ Γ₂ s} : ContextJoin Δ Γ₁ Γ₂ Γ →
       ContextJoin Δ (none :: Γ₁) (some s :: Γ₂) (some s :: Γ)
   | shared {Γ Γ₁ Γ₂ s} : ContextJoin Δ Γ₁ Γ₂ Γ →
+      s.FreshForBounds Δ →
       Subtype (Δ ++ s.bounds) (.modal s.body (.const Mode.aliased)) s.body →
       ContextJoin Δ (some s :: Γ₁) (some s :: Γ₂)
         (some (s.modal (.const Mode.many)) :: Γ)
@@ -99,6 +100,7 @@ inductive Lock (Δ : Bounds) (m : ModExpr) : Context → Context → Prop where
   | nil : Lock Δ m [] []
   | unused {Γ Γ'} : Lock Δ m Γ Γ' → Lock Δ m (none :: Γ) (none :: Γ')
   | keep {Γ Γ' s} : Lock Δ m Γ Γ' →
+      s.FreshForBounds Δ → s.FreshForMode m →
       Subtype (Δ ++ s.bounds) s.body (.modal s.body (.future m)) →
       Lock Δ m (some s :: Γ) (some (s.modal (.capture m)) :: Γ')
   | unavailable {Γ Γ' s} : Lock Δ m Γ Γ' →

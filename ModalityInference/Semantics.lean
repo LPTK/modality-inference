@@ -59,10 +59,11 @@ def GroundSatisfies (ρ : GroundAssignment) : Constraint → Prop
 def GroundModels (ρ : GroundAssignment) (cs : Bounds) : Prop :=
   ∀ c ∈ cs, GroundSatisfies ρ c
 
-/-- A scheme's free variables keep their ambient interpretation. -/
+/-- Only quantified variables may change. Variables absent from the scheme's
+body must also stay fixed: they can still occur in a value's capture metadata. -/
 def GroundInstantiates (ambient : GroundAssignment) (s : Scheme) (ρ : GroundAssignment) : Prop :=
-  (∀ v ∈ s.freeTypes, ρ.types v = ambient.types v) ∧
-  (∀ v ∈ s.freeModes, ρ.modes v = ambient.modes v) ∧ GroundModels ρ s.bounds
+  (∀ v, v ∉ s.typeParams.map TypeVar.flex → ρ.types v = ambient.types v) ∧
+  (∀ v, v ∉ s.modParams.map ModVar.flex → ρ.modes v = ambient.modes v) ∧ GroundModels ρ s.bounds
 
 inductive Owns : GroundAssignment → Value → GroundTy → Location → Prop where
   | credit {ρ l m} : m.unique = true → Owns ρ (.credit l) (.credit m) l

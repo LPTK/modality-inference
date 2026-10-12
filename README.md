@@ -213,6 +213,7 @@ All paths below are relative to `ModalityInference/`.
 | Term scope | `Proofs/Scoping` | Proved capture-avoiding substitution and renaming preserve scope for every term constructor; no admissions |
 | Context routing and lookup | `Proofs/Generation` | Proved usage splitting and both directions of symbolic lookup correspondence; no admissions |
 | Declarative weakening | `Proofs/Declarative` | Proved context weakening for annotated and raw typing; no admissions |
+| Ambient assignment and quantified scope | `Proofs/Grounding`, `Proofs/ContextScoping` | Scheme instantiation fixes all non-quantified identifiers; proved monomorphic contracts and a witness requiring fresh quantifiers in sharing/locking |
 | Polymorphic capture diagnostic | `Proofs/PolymorphicCapture` | Proved counterexample to the current fundamental statement; no admissions |
 | Remaining structural, semantic and algorithmic metatheory | `Proofs/Structural`, `Proofs/Soundness`, `Proofs/Algorithms` | Explicit admitted obligations |
 
@@ -263,6 +264,8 @@ corrections. The POPL reviews and response are in the enclosing paper repository
 | All target quantifiers skolemized; assumptions retained | `polyId` versus a monomorphic identity; `bounded` with/without its declared assumption |
 | Allocation source, exclusive upper index and future-frame partition | Tail slices start at 1 and 2; distinct branches enter distinct fresh frames |
 | Typed ownership and separate reference validity | `aliasedField` inside a unique pair and a dead stack frame |
+| Instantiation fixes every non-quantified identifier | `AmbientCaptureScope`: a variable absent from the scheme can still occur in capture metadata; changing it is rejected |
+| Scheme binders are fresh for ambient bounds and symbolic locks | `ContextScoping`: the former sharing premise allows two copies of the same owned credit; alpha-renaming removes the bound/quantifier collision |
 | Fuel is not rejection | Small-budget inference/evaluation exhaust; larger budgets succeed |
 
 The 99 regression checks also compare small two-mode queries and all concrete mode
@@ -276,6 +279,17 @@ The fundamental semantic soundness claim is separately recorded as a proposition
 its current formulation is refuted, so it cannot responsibly remain an admitted theorem.
 These are obligations to prove and, if counterexamples arise, refine; the
 prototype and stated theorems are not advertised as a verified full system.
+
+`GroundInstantiates` fixes every identifier outside the quantified domain, including
+ones absent from a scheme's body and bounds. This preserves the interpretation of
+ambient identifiers used only by capture metadata. Sharing and locking now require
+scheme binders fresh for ambient bounds, and locking additionally requires them
+fresh for its symbolic modality. The checked counterexample uses the ambient
+bound `aliased ≤ μ₀` with the separately quantified scheme `∀μ₀. credit@μ₀`:
+the former sharing premise holds but both components own the same credit at a
+unique instance. `ContextScoping.renamed_fresh` verifies that alpha-renaming makes
+the scope valid while retaining polymorphism. These scoping repairs do not resolve
+the distinct variable-instantiation metadata defect below.
 
 The counterexample binds a closure with scheme `∀μ. unit → credit@μ`. Its capture
 metadata assigns the captured heap credit type `credit@μ`. The current scheme

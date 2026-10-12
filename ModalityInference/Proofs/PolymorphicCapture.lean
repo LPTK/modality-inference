@@ -45,8 +45,7 @@ theorem no_capture_ownership (l : Location) :
     List.getElem?_nil, Option.some.injEq, reduceCtorEq]
   subst s v
   have hm : η.modes (.flex 0) = Mode.aliased := hη.2.1 _ (by
-    simp [creditScheme, Scheme.mono, Scheme.freeModes, TypeExpr.modVars, ModExpr.vars,
-      Bounds.modVars])
+    simp [creditScheme, Scheme.mono])
   simp [creditScheme, Scheme.mono, TypeExpr.realize, ModExpr.eval,
     GroundTy.modal, Mode.identity, Mode.compose, hm] at ht
   subst t

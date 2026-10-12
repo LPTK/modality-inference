@@ -227,6 +227,14 @@ def subst (s : Scheme) (σ : Substitution) : Scheme :=
     modParams := (List.range s.modParams.length).map (nm + ·)
     bounds := σ.bounds cs, body := σ.ty t }
 def modal (s : Scheme) (m : ModExpr) : Scheme := { s with body := .modal s.body m }
+/-- Ambient bounds cannot refer to the identifiers bound by a scheme. Rename
+quantifiers before placing a scheme under conflicting ambient assumptions. -/
+def FreshForBounds (s : Scheme) (Δ : Bounds) : Prop :=
+  (∀ n ∈ s.typeParams, TypeVar.flex n ∉ Δ.typeVars) ∧
+  (∀ n ∈ s.modParams, ModVar.flex n ∉ Δ.modVars)
+/-- A symbolic lock is outside the scheme's quantifiers. -/
+def FreshForMode (s : Scheme) (m : ModExpr) : Prop :=
+  ∀ n ∈ s.modParams, ModVar.flex n ∉ m.vars
 end Scheme
 
 inductive ContextEntry where
