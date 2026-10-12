@@ -59,6 +59,12 @@ transports this ownership evidence to a subset of the source resources, under
 arbitrary modeled bounds and inherited modalities. The proof includes both
 function variances, future-only closure comparison, credit conversion, and
 pairwise separation of product cells and fields.
+`Proofs/GroundAssignment` proves that fresh quantified instantiation preserves
+ambient bounds and lock expressions. `Proofs/ResourceContexts` uses that result
+to prove polymorphic sharing with empty ownership and the complete context-join
+contract: both component environments are valid, own subsets of the original
+resources, and have disjoint ownership. `Deferred.context_join_semantics` now
+uses this proved contract in place of its annotation-dependent admission.
 This route changes no term constructor or evaluation rule. Its connection to all
 declarative typing rules remains unfinished; it is not yet a replacement
 fundamental soundness theorem.
@@ -249,6 +255,7 @@ All paths below are relative to `ModalityInference/`.
 | Ambient skolem scope | `Proofs/SubsumptionScope` | Proved the former comparison could confuse an ambient rigid identifier with a new quantifier; corrected skolem indices avoid every ambient type and modality identifier |
 | Ownership evidence for ground instances | `ResourceSemantics`, `Proofs/Resources`, `Proofs/ResourceCapture` | Candidate semantic repair; proved erasure invariance, global references, empty shared ownership, semantic lookup, and the original captured-credit witness; full typing connection remains open |
 | Resource interpretation under subtyping | `Proofs/ResourceSubtyping` | Proved all declarative subtyping rules preserve instance-indexed interpretation while shrinking ownership, including symbolic bounds and arbitrary inherited modalities; no admissions |
+| Semantic context joins | `Proofs/GroundAssignment`, `Proofs/ResourceContexts` | Proved fresh ground instantiation, empty ownership for polymorphic sharing, and valid, contained, disjoint component environments for every join rule |
 | Polymorphic capture diagnostic | `Proofs/PolymorphicCapture` | Proved counterexample to the current fundamental statement; no admissions |
 | Remaining structural, semantic and algorithmic metatheory | `Proofs/Structural`, `Proofs/Soundness`, `Proofs/Algorithms` | Explicit admitted obligations |
 
@@ -310,7 +317,7 @@ They exercise every term constructor and both sum branches.
 
 ## Deferred proof work and prerequisites
 
-Each of the 22 remaining deferred theorems has a prerequisite comment immediately above it.
+Each of the 21 remaining deferred theorems has a prerequisite comment immediately above it.
 The fundamental semantic soundness claim is separately recorded as a proposition:
 its current formulation is refuted, so it cannot responsibly remain an admitted theorem.
 These are obligations to prove and, if counterexamples arise, refine; the
@@ -368,7 +375,7 @@ definedness obligations.
 
 | Proof module | Obligations | Prerequisites/dependencies |
 | --- | --- | --- |
-| `Structural` | Closed term substitution, semantic context joins/locks | Freshening and alpha-renaming, scheme instantiation, type-indexed support and semantic subtyping; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting and symbolic lookup are proved |
+| `Structural` | Closed term substitution, semantic locking | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup and instance-indexed context joins are proved |
 | `Soundness` | Semantic soundness, termination/no-stuck, live results, ownership bound | Structural lemmas, fresh supply partitioning, region liveness, closure interpretation and closed-definition generalization; semantic subtyping and support monotonicity are proved |
 | `Algorithms` | Local rewrite equivalence, solution preservation, scheduled termination, worklist correspondence, solve soundness/consistency/completeness, principal factorization, generation correspondence/soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, backend reduction, scheme-subsumption soundness/completeness | Guarded residual adjunctions, substitution invariants, freshness, representative-search completeness, rigid entailment, Boolean projection/CNF correctness, modal witness reconstruction, established `Equation.decide_correct` |
 

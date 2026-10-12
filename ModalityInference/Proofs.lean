@@ -10,6 +10,8 @@ import ModalityInference.Proofs.ResourceCapture
 import ModalityInference.Proofs.TypingDefinedness
 import ModalityInference.Proofs.UndefinedDomain
 import ModalityInference.Proofs.ResourceSubtyping
+import ModalityInference.Proofs.GroundAssignment
+import ModalityInference.Proofs.ResourceContexts
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

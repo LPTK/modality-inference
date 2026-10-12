@@ -8,6 +8,7 @@ import ModalityInference.Proofs.Scoping
 import ModalityInference.Proofs.Generation
 import ModalityInference.Proofs.Declarative
 import ModalityInference.Proofs.PartialSubstitution
+import ModalityInference.Proofs.ResourceContexts
 
 /-! DEFERRED: these statements are a proof worklist, not established results.
 Nothing outside `Proofs` imports this module. See README for prerequisites. -/
@@ -50,12 +51,19 @@ theorem split_context_spec (Γ : AlgorithmicContext) (X Y : Finset Nat) :
 theorem symbolic_lock_lookup {Γ i s} (h : lookupScheme Γ i = .success s) :
     Lookup Γ i s := lookupScheme_sound h
 
-/-- Prerequisites: semantic subtyping, support antimonotonicity, scheme unions. -/
-theorem context_join_semantics {ρ w Γ Γ₁ Γ₂ γ Δ}
+/-- Proved for the repaired, instance-indexed ownership interpretation. Each
+component has valid bindings, owns only source resources, and is disjoint from
+the other component. The shared case uses fresh polymorphic instantiation. -/
+theorem context_join_semantics {ρ w Γ Γ₁ Γ₂ γ Δ reserved}
     (hΔ : GroundModels ρ Δ) (h : ContextJoin Δ Γ₁ Γ₂ Γ)
-    (hγ : EnvironmentInterpretation ρ w Γ γ) :
-    EnvironmentInterpretation ρ w Γ₁ γ ∧ EnvironmentInterpretation ρ w Γ₂ γ ∧
-      ∀ l, ¬ (EnvironmentOwns ρ γ Γ₁ l ∧ EnvironmentOwns ρ γ Γ₂ l) := by sorry
+    (hγ : ResourceEnvironmentInterpretation ρ w Γ γ reserved) :
+    ∃ left right,
+      ResourceEnvironmentInterpretation ρ w Γ₁ γ left ∧
+      ResourceEnvironmentInterpretation ρ w Γ₂ γ right ∧
+      ContextResources Γ₁ left ⊆ ContextResources Γ reserved ∧
+      ContextResources Γ₂ right ⊆ ContextResources Γ reserved ∧
+      Disjoint (ContextResources Γ₁ left) (ContextResources Γ₂ right) :=
+  h.resource_semantics hΔ hγ
 
 /-- Prerequisites: future crossing, closure support interpretation, scheme substitution. -/
 theorem locking_semantics {ρ w Γ Γ' γ Δ m}
