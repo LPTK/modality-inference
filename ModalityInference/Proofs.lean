@@ -19,6 +19,7 @@ import ModalityInference.Proofs.GroundSchemes
 import ModalityInference.Proofs.ResourceWorlds
 import ModalityInference.Proofs.TypingScope
 import ModalityInference.Proofs.ResourceRestriction
+import ModalityInference.Proofs.ResourceSubsumption
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

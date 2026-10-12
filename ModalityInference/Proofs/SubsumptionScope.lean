@@ -1,5 +1,6 @@
 import ModalityInference.Proofs.Grounding
 import ModalityInference.Proofs.Subtyping
+import ModalityInference.Proofs.VariableOccurrences
 
 /-! Skolemization must avoid ambient bounds as well as both schemes. -/
 namespace ModalityInference
@@ -20,6 +21,18 @@ theorem Bounds.lt_freshTypeIndex {Δ : Bounds} {v : TypeVar} (h : v ∈ Δ.typeV
 
 theorem Bounds.lt_freshModeIndex {Δ : Bounds} {v : ModVar} (h : v ∈ Δ.modeVariables) :
     v.index < Δ.freshModeIndex := (freshFold_bounds ModVar.index Δ.modeVariables 0).2 v h
+
+theorem Scheme.lt_freshTypeIndex {s : Scheme} {v : TypeVar}
+    (h : v ∈ s.body.typeVars ∪ s.bounds.typeVars) : v.index < s.freshTypeIndex := by
+  apply (freshFold_bounds TypeVar.index _ 0).2 v
+  simp only [List.mem_append, TypeExpr.mem_typeVariables, Bounds.mem_typeVariables]
+  exact (Finset.mem_union.mp h).elim (fun h => Or.inl (Or.inr h)) Or.inr
+
+theorem Scheme.lt_freshModeIndex {s : Scheme} {v : ModVar}
+    (h : v ∈ s.body.modVars ∪ s.bounds.modVars) : v.index < s.freshModeIndex := by
+  apply (freshFold_bounds ModVar.index _ 0).2 v
+  simp only [List.mem_append, TypeExpr.mem_modeVariables, Bounds.mem_modeVariables]
+  exact (Finset.mem_union.mp h).elim (fun h => Or.inl (Or.inr h)) Or.inr
 
 theorem Scheme.subsumptionIndices_type_fresh {Δ : Bounds} (s t : Scheme)
     {v : TypeVar} (h : v ∈ Δ.typeVariables) :

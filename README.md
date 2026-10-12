@@ -18,7 +18,7 @@ explicit identifier-to-`Fin n` translation to the original solver. Modality
 projection is proved for all operations, preserving residual definedness and the
 reversed uniqueness comparison. Backend modality entailment agrees with
 `ModeModels`, and positive inequality reports yield the independent `Submode`
-judgment. Full scheme subsumption still has separate proof obligations.
+judgment. Executable scheme comparison still has separate proof obligations.
 Full-system metatheory remains incomplete: deferred theorem statements use isolated `sorry`s under
 `ModalityInference/Proofs/`. Neither the public library nor the executables nor the
 original solver import those files. An executable acceptance report is data,
@@ -122,6 +122,17 @@ implies closure, including the existing `def` RHS premise.
 `Proofs/ResourceRestriction` proves that restricting context usage and trimming
 unused runtime captures preserve the same resource evidence on retained bindings.
 The stronger induction over the bindings actually read remains to be completed.
+`Proofs/ResourceSubsumption` now proves that declarative scheme subsumption
+preserves the resource interpretation of every admissible instance, within the
+same reserve. Context subsumption consequently preserves interpreted bindings,
+pairwise separation, and a subset of the source context's resources.
+`Proofs/GroundSkolemization` realizes fresh target skolems while preserving all
+ambient bounds and source free identifiers; repeated scheme parameter names
+require no additional premise. `Proofs/GroundSubstitution` proves the needed
+commutation of ground interpretation with substitution, including partial
+modalities and both forms of type equality. This establishes the semantic
+context-subsumption ingredient, not correctness of the executable comparison
+algorithm or the full typing induction.
 
 ## Build and run
 
