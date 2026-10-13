@@ -90,13 +90,11 @@ def skeleton (s : SolverState) (t : Ty) : Ty × SolverState :=
   | t => (.modal t m, s)
 end SolverState
 
+/-- Retain the bound for finite modality checking. Re-enqueuing transitive
+consequences can grow residual syntax without bound, even for satisfiable inputs;
+those consequences are already implied by the retained premises. -/
 def recordModeBound (s : SolverState) (a b : ModExpr) : SolverState :=
-  let more := s.bounds.flatMap fun c => match c with
-    | .mode x y =>
-      (if y == a then [Constraint.mode x b] else []) ++
-      (if b == x then [Constraint.mode a y] else [])
-    | _ => []
-  (s.retain .modeBound (.mode a b)).emit .modeBound more
+  s.retain .modeBound (.mode a b)
 
 /-- Orient residual rewrites toward the least flexible variable. Deferred projection
 constraints are retained verbatim and checked in the finite modality algebra. -/

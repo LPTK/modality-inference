@@ -26,7 +26,9 @@ theorem rewrite_solution_preservation {s t scope} (h : Rewrites s t)
     ∀ ρ, ConfigModels scope s ρ ↔ ConfigModels scope t ρ := Rewrites.configModels h ht hm
 
 /-- DEFERRED. Prerequisites: fixed identifier orientation, duplicate suppression,
-occurs checks, finite propagation. No polynomial complexity claim is made. -/
+and finite shape expansion. `ModePropagation` refutes the former unbounded
+transitive work: mode bounds are now retained directly for finite checking.
+No polynomial complexity claim is made. -/
 theorem rewrite_termination (s : SolverState) :
     ∃ n, ∀ fuel ≥ n, runSolver fuel s ≠ .exhausted := by sorry
 
@@ -59,8 +61,9 @@ theorem solve_consistency {fuel cs result} (hf : FlexibleBounds cs)
 
 /-- DEFERRED. Prerequisites: rewrite completeness and termination. Mode search
 completeness is proved independently. `ModalEquality` records the former modal
-self-equality counterexample and the corrected reduction. A sufficiently large
-budget is essential. -/
+self-equality counterexample and the corrected reduction. `ModePropagation`
+records a satisfiable input on which former transitive work exhausted every budget.
+A sufficiently large budget is essential for the corrected solver. -/
 theorem solve_complete {cs} (hf : FlexibleBounds cs) (hs : BoundsSatisfiable cs) :
     ∃ n, ∀ fuel ≥ n, ∃ result, solve fuel cs = .success result := by sorry
 

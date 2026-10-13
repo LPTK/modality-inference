@@ -41,6 +41,7 @@ import ModalityInference.Proofs.SolverLocalSoundness
 import ModalityInference.Proofs.GenerationExecution
 import ModalityInference.Proofs.ModeCycle
 import ModalityInference.Proofs.PrincipalAmbient
+import ModalityInference.Proofs.ModePropagation
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

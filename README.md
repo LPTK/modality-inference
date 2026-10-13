@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-431 public or established declarations transitively, including the complete
+474 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -162,6 +162,22 @@ Together these prove the original `Deferred.solve_consistency` statement with
 its full `BoundsSatisfiable` conclusion. Rigid identifiers are never replaced.
 
 ## Corrections and retained witnesses
+
+`Proofs/ModePropagation` proves that the former transitive mode work could grow
+forever. The flexible input `(μ / global) ≤ μ`, `μ ≤ μ ∘ many` has the finite
+solution `μ = bottom`. Nevertheless, each six-step worklist round added another
+outer `global` composition and regenerated a pending inequality. The archived
+worklist, validated entry and complete solve are proved to exhaust **every** fuel
+budget, refuting their termination and completeness obligations. This is an
+unbounded proof, beyond the initial finite experiment.
+
+`recordModeBound` now retains the bound directly for finite consistency checking.
+`record_entails` proves equivalence with the former recorder's obligations under
+every ambient context; `record_groundModels` proves equality of their ground
+model sets. The discarded transitive work adds no information. The corrected
+solver succeeds on the witness for every fuel budget at least 100. Regressions
+compare all eight models in 64 constant-pair variants and check the reversed
+input order. Full worklist termination and completeness still require proofs.
 
 `Proofs/PrincipalAmbient` refutes the former unrestricted ambient principality
 statement. Solving `(α × unit) ≤ (unit × unit)` gives `α` a modal-unit image.
@@ -357,9 +373,11 @@ normalization work. It is not a machine-instruction counter or a complexity boun
 - The solver uses pending constraints, residual bounds, substitutions, a visited
   set, fresh counters and a trace. It folds concrete expressions, checks finite
   constructor shapes (including
-  indirect cycles), expands types, propagates bounds and applies guarded residual
+  indirect cycles), expands types, records bounds and applies guarded residual
   rewrites. Remaining symbolic projection obligations are retained, not dropped.
-  Boolean CNF propagation checks their consistency. This finite fallback is part
+  Transitive modality consequences are checked through their retained premises;
+  they are not re-enqueued as potentially growing expressions. Boolean CNF
+  propagation checks consistency. This finite fallback is part
   of the executable prototype; it is not a claim of a polynomial solver.
 - Declared schemes use the paper's residual variable-bound grammar. Subsumption
   freshens the inferred quantifiers and skolemizes **every** declared quantifier,
@@ -427,6 +445,7 @@ All paths below are relative to `ModalityInference/`.
 | Residual consistency | `Proofs/SolverDefinedness`, `Proofs/ResidualModels`, `Proofs/SolverFlexible`, `Proofs/GroundReification` | Proved type-bound definedness, a ground model using the actual modality witness, preservation of flexible support, and a finite closed syntactic witness for `solve_consistency` |
 | Modal self-equality | `Proofs/ModalEquality` | Proved finite satisfiability, failure of the former occurs policy at every fuel, equivalence of the corrected reduction, and corrected success for every fuel at least 12 |
 | Tied residual orientation | `Proofs/ModeCycle` | Proved an unsatisfiable set was formerly accepted without a solution; corrected retention and rejection for every fuel at least 100 |
+| Transitive mode work | `Proofs/ModePropagation` | Proved all-fuel exhaustion of a satisfiable input under the former policy; direct retention preserves exact declarative obligations and ground models, and succeeds on the witness for every fuel at least 100 |
 | Ambient principality assumptions | `Proofs/PrincipalAmbient` | Refuted unrestricted whole-type assumptions using a finitely satisfiable witness; the deferred theorem now requires the paper's residual-bound grammar |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
 | §5 generic concrete modality solver | `Subsumption` | **Existing proved correctness and stabilization, unchanged** |

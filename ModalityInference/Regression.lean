@@ -179,6 +179,12 @@ def singleModeModelsAgree (cs : Bounds) : Bool :=
   let right := ModExpr.compose x (.const c)
   singleModeModelsAgree [.mode (.leftResidual (.const a) left) right] &&
     singleModeModelsAgree [.mode (.const a) (.compose left right)]
+-- Repeated propagation formerly grew g ∘ (g ∘ ... (x ∘ h)) without bound.
+#guard Mode.all.all fun g => Mode.all.all fun h =>
+  singleModeModelsAgree [.mode (.leftResidual x (.const g)) x,
+    .mode x (.compose x (.const h))]
+#guard (solve 100 [.mode x (.compose x (.const Mode.many)),
+  .mode (.leftResidual x (.const Mode.global)) x]).isSuccess
 -- A modal self-equality has an absorbing-unit solution for every concrete mode.
 #guard Mode.all.all fun m =>
   (solve 500 [.equal (.flex 0) (.modal (.var (.flex 0)) (.const m))]).isSuccess

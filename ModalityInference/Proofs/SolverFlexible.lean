@@ -28,15 +28,8 @@ theorem SolverState.Flexible.skeleton {s : SolverState} (hs : s.Flexible)
     SolverState.freshMode, TypeExpr.Flexible, ModExpr.Flexible]
 
 theorem recordModeBound_flexible {s : SolverState} (hs : s.Flexible)
-    {a b : ModExpr} (ha : a.Flexible) (hb : b.Flexible) : (recordModeBound s a b).Flexible := by
-  apply (hs.retain .modeBound (c := .mode a b) (And.intro ha hb)).emit
-  rintro c hc
-  obtain ⟨d, hd, hc⟩ := List.mem_flatMap.mp hc
-  have hh := hs.bounds d hd
-  cases d <;> simp only [List.not_mem_nil] at hc
-  rename_i x y
-  rcases List.mem_append.mp hc with hc | hc
-  all_goals split_ifs at hc <;> simp_all [Constraint.Flexible]
+    {a b : ModExpr} (ha : a.Flexible) (hb : b.Flexible) : (recordModeBound s a b).Flexible :=
+  hs.retain .modeBound (And.intro ha hb)
 
 theorem stepMode_flexible {s a b t} (hs : SolverState.Flexible s)
     (ha : ModExpr.Flexible a) (hb : b.Flexible) (h : stepMode s a b = .success t) :

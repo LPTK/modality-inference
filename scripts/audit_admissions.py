@@ -462,6 +462,49 @@ constants = [
     'ModalityInference.PrincipalAmbient.no_type_factorization',
     'ModalityInference.PrincipalAmbient.satisfiable',
     'ModalityInference.PrincipalAmbient.no_unrestricted_principality',
+    'ModalityInference.ModePropagation.upper_injective',
+    'ModalityInference.ModePropagation.upper_eq',
+    'ModalityInference.ModePropagation.upper_ne_var',
+    'ModalityInference.ModePropagation.upper_ne_lower',
+    'ModalityInference.ModePropagation.var_ne_upper',
+    'ModalityInference.ModePropagation.lower_ne_upper',
+    'ModalityInference.ModePropagation.upper_seen',
+    'ModalityInference.ModePropagation.defined_upper_seen',
+    'ModalityInference.ModePropagation.lower_seen',
+    'ModalityInference.ModePropagation.upper_bound',
+    'ModalityInference.ModePropagation.defined_upper_bound',
+    'ModalityInference.ModePropagation.defined_var_seen',
+    'ModalityInference.ModePropagation.defined_lower_seen',
+    'ModalityInference.ModePropagation.upper_variables',
+    'ModalityInference.ModePropagation.upper_eval_none',
+    'ModalityInference.ModePropagation.upper_normalize',
+    'ModalityInference.ModePropagation.upper_min',
+    'ModalityInference.ModePropagation.upper_subst',
+    'ModalityInference.ModePropagation.propagated',
+    'ModalityInference.ModePropagation.lower_step',
+    'ModalityInference.ModePropagation.upper_step',
+    'ModalityInference.ModePropagation.lower_normalize',
+    'ModalityInference.ModePropagation.lower_subst',
+    'ModalityInference.ModePropagation.var_normalize',
+    'ModalityInference.ModePropagation.var_subst',
+    'ModalityInference.ModePropagation.var_variables',
+    'ModalityInference.ModePropagation.propagated_eq',
+    'ModalityInference.ModePropagation.loop_unroll',
+    'ModalityInference.ModePropagation.loop_short',
+    'ModalityInference.ModePropagation.loop_exhausted',
+    'ModalityInference.ModePropagation.entry_unroll',
+    'ModalityInference.ModePropagation.former_worklist_exhausted',
+    'ModalityInference.ModePropagation.former_run_exhausted',
+    'ModalityInference.ModePropagation.former_solve_exhausted',
+    'ModalityInference.ModePropagation.no_former_termination',
+    'ModalityInference.ModePropagation.former_no_eventual_success',
+    'ModalityInference.ModePropagation.flexible',
+    'ModalityInference.ModePropagation.ground_model',
+    'ModalityInference.ModePropagation.satisfiable',
+    'ModalityInference.ModePropagation.corrected_succeeds',
+    'ModalityInference.ModePropagation.corrected_eventual_success',
+    'ModalityInference.ModePropagation.record_entails',
+    'ModalityInference.ModePropagation.record_groundModels',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -508,6 +551,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.GenerationExecution\n'
                     'import ModalityInference.Proofs.ModeCycle\n'
                     'import ModalityInference.Proofs.PrincipalAmbient\n'
+                    'import ModalityInference.Proofs.ModePropagation\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(
