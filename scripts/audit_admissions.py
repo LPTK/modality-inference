@@ -336,6 +336,15 @@ constants = [
     'ModalityInference.satisfiableModes_sound',
     'ModalityInference.solveFrom_mode_witness',
     'ModalityInference.solve_mode_witness',
+    'ModalityInference.assignCNF_card_lt',
+    'ModalityInference.assignCNF_weight',
+    'ModalityInference.searchCNF_terminates',
+    'ModalityInference.searchCNF_rejected',
+    'ModalityInference.searchCNF_complete',
+    'ModalityInference.toCNF_complete',
+    'ModalityInference.satisfiableModes_complete',
+    'ModalityInference.satisfiableModes_terminates',
+    'ModalityInference.satisfiableModes_success_iff',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -374,6 +383,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SolverEntry\n'
                     'import ModalityInference.Proofs.Normalization\n'
                     'import ModalityInference.Proofs.ModeSearch\n'
+                    'import ModalityInference.Proofs.ModeSearchComplete\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

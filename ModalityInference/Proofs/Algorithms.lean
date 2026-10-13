@@ -46,13 +46,15 @@ theorem solve_sound {fuel cs result} (h : solve fuel cs = .success result) :
       result.substitution.Acyclic :=
   ⟨by sorry, solve_residual h, solve_acyclic h⟩
 
-/-- DEFERRED. Prerequisites: finite DPLL completeness and ground instantiation of
-remaining flexible type variables. This rules out inconsistent unused `def`s. -/
+/-- DEFERRED. Boolean search termination/completeness and modality witnesses are
+proved in `ModeSearchComplete` and `ModeSearch`. Remaining prerequisites are
+residual definedness and ground instantiation of flexible type variables.
+This rules out inconsistent unused `def`s. -/
 theorem solve_consistency {fuel cs result} (hf : FlexibleBounds cs)
     (h : solve fuel cs = .success result) : BoundsSatisfiable result.bounds := by sorry
 
-/-- DEFERRED. Prerequisites: rewrite completeness and termination, mode search
-completeness. A sufficiently large budget is essential. -/
+/-- DEFERRED. Prerequisites: rewrite completeness and termination. Mode search
+completeness is proved independently. A sufficiently large budget is essential. -/
 theorem solve_complete {cs} (hf : FlexibleBounds cs) (hs : BoundsSatisfiable cs) :
     ∃ n, ∀ fuel ≥ n, ∃ result, solve fuel cs = .success result := by sorry
 
