@@ -113,8 +113,10 @@ def stepMode (s : SolverState) (a b : ModExpr) : RunResult SolverState := do
   | .leftResidual x y, _ =>
     if ModExpr.minimumLE x.minVar y.minVar && ModExpr.minimumLE x.minVar b.minVar then
       return s.emit .sub1 (guard ++ [.mode x (.compose y b)])
+    -- A tie with the right operand would permit two swaps followed by duplicate
+    -- discharge of an unresolved inequality. Keep that constraint for projection.
     else if ModExpr.minimumLE y.minVar x.minVar && y.minVar != x.minVar &&
-        ModExpr.minimumLE y.minVar b.minVar then
+        ModExpr.minimumLE y.minVar b.minVar && y.minVar != b.minVar then
       return s.emit .sub2 (guard ++ [.mode (.leftResidual x b) y])
     else return s.retain .projection (.mode a b)
   | _, .rightResidual x y =>

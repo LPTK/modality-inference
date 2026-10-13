@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-416 public or established declarations transitively, including the complete
+422 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -162,6 +162,19 @@ Together these prove the original `Deferred.solve_consistency` statement with
 its full `BoundsSatisfiable` conclusion. Rigid identifiers are never replaced.
 
 ## Corrections and retained witnesses
+
+`Proofs/ModeCycle` records an unsatisfiable modality set formerly accepted by the
+worklist. With `a = absorbing`, `b = μ ∘ bottom`, and `c = μ ∘ many`, the
+constraints `a / b ≤ c` and `μ ≤ identity` have no model. The former `sub2`
+orientation swapped `b` and `c` twice, then duplicate suppression discarded the
+unresolved inequality. Its remaining definedness guards were satisfiable.
+The archived executable is proved to succeed without satisfying `Solution`.
+The corrected swap requires the denominator's least variable to be strictly
+smaller than both other operands' minima; a tie retains the exact inequality for
+finite projection. The corrected solver rejects this witness for every fuel
+budget at least 100. Regressions compare all eight valuations in 1,024 related
+single-variable cases, including both residual and composition entry forms.
+This repairs a soundness counterexample; the general worklist theorem is open.
 
 `Proofs/ModalEquality` records a satisfiable flexible constraint formerly rejected
 by the syntactic equality occurs check: `α = α @ bottom`. Assigning `α` unit at
@@ -403,6 +416,7 @@ All paths below are relative to `ModalityInference/`.
 | Modality consistency search | `Proofs/ModeSearch`, `Proofs/ModeSearchComplete` | Proved returned witness soundness, Boolean search termination and rejection correctness, eventual CNF normalization, and modality-search completeness |
 | Residual consistency | `Proofs/SolverDefinedness`, `Proofs/ResidualModels`, `Proofs/SolverFlexible`, `Proofs/GroundReification` | Proved type-bound definedness, a ground model using the actual modality witness, preservation of flexible support, and a finite closed syntactic witness for `solve_consistency` |
 | Modal self-equality | `Proofs/ModalEquality` | Proved finite satisfiability, failure of the former occurs policy at every fuel, equivalence of the corrected reduction, and corrected success for every fuel at least 12 |
+| Tied residual orientation | `Proofs/ModeCycle` | Proved an unsatisfiable set was formerly accepted without a solution; corrected retention and rejection for every fuel at least 100 |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
 | §5 generic concrete modality solver | `Subsumption` | **Existing proved correctness and stabilization, unchanged** |
 | Core programs and regressions | `Examples`, `Regression` | Executed during validation/CI |

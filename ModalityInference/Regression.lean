@@ -159,6 +159,26 @@ def referenceLocations : Nat → Value → List Location
 def x : ModExpr := .var (.flex 0)
 def y : ModExpr := .var (.flex 1)
 #guard (solve 1000 [.mode x y, .mode y x]).isSuccess
+-- Equal least variables must not let a residual swap erase a false inequality.
+def tiedResidual : Constraint := .mode
+  (.leftResidual (.const Mode.absorbing) (.compose x (.const Mode.bottom)))
+  (.compose x (.const Mode.many))
+#guard rejected (solve 100 [tiedResidual, .mode x (.const Mode.identity)])
+#guard rejected (solve 100 [.mode x (.const Mode.identity), tiedResidual])
+#guard (solve 100 [tiedResidual, .mode x (.const Mode.aliased)]).isSuccess
+-- Check every model, including successful cases, for both routes into the tie.
+def singleModeModelsAgree (cs : Bounds) : Bool :=
+  match solve 500 cs with
+  | .success result => Mode.all.all fun m =>
+      cs.all (checkModeConstraint (fun _ => some m)) ==
+        result.bounds.all (checkModeConstraint (fun _ => some m))
+  | .rejected _ => !(Mode.all.any fun m => cs.all (checkModeConstraint (fun _ => some m)))
+  | .exhausted => false
+#guard Mode.all.all fun a => Mode.all.all fun b => Mode.all.all fun c =>
+  let left := ModExpr.compose x (.const b)
+  let right := ModExpr.compose x (.const c)
+  singleModeModelsAgree [.mode (.leftResidual (.const a) left) right] &&
+    singleModeModelsAgree [.mode (.const a) (.compose left right)]
 -- A modal self-equality has an absorbing-unit solution for every concrete mode.
 #guard Mode.all.all fun m =>
   (solve 500 [.equal (.flex 0) (.modal (.var (.flex 0)) (.const m))]).isSuccess

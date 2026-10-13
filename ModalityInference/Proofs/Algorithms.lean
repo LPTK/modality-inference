@@ -43,7 +43,8 @@ theorem runSolver_correspondence {fuel s t}
 /-- DEFERRED solution entailment. Local type and modality steps reconstruct input
 entailment; normalization, residual output form and acyclic substitution preservation
 are proved independently. The remaining component needs worklist simulation,
-substitution transport and its duplicate invariant. -/
+substitution transport and its duplicate invariant. `ModeCycle` refutes the former
+tied `sub2` orientation; the corrected step retains that inequality for projection. -/
 theorem solve_sound {fuel cs result} (h : solve fuel cs = .success result) :
     Solution cs result.bounds result.substitution ∧ Residual result.bounds ∧
       result.substitution.Acyclic :=
