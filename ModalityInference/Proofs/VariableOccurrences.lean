@@ -32,4 +32,12 @@ namespace ModalityInference
     v ∈ cs.modeVariables ↔ v ∈ cs.modVars := by
   induction cs <;> simp_all [Bounds.modeVariables, show Bounds.modVars [] = ∅ from rfl]
 
+theorem Bounds.mem_typeVars_iff (cs : Bounds) (v : TypeVar) :
+    v ∈ cs.typeVars ↔ ∃ c ∈ cs, v ∈ c.typeVars := by
+  induction cs <;> simp_all [show Bounds.typeVars [] = ∅ from rfl]
+
+theorem Bounds.mem_modVars_iff (cs : Bounds) (v : ModVar) :
+    v ∈ cs.modVars ↔ ∃ c ∈ cs, v ∈ c.modVars := by
+  induction cs <;> simp_all [show Bounds.modVars [] = ∅ from rfl]
+
 end ModalityInference

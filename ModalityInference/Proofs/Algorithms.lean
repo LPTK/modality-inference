@@ -5,6 +5,7 @@ import ModalityInference.Proofs.Backend
 import ModalityInference.Proofs.Reduction
 import ModalityInference.Proofs.RewriteSoundness
 import ModalityInference.Proofs.SolverResidual
+import ModalityInference.Proofs.SolverFlexible
 
 namespace ModalityInference.Deferred
 
@@ -46,13 +47,12 @@ theorem solve_sound {fuel cs result} (h : solve fuel cs = .success result) :
       result.substitution.Acyclic :=
   ⟨by sorry, solve_residual h, solve_acyclic h⟩
 
-/-- DEFERRED syntactic consistency witness. `solve_ground_model` in
-`SolverDefinedness` proves a model of every returned constraint, using the actual
-modality witness and proved residual definedness. Remaining prerequisites are preservation of
-flexible-only support and a finite closed substitution realizing that model.
-This statement retains the original `BoundsSatisfiable` contract. -/
+/-- Proved syntactic consistency witness. Flexible support is preserved by all
+worklist steps. The returned modality witness extends to a residual ground model,
+then finite reification supplies the original `BoundsSatisfiable` contract. -/
 theorem solve_consistency {fuel cs result} (hf : FlexibleBounds cs)
-    (h : solve fuel cs = .success result) : BoundsSatisfiable result.bounds := by sorry
+    (h : solve fuel cs = .success result) : BoundsSatisfiable result.bounds :=
+  solveFrom_consistency (cs.flexible_iff.mpr hf) h
 
 /-- DEFERRED. Prerequisites: rewrite completeness and termination. Mode search
 completeness is proved independently. A sufficiently large budget is essential. -/
