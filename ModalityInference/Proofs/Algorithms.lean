@@ -6,6 +6,7 @@ import ModalityInference.Proofs.Reduction
 import ModalityInference.Proofs.RewriteSoundness
 import ModalityInference.Proofs.SolverResidual
 import ModalityInference.Proofs.SolverFlexible
+import ModalityInference.Proofs.GenerationExecution
 
 namespace ModalityInference.Deferred
 
@@ -74,8 +75,10 @@ theorem principal_factorization {fuel cs result Δ θ}
         Submode Δ (θ.mode v) ((result.substitution.mode v).subst τ.mode) ∧
         Submode Δ ((result.substitution.mode v).subst τ.mode) (θ.mode v)) := by sorry
 
-/-- DEFERRED. Prerequisites: fresh instantiation, lazy locks, all syntax-directed
-rules, context usage routing and closed-definition solves. Constraint order is immaterial. -/
+/-- DEFERRED. Executable generation preserves source erasure and accumulated
+constraints. Relational correspondence still needs fresh instantiation, lazy locks,
+all syntax-directed rules, context usage routing and closed-definition solves.
+Constraint order is immaterial. -/
 theorem generator_correspondence {fuel Γ t s r}
     (h : generate fuel Γ t s = .success r) :
     ∃ cs, Generates Γ t r.type cs ∧ r.state.constraints.Perm (s.constraints ++ cs) := by sorry
@@ -102,13 +105,15 @@ theorem closed_definition_generalization {rhs a cs residual σ}
     ∀ θ, Instantiates (Scheme.generalize residual (σ.ty a)) θ →
       EntailsAll [] (θ.bounds residual) → RawTyping [] [] rhs (θ.ty (σ.ty a)) := by sorry
 
-/-- DEFERRED. Prerequisites: generation soundness, solver soundness, fresh scheme
+/-- DEFERRED typing conjunct; erasure of the actual inferred term is proved.
+Typing still needs generation soundness, solver soundness, fresh scheme
 instantiation and substitution of typed capture annotations. This checks the actual
 elaborated term, not just the existence of some typing annotation. -/
 theorem inference_sound {fuel Γ t result scope}
     (hΓ : Context.Scoped scope Γ) (h : infer fuel Γ t = .success result) :
     result.elaborated.erase = t ∧
-      Typing result.residual (Γ.subst result.substitution) result.elaborated result.scheme.body := by sorry
+      Typing result.residual (Γ.subst result.substitution) result.elaborated result.scheme.body :=
+  ⟨infer_erases h, by sorry⟩
 
 /-- DEFERRED. Prerequisites: freshness invariants, solver completeness and generator
 correspondence. Fuel is not part of the declarative typing relation. -/

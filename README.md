@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-413 public or established declarations transitively, including the complete
+416 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -226,6 +226,15 @@ that every generated result is defined under every declarative solution, for all
 constructors. The counterexamples and corrected rejection proofs are checked
 without admissions. Full generation and inference soundness remain open.
 
+`Proofs/GenerationExecution` proves that every successful `generate` result
+erases to its original source term and retains the initial constraints as an
+exact prefix, including order and multiplicity. Both inductions cover all term
+constructors, including nested closed definitions. `infer_erases` additionally
+accounts for the final substitution of capture annotations, discharging the
+erasure conjunct of `inference_sound`. Its typing conjunct remains deferred.
+These executable invariants do not assume solver soundness; full correspondence
+with `Generates`, especially its closed-definition solve premise, still needs it.
+
 Evaluator correspondence, determinism, fuel stability, Boolean CNF reduction,
 and all-axis modality projection are also proved independently. Backend modality
 entailment agrees with `ModeModels`; a positive inequality report establishes
@@ -384,6 +393,7 @@ All paths below are relative to `ModalityInference/`.
 | §3 ground types, ownership, separation and liveness | `Semantics`, `ResourceSemantics` | Ground definitions and corrected instance-indexed resource interpretation; old annotation-dependent interpretation retained for its counterexample |
 | §4 independent constraint-generation relation | `Generation` | Inductive rules, including closed `def` and `region` |
 | §4 inference and elaboration | `Inference` | Executable prototype |
+| Generation and elaboration invariants | `Proofs/GenerationExecution` | Proved source erasure for generation and inference, and exact-prefix preservation of accumulated constraints; typing and relational correspondence remain deferred |
 | Executable normalization | `Proofs/Normalization` | Proved preservation of partial evaluation, ground realization, definedness and declarative entailment; simulated by abstract rewriting |
 | Local solver soundness | `Proofs/ReductionEntailment`, `Proofs/SolverLocalSoundness` | Proved backward declarative entailment of every local reduction and successful type/modality step, including outer normalization and alternative residual orientations; complete worklist soundness remains deferred |
 | Executable solver output invariants | `Proofs/SubstitutionSupport`, `Proofs/SolverSubstitution`, `Proofs/SolverResidual` | Proved normalized acyclic substitution preservation and residual output grammar; solution entailment remains deferred |

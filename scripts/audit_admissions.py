@@ -444,6 +444,9 @@ constants = [
     'ModalityInference.stepType_entails',
     'ModalityInference.checkModeConstraint_empty_entails',
     'ModalityInference.stepMode_entails',
+    'ModalityInference.generate_erases',
+    'ModalityInference.generate_constraints_prefix',
+    'ModalityInference.infer_erases',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -487,6 +490,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SolverFlexible\n'
                     'import ModalityInference.Proofs.ModalEquality\n'
                     'import ModalityInference.Proofs.SolverLocalSoundness\n'
+                    'import ModalityInference.Proofs.GenerationExecution\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(
