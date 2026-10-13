@@ -568,6 +568,17 @@ constants = [
     'ModalityInference.SolverState.ModeInvariant.finished_seen',
     'ModalityInference.SolverState.ModeInvariant.duplicate_entails',
     'ModalityInference.runSolver_seen_entails',
+    'ModalityInference.Substitution.empty_constraint',
+    'ModalityInference.Substitution.empty_bounds',
+    'ModalityInference.runSolver_shape_precheck',
+    'ModalityInference.GroundOrder.nodes_eq',
+    'ModalityInference.ShapeEntry.acyclic',
+    'ModalityInference.ShapeEntry.raw_shape_precheck',
+    'ModalityInference.ShapeEntry.substituted_shape_precheck',
+    'ModalityInference.ShapeEntry.former_exhausted_twenty',
+    'ModalityInference.ShapeEntry.corrected_rejects',
+    'ModalityInference.ShapeEntry.empty_substitution_unchanged',
+    'ModalityInference.ShapeEntry.no_substituted_model',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -617,6 +628,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ModePropagation\n'
                     'import ModalityInference.Proofs.ModeOrientation\n'
                     'import ModalityInference.Proofs.ModeSeen\n'
+                    'import ModalityInference.Proofs.ShapeEntry\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

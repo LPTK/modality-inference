@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-537 public or established declarations transitively, including the complete
+548 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -242,6 +242,18 @@ the former entry exhausts twenty steps; the corrected entry rejects it at every
 fuel budget. Empty-substitution behavior is proved unchanged for every fuel
 budget, covering the entry states used by inference. These are finite checked
 witnesses and an entry-invariant proof; full worklist termination remains open.
+
+The entry also applies the accumulated substitution before checking shapes.
+`Proofs/ShapeEntry` records the acyclic saved substitution `α₀ ↦ α₁ × unit`
+with pending bounds `α₁ ≤ α₂`, `α₂ ≤ α₀`. The raw precheck succeeds, while
+the substituted bounds have no finite ground model: ground subtyping preserves
+constructor count, so `α₁` cannot have the same shape as `α₁ × unit`.
+The archived former entry exhausts twenty steps; this bounded witness does not
+claim all-fuel divergence. The corrected entry rejects for every fuel at least
+two, and its behavior with an empty substitution is proved unchanged for every
+budget. Regressions cover reversed bounds, splitting them between pending and
+residual lists, and a valid nonempty saved substitution. Successful entry now
+implies that the substituted shapes passed the precheck.
 
 
 `GroundInstantiates` fixes every identifier outside the quantified domain,
@@ -467,6 +479,7 @@ All paths below are relative to `ModalityInference/`.
 | Transitive mode work | `Proofs/ModePropagation` | Proved all-fuel exhaustion of a satisfiable input under the former policy; direct retention preserves exact declarative obligations and ground models, and succeeds on the witness for every fuel at least 100 |
 | Modality orientation | `Proofs/ModeOrientation` | Proved a well-founded rank decreases for every newly emitted modality/definedness obligation, including after normalization; full worklist termination remains open |
 | Visited modality constraints | `Proofs/ModeSeen` | Proved the modality-cache invariant through every solver transition and complete runs, sound duplicate discharge, and entailment of the final visited modality/definedness constraints; type-cache soundness remains open |
+| Saved-substitution shape checking | `Proofs/ShapeEntry`, `Proofs/SolverEntry` | Proved a cyclic-shape witness with an acyclic saved substitution, rejection at every fuel at least two after applying that substitution, and unchanged empty-substitution behavior; full termination remains open |
 | Ambient principality assumptions | `Proofs/PrincipalAmbient` | Refuted unrestricted whole-type assumptions using a finitely satisfiable witness; the deferred theorem now requires the paper's residual-bound grammar |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
 | §5 generic concrete modality solver | `Subsumption` | **Existing proved correctness and stabilization, unchanged** |

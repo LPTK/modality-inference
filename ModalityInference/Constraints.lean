@@ -246,7 +246,9 @@ def runWorklist : Nat → SolverState → RunResult SolverState
 def runSolver (fuel : Nat) (s : SolverState) : RunResult SolverState := do
   if !s.substitution.checkAcyclic then
     return ← .rejected "initial solver substitution is cyclic, duplicated, or not normalized"
-  checkShapes fuel (s.pending ++ s.bounds)
+  -- The pending syntax may still mention variables in the accumulated substitution.
+  -- Check the shapes that the worklist will actually process.
+  checkShapes fuel (s.substitution.bounds (s.pending ++ s.bounds))
   runWorklist fuel s
 
 structure Solved where

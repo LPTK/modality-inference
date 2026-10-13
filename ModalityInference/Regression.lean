@@ -263,6 +263,19 @@ def queries : List BoolExpr :=
 #guard rejected (runSolver 100
   { pending := [.mode (.var (.flex 0)) (.var (.flex 1))]
     substitution := { modes := [(0, .compose (.var (.flex 0)) (.const Mode.many))] }, nextMode := 2 })
+-- An acyclic saved substitution can still close a cycle through pending/residual bounds.
+def savedShapeCycle : SolverState := {
+  pending := [.sub (.var (.flex 1)) (.var (.flex 2)),
+    .sub (.var (.flex 2)) (.var (.flex 0))]
+  substitution := { types := [(0, .prod (.var (.flex 1)) .unit)] }
+  nextType := 3 }
+#guard savedShapeCycle.substitution.checkAcyclic
+#guard rejected (runSolver 2 savedShapeCycle)
+#guard rejected (runSolver 100 {savedShapeCycle with pending := savedShapeCycle.pending.reverse})
+#guard rejected (runSolver 100 {savedShapeCycle with
+  pending := savedShapeCycle.pending.take 1, bounds := savedShapeCycle.pending.drop 1})
+#guard (runSolver 200 {savedShapeCycle with
+  substitution := {types := [(0, .prod .unit .unit)]}}).isSuccess
 #guard Mode.all.all fun a => Mode.all.all fun b =>
   match solve 500 [.mode (.const a) x, .mode x (.const b)] with
   | .success _ => Mode.le a b

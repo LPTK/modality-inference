@@ -103,4 +103,16 @@ theorem Substitution.ty_avoids {σ : Substitution} (hσ : σ.Acyclic) {k}
   simp only [Substitution.ty, TypeExpr.mem_typeVars_subst, not_exists, not_and]
   exact fun v _ => σ.type_avoids hσ hk v
 
+@[simp] theorem Substitution.empty_constraint (c : Constraint) :
+    ({} : Substitution).constraint c = c := by
+  have ht : ({} : Substitution).type = TypeExpr.var := by funext v; cases v <;> rfl
+  have hm : ({} : Substitution).mode = ModExpr.var := by funext v; cases v <;> rfl
+  cases c <;> simp [Substitution.constraint, Constraint.subst, Substitution.ty, ht, hm]
+  rename_i v a
+  cases v <;> simp
+
+@[simp] theorem Substitution.empty_bounds (cs : Bounds) :
+    ({} : Substitution).bounds cs = cs := by
+  induction cs <;> simp_all [Substitution.bounds]
+
 end ModalityInference

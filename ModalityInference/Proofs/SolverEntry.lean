@@ -1,7 +1,8 @@
 import ModalityInference.Constraints
+import ModalityInference.Proofs.SubstitutionSupport
 
-/-! The worklist accepts only an acyclic accumulated substitution. Empty
-substitutions used by inference satisfy the executable check unconditionally. -/
+/-! The worklist validates its accumulated substitution and the type shapes after
+applying it. Empty substitutions used by inference preserve the original entry behavior. -/
 namespace ModalityInference
 
 theorem Substitution.checkAcyclic_iff (σ : Substitution) :
@@ -17,9 +18,20 @@ theorem runSolver_input_acyclic {fuel s result} (h : runSolver fuel s = .success
   · exact (s.substitution.checkAcyclic_iff).mp hc
   · simp [runSolver, hc, bind, RunResult.bind] at h
 
+theorem runSolver_shape_precheck {fuel s result} (h : runSolver fuel s = .success result) :
+    checkShapes fuel (s.substitution.bounds (s.pending ++ s.bounds)) = .success () := by
+  have hσ := runSolver_input_acyclic h
+  simp only [runSolver, (s.substitution.checkAcyclic_iff).mpr hσ, Bool.not_true,
+    Bool.false_eq_true, ↓reduceIte, bind, RunResult.bind] at h
+  cases he : checkShapes fuel (s.substitution.bounds (s.pending ++ s.bounds)) <;>
+    simp [he] at h
+  rename_i u
+  cases u
+  rfl
+
 namespace SolverEntry
 
-/-- The previous public entry checked only pending/residual type shapes. -/
+/-- The original public entry checked only raw pending/residual type shapes. -/
 def formerRunSolver (fuel : Nat) (s : SolverState) : RunResult SolverState := do
   checkShapes fuel (s.pending ++ s.bounds)
   runWorklist fuel s
