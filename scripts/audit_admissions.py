@@ -425,6 +425,25 @@ constants = [
     'ModalityInference.ModalEquality.former_no_eventual_success',
     'ModalityInference.ModalEquality.corrected_succeeds',
     'ModalityInference.ModalEquality.corrected_eventual_success',
+    'ModalityInference.ModExpr.below_leftResidual',
+    'ModalityInference.ModExpr.below_rightResidual',
+    'ModalityInference.ModExpr.eval_compose_comm',
+    'ModalityInference.ConstraintReduction.modeModels_backward',
+    'ModalityInference.Submode.refl',
+    'ModalityInference.Submode.defined',
+    'ModalityInference.Submode.compose_between',
+    'ModalityInference.Subtype.modal_intersection',
+    'ModalityInference.ConstraintReduction.entails_backward',
+    'ModalityInference.TypeExpr.outer_realize',
+    'ModalityInference.TypeExpr.outer_definedUnder',
+    'ModalityInference.TypeExpr.outer_subtype',
+    'ModalityInference.TypeExpr.outer_normalize_definedUnder',
+    'ModalityInference.TypeExpr.outer_normalize_subtype',
+    'ModalityInference.SolverState.entails_emitted',
+    'ModalityInference.stepType_entails_exposed',
+    'ModalityInference.stepType_entails',
+    'ModalityInference.checkModeConstraint_empty_entails',
+    'ModalityInference.stepMode_entails',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -467,6 +486,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SolverDefinedness\n'
                     'import ModalityInference.Proofs.SolverFlexible\n'
                     'import ModalityInference.Proofs.ModalEquality\n'
+                    'import ModalityInference.Proofs.SolverLocalSoundness\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

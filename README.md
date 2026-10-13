@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-394 public or established declarations transitively, including the complete
+413 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -104,6 +104,17 @@ of each constraint's declarative entailment, and simulation of pending-list
 normalization by the existing `Rewrites.equivalence` rule. Undefined residuals
 remain undefined. This discharges normalization as a prerequisite of executable
 correspondence; the complete correspondence theorem remains open.
+
+`Proofs/ReductionEntailment` proves backward declarative entailment for every
+local reduction, including reductions within larger lists and partial residuals.
+The common composed mode derives product and sum decomposition using the existing
+subtyping rules. `Proofs/SolverLocalSoundness` connects this result to executable
+`stepType` and `stepMode`: entailment of a successful step's pending constraints
+and retained bounds entails its original input. Outer-modality flattening and
+normalization preserve realization, definedness and mutual subtyping. The proof
+also covers alternative residual orientations, concrete checks and retained
+bounds. Full worklist soundness still requires a visited-constraint invariant and
+substitution transport; these local results do not discharge that admission.
 
 `Proofs/SolverSubstitution` proves acyclicity for every successful worklist
 transition and run, including updates to all prior substitution images.
@@ -374,6 +385,7 @@ All paths below are relative to `ModalityInference/`.
 | §4 independent constraint-generation relation | `Generation` | Inductive rules, including closed `def` and `region` |
 | §4 inference and elaboration | `Inference` | Executable prototype |
 | Executable normalization | `Proofs/Normalization` | Proved preservation of partial evaluation, ground realization, definedness and declarative entailment; simulated by abstract rewriting |
+| Local solver soundness | `Proofs/ReductionEntailment`, `Proofs/SolverLocalSoundness` | Proved backward declarative entailment of every local reduction and successful type/modality step, including outer normalization and alternative residual orientations; complete worklist soundness remains deferred |
 | Executable solver output invariants | `Proofs/SubstitutionSupport`, `Proofs/SolverSubstitution`, `Proofs/SolverResidual` | Proved normalized acyclic substitution preservation and residual output grammar; solution entailment remains deferred |
 | §4 constraint rewriting | `Rewriting`, `Constraints` | Independent relation and executable worklist |
 | §5 scheme subsumption | `SchemeSubsumption` | Executable prototype; reduction correctness deferred |

@@ -39,9 +39,10 @@ theorem runSolver_correspondence {fuel s t}
     RewriteStar ⟨s.pending, s.bounds, s.substitution⟩
       ⟨t.pending, t.bounds, t.substitution⟩ := by sorry
 
-/-- DEFERRED solution entailment. Executable normalization, residual output form,
-and acyclic substitution preservation are proved independently. The remaining
-component needs semantic worklist simulation and its duplicate invariant. -/
+/-- DEFERRED solution entailment. Local type and modality steps reconstruct input
+entailment; normalization, residual output form and acyclic substitution preservation
+are proved independently. The remaining component needs worklist simulation,
+substitution transport and its duplicate invariant. -/
 theorem solve_sound {fuel cs result} (h : solve fuel cs = .success result) :
     Solution cs result.bounds result.substitution ∧ Residual result.bounds ∧
       result.substitution.Acyclic :=
