@@ -43,6 +43,7 @@ import ModalityInference.Proofs.ModeCycle
 import ModalityInference.Proofs.PrincipalAmbient
 import ModalityInference.Proofs.ModePropagation
 import ModalityInference.Proofs.ModeOrientation
+import ModalityInference.Proofs.ModeSeen
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

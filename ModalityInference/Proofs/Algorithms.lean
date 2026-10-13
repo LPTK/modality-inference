@@ -33,7 +33,8 @@ theorem rewrite_termination (s : SolverState) :
     ∃ n, ∀ fuel ≥ n, runSolver fuel s ≠ .exhausted := by sorry
 
 /-- DEFERRED. Prerequisites: each worklist transition is simulated by abstract
-rewriting (including normalization and justified duplicate discharge). -/
+rewriting. `ModeSeen` justifies duplicate modality/definedness discharge throughout
+the complete worklist; visited type constraints and substitution simulation remain. -/
 theorem runSolver_correspondence {fuel s t}
     (hft : ∀ v ∈ (s.pending ++ s.bounds).typeVariables, v.index < s.nextType)
     (hfm : ∀ v ∈ (s.pending ++ s.bounds).modeVariables, v.index < s.nextMode)
@@ -44,8 +45,9 @@ theorem runSolver_correspondence {fuel s t}
 
 /-- DEFERRED solution entailment. Local type and modality steps reconstruct input
 entailment; normalization, residual output form and acyclic substitution preservation
-are proved independently. The remaining component needs worklist simulation,
-substitution transport and its duplicate invariant. `ModeCycle` refutes the former
+are proved independently. `ModeSeen` proves the modality-cache invariant through all
+transitions; worklist simulation, substitution transport and visited type constraints
+remain. `ModeCycle` refutes the former
 tied `sub2` orientation; the corrected step retains that inequality for projection. -/
 theorem solve_sound {fuel cs result} (h : solve fuel cs = .success result) :
     Solution cs result.bounds result.substitution ∧ Residual result.bounds ∧

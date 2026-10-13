@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-515 public or established declarations transitively, including the complete
+537 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -168,8 +168,17 @@ variable is shared by both sides, and the size of the side with the smaller
 minimum. All residual, composition, closure, join and meet branches are covered,
 including permitted ties and absent flexible variables. Normalization preserves
 variable support and the minimum and never increases syntax size. This excludes
-cycles among modality descendants; type expansion, substitution and the complete
-visited-constraint invariant remain necessary for the full worklist proof.
+cycles among modality descendants.
+
+`Proofs/ModeSeen` uses that rank to prove the modality-cache invariant throughout
+the complete executable worklist, including type expansion and equality
+elimination. A visited modality or definedness constraint follows from retained
+bounds and only strictly smaller normalized pending modality obligations.
+`ModeInvariant.duplicate_entails` therefore justifies removing a duplicate without
+letting it justify itself. On successful completion, `runSolver_seen_entails`
+reconstructs every modality/definedness constraint still in the visited cache
+under any ambient context entailing the returned bounds. Visited type constraints,
+substitution transport and the complete solution-entailment theorem remain open.
 
 ## Corrections and retained witnesses
 
@@ -457,6 +466,7 @@ All paths below are relative to `ModalityInference/`.
 | Tied residual orientation | `Proofs/ModeCycle` | Proved an unsatisfiable set was formerly accepted without a solution; corrected retention and rejection for every fuel at least 100 |
 | Transitive mode work | `Proofs/ModePropagation` | Proved all-fuel exhaustion of a satisfiable input under the former policy; direct retention preserves exact declarative obligations and ground models, and succeeds on the witness for every fuel at least 100 |
 | Modality orientation | `Proofs/ModeOrientation` | Proved a well-founded rank decreases for every newly emitted modality/definedness obligation, including after normalization; full worklist termination remains open |
+| Visited modality constraints | `Proofs/ModeSeen` | Proved the modality-cache invariant through every solver transition and complete runs, sound duplicate discharge, and entailment of the final visited modality/definedness constraints; type-cache soundness remains open |
 | Ambient principality assumptions | `Proofs/PrincipalAmbient` | Refuted unrestricted whole-type assumptions using a finitely satisfiable witness; the deferred theorem now requires the paper's residual-bound grammar |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
 | §5 generic concrete modality solver | `Subsumption` | **Existing proved correctness and stabilization, unchanged** |

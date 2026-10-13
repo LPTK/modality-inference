@@ -546,6 +546,28 @@ constants = [
     'ModalityInference.ModeOrientation.meet_right',
     'ModalityInference.ModeOrientation.stepMode_decreases',
     'ModalityInference.ModeOrientation.stepMode_normalized_decreases',
+    'ModalityInference.Constraint.normalize_isModality',
+    'ModalityInference.Constraint.modality_substitution',
+    'ModalityInference.SolverState.ModeInvariant.mono',
+    'ModalityInference.SolverState.ModeInvariant.emit',
+    'ModalityInference.SolverState.ModeInvariant.retain',
+    'ModalityInference.SolverState.ModeInvariant.advance',
+    'ModalityInference.stepMode_modality_pending',
+    'ModalityInference.stepMode_separate_pending',
+    'ModalityInference.stepMode_entails_below',
+    'ModalityInference.stepMode_frame',
+    'ModalityInference.SolverState.skeleton_frame',
+    'ModalityInference.stepType_frame',
+    'ModalityInference.SolverState.ModeInvariant.drop_seen',
+    'ModalityInference.SolverState.ModeInvariant.advance_nonmode',
+    'ModalityInference.stepType_modeInvariant',
+    'ModalityInference.stepMode_advance_modeInvariant',
+    'ModalityInference.solverStep_modeInvariant',
+    'ModalityInference.runWorklist_modeInvariant',
+    'ModalityInference.runSolver_modeInvariant',
+    'ModalityInference.SolverState.ModeInvariant.finished_seen',
+    'ModalityInference.SolverState.ModeInvariant.duplicate_entails',
+    'ModalityInference.runSolver_seen_entails',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -594,6 +616,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.PrincipalAmbient\n'
                     'import ModalityInference.Proofs.ModePropagation\n'
                     'import ModalityInference.Proofs.ModeOrientation\n'
+                    'import ModalityInference.Proofs.ModeSeen\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(
