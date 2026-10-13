@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-474 public or established declarations transitively, including the complete
+515 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -160,6 +160,16 @@ Closed realized types are mutually declarative subtypes of their reifications;
 this transports the ground model to entailment of the substituted constraints.
 Together these prove the original `Deferred.solve_consistency` statement with
 its full `BoundsSatisfiable` conclusion. Rigid identifiers are never replaced.
+
+`Proofs/ModeOrientation` proves a well-founded rank decreases for every new
+modality or definedness obligation emitted by `stepMode`, including after
+normalization. The rank compares total syntax size, whether the least flexible
+variable is shared by both sides, and the size of the side with the smaller
+minimum. All residual, composition, closure, join and meet branches are covered,
+including permitted ties and absent flexible variables. Normalization preserves
+variable support and the minimum and never increases syntax size. This excludes
+cycles among modality descendants; type expansion, substitution and the complete
+visited-constraint invariant remain necessary for the full worklist proof.
 
 ## Corrections and retained witnesses
 
@@ -446,6 +456,7 @@ All paths below are relative to `ModalityInference/`.
 | Modal self-equality | `Proofs/ModalEquality` | Proved finite satisfiability, failure of the former occurs policy at every fuel, equivalence of the corrected reduction, and corrected success for every fuel at least 12 |
 | Tied residual orientation | `Proofs/ModeCycle` | Proved an unsatisfiable set was formerly accepted without a solution; corrected retention and rejection for every fuel at least 100 |
 | Transitive mode work | `Proofs/ModePropagation` | Proved all-fuel exhaustion of a satisfiable input under the former policy; direct retention preserves exact declarative obligations and ground models, and succeeds on the witness for every fuel at least 100 |
+| Modality orientation | `Proofs/ModeOrientation` | Proved a well-founded rank decreases for every newly emitted modality/definedness obligation, including after normalization; full worklist termination remains open |
 | Ambient principality assumptions | `Proofs/PrincipalAmbient` | Refuted unrestricted whole-type assumptions using a finitely satisfiable witness; the deferred theorem now requires the paper's residual-bound grammar |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
 | §5 generic concrete modality solver | `Subsumption` | **Existing proved correctness and stabilization, unchanged** |

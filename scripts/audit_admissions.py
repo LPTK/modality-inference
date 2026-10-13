@@ -505,6 +505,47 @@ constants = [
     'ModalityInference.ModePropagation.corrected_eventual_success',
     'ModalityInference.ModePropagation.record_entails',
     'ModalityInference.ModePropagation.record_groundModels',
+    'ModalityInference.ModExpr.le_priority',
+    'ModalityInference.ModExpr.priority_const',
+    'ModalityInference.ModExpr.priority_var',
+    'ModalityInference.ModExpr.priority_compose',
+    'ModalityInference.ModExpr.priority_meet',
+    'ModalityInference.ModExpr.priority_join',
+    'ModalityInference.ModExpr.priority_leftResidual',
+    'ModalityInference.ModExpr.priority_rightResidual',
+    'ModalityInference.ModExpr.priority_close',
+    'ModalityInference.ModExpr.priority_closeInv',
+    'ModalityInference.ModExpr.priority_future',
+    'ModalityInference.ModExpr.priority_capture',
+    'ModalityInference.ModExpr.minimumLE_iff',
+    'ModalityInference.ModExpr.nodes_pos',
+    'ModalityInference.ModExpr.vars_empty_of_eval_none',
+    'ModalityInference.ModExpr.foldConstants_vars',
+    'ModalityInference.ModExpr.foldConstants_nodes',
+    'ModalityInference.ModExpr.normalize_vars',
+    'ModalityInference.ModExpr.normalize_nodes',
+    'ModalityInference.ModExpr.normalize_priority',
+    'ModalityInference.ModeOrientation.rank_wellFounded',
+    'ModalityInference.ModeOrientation.lt_trans',
+    'ModalityInference.ModeOrientation.sub1',
+    'ModalityInference.ModeOrientation.left1',
+    'ModalityInference.ModeOrientation.left2',
+    'ModalityInference.ModeOrientation.sub2',
+    'ModalityInference.ModeOrientation.right1',
+    'ModalityInference.ModeOrientation.right2',
+    'ModalityInference.ModeOrientation.imp1',
+    'ModalityInference.ModeOrientation.imp2',
+    'ModalityInference.ModeOrientation.close',
+    'ModalityInference.ModeOrientation.normalize_rank',
+    'ModalityInference.ModeOrientation.normalize_decreases',
+    'ModalityInference.ModeOrientation.defined_left',
+    'ModalityInference.ModeOrientation.defined_right',
+    'ModalityInference.ModeOrientation.join_left',
+    'ModalityInference.ModeOrientation.join_right',
+    'ModalityInference.ModeOrientation.meet_left',
+    'ModalityInference.ModeOrientation.meet_right',
+    'ModalityInference.ModeOrientation.stepMode_decreases',
+    'ModalityInference.ModeOrientation.stepMode_normalized_decreases',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -552,6 +593,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ModeCycle\n'
                     'import ModalityInference.Proofs.PrincipalAmbient\n'
                     'import ModalityInference.Proofs.ModePropagation\n'
+                    'import ModalityInference.Proofs.ModeOrientation\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(
