@@ -320,6 +320,22 @@ constants = [
     'ModalityInference.runSolver_residual',
     'ModalityInference.solveFrom_residual',
     'ModalityInference.solve_residual',
+    'ModalityInference.ClauseHolds.filter_assigned',
+    'ModalityInference.assignCNF_correct',
+    'ModalityInference.CNF.mem_atoms',
+    'ModalityInference.assignCNF_atoms',
+    'ModalityInference.CNF.atoms_ne_nil',
+    'ModalityInference.CNF.minimum_mem',
+    'ModalityInference.CNF.find_unit_mem',
+    'ModalityInference.assignCNF_recover',
+    'ModalityInference.searchCNF_sound',
+    'ModalityInference.searchCNF_single_sound',
+    'ModalityInference.satisfiableModes_witness',
+    'ModalityInference.ModeSatisfies.congr',
+    'ModalityInference.ModeModels.congr',
+    'ModalityInference.satisfiableModes_sound',
+    'ModalityInference.solveFrom_mode_witness',
+    'ModalityInference.solve_mode_witness',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -357,6 +373,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.TypeElimination\n'
                     'import ModalityInference.Proofs.SolverEntry\n'
                     'import ModalityInference.Proofs.Normalization\n'
+                    'import ModalityInference.Proofs.ModeSearch\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

@@ -3,13 +3,11 @@ import ModalityInference.Rewriting
 import ModalityInference.Proofs.GroundInstantiation
 import ModalityInference.Proofs.GroundOrder
 import ModalityInference.Proofs.GenerationTypes
+import ModalityInference.Proofs.SyntacticEquality
 
 /-! Executable normalization preserves partial modality evaluation and ground
 type realization. Undefined residuals remain undefined. -/
 namespace ModalityInference
-
-deriving instance ReflBEq for Mode, ModVar, ModExpr, TypeVar, TypeExpr
-deriving instance LawfulBEq for Mode, ModVar, ModExpr, TypeVar, TypeExpr
 
 private theorem option_idempotent (a : Option Mode) (f : Mode → Mode → Mode)
     (h : ∀ m, f m m = m) : a = (a.bind fun m => a.bind fun n => some (f m n)) := by

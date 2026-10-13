@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-289 public or established declarations transitively, including the complete
+305 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -113,6 +113,13 @@ preservation of the residual grammar. Consequently, successful `solve` and
 `solveFrom` calls return an acyclic substitution and residual-form bounds. These
 two conjuncts of `solve_sound` are now proved independently; its solution-entailment
 conjunct, consistency, completeness, and principality remain open.
+
+`Proofs/ModeSearch` proves that successful Boolean search returns an assignment
+satisfying a selected frontier problem and preserves assignments outside that
+problem's atoms. Projection then proves that the actual witness returned by
+`satisfiableModes`, `solveFrom`, and `solve` models the residual modality
+constraints. This proves successful modality witness correctness; search
+termination/completeness, type consistency, and full solver soundness remain open.
 
 ## Corrections and retained witnesses
 
@@ -330,6 +337,7 @@ All paths below are relative to `ModalityInference/`.
 | §4 constraint rewriting | `Rewriting`, `Constraints` | Independent relation and executable worklist |
 | §5 scheme subsumption | `SchemeSubsumption` | Executable prototype; reduction correctness deferred |
 | §5 future/past projection and modality entailment | `ModeBackend`, `Proofs/Projection` | Proved all expression projections, partial definedness, both flexible/rigid identifier encodings, bounds entailment and positive-query declarative soundness |
+| Successful modality consistency search | `Proofs/ModeSearch` | Proved Boolean search and returned modality witness soundness, including witnesses returned by `solve` and `solveFrom`; search completeness and type consistency remain deferred |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
 | §5 generic concrete modality solver | `Subsumption` | **Existing proved correctness and stabilization, unchanged** |
 | Core programs and regressions | `Examples`, `Regression` | Executed during validation/CI |
