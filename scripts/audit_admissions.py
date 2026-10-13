@@ -642,6 +642,41 @@ constants = [
     'ModalityInference.Substitution.normalized_sub_fresh',
     'ModalityInference.Substitution.normalized_sub_left_fresh',
     'ModalityInference.Substitution.normalized_sub_right_fresh',
+    'ModalityInference.TypeExpr.shapeSize_pos',
+    'ModalityInference.TypeExpr.outer_shapeSize',
+    'ModalityInference.TypeExpr.normalize_shapeSize',
+    'ModalityInference.Constraint.normalize_typeRank',
+    'ModalityInference.Constraint.typeRank_zero',
+    'ModalityInference.SolverState.Fresh.skeleton_clearsSeen',
+    'ModalityInference.SolverState.Fresh.outer_skeleton_clearsSeen',
+    'ModalityInference.stepType_decreases_or_clears',
+    'ModalityInference.solverStep_sub_decreases_or_clears',
+    'ModalityInference.Constraint.normalize_typeVars',
+    'ModalityInference.Constraint.Unbound.normalize',
+    'ModalityInference.Constraint.modality_unbound',
+    'ModalityInference.Constraint.Unbound.fixed',
+    'ModalityInference.Constraint.singleType_avoids',
+    'ModalityInference.Constraint.Unbound.singleType',
+    'ModalityInference.Constraint.unbound_empty',
+    'ModalityInference.Substitution.constraint_unbound',
+    'ModalityInference.SolverState.Unbound.emit',
+    'ModalityInference.SolverState.Unbound.retain',
+    'ModalityInference.SolverState.Unbound.advance',
+    'ModalityInference.SolverState.Unbound.skeleton',
+    'ModalityInference.SolverState.Fresh.skeleton_unbound',
+    'ModalityInference.stepMode_unbound',
+    'ModalityInference.SolverState.Fresh.skeleton_unbound_of',
+    'ModalityInference.stepType_unbound',
+    'ModalityInference.TypeExpr.wellFormedBounds_unbound',
+    'ModalityInference.solverStep_unbound',
+    'ModalityInference.runWorklist_unbound',
+    'ModalityInference.runSolver_worklist',
+    'ModalityInference.runSolver_unbound',
+    'ModalityInference.Substitution.bounds_fixed',
+    'ModalityInference.SolverState.Unbound.fixed',
+    'ModalityInference.solveFrom_unbound',
+    'ModalityInference.solve_unbound',
+    'ModalityInference.solve_bounds_fixed',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -694,6 +729,8 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ShapeEntry\n'
                     'import ModalityInference.Proofs.BoundedSupport\n'
                     'import ModalityInference.Proofs.SolverFresh\n'
+                    'import ModalityInference.Proofs.TypeOrientation\n'
+                    'import ModalityInference.Proofs.SolverUnbound\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

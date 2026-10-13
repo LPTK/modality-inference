@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-611 public or established declarations transitively, including the complete
+646 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -191,6 +191,23 @@ its equality cannot match an old cache entry or trigger the occurs check.
 that equality and clears the cache before reprocessing the original constraint.
 These facts support combining expansion with equality elimination; the complete
 type-cache invariant and worklist simulation remain open.
+
+`Proofs/TypeOrientation` counts nonmodal type constructors and distinguishes
+equality/equivalence from subtyping at the same structural size. Normalization
+preserves this rank. Every successful type step either adds strictly smaller
+obligations or enters an expansion state whose head cannot be skipped and whose
+next successful transition clears the cache. The result applies to actual
+normalized worklist heads using the proved freshness and acyclicity invariants.
+
+`Proofs/SolverUnbound` proves that pending constraints, retained bounds, and
+visited entries contain no type identifier already eliminated by the saved
+substitution. Fresh expansion preserves this property; equality elimination
+removes the new identifier without reintroducing earlier ones. Together with
+the empty modality substitution, this makes all three lists fixed by the saved
+substitution throughout complete runs. `solve_bounds_fixed` proves the same for
+the bounds returned by `solve`. These results supply structural decrease and
+substitution fixed points for the remaining type-cache proof; they do not yet
+establish soundness of type duplicates or full input solution entailment.
 
 ## Corrections and retained witnesses
 
@@ -492,6 +509,8 @@ All paths below are relative to `ModalityInference/`.
 | Modality orientation | `Proofs/ModeOrientation` | Proved a well-founded rank decreases for every newly emitted modality/definedness obligation, including after normalization; full worklist termination remains open |
 | Visited modality constraints | `Proofs/ModeSeen` | Proved the modality-cache invariant through every solver transition and complete runs, sound duplicate discharge, and entailment of the final visited modality/definedness constraints; type-cache soundness remains open |
 | Solver identifier freshness | `Proofs/BoundedSupport`, `Proofs/SolverFresh` | Proved allocation bounds through complete runs, executable skeleton freshness for abstract expansion, and exact elimination of the scheduled equality with cache reset; full type-cache soundness remains open |
+| Type-step orientation | `Proofs/TypeOrientation` | Proved normalization preserves structural rank and every type step either adds smaller obligations or enters a state whose next step clears the cache |
+| Eliminated identifiers and substitution fixed points | `Proofs/SolverUnbound` | Proved exclusion of eliminated identifiers from pending, retained, and visited constraints through complete runs; all three lists and returned solver bounds are fixed by the accumulated substitution |
 | Saved-substitution shape checking | `Proofs/ShapeEntry`, `Proofs/SolverEntry` | Proved a cyclic-shape witness with an acyclic saved substitution, rejection at every fuel at least two after applying that substitution, and unchanged empty-substitution behavior; full termination remains open |
 | Ambient principality assumptions | `Proofs/PrincipalAmbient` | Refuted unrestricted whole-type assumptions using a finitely satisfiable witness; the deferred theorem now requires the paper's residual-bound grammar |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
