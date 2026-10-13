@@ -65,9 +65,11 @@ theorem solve_complete {cs} (hf : FlexibleBounds cs) (hs : BoundsSatisfiable cs)
     ∃ n, ∀ fuel ≥ n, ∃ result, solve fuel cs = .success result := by sorry
 
 /-- DEFERRED. Prerequisites: principal shape expansion and modal-bound preservation.
+Ambient assumptions obey the paper's variable-bound grammar; `PrincipalAmbient`
+refutes the former unrestricted whole-type assumptions, even when satisfiable.
 Factorization is modulo declarative type/modal equivalence on the original domain. -/
 theorem principal_factorization {fuel cs result Δ θ}
-    (h : solve fuel cs = .success result) (hθ : Solution cs Δ θ) :
+    (hΔ : Residual Δ) (h : solve fuel cs = .success result) (hθ : Solution cs Δ θ) :
     ∃ τ : Substitution, EntailsAll Δ (τ.bounds result.bounds) ∧
       (∀ v ∈ cs.typeVars,
         Subtype Δ (θ.type v) (τ.ty (result.substitution.type v)) ∧

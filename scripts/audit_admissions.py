@@ -453,6 +453,15 @@ constants = [
     'ModalityInference.ModeCycle.former_unsound',
     'ModalityInference.ModeCycle.corrected_retains',
     'ModalityInference.ModeCycle.corrected_rejects',
+    'ModalityInference.PrincipalAmbient.subtype_variableHead',
+    'ModalityInference.PrincipalAmbient.flexible',
+    'ModalityInference.PrincipalAmbient.not_residual',
+    'ModalityInference.PrincipalAmbient.succeeds',
+    'ModalityInference.PrincipalAmbient.no_variable_unit',
+    'ModalityInference.PrincipalAmbient.symbolic_solution',
+    'ModalityInference.PrincipalAmbient.no_type_factorization',
+    'ModalityInference.PrincipalAmbient.satisfiable',
+    'ModalityInference.PrincipalAmbient.no_unrestricted_principality',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -498,6 +507,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SolverLocalSoundness\n'
                     'import ModalityInference.Proofs.GenerationExecution\n'
                     'import ModalityInference.Proofs.ModeCycle\n'
+                    'import ModalityInference.Proofs.PrincipalAmbient\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-422 public or established declarations transitively, including the complete
+431 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -162,6 +162,16 @@ Together these prove the original `Deferred.solve_consistency` statement with
 its full `BoundsSatisfiable` conclusion. Rigid identifiers are never replaced.
 
 ## Corrections and retained witnesses
+
+`Proofs/PrincipalAmbient` refutes the former unrestricted ambient principality
+statement. Solving `(α × unit) ≤ (unit × unit)` gives `α` a modal-unit image.
+Under an ambient assumption consisting of that whole-product inequality, the
+identity substitution is a solution, but no `α ≤ unit @ m` follows. The witness
+is flexible and finitely satisfiable; inconsistent assumptions are not the cause.
+The former proposition is archived and its negation proved. The deferred
+`principal_factorization` theorem now requires `Residual Δ`, matching the paper's
+grammar of variable-to-variable type bounds. Its equivalence-based conclusion
+and the paper's ground principality claim are unchanged and remain unproved.
 
 `Proofs/ModeCycle` records an unsatisfiable modality set formerly accepted by the
 worklist. With `a = absorbing`, `b = μ ∘ bottom`, and `c = μ ∘ many`, the
@@ -417,6 +427,7 @@ All paths below are relative to `ModalityInference/`.
 | Residual consistency | `Proofs/SolverDefinedness`, `Proofs/ResidualModels`, `Proofs/SolverFlexible`, `Proofs/GroundReification` | Proved type-bound definedness, a ground model using the actual modality witness, preservation of flexible support, and a finite closed syntactic witness for `solve_consistency` |
 | Modal self-equality | `Proofs/ModalEquality` | Proved finite satisfiability, failure of the former occurs policy at every fuel, equivalence of the corrected reduction, and corrected success for every fuel at least 12 |
 | Tied residual orientation | `Proofs/ModeCycle` | Proved an unsatisfiable set was formerly accepted without a solution; corrected retention and rejection for every fuel at least 100 |
+| Ambient principality assumptions | `Proofs/PrincipalAmbient` | Refuted unrestricted whole-type assumptions using a finitely satisfiable witness; the deferred theorem now requires the paper's residual-bound grammar |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
 | §5 generic concrete modality solver | `Subsumption` | **Existing proved correctness and stabilization, unchanged** |
 | Core programs and regressions | `Examples`, `Regression` | Executed during validation/CI |
