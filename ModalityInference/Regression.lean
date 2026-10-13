@@ -159,7 +159,13 @@ def referenceLocations : Nat → Value → List Location
 def x : ModExpr := .var (.flex 0)
 def y : ModExpr := .var (.flex 1)
 #guard (solve 1000 [.mode x y, .mode y x]).isSuccess
+-- A modal self-equality has an absorbing-unit solution for every concrete mode.
+#guard Mode.all.all fun m =>
+  (solve 500 [.equal (.flex 0) (.modal (.var (.flex 0)) (.const m))]).isSuccess
+#guard rejected (solve 500 [.equal (.flex 0) (.modal (.var (.flex 0)) badArgument)])
 #guard rejected (solve 500 [.equal (.flex 0) (.fn (.var (.flex 0)) .unit)])
+#guard rejected (solve 500 [.equal (.flex 0)
+  (.modal (.fn (.var (.flex 0)) .unit) (.const Mode.bottom))])
 #guard rejected (solve 500 [.sub (.var (.flex 0)) (.fn (.var (.flex 0)) .unit)])
 #guard rejected (solve 500 [.equal (.rigid 0) .unit])
 #guard rejected (solve 500 [.equal (.flex 0) .unit, .equal (.flex 0) .credit])

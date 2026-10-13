@@ -415,6 +415,16 @@ constants = [
     'ModalityInference.solve_flexible',
     'ModalityInference.solveFrom_consistency',
     'ModalityInference.Deferred.solve_consistency',
+    'ModalityInference.Entails.equal_subtypes',
+    'ModalityInference.Rewrites.equal_subtypes',
+    'ModalityInference.ModalEquality.flexible',
+    'ModalityInference.ModalEquality.ground_model',
+    'ModalityInference.ModalEquality.satisfiable',
+    'ModalityInference.ModalEquality.former_rejects',
+    'ModalityInference.ModalEquality.former_never_succeeds',
+    'ModalityInference.ModalEquality.former_no_eventual_success',
+    'ModalityInference.ModalEquality.corrected_succeeds',
+    'ModalityInference.ModalEquality.corrected_eventual_success',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -456,6 +466,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ModeSearchComplete\n'
                     'import ModalityInference.Proofs.SolverDefinedness\n'
                     'import ModalityInference.Proofs.SolverFlexible\n'
+                    'import ModalityInference.Proofs.ModalEquality\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

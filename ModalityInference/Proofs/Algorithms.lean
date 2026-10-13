@@ -55,7 +55,9 @@ theorem solve_consistency {fuel cs result} (hf : FlexibleBounds cs)
   solveFrom_consistency (cs.flexible_iff.mpr hf) h
 
 /-- DEFERRED. Prerequisites: rewrite completeness and termination. Mode search
-completeness is proved independently. A sufficiently large budget is essential. -/
+completeness is proved independently. `ModalEquality` records the former modal
+self-equality counterexample and the corrected reduction. A sufficiently large
+budget is essential. -/
 theorem solve_complete {cs} (hf : FlexibleBounds cs) (hs : BoundsSatisfiable cs) :
     ∃ n, ∀ fuel ≥ n, ∃ result, solve fuel cs = .success result := by sorry
 

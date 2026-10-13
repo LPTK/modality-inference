@@ -36,6 +36,7 @@ import ModalityInference.Proofs.ModeSearch
 import ModalityInference.Proofs.ModeSearchComplete
 import ModalityInference.Proofs.SolverDefinedness
 import ModalityInference.Proofs.SolverFlexible
+import ModalityInference.Proofs.ModalEquality
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

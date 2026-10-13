@@ -99,7 +99,8 @@ theorem solverStep_flexible {s t} (hs : SolverState.Flexible s)
   all_goals try exact hs
   all_goals try solve
     | exact hs.advance ‹s.pending = _ :: _›
-    | exact (hs.advance ‹s.pending = _ :: _›).emit _ (by simp_all [Constraint.Flexible])
+    | exact (hs.advance ‹s.pending = _ :: _›).emit _
+        (by simp_all [Constraint.Flexible, TypeExpr.Flexible])
     | exact (hs.advance ‹s.pending = _ :: _›).retain _ (by simp_all [Constraint.Flexible])
     | simp_all [Constraint.Flexible]
   simp only [‹(s.substitution.constraint _).normalize = .equal _ _›, Constraint.Flexible] at hc

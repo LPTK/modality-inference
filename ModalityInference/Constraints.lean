@@ -192,7 +192,10 @@ def solverStep (s : SolverState) : RunResult SolverState := do
       | .rigid _ => if t == .var v then return s else .rejected "cannot substitute a skolem"
       | .flex n =>
         if t == .var v then return s
-        if t.typeVariables.contains v then return ← .rejected "occurs check failed"
+        -- Modal self-equalities can have finite solutions. Preserve their two
+        -- subtype obligations; the entry shape check rejects structural cycles.
+        if t.typeVariables.contains v then
+          return s.emit .substitute [.sub (.var v) t, .sub t (.var v)]
         let one : Substitution := { types := [(n, t)] }
         return { s with pending := one.bounds (s.pending ++ s.bounds ++ t.wellFormedBounds)
                         bounds := [], seen := []

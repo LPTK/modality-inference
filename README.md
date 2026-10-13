@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-384 public or established declarations transitively, including the complete
+394 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -151,6 +151,18 @@ Together these prove the original `Deferred.solve_consistency` statement with
 its full `BoundsSatisfiable` conclusion. Rigid identifiers are never replaced.
 
 ## Corrections and retained witnesses
+
+`Proofs/ModalEquality` records a satisfiable flexible constraint formerly rejected
+by the syntactic equality occurs check: `α = α @ bottom`. Assigning `α` unit at
+the absorbing mode is a finite closed solution. The archived former policy is
+proved never to succeed at any fuel budget. The corrected equality branch emits
+the two subtype obligations when the variable occurs in its image; their exact
+declarative equivalence and simulation by abstract rewriting are proved. The
+corrected solver succeeds on the witness for every fuel budget at least 12.
+Structural recursive types still fail the finite-shape precheck, and undefined
+modalities still fail their retained guards. Regressions cover all eight concrete
+modes, undefined modal equality and wrapped structural recursion. This removes
+a counterexample to solver completeness; the general theorem remains open.
 
 The worklist entry validates its accumulated substitution with
 `Substitution.checkAcyclic`; `checkAcyclic_iff` proves that the executable check
@@ -368,6 +380,7 @@ All paths below are relative to `ModalityInference/`.
 | §5 future/past projection and modality entailment | `ModeBackend`, `Proofs/Projection` | Proved all expression projections, partial definedness, both flexible/rigid identifier encodings, bounds entailment and positive-query declarative soundness |
 | Modality consistency search | `Proofs/ModeSearch`, `Proofs/ModeSearchComplete` | Proved returned witness soundness, Boolean search termination and rejection correctness, eventual CNF normalization, and modality-search completeness |
 | Residual consistency | `Proofs/SolverDefinedness`, `Proofs/ResidualModels`, `Proofs/SolverFlexible`, `Proofs/GroundReification` | Proved type-bound definedness, a ground model using the actual modality witness, preservation of flexible support, and a finite closed syntactic witness for `solve_consistency` |
+| Modal self-equality | `Proofs/ModalEquality` | Proved finite satisfiability, failure of the former occurs policy at every fuel, equivalence of the corrected reduction, and corrected success for every fuel at least 12 |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
 | §5 generic concrete modality solver | `Subsumption` | **Existing proved correctness and stabilization, unchanged** |
 | Core programs and regressions | `Examples`, `Regression` | Executed during validation/CI |
@@ -438,6 +451,7 @@ corrections. The POPL reviews and response are in the enclosing paper repository
 | Substitution updates residual bounds and previous images | `α = β; β = unit`; conflicting repeated assignments reject |
 | Subtyping substitution requires defined modality images | `unit@μ ≤ unit@top` fails after substituting the undefined residual `top / bottom`; checked in `Proofs/PartialSubstitution` |
 | Cycles and occurs checks | Benign mode cycle succeeds; direct and indirect recursive type bounds reject |
+| Modal self-equality is not structural recursion | `α = α @ m` succeeds for every concrete mode; undefined `m` and wrapped function recursion reject |
 | All target quantifiers skolemized; assumptions retained | `polyId` versus a monomorphic identity; `bounded` with/without its declared assumption |
 | Allocation source, exclusive upper index and future-frame partition | Tail slices start at 1 and 2; distinct branches enter distinct fresh frames |
 | Typed ownership and separate reference validity | `aliasedField` inside a unique pair and a dead stack frame |
