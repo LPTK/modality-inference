@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-548 public or established declarations transitively, including the complete
+611 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -179,6 +179,18 @@ letting it justify itself. On successful completion, `runSolver_seen_entails`
 reconstructs every modality/definedness constraint still in the visited cache
 under any ambient context entailing the returned bounds. Visited type constraints,
 substitution transport and the complete solution-entailment theorem remain open.
+
+`Proofs/BoundedSupport` and `Proofs/SolverFresh` prove that allocation counters
+bound every identifier in pending constraints, retained bounds, visited entries,
+and accumulated substitutions throughout complete solver runs. The actual
+initial counters chosen by `solve` satisfy this invariant. Executable skeletons
+meet the abstract `FreshFor` premise, and normalized flexible heads lie outside
+the saved substitution's domain. The fresh skeleton is fixed by that substitution;
+its equality cannot match an old cache entry or trigger the occurs check.
+`Fresh.skeleton_eliminated` proves the exact following transition, which eliminates
+that equality and clears the cache before reprocessing the original constraint.
+These facts support combining expansion with equality elimination; the complete
+type-cache invariant and worklist simulation remain open.
 
 ## Corrections and retained witnesses
 
@@ -479,6 +491,7 @@ All paths below are relative to `ModalityInference/`.
 | Transitive mode work | `Proofs/ModePropagation` | Proved all-fuel exhaustion of a satisfiable input under the former policy; direct retention preserves exact declarative obligations and ground models, and succeeds on the witness for every fuel at least 100 |
 | Modality orientation | `Proofs/ModeOrientation` | Proved a well-founded rank decreases for every newly emitted modality/definedness obligation, including after normalization; full worklist termination remains open |
 | Visited modality constraints | `Proofs/ModeSeen` | Proved the modality-cache invariant through every solver transition and complete runs, sound duplicate discharge, and entailment of the final visited modality/definedness constraints; type-cache soundness remains open |
+| Solver identifier freshness | `Proofs/BoundedSupport`, `Proofs/SolverFresh` | Proved allocation bounds through complete runs, executable skeleton freshness for abstract expansion, and exact elimination of the scheduled equality with cache reset; full type-cache soundness remains open |
 | Saved-substitution shape checking | `Proofs/ShapeEntry`, `Proofs/SolverEntry` | Proved a cyclic-shape witness with an acyclic saved substitution, rejection at every fuel at least two after applying that substitution, and unchanged empty-substitution behavior; full termination remains open |
 | Ambient principality assumptions | `Proofs/PrincipalAmbient` | Refuted unrestricted whole-type assumptions using a finitely satisfiable witness; the deferred theorem now requires the paper's residual-bound grammar |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
@@ -629,7 +642,7 @@ definedness obligations.
 | --- | --- | --- |
 | `Structural` | Closed term substitution | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup, instance-indexed context joins and locking are proved |
 | `Soundness` | None: corrected fundamental soundness, termination/no-stuck, live results, and ownership bound are proved | Complete typing induction in `ResourceSoundness`, with resource semantics independent of capture metadata |
-| `Algorithms` | Scheduled termination, worklist correspondence, solve soundness/completeness, principal factorization, generation correspondence/soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, scheme-subsumption soundness/completeness | Local rewrite equivalence, configuration solution preservation, substitution output invariants, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include worklist simulation/termination, freshness, representative-search completeness, rigid entailment and subsumption witness reconstruction |
+| `Algorithms` | Scheduled termination, worklist correspondence, solve soundness/completeness, principal factorization, generation correspondence/soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, scheme-subsumption soundness/completeness | Local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include worklist simulation/termination, representative-search completeness, rigid entailment and subsumption witness reconstruction |
 
 Completeness statements require a sufficiently large fuel budget. Rewrite
 expansion requires distinct flexible variables fresh for the complete original

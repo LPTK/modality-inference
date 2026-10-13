@@ -45,6 +45,8 @@ import ModalityInference.Proofs.ModePropagation
 import ModalityInference.Proofs.ModeOrientation
 import ModalityInference.Proofs.ModeSeen
 import ModalityInference.Proofs.ShapeEntry
+import ModalityInference.Proofs.BoundedSupport
+import ModalityInference.Proofs.SolverFresh
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
