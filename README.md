@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-314 public or established declarations transitively, including the complete
+332 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -112,7 +112,8 @@ normalization preserves type-variable support. `Proofs/SolverResidual` proves
 preservation of the residual grammar. Consequently, successful `solve` and
 `solveFrom` calls return an acyclic substitution and residual-form bounds. These
 two conjuncts of `solve_sound` are now proved independently; its solution-entailment
-conjunct, consistency, completeness, and principality remain open.
+conjunct, syntactic closed-instantiation consistency, completeness, and
+principality remain open.
 
 `Proofs/ModeSearch` proves that successful Boolean search returns an assignment
 satisfying a selected frontier problem and preserves assignments outside that
@@ -125,8 +126,23 @@ of distinct atoms; summing `3 ^ atomCount` over the frontier pays for both branc
 CNF normalization eventually returns the same clauses at every larger budget,
 including its finite clause-product check. Consequently, modality consistency
 search terminates and succeeds for every satisfiable modality-bound set with
-sufficient fuel, for flexible and rigid identifiers alike. Residual type
-consistency and full solver correctness remain open.
+sufficient fuel, for flexible and rigid identifiers alike. Full worklist
+correctness remains open.
+
+`Proofs/SolverDefinedness` proves that modalities written in every returned type
+bound are defined under every model of the residual modality constraints. The
+worklist invariant separates pending definedness obligations from already visited
+guards, whose truth follows from retained bounds. It covers duplicate discharge,
+normalization, shape expansion, and equality elimination's reset of bounds and
+visited constraints. `Proofs/ResidualModels` assigns every residual type variable
+unit at the absorbing mode. Once the written modalities are defined, all residual
+type bounds become reflexive. Thus `solve_ground_model` and
+`solveFrom_ground_model` prove a model of **all returned residual constraints**,
+using the actual returned modality witness. This does not establish entailment
+of the original input. The preserved `Deferred.solve_consistency` statement
+additionally requires a finite closed syntactic substitution (`BoundsSatisfiable`);
+preservation of flexible-only support and reification into that substitution
+remain to be proved.
 
 ## Corrections and retained witnesses
 
@@ -344,7 +360,8 @@ All paths below are relative to `ModalityInference/`.
 | §4 constraint rewriting | `Rewriting`, `Constraints` | Independent relation and executable worklist |
 | §5 scheme subsumption | `SchemeSubsumption` | Executable prototype; reduction correctness deferred |
 | §5 future/past projection and modality entailment | `ModeBackend`, `Proofs/Projection` | Proved all expression projections, partial definedness, both flexible/rigid identifier encodings, bounds entailment and positive-query declarative soundness |
-| Modality consistency search | `Proofs/ModeSearch`, `Proofs/ModeSearchComplete` | Proved returned witness soundness, Boolean search termination and rejection correctness, eventual CNF normalization, and modality-search completeness; residual type consistency remains deferred |
+| Modality consistency search | `Proofs/ModeSearch`, `Proofs/ModeSearchComplete` | Proved returned witness soundness, Boolean search termination and rejection correctness, eventual CNF normalization, and modality-search completeness |
+| Residual ground consistency | `Proofs/SolverDefinedness`, `Proofs/ResidualModels` | Proved retention of type-bound definedness and a ground model of every returned constraint using the actual modality witness; finite closed syntactic substitution remains deferred |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
 | §5 generic concrete modality solver | `Subsumption` | **Existing proved correctness and stabilization, unchanged** |
 | Core programs and regressions | `Examples`, `Regression` | Executed during validation/CI |
@@ -492,7 +509,7 @@ definedness obligations.
 | --- | --- | --- |
 | `Structural` | Closed term substitution | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup, instance-indexed context joins and locking are proved |
 | `Soundness` | None: corrected fundamental soundness, termination/no-stuck, live results, and ownership bound are proved | Complete typing induction in `ResourceSoundness`, with resource semantics independent of capture metadata |
-| `Algorithms` | Scheduled termination, worklist correspondence, solve soundness/consistency/completeness, principal factorization, generation correspondence/soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, scheme-subsumption soundness/completeness | Local rewrite equivalence, configuration solution preservation, substitution output invariants, Boolean projection/CNF correctness and modality-search termination/completeness are proved; remaining prerequisites include worklist simulation/termination, residual type consistency, freshness, representative-search completeness, rigid entailment and subsumption witness reconstruction |
+| `Algorithms` | Scheduled termination, worklist correspondence, solve soundness/consistency/completeness, principal factorization, generation correspondence/soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, scheme-subsumption soundness/completeness | Local rewrite equivalence, configuration solution preservation, substitution output invariants, Boolean projection/CNF correctness, modality-search termination/completeness and residual ground consistency are proved; remaining prerequisites include worklist simulation/termination, finite closed instantiation of residuals, freshness, representative-search completeness, rigid entailment and subsumption witness reconstruction |
 
 Completeness statements require a sufficiently large fuel budget. Rewrite
 expansion requires distinct flexible variables fresh for the complete original

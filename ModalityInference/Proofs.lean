@@ -34,6 +34,7 @@ import ModalityInference.Proofs.Normalization
 import ModalityInference.Proofs.SolverResidual
 import ModalityInference.Proofs.ModeSearch
 import ModalityInference.Proofs.ModeSearchComplete
+import ModalityInference.Proofs.SolverDefinedness
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

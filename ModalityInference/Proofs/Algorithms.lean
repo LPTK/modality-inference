@@ -46,10 +46,11 @@ theorem solve_sound {fuel cs result} (h : solve fuel cs = .success result) :
       result.substitution.Acyclic :=
   ⟨by sorry, solve_residual h, solve_acyclic h⟩
 
-/-- DEFERRED. Boolean search termination/completeness and modality witnesses are
-proved in `ModeSearchComplete` and `ModeSearch`. Remaining prerequisites are
-residual definedness and ground instantiation of flexible type variables.
-This rules out inconsistent unused `def`s. -/
+/-- DEFERRED syntactic consistency witness. `solve_ground_model` in
+`SolverDefinedness` proves a model of every returned constraint, using the actual
+modality witness and proved residual definedness. Remaining prerequisites are preservation of
+flexible-only support and a finite closed substitution realizing that model.
+This statement retains the original `BoundsSatisfiable` contract. -/
 theorem solve_consistency {fuel cs result} (hf : FlexibleBounds cs)
     (h : solve fuel cs = .success result) : BoundsSatisfiable result.bounds := by sorry
 
