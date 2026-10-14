@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
 """Check the admission boundary, including transitive Lean axiom dependencies."""
 from pathlib import Path
+import argparse
 import re
 import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
+SEMANTIC_ROOT = 'ModalityInference.Proofs.Soundness'
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--semantic', action='store_true',
+                    help='require the complete semantic-soundness import closure to be admission-free')
+args = parser.parse_args()
 
 
 def code_only(source):
@@ -33,11 +40,29 @@ def code_only(source):
     return ''.join(out)
 
 
+def local_import_closure(module):
+    seen, pending = set(), [module]
+    while pending:
+        name = pending.pop()
+        if name in seen:
+            continue
+        seen.add(name)
+        path = ROOT / (name.replace('.', '/') + '.lean')
+        assert path.is_file(), f'Missing local module: {name}'
+        pending.extend(imp for imp in re.findall(r'^import\s+(\S+)', code_only(path.read_text()), re.M)
+                       if imp == 'ModalityInference' or imp.startswith('ModalityInference.'))
+    return sorted(ROOT / (name.replace('.', '/') + '.lean') for name in seen)
+
+
+paths = (local_import_closure(SEMANTIC_ROOT) if args.semantic else
+         [ROOT / 'ModalityInference.lean', *sorted((ROOT / 'ModalityInference').rglob('*.lean'))])
 admissions = 0
-for path in [ROOT / 'ModalityInference.lean', *sorted((ROOT / 'ModalityInference').rglob('*.lean'))]:
+for path in paths:
     code = code_only(path.read_text())
     proof = 'Proofs' in path.relative_to(ROOT).parts
     bad = re.findall(r'\b(?:sorry|admit|axiom|unsafe)\b', code)
+    if args.semantic:
+        assert not bad, f'Admission or escape hatch in semantic import closure: {path}: {bad}'
     if proof:
         assert all(token == 'sorry' for token in bad), f'Unexpected escape hatch: {path}'
         admissions += len(bad)
@@ -1106,9 +1131,34 @@ constants = [
     'ModalityInference.Scheme.lockAll_append',
     'ModalityInference.Lookup.refinedContext_instance',
 ]
+if args.semantic:
+    constants = [
+        'ModalityInference.Typing.resource_semantic_used',
+        'ModalityInference.Typing.resource_semantic',
+        'ModalityInference.Typing.resource_closed',
+        'ModalityInference.Typing.realize_defined',
+        'ModalityInference.Subtype.resource_semantic',
+        'ModalityInference.Subsumes.resource_semantic',
+        'ModalityInference.ContextLe.resource_semantics',
+        'ModalityInference.ContextJoin.resource_semantics',
+        'ModalityInference.Lock.resource_semantics',
+        'ModalityInference.Deferred.semantic_soundness',
+        'ModalityInference.Deferred.semantic_subtyping',
+        'ModalityInference.Deferred.termination_no_stuck',
+        'ModalityInference.Deferred.live_result',
+        'ModalityInference.Deferred.ownership_bound',
+        'ModalityInference.Deferred.evalFuel_sound',
+        'ModalityInference.Deferred.evalFuel_complete',
+        'ModalityInference.Deferred.evalFuel_monotone',
+        'ModalityInference.Deferred.global_references',
+        'ModalityInference.Deferred.shared_support',
+        'ModalityInference.Eval.deterministic',
+        'ModalityInference.Eval.no_rejection',
+    ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
-    path.write_text('import ModalityInference\nimport ModalityInference.Proofs.Evaluation\n'
+    path.write_text((f'import {SEMANTIC_ROOT}\n' if args.semantic else
+                    'import ModalityInference\nimport ModalityInference.Proofs.Evaluation\n'
                     'import ModalityInference.Proofs.Interpretation\n'
                     'import ModalityInference.Proofs.Erasure\n'
                     'import ModalityInference.Proofs.Substitution\n'
@@ -1192,10 +1242,21 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.RefinedContexts\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
-                    'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(
+                    'import ModalityInference.Proofs.PolymorphicCapture\n') + '\n'.join(
         f'#print axioms {name}' for name in constants) + '\n')
     result = subprocess.run(['lake', 'env', 'lean', str(path)], cwd=ROOT,
                             text=True, capture_output=True, check=True)
     assert 'sorryAx' not in result.stdout + result.stderr, result.stdout + result.stderr
-print(f'Admission boundary OK: {admissions} isolated deferred proofs; '
-      f'{len(constants)} public/established declarations checked transitively.')
+    if args.semantic:
+        reported = re.findall(r"'([^']+)' (?:depends on axioms:|does not depend on any axioms)",
+                              result.stdout)
+        assert set(reported) == set(constants), result.stdout + result.stderr
+        for axiom_list in re.findall(r'depends on axioms:\s*\[([^]]*)\]', result.stdout):
+            used = {name.strip() for name in axiom_list.split(',') if name.strip()}
+            assert used <= {'propext', 'Classical.choice', 'Quot.sound'}, used
+if args.semantic:
+    print(f'Semantic soundness OK: {len(paths)} local modules with zero admissions; '
+          f'{len(constants)} semantic results checked transitively with only standard Lean axioms.')
+else:
+    print(f'Admission boundary OK: {admissions} isolated deferred proofs; '
+          f'{len(constants)} public/established declarations checked transitively.')

@@ -12,6 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: leanprover/lean-action@v1
+      - name: Build and audit semantic soundness independently
+        run: |
+          lake build ModalityInference.Proofs.Soundness
+          python3 scripts/audit_admissions.py --semantic
       - name: Build executable regressions and deferred theorem statements
         run: lake build ModalityInference.Regression ModalityInference.Proofs
       - name: Audit admission isolation

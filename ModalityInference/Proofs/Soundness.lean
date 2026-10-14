@@ -1,9 +1,11 @@
-import ModalityInference.Proofs.Structural
 import ModalityInference.Proofs.Evaluation
 import ModalityInference.Proofs.Interpretation
 import ModalityInference.Proofs.Subtyping
 import ModalityInference.Proofs.ResourceSoundness
 
+/-! Established semantic soundness and evaluator corollaries. This entry point
+does not import the structural or algorithmic worklists. The `Deferred` namespace
+is retained for compatibility with the original theorem names. -/
 namespace ModalityInference.Deferred
 /-- Proved independently by subtyping induction, preserving field-sensitive
 support, symbolic bounds and partial-modality definedness. -/

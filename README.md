@@ -16,12 +16,20 @@ term satisfying those premises. `Typing.resource_closed` additionally gives
 a closed program's ground result, evaluation, interpretation, and fresh-only
 ownership without assuming an interpreted value or an already realized type.
 
-**The overall verification objective is still incomplete: 12 admissions remain.**
-They are closed term substitution and 11 algorithmic obligations, including
-solver correspondence/termination/completeness/principality, generation, elaborated
-inference, and scheme subsumption. The public library and executables do not
-import proof-worklist modules. The original generic solver is unchanged and its
-correctness/stabilization results remain admission-independent. The audit checks
+**The semantic-soundness milestone is complete.** `Proofs/Soundness` is a standalone
+entry point: its complete local import closure contains **51 modules and zero
+admissions**. The dedicated semantic audit checks 21 fundamental, structural-semantic
+and evaluator results transitively, allowing only `propext`, `Classical.choice`
+and `Quot.sound`. CI builds and audits this target independently. The historical
+`Deferred` namespace on the exported corollaries remains only for name compatibility.
+
+**Algorithmic verification is deferred.** Twelve admissions remain in optional
+worklists: the unused syntactic closed-term-substitution lemma and 11 algorithmic
+obligations for solver correspondence/termination/completeness/principality,
+generation, elaborated inference and scheme subsumption. Neither the semantic
+entry point nor its dependencies import those worklists. The public library and
+executables also remain independent of them. The original generic solver is
+unchanged. The full-project audit continues to check
 1074 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
@@ -564,6 +572,17 @@ remaining algorithmic proofs.
 
 ## Build and run
 
+Build and audit the completed semantic milestone independently:
+
+```sh
+lake build ModalityInference.Proofs.Soundness
+python3 scripts/audit_admissions.py --semantic
+```
+
+The semantic audit rejects any admission or escape hatch anywhere in the local
+import closure and checks the selected results' complete Lean axiom dependencies.
+It does not import or require the optional inference/solver proof worklists.
+
 Use the existing pins; do not run `lake update` for this milestone:
 
 ```sh
@@ -837,14 +856,15 @@ The regression checks also compare small two-mode queries and all concrete mode
 comparisons against exhaustive valuation checking before accepting backend results.
 They exercise every term constructor and both sum branches.
 
-## Deferred proof work and prerequisites
+## Deferred work beyond semantic soundness
 
 Each of the 12 remaining deferred theorems has a prerequisite comment immediately above it.
 The former annotation-dependent fundamental claim remains separately recorded
 as a refuted proposition. Its corrected resource formulation and corollaries are
-proved for the whole core; this does not discharge the algorithmic obligations.
-Each remaining statement must still be validated and proved, with any required
-correction justified by retained evidence.
+proved for the whole core. The unused closed-term-substitution statement is a
+separate syntactic metatheorem; the semantic proof uses environments and does not
+depend on it. Future algorithmic work must validate the remaining contracts and
+justify corrections with retained evidence.
 
 `GroundInstantiates` fixes every identifier outside the quantified domain, including
 ones absent from a scheme's body and bounds. This preserves the interpretation of
@@ -912,8 +932,8 @@ definedness obligations.
 
 | Proof module | Obligations | Prerequisites/dependencies |
 | --- | --- | --- |
-| `Structural` | Closed term substitution | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup, instance-indexed context joins and locking are proved |
-| `Soundness` | None: corrected fundamental soundness, termination/no-stuck, live results, and ownership bound are proved | Complete typing induction in `ResourceSoundness`, with resource semantics independent of capture metadata |
+| `Structural` | Closed term substitution, unused by semantic soundness | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup, instance-indexed context joins and locking are proved |
+| `Soundness` | None: corrected fundamental soundness, termination/no-stuck, live results, and ownership bound are proved | Complete typing induction in `ResourceSoundness`; independently built and audited without either deferred worklist |
 | `Algorithms` | Scheduled termination, worklist correspondence, solve completeness, principal factorization, generation soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, scheme-subsumption soundness/completeness | Full executable solver soundness, generator correspondence and initialized lock hygiene, local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include worklist simulation/termination, representative-search completeness, rigid entailment and subsumption witness reconstruction |
 
 Completeness statements require a sufficiently large fuel budget. Rewrite
