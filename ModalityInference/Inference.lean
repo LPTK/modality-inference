@@ -39,6 +39,11 @@ def Scheme.lock (s : Scheme) (m : ModExpr) : Scheme :=
   {s with body := .modal s.body (.capture m)
           bounds := s.bounds ++ [.sub s.body (.modal s.body (.future m))]}
 
+/-- Resolve a list of symbolic locks, with the outermost lock first. -/
+def Scheme.lockAll (s : Scheme) : List ModExpr → Scheme
+  | [] => s
+  | m :: ms => (s.lockAll ms).lock m
+
 /-- Indices count bindings, never locks. Locks nearest the binding act first. -/
 def lookupScheme : AlgorithmicContext → Nat → RunResult Scheme
   | [], _ => .rejected "unbound term index"

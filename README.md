@@ -22,7 +22,7 @@ solver correspondence/termination/completeness/principality, generation, elabora
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-1030 public or established declarations transitively, including the complete
+1046 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -506,8 +506,9 @@ The source capture scheme quantifies a fresh modality `p`, assumes `α ≤ α @ 
 and `α @ p ≤ (α @ p) @ future μ`, and captures `(α @ p) @ capture μ`.
 The shared body selects `p = aliased`. Source subsumption, locking, the body join
 and the complete lambda derivation are all proved. The executable still emits the
-old annotation: general refinement through nested locks and freshening relative
-to final residual bounds remain necessary before `inference_sound` can hold.
+old annotation: integrating refinement into complete algorithmic contexts and
+freshening relative to final residual bounds remain necessary before
+`inference_sound` can hold.
 No admission has been discharged by this counterexample or its positive witness.
 
 `Scheme.refineMode` now defines the quantified weakening for arbitrary schemes.
@@ -526,10 +527,22 @@ ambient bounds and lock mode by freshening the original binders and choosing the
 new parameter above both supports. `Subsumes.of_instances` packages uniform
 syntactic instance preservation as declarative scheme subsumption.
 The commutation lemma `Subtype.modal_comm` now lives in `SchemeBounds`.
-These are general results for one lock; composition through enclosing locks,
-solution transport and emission of the corrected annotations remain open.
-The new data constructor is not yet used by `captureContext` or `infer`, so the
-recorded counterexample continues to describe the current executable.
+
+`Scheme.lockAll` resolves a list of symbolic locks, with the outermost lock first.
+`Proofs/NestedLockRefinement` proves that one refinement at the binding, before
+all locks, retains every shared instance through any finite list, with exactly
+the same resulting type. It also retains every defined unshared instance up to
+mutual subtyping. The generic `lockAll_transport` reconstructs all source crossing
+bounds from mutually subtyped base bodies and equal substituted lock modes;
+it assumes no cancellation of aliasing or captured modes. The refined capture
+subsumes the many-modified prepared shared capture, and the latter supports a
+declarative join. Unshared scheme subsumption requires a nonempty lock list,
+whose crossing bounds supply body definedness. These statements retain the
+explicit freshness premises on the refinement parameter and quantified names.
+Connecting these witnesses to complete algorithmic contexts, usage splitting,
+solution transport and actual emitted annotations remains open. Neither
+`refineMode` nor `lockAll` is yet used by `captureContext` or `infer`, so the
+recorded counterexample still describes the current executable.
 
 Evaluator correspondence, determinism, fuel stability, Boolean CNF reduction,
 and all-axis modality projection are also proved independently. Backend modality
@@ -733,7 +746,7 @@ All paths below are relative to `ModalityInference/`.
 | Syntactic subsumption instances | `Proofs/SkolemSubstitution`, `Proofs/InstanceDefinedness`, `Proofs/SubsumptionInstances` | Proved source-instance reconstruction and subtyping for every defined target instance, retaining arbitrary ambient bounds, repeated parameters and unused partial images |
 | Admissibility of used bindings | `Proofs/TypingAdmissibility` | With defined ambient subtype operands, proved result definedness and admissible syntactic instances for used bindings and lambda capture annotations; solver residuals satisfy the premise |
 | Sharing below capture locks | `Proofs/TypeVariablePredicates`, `Proofs/SharingLockCapture`, `Proofs/CaptureRefinement` | Refuted the current inferred capture annotation and proved a refined annotation at the same inferred type and residual bounds; executable repair and its general proof remain open |
-| Quantified modal refinement | `Inference`, `Proofs/ModalRefinement` | Proved source weakening, precise instances, retention of shared and unshared locked instances, corresponding scheme subsumption and joins, and fresh refined locks for arbitrary schemes and ambient bounds; nested-lock integration remains open |
+| Quantified modal refinement | `Inference`, `Proofs/ModalRefinement`, `Proofs/NestedLockRefinement` | Proved source weakening, shared and unshared instance retention through arbitrary lock lists, scheme comparisons and shared joins, and fresh single-lock witnesses; whole-context and executable integration remain open |
 | Simultaneous substitution | `Proofs/Substitution` | Proved composition for types, modalities, constraints and bounds, plus agreement of scheme substitution with its exposed binder action; no admissions |
 | Transport through scheme binders | `Annotations`, `Proofs/Annotations`, `Proofs/ScopedCaptures` | Executable per-capture binder transport and paired scheme/value substitution; proved erasure, reference, liveness and evaluation preservation; nested polymorphic witness |
 | Explicit value instantiation | `Annotations`, `Proofs/Instantiation`, `Proofs/ScopedCaptures` | Ordered arguments transport metadata; proved instantiation, definedness-guard and erasure contracts; optional transport route, not required by resource soundness |

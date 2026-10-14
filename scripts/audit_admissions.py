@@ -1061,6 +1061,22 @@ constants = [
     'ModalityInference.Scheme.refineMode_lock_instance',
     'ModalityInference.Scheme.refineMode_lock_subsumes',
     'ModalityInference.Scheme.freshened_refineMode_lock',
+    'ModalityInference.Scheme.lockAll',
+    'ModalityInference.Scheme.lockAll_params',
+    'ModalityInference.Scheme.lockAll_instantiates',
+    'ModalityInference.Scheme.lock_instance_body',
+    'ModalityInference.Scheme.lockAll_body_congr',
+    'ModalityInference.Scheme.lockAll_base_bounds',
+    'ModalityInference.Scheme.lockAll_base_defined',
+    'ModalityInference.Scheme.lockAll_transport',
+    'ModalityInference.Instantiates.refineMode_lockAll_shared',
+    'ModalityInference.Instantiates.refineMode_lockAll',
+    'ModalityInference.Scheme.lockAll_instance_many',
+    'ModalityInference.Scheme.refineMode_lockAll_subsumes_shared',
+    'ModalityInference.Scheme.lockAll_bounds_base_defined',
+    'ModalityInference.Scheme.refineMode_lockAll_subsumes',
+    'ModalityInference.Scheme.lockAll_aliased',
+    'ModalityInference.Scheme.shared_lockAll_join',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -1143,6 +1159,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SharingLockCapture\n'
                     'import ModalityInference.Proofs.CaptureRefinement\n'
                     'import ModalityInference.Proofs.ModalRefinement\n'
+                    'import ModalityInference.Proofs.NestedLockRefinement\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(
