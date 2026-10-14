@@ -39,7 +39,7 @@ prerequisites and counterexamples remain available. Neither the semantic
 entry point nor its dependencies import those worklists. The public library and
 executables also remain independent of them. The original generic solver is
 unchanged. The full-project audit continues to check
-1150 public or established declarations transitively, including the complete
+1175 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -355,6 +355,15 @@ two, and its behavior with an empty substitution is proved unchanged for every
 budget. Regressions cover reversed bounds, splitting them between pending and
 residual lists, and a valid nonempty saved substitution. Successful entry now
 implies that the substituted shapes passed the precheck.
+
+`Proofs/ShapeTermination` proves that the shape precheck eventually returns a
+stable non-exhausted result on every input. Its lexicographic measure counts
+distinct type variables first and constructor nodes second: substitution removes
+a variable, while decomposition reduces nodes. `Proofs/ShapeCompleteness` proves
+that every satisfiable constraint list eventually passes the precheck. Ground
+subtyping preserves finite shape; a strict constructor-size argument rules out
+occurs-check rejection, and substitution preserves shape compatibility. These
+proofs cover the separate precheck, not yet the main solver worklist.
 
 
 `GroundInstantiates` fixes every identifier outside the quantified domain,

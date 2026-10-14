@@ -72,6 +72,31 @@ for path in paths:
             assert not re.search(r'^import\s+ModalityInference\.Proofs', code, re.M), path
 
 constants = [
+    'ModalityInference.ShapePairs.mem_vars',
+    'ModalityInference.ShapePairs.lt_tail',
+    'ModalityInference.ShapePairs.subst_vars_subset',
+    'ModalityInference.ShapePairs.lt_replace',
+    'ModalityInference.ShapePairs.rank_swap',
+    'ModalityInference.ShapePairs.lt_replace_right',
+    'ModalityInference.ShapePairs.lt_decompose',
+    'ModalityInference.ShapePairs.wellFounded',
+    'ModalityInference.checkShapePairs_eventually',
+    'ModalityInference.checkShapes_eventually',
+    'ModalityInference.GroundTy.shape_modal',
+    'ModalityInference.TypeExpr.shapeUnder_subst',
+    'ModalityInference.TypeExpr.shapeUnder_eraseModes',
+    'ModalityInference.TypeExpr.eraseModes_idem',
+    'ModalityInference.TypeExpr.shapeUnder_occurs_le',
+    'ModalityInference.TypeExpr.eraseModes_not_modal',
+    'ModalityInference.TypeExpr.shapeUnder_occurs_lt',
+    'ModalityInference.TypeExpr.eraseModes_subst',
+    'ModalityInference.ShapePairs.compatible_cons',
+    'ModalityInference.ShapePairs.Compatible.replace',
+    'ModalityInference.ShapePairs.Compatible.check',
+    'ModalityInference.GroundOrder.shape_eq',
+    'ModalityInference.TypeExpr.realize_shape',
+    'ModalityInference.GroundModels.checkShapes',
+    'ModalityInference.checkShapes_complete',
     'ModalityInference.Scheme.modal_many_subsumes',
     'ModalityInference.Scheme.refineMode_lockAll_subsumes_shared_plain',
     'ModalityInference.Scheme.refineMode_lockAll_subsumes_shared_twice',
@@ -1288,6 +1313,8 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ModeOrientation\n'
                     'import ModalityInference.Proofs.ModeSeen\n'
                     'import ModalityInference.Proofs.ShapeEntry\n'
+                    'import ModalityInference.Proofs.ShapeTermination\n'
+                    'import ModalityInference.Proofs.ShapeCompleteness\n'
                     'import ModalityInference.Proofs.BoundedSupport\n'
                     'import ModalityInference.Proofs.SolverFresh\n'
                     'import ModalityInference.Proofs.TypeOrientation\n'
