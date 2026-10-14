@@ -1,6 +1,4 @@
-import ModalityInference.Proofs.Projection
-import ModalityInference.Proofs.SyntacticEquality
-import ModalityInference.Proofs.VariableOccurrences
+import ModalityInference.Proofs.ModeWitness
 import ModalityInference.Constraints
 
 /-! Correctness of the finite consistency search and its returned witness. -/
@@ -127,18 +125,6 @@ theorem searchCNF_single_sound {fuel cs σ result}
   obtain ⟨rfl, rfl⟩ : ds = cs ∧ τ = σ := by simpa using hm
   exact hd
 
-private theorem lookup_map_self {α β : Type} [BEq α] [LawfulBEq α]
-    (xs : List α) (f : α → β) {v} (hv : v ∈ xs) :
-    (xs.map (fun w => (w, f w))).lookup v = some (f v) := by
-  induction xs with
-  | nil => contradiction
-  | cons w xs ih =>
-    by_cases h : v = w
-    · subst w; simp
-    · have he : (v == w) = false := by simpa using h
-      simpa only [List.map_cons, List.lookup_cons, he] using
-        ih ((List.mem_cons.mp hv).resolve_left h)
-
 theorem satisfiableModes_witness {fuel cs result}
     (h : satisfiableModes fuel cs = .success result) :
     ∃ η, ModeModels cs η ∧ ∀ v ∈ cs.modVars, result.lookup v = some (η v) := by
@@ -152,26 +138,6 @@ theorem satisfiableModes_witness {fuel cs result}
   refine ⟨projectedModes (booleanValuation σ), ?_, ?_⟩
   · exact (boundsModeFormula_correct _ _).mp ((toCNF_correct hc _).mp (searchCNF_single_sound hs))
   · exact fun v hv => lookup_map_self cs.modeVariables _ ((cs.mem_modeVariables v).mpr hv)
-
-theorem ModeSatisfies.congr (c : Constraint) {η θ : ModVar → Mode}
-    (h : ∀ v ∈ c.modVars, η v = θ v) : ModeSatisfies η c ↔ ModeSatisfies θ c := by
-  cases c <;> simp only [ModeSatisfies, Constraint.modVars, Finset.mem_union,
-    or_imp, forall_and] at *
-  case mode a b =>
-    simp only [ModExpr.Below,
-      a.eval_congr (σ := some ∘ η) (τ := some ∘ θ) (fun v hv => congrArg some (h.1 v hv)),
-      b.eval_congr (σ := some ∘ η) (τ := some ∘ θ) (fun v hv => congrArg some (h.2 v hv))]
-  case defined a =>
-    simp only [ModExpr.WellFormed,
-      a.eval_congr (σ := some ∘ η) (τ := some ∘ θ) (fun v hv => congrArg some (h v hv))]
-
-theorem ModeModels.congr (cs : Bounds) {η θ : ModVar → Mode}
-    (h : ∀ v ∈ cs.modVars, η v = θ v) : ModeModels cs η ↔ ModeModels cs θ := by
-  induction cs <;> simp_all [Bounds.modVars_cons, ModeModels, Finset.mem_union, or_imp, forall_and]
-  exact fun _ => ModeSatisfies.congr _ h.1
-
-def ModeAssignment.total (σ : ModeAssignment) (v : ModVar) : Mode :=
-  (σ.lookup v).getD Mode.identity
 
 theorem satisfiableModes_sound {fuel cs result}
     (h : satisfiableModes fuel cs = .success result) : ModeModels cs result.total := by

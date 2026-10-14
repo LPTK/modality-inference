@@ -163,6 +163,14 @@ end ConcreteBackend
 abbrev ModeAssignment := List (ModVar × Mode)
 def ModeAssignment.lookup (a : ModeAssignment) (v : ModVar) : Option Mode := List.lookup v a
 
+def ModeAssignment.total (a : ModeAssignment) (v : ModVar) : Mode :=
+  (a.lookup v).getD Mode.identity
+
+/-- Reconstruct each occurring modality from its three Boolean coordinates. -/
+def ModeAssignment.ofBooleans (cs : Bounds) (σ : Nat → Bool) : ModeAssignment :=
+  cs.modeVariables.map fun v =>
+    (v, ⟨σ (v.atomIndex 0), σ (v.atomIndex 1), σ (v.atomIndex 2)⟩)
+
 def checkModeConstraint (σ : ModVar → Option Mode) : Constraint → Bool
   | .mode a b => match a.eval σ, b.eval σ with
     | some x, some y => Mode.le x y
