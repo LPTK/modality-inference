@@ -3,11 +3,10 @@ import ModalityInference.Proofs.UndefinedDomain
 import ModalityInference.Proofs.GenerationTypes
 import ModalityInference.Inference
 
-/-! The former generation rules omitted definedness for lookup, an unused
-lambda domain, and the unused branch of a sum. In particular, checking only the
-modalities already written in a type misses a partial type substituted later
-for an unconstrained type variable. This archive retains the failing rules and
-the former variable-inference path as independently checked minimal witnesses. -/
+/-! Unrestricted raw substitutions can insert undefined internal types into an
+unused lambda domain. The inference theorem excludes them with well-formed-image
+evidence, without emitting reflexive constraints for fresh variables. A separate
+lookup check rejects partial modalities already written in an input scheme. -/
 namespace ModalityInference.GenerationDefinedness
 open UndefinedDomain
 
@@ -19,9 +18,9 @@ inductive FormerGenerates : AlgorithmicContext → RawTerm → Ty → Bounds →
       FormerGenerates (.binding (some (.mono a)) :: .lock m :: Γ) t b cs →
       FormerGenerates Γ (.lam () t) (.modal (.fn a b) m) cs
 
-def function : Ty := .modal (.fn (.var (.flex 0)) (.modal .unit .bottom)) .epsilon
+def function : Ty := .modal (.fn (.var (.flex 0)) (.modal .unit .bottom)) (.var (.flex 0))
 
-def partialImage : Substitution := {types := [(0, domain)]}
+def partialImage : Substitution := {types := [(0, domain)], modes := [(0, .epsilon)]}
 
 theorem former_generated : FormerGenerates [] (.lam () .unit) function [] := .lam .unit
 
@@ -41,7 +40,8 @@ theorem no_former_generation_sound :
   intro h
   exact no_substituted_typing _ (h (Γ := []) former_generated former_solution)
 
-/-- Checking the original variable's written modality expressions is vacuous. -/
+/-- A fresh variable has no written partial modalities to check. Its later image
+is covered by the well-formed-substitution hypothesis. -/
 theorem variable_written_guards_empty :
     (TypeExpr.var (.flex 0) : Ty).wellFormedBounds = [] := rfl
 
@@ -68,14 +68,14 @@ theorem former_inference_success :
 theorem no_inference_derivation (Γ : Context) (t : AnnotatedTerm) :
     ¬Typing [] Γ t scheme.body := corrected_function_rejected Γ t
 
-def correctedGuards : Bounds :=
-  [.sub (.var (.flex 0)) (.var (.flex 0)), .defined .epsilon]
+def generatedConstraints : Bounds := []
 
-theorem corrected_generated : Generates [] (.lam () .unit) function correctedGuards := .lam .unit
+theorem corrected_generated : Generates [] (.lam () .unit) function generatedConstraints := .lam .unit
 
-theorem corrected_solution_rejected : ¬Solution correctedGuards [] partialImage := by
+theorem corrected_solution_rejected :
+    ¬(Solution generatedConstraints [] partialImage ∧ partialImage.WellFormedUnder []) := by
   intro hs
-  exact Bool.noConfusion ((corrected_generated.definedUnder hs).realize_defined
+  exact Bool.noConfusion ((corrected_generated.definedUnder hs.1 hs.2).realize_defined
     (ρ := ⟨fun _ => .unit Mode.identity, fun _ => Mode.identity⟩) (by simp [GroundModels]))
 
 theorem corrected_inference_rejected :

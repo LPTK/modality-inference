@@ -28,6 +28,7 @@ import ModalityInference.Proofs.ResourceProducts
 import ModalityInference.Proofs.ResourceRegions
 import ModalityInference.Proofs.ResourceSoundness
 import ModalityInference.Proofs.GenerationDefinedness
+import ModalityInference.Proofs.SubstitutionWellFormed
 import ModalityInference.Proofs.TypeElimination
 import ModalityInference.Proofs.SolverEntry
 import ModalityInference.Proofs.Normalization

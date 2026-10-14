@@ -59,6 +59,11 @@ def captureAvoidance : Scheme :=
 #guard ((Scheme.generalize [] (.var (.flex 0))).instantiate 7 9 true).2 == .var (.rigid 7)
 #guard ({typeParams := [40], body := .unit} : Scheme).freshTypeIndex = 41
 
+-- Fresh lambda variables need no constraints: solution images must be well formed.
+#guard match generate 2 [] (.lam () .unit) {} with
+  | .success r => r.state.constraints.isEmpty
+  | _ => false
+
 -- Scheme instantiation transports captured metadata, including after alpha-renaming.
 def instantiatedCreditAt (m : Mode) : RunResult InstantiatedValue → Bool
   | .success r =>

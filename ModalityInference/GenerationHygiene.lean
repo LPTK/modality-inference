@@ -15,8 +15,8 @@ inductive Generates.Hygienic : {Γ : AlgorithmicContext} → {t : RawTerm} →
   | var {Γ i s σ} (hl : Lookup Γ i s) (hi : Instantiates s σ) : Hygienic (.var hl hi)
   | unit {Γ} : Hygienic (.unit (Γ := Γ))
   | lam {Γ t a b m cs}
-      {h : Generates (.binding (some (.mono a)) :: .lock m :: Γ) t b cs} :
-      AlgorithmicContext.FreshForMode Γ m → Hygienic h → Hygienic (.lam h)
+      {h : Generates (.binding (some (.mono (.var (.flex a)))) :: .lock (.var (.flex m)) :: Γ) t b cs} :
+      AlgorithmicContext.FreshForMode Γ (.var (.flex m)) → Hygienic h → Hygienic (.lam h)
   | app {Γ Γ₁ Γ₂ f x a b c m cs ds} (hj : UsageSplit Γ Γ₁ Γ₂)
       {hf : Generates Γ₁ f a cs} {hx : Generates Γ₂ x b ds} :
       Hygienic hf → Hygienic hx → Hygienic (.app (c := c) (m := m) hj hf hx)

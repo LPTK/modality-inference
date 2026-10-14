@@ -30,7 +30,7 @@ generation, elaborated inference and scheme subsumption. Neither the semantic
 entry point nor its dependencies import those worklists. The public library and
 executables also remain independent of them. The original generic solver is
 unchanged. The full-project audit continues to check
-1074 public or established declarations transitively, including the complete
+1080 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -253,7 +253,9 @@ any context entailing the remaining constraints, through every step and complete
 run. Equality elimination's queued guards establish the new image's definedness;
 transport handles its insertion into all earlier images. Returned residual bounds
 entail themselves, and `solve_images_defined` proves that every returned type
-image is defined under those bounds.
+image is defined under those bounds. `solve_substitution_wellFormed` packages
+this result with modality-image definedness as `Substitution.WellFormedUnder`.
+Thus actual solver outputs satisfy the inference theorems' substitution premise.
 
 `Proofs/SolverExtension` proves that later substitutions preserve every earlier
 eliminated equation: the final substitution acts identically on an original
@@ -374,17 +376,19 @@ witness records why uniform annotation substitution is insufficient. Those
 operations are not required by the proved resource semantics and are not inserted
 into `infer` or `evalFuel`.
 
-`GenerationDefinedness` records a further algorithmic mismatch: the former
-variable-inference path accepted an undefined function type, and a generated
-unused lambda domain could later be replaced by an undefined type under a vacuous
-solution. The corrected generator and independent `Generates` relation emit
-reflexive type guards for lookup, lambda domains, and unused sum branches, plus
-a definedness constraint for lambda modes. A type guard is retained as `a ≤ a`,
-so it survives later type substitution; inspecting only the modalities already
-written in a type variable would emit no guard. `Generates.definedUnder` proves
-that every generated result is defined under every declarative solution, for all
-constructors. The counterexamples and corrected rejection proofs are checked
-without admissions. Full generation and inference soundness remain open.
+Inference solutions require `Substitution.WellFormedUnder`: all type and modality
+images must be defined under the resulting bounds. Partial internal expressions
+are allowed when those bounds ensure definedness. Fresh lambda domains, closure
+modes, and unused sum branches therefore need no extra constraints. The executable
+generator and independent `Generates` relation both follow this convention.
+Lookup validates only modalities already written in the instantiated scheme;
+this check matters because Lean's raw input syntax also admits partial expressions.
+`GenerationDefinedness` records the former acceptance of an undefined input scheme
+and a separate raw substitution with an undefined lambda-domain image. The latter
+violates the substitution hypothesis; it is not a source-calculus counterexample.
+`Generates.definedUnder` proves result definedness for every constructor under
+solution entailment and well-formed substitution images. These proofs use no
+admissions. Full generation and inference soundness remain open.
 
 `Proofs/GenerationExecution` proves that every successful `generate` result
 erases to its original source term and retains the initial constraints as an
@@ -398,16 +402,17 @@ constraints followed by those generated. The proof covers every constructor,
 including fresh instantiation, lazy locks, context usage routing, and nested
 closed definitions. `SolverCounters`, `GenerationInstantiation`,
 `GenerationContexts`, and `GenerationSupplies` prove monotone allocation counters,
-bounded identifiers, and flexible support. These establish both solution
-entailment and consistency for each closed RHS solve. The original
+bounded identifiers, and flexible support. These establish solution entailment,
+consistency, and well-formed substitution images for each closed RHS solve. The original
 `generator_correspondence` statement is discharged without additional premises;
 declarative generation soundness and the inference typing conjunct remain open.
 
 `Proofs/GenerationScope` refutes the former unrestricted generation-soundness
 contract. A lambda lock named `μ₀` can occur below a scheme binding that also
 quantifies `μ₀`; lookup then instantiates the lock along with that quantifier.
-The checked witness satisfies all generated constraints but gives a reusable
-closure a captured unique credit as its result. The proved resource semantics
+The checked witness has well-formed substitution images and satisfies all generated
+constraints but gives a reusable closure a captured unique credit as its result.
+The proved resource semantics
 rules out any declarative typing, even though the source context is well scoped.
 
 `GenerationHygiene` records the missing scope condition: every lambda lock is
@@ -421,17 +426,15 @@ generalization now require this scope evidence, and generation completeness must
 produce it. Full declarative generation soundness is still open.
 
 `Proofs/SchemeInstantiation` supplies the syntactic instance-transport step.
-`Proofs/GeneralizationDefinedness` validates a separate premise needed by the
-deferred closed-definition generalization contract. The hygienic derivation for
-`λx. ()` has an identity solution with empty residual bounds, but those bounds
-also admit an instance replacing the argument variable by a type with an undefined
-internal modality. `no_unguarded_generalization` refutes the former contract.
-The corrected contract requires the selected result type to be `DefinedUnder []`,
-as variable typing already requires. `defined_instance_typable` proves the entire
-example family for every defined instance, and `partial_instance_undefined`
-rejects the bad one. Ordinary source types already satisfy this guard. This is
-a correction to an open proof obligation; the full generalization theorem is
-still deferred, and no executable or source-language restriction was added.
+`Proofs/GeneralizationDefinedness` records the same missing substitution hypothesis
+in the deferred closed-definition generalization contract. The hygienic derivation
+for `λx. ()` has an identity solution with empty residual bounds. A later raw
+substitution can assign its argument variable an undefined internal type, but such
+a substitution fails `WellFormedUnder []`. `no_unguarded_generalization` refutes
+the former statement without this hypothesis; `defined_instance_typable` proves
+the example for every well-formed instance substitution. Ordinary source images
+satisfy the hypothesis automatically. No fresh-variable constraint is needed;
+the full generalization theorem remains deferred.
 
 `Instantiates.substitute` constructs an instance of a capture-avoiding substituted
 scheme whose body is exactly the outer substitution of the original instance.
@@ -773,7 +776,7 @@ All paths below are relative to `ModalityInference/`.
 | Scheme assumptions and symbolic context witnesses | `Proofs/SchemeBounds`, `Proofs/GenerationContextTyping` | Proved instance-preserving explicit assumptions, reflexive prepared contexts, binding-context splits and whole-context locks with freshness premises; substitution and the full generation induction remain open |
 | Fresh schemes and contexts | `Proofs/SchemeFreshening` | Proved freshening beyond arbitrary ambient bounds, exact instance equivalence, source subsumption and context weakening; a fresh context supplies all lock freshness premises |
 | Target assumptions in scheme comparison | `Proofs/SubsumptionAssumptions`, `Proofs/ConstraintModels`, `Proofs/SchemeBounds` | Refuted reflexivity of the raw-target rule on an inhabited equality scheme; corrected comparison is reflexive for every scheme, preserves every former comparison, and retains whole-core resource soundness |
-| Defined generalized instances | `Proofs/GeneralizationDefinedness` | Refuted the former unguarded generalization contract with a hygienic constant function; corrected contract requires instance definedness, and the example is proved typable for every defined instance |
+| Defined generalized instances | `Proofs/GeneralizationDefinedness` | Refuted a contract missing well-formed instance substitutions; the corrected constant-function example is proved for every substitution satisfying that hypothesis |
 | Syntactic subsumption instances | `Proofs/SkolemSubstitution`, `Proofs/InstanceDefinedness`, `Proofs/SubsumptionInstances` | Proved source-instance reconstruction and subtyping for every defined target instance, retaining arbitrary ambient bounds, repeated parameters and unused partial images |
 | Admissibility of used bindings | `Proofs/TypingAdmissibility` | With defined ambient subtype operands, proved result definedness and admissible syntactic instances for used bindings and lambda capture annotations; solver residuals satisfy the premise |
 | Sharing below capture locks | `Proofs/TypeVariablePredicates`, `Proofs/SharingLockCapture`, `Proofs/CaptureRefinement` | Refuted the current inferred capture annotation and proved a refined annotation at the same inferred type and residual bounds; executable repair and its general proof remain open |
@@ -836,7 +839,7 @@ corrections. The POPL reviews and response are in the enclosing paper repository
 | Reversed past projection in `ModSplit` | Unique-to-aliased succeeds; aliased-to-unique rejects |
 | Closure adjoint orientation | Exhaustive 64 comparisons; same-operator swap has a counterexample |
 | Generated locks stay outside scheme quantifiers | `GenerationScope`: a lock/quantifier collision gave a reusable closure a captured unique result; the scoped generation contract excludes it and the unchanged public initializer establishes the required invariant |
-| Definedness survives generation and later type substitution | `GenerationDefinedness`: former variable inference accepted an undefined function; an unconstrained lambda domain admitted a partial image; corrected guards reject both |
+| Definedness survives generation and later type substitution | `GenerationDefinedness`: lookup checks written partial modalities; well-formed substitution images exclude undefined lambda-domain images without fresh-variable guards |
 | Partial residual side conditions survive rewrites | Both undefined residuals reject, including inside type-variable bounds |
 | Substitution updates residual bounds and previous images | `α = β; β = unit`; conflicting repeated assignments reject |
 | Subtyping substitution requires defined modality images | `unit@μ ≤ unit@top` fails after substituting the undefined residual `top / bottom`; checked in `Proofs/PartialSubstitution` |
@@ -849,7 +852,7 @@ corrections. The POPL reviews and response are in the enclosing paper repository
 | Scheme binders are fresh for ambient bounds and symbolic locks | `ContextScoping`: the former sharing premise allows two copies of the same owned credit; alpha-renaming removes the bound/quantifier collision |
 | Scheme-comparison skolems are fresh for ambient bounds | `SubsumptionScope`: under `unit ≤ rigid₁`, the former comparison incorrectly accepted `unit` as `∀α. α`; the corrected comparison chooses `rigid₂` |
 | Target constraints supply usable assumptions | `SubsumptionAssumptions`: `∀α. (α = unit) ⇒ α` has a unit instance but the former raw-target rule cannot compare it with itself; expanding equality directions and written guards restores general reflexivity |
-| Generalized instances retain result definedness | `GeneralizationDefinedness`: empty residual bounds for `λx. ()` cannot justify an undefined internal argument type; the guarded example is proved for all defined instances |
+| Generalized instances retain result definedness | `GeneralizationDefinedness`: undefined internal argument images violate the substitution hypothesis; `λx. ()` is proved typable for every well-formed instance substitution |
 | Fuel is not rejection | Small-budget inference/evaluation exhaust; larger budgets succeed |
 
 The regression checks also compare small two-mode queries and all concrete mode

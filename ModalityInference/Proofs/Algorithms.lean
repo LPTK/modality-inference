@@ -76,8 +76,9 @@ Ambient assumptions obey the paper's variable-bound grammar; `PrincipalAmbient`
 refutes the former unrestricted whole-type assumptions, even when satisfiable.
 Factorization is modulo declarative type/modal equivalence on the original domain. -/
 theorem principal_factorization {fuel cs result Δ θ}
-    (hΔ : Residual Δ) (h : solve fuel cs = .success result) (hθ : Solution cs Δ θ) :
-    ∃ τ : Substitution, EntailsAll Δ (τ.bounds result.bounds) ∧
+    (hΔ : Residual Δ) (h : solve fuel cs = .success result) (hθ : Solution cs Δ θ)
+    (hwθ : θ.WellFormedUnder Δ) :
+    ∃ τ : Substitution, τ.WellFormedUnder Δ ∧ EntailsAll Δ (τ.bounds result.bounds) ∧
       (∀ v ∈ cs.typeVars,
         Subtype Δ (θ.type v) (τ.ty (result.substitution.type v)) ∧
         Subtype Δ (τ.ty (result.substitution.type v)) (θ.type v)) ∧
@@ -98,11 +99,11 @@ theorem generator_correspondence {fuel Γ t s r}
 substitution, and generalization under the empty term context. `GenerationScope`
 refutes the unrestricted statement: a lock can be captured by a scheme quantifier.
 Hygiene keeps locks outside those quantifiers; `generate_initial_hygienic` proves
-it for actual generation from every initialized context. Definedness guards and
-`Generates.definedUnder` remain necessary under partial substitutions. -/
+it for actual generation from every initialized context. Substitution images
+must be well formed under the resulting bounds, as in `Generates.definedUnder`. -/
 theorem generation_sound {Γ : Context} {t a cs Δ σ}
     (h : Generates (Γ.map ContextEntry.binding) t a cs) (hh : h.Hygienic)
-    (hs : Solution cs Δ σ) :
+    (hs : Solution cs Δ σ) (hσ : σ.WellFormedUnder Δ) :
     RawTyping Δ (Γ.subst σ) t (σ.ty a) := by sorry
 
 /-- DEFERRED. Prerequisites: declarative inversion, fresh instantiation and
@@ -110,18 +111,18 @@ constraint principality. Completeness must produce a hygienic derivation;
 both generation judgments are independent of the executable functions. -/
 theorem generation_complete {Δ Γ t a} (h : RawTyping Δ Γ t a) :
     ∃ b cs σ, ∃ hg : Generates (Γ.map ContextEntry.binding) t b cs,
-      hg.Hygienic ∧ Solution cs Δ σ ∧ Subtype Δ (σ.ty b) a := by sorry
+      hg.Hygienic ∧ Solution cs Δ σ ∧ σ.WellFormedUnder Δ ∧ Subtype Δ (σ.ty b) a := by sorry
 
 /-- DEFERRED. Prerequisites: closed term environment, solve consistency and
 substitution, universal introduction over *all* remaining free variables.
 The RHS derivation obeys the same lock-scope condition as generation soundness.
-The selected instance must be defined, as in variable typing;
-`GeneralizationDefinedness` refutes the former unguarded contract. -/
+Both the solving substitution and later instance substitution have well-formed
+images. `GeneralizationDefinedness` refutes the former unrestricted contract. -/
 theorem closed_definition_generalization {rhs a cs residual σ}
     (hg : Generates [] rhs a cs) (hh : hg.Hygienic) (hc : rhs.freeVars = ∅)
     (hs : Solves cs residual σ) :
     ∀ θ, Instantiates (Scheme.generalize residual (σ.ty a)) θ →
-      EntailsAll [] (θ.bounds residual) → (θ.ty (σ.ty a)).DefinedUnder [] →
+      EntailsAll [] (θ.bounds residual) → θ.WellFormedUnder [] →
       RawTyping [] [] rhs (θ.ty (σ.ty a)) := by sorry
 
 /-- DEFERRED typing conjunct; erasure of the actual inferred term is proved.

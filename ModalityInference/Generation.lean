@@ -2,8 +2,10 @@ import ModalityInference.Declarative
 
 /-! Relational constraint generation. Fresh choices and constraint order are not
 fixed by this specification; it never calls `generate`, `infer`, or `solve`.
-Reflexive type constraints retain definedness even when a later substitution
-replaces an otherwise unconstrained type variable by an internal partial type.
+Solution substitutions have well-formed images under the resulting bounds.
+Unconstrained domains, modes and sum branches are fresh inference variables;
+they require no reflexive constraints. Lookup checks modalities already written
+in the instantiated type, including partial internal expressions.
 -/
 namespace ModalityInference
 
@@ -35,16 +37,16 @@ inductive UsageSplit : AlgorithmicContext → AlgorithmicContext → Algorithmic
 /-- An independent relational solve interface. Its semantic and principal-solution
 obligations are stated in `Proofs`; no executable result is assumed here. -/
 def Solves (cs residual : Bounds) (σ : Substitution) : Prop :=
-  EntailsAll residual (σ.bounds cs) ∧ BoundsSatisfiable residual
+  EntailsAll residual (σ.bounds cs) ∧ BoundsSatisfiable residual ∧ σ.WellFormedUnder residual
 
 inductive Generates : AlgorithmicContext → RawTerm → Ty → Bounds → Prop where
   | var {Γ i s σ} : Lookup Γ i s → Instantiates s σ →
       Generates Γ (.var i) (σ.ty s.body)
-        (σ.bounds s.bounds ++ [.sub (σ.ty s.body) (σ.ty s.body)])
+        (σ.bounds s.bounds ++ (σ.ty s.body).wellFormedBounds)
   | unit {Γ} : Generates Γ .unit (.modal .unit .bottom) []
   | lam {Γ t a b m cs} :
-      Generates (.binding (some (.mono a)) :: .lock m :: Γ) t b cs →
-      Generates Γ (.lam () t) (.modal (.fn a b) m) (cs ++ [.sub a a, .defined m])
+      Generates (.binding (some (.mono (.var (.flex a)))) :: .lock (.var (.flex m)) :: Γ) t b cs →
+      Generates Γ (.lam () t) (.modal (.fn (.var (.flex a)) b) (.var (.flex m))) cs
   | app {Γ Γ₁ Γ₂ f x a b c m cs ds} : UsageSplit Γ Γ₁ Γ₂ →
       Generates Γ₁ f a cs → Generates Γ₂ x b ds →
       Generates Γ (.app f x) c (cs ++ ds ++ [.sub a (.modal (.fn b c) m)])
@@ -57,9 +59,9 @@ inductive Generates : AlgorithmicContext → RawTerm → Ty → Bounds → Prop 
       Generates Γ (.stackPair x y) (.modal (.prod c d) m)
         (cs ++ ds ++ [.sub a (.modal c m), .sub b (.modal d m), .mode (.const Mode.localLower) m])
   | inl {Γ x a b c m cs} : Generates Γ x a cs →
-      Generates Γ (.inl x) (.modal (.sum b c) m) (cs ++ [.sub a (.modal b m), .sub c c])
+      Generates Γ (.inl x) (.modal (.sum b (.var (.flex c))) m) (cs ++ [.sub a (.modal b m)])
   | inr {Γ x a b c m cs} : Generates Γ x a cs →
-      Generates Γ (.inr x) (.modal (.sum b c) m) (cs ++ [.sub a (.modal c m), .sub b b])
+      Generates Γ (.inr x) (.modal (.sum (.var (.flex b)) c) m) (cs ++ [.sub a (.modal c m)])
   | split {Γ Γ₁ Γ₂ x body a b c d m cs ds} : UsageSplit Γ Γ₁ Γ₂ →
       Generates Γ₁ x a cs →
       Generates (.binding (some (.mono (.modal .credit m))) ::

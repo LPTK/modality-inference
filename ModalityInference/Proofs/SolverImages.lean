@@ -124,4 +124,16 @@ theorem solve_images_defined {fuel cs result} (h : solve fuel cs = .success resu
     ∀ v, (result.substitution.type v).DefinedUnder result.bounds :=
   solveFrom_images_defined cs.bounded_freshIndices h
 
+/-- The solver returns a substitution satisfying inference's well-formed-image
+convention. Its modality variables remain symbolic. -/
+theorem solveFrom_substitution_wellFormed {fuel nt nm cs result} (hc : cs.Bounded nt nm)
+    (h : solveFrom fuel nt nm cs = .success result) :
+    result.substitution.WellFormedUnder result.bounds :=
+  ⟨solveFrom_images_defined hc h, fun v η _ => by
+    simp [Substitution.mode_eq_var (solveFrom_unbound hc h).1, ModExpr.WellFormed, ModExpr.eval]⟩
+
+theorem solve_substitution_wellFormed {fuel cs result} (h : solve fuel cs = .success result) :
+    result.substitution.WellFormedUnder result.bounds :=
+  solveFrom_substitution_wellFormed cs.bounded_freshIndices h
+
 end ModalityInference
