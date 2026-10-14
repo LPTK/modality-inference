@@ -1,5 +1,6 @@
 import ModalityInference.Subsumption
 import ModalityInference.HornPropagation
+import ModalityInference.SymbolicModes
 import ModalityInference.Core.Scoping
 import ModalityInference.Declarative
 import ModalityInference.SourceTyping

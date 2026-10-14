@@ -103,6 +103,7 @@ import ModalityInference.Proofs.SolverCompleteness
 import ModalityInference.Proofs.InferenceCompleteness
 import ModalityInference.Proofs.GenerationCompletenessDomain
 import ModalityInference.Proofs.GenerationEventualFuel
+import ModalityInference.Proofs.SymbolicModes
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

@@ -1653,6 +1653,21 @@ constants += [
     'ModalityInference.solveFrom_eq_horn',
     'ModalityInference.generate_defn_eq_horn',
     'ModalityInference.infer_eq_horn',
+    'ModalityInference.SymbolicModes.left_eval',
+    'ModalityInference.SymbolicModes.right_eval',
+    'ModalityInference.SymbolicModes.update_eval',
+    'ModalityInference.SymbolicModes.iterate_eval',
+    'ModalityInference.SymbolicModes.solve_eval',
+    'ModalityInference.SymbolicModes.residual_eval',
+    'ModalityInference.SymbolicModes.residual_satisfiable_iff',
+    'ModalityInference.SymbolicModes.solve_minimal',
+    'ModalityInference.SymbolicModes.eval_congr',
+    'ModalityInference.SymbolicModes.rigid_eval',
+    'ModalityInference.SymbolicModes.positive_eval',
+    'ModalityInference.SymbolicModes.horn_eval',
+    'ModalityInference.SymbolicModes.eliminate_correct',
+    'ModalityInference.SymbolicModes.eliminate_witness',
+    'ModalityInference.SymbolicModes.eliminate_under_assumptions',
 ]
 if args.semantic:
     constants = [
@@ -1695,6 +1710,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.Backend\n'
                     'import ModalityInference.Proofs.Projection\n'
                     'import ModalityInference.Proofs.HornPropagation\n'
+                    'import ModalityInference.Proofs.SymbolicModes\n'
                     'import ModalityInference.Proofs.PolarizedConstraints\n'
                     'import ModalityInference.Proofs.PropagationSchedule\n'
                     'import ModalityInference.Proofs.ModeConsistency\n'
