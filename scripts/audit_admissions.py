@@ -850,6 +850,34 @@ constants = [
     'ModalityInference.Substitution.constraint_entails_congr_on',
     'ModalityInference.Instantiates.substitute',
     'ModalityInference.Typing.var_substitute',
+    'ModalityInference.Substitution.wellFormedBounds_subset',
+    'ModalityInference.TypeExpr.DefinedUnder.subst_guards',
+    'ModalityInference.Entails.subst_assumptions',
+    'ModalityInference.Entails.of_subst_assumptions',
+    'ModalityInference.EntailsAll.subst_assumptions',
+    'ModalityInference.EntailsAll.of_subst_assumptions',
+    'ModalityInference.Substitution.bounds_assumptions_entails',
+    'ModalityInference.Substitution.wellFormedBounds_renaming',
+    'ModalityInference.Substitution.constraint_assumptions_renaming',
+    'ModalityInference.Substitution.bounds_assumptions_renaming',
+    'ModalityInference.Substitution.assumptions_renaming_entails',
+    'ModalityInference.Scheme.freshSubstitution_type_variable',
+    'ModalityInference.Scheme.withAssumptions',
+    'ModalityInference.Scheme.withAssumptions_instance',
+    'ModalityInference.Scheme.subsumes_addAssumptions',
+    'ModalityInference.Scheme.subsumes_withAssumptions',
+    'ModalityInference.Scheme.withAssumptions_refl',
+    'ModalityInference.Scheme.lock_withAssumptions',
+    'ModalityInference.Subtype.aliased_idempotent',
+    'ModalityInference.Subtype.share_result',
+    'ModalityInference.Scheme.subsumes_share_withAssumptions',
+    'ModalityInference.Scheme.share_withAssumptions',
+    'ModalityInference.Context.withAssumptions',
+    'ModalityInference.Context.withAssumptions_le',
+    'ModalityInference.Context.withAssumptions_refl',
+    'ModalityInference.Lock.append',
+    'ModalityInference.Context.lock_withAssumptions',
+    'ModalityInference.UsageSplit.declarative_bindings',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -919,6 +947,8 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.GenerationHygiene\n'
                     'import ModalityInference.Proofs.GenerationScope\n'
                     'import ModalityInference.Proofs.SchemeInstantiation\n'
+                    'import ModalityInference.Proofs.SchemeBounds\n'
+                    'import ModalityInference.Proofs.GenerationContextTyping\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

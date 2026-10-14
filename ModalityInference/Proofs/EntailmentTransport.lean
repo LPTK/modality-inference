@@ -3,7 +3,8 @@ import ModalityInference.Proofs.ConstraintModels
 import ModalityInference.Proofs.SubstitutionSupport
 
 /-! Transport of declarative entailment through contexts and the solver's
-type-only substitutions. Definedness of inserted type images remains explicit. -/
+type-only substitutions. Explicit assumptions preserve entailment under arbitrary
+substitutions; transport of other consequences retains image-definedness premises. -/
 namespace ModalityInference
 
 theorem Submode.of_entails {Δ Γ a b} (h : Submode Δ a b) (hΔ : EntailsAll Γ Δ) :
@@ -148,11 +149,19 @@ theorem Substitution.wellFormedBounds_fixed {σ : Substitution} (hm : σ.modes =
   obtain ⟨m, rfl⟩ := a.wellFormedBounds_is_defined c hc
   simp [Substitution.constraint, Constraint.subst, σ.mode_eq_var hm]
 
+theorem Substitution.wellFormedBounds_subset (σ : Substitution) (a : Ty) :
+    σ.bounds a.wellFormedBounds ⊆ (σ.ty a).wellFormedBounds := by
+  induction a <;> simp_all [Substitution.bounds, Substitution.ty, TypeExpr.subst,
+    TypeExpr.wellFormedBounds, Substitution.constraint, Constraint.subst]
+
+theorem TypeExpr.DefinedUnder.subst_guards {σ : Substitution} {a : Ty} {Δ}
+    (h : (σ.ty a).DefinedUnder Δ) : EntailsAll Δ (σ.bounds a.wellFormedBounds) :=
+  fun c hc => ((σ.ty a).definedUnder_iff_entails_wellFormed Δ).mp h c
+    (σ.wellFormedBounds_subset a hc)
+
 theorem TypeExpr.DefinedUnder.substituted_guards {σ : Substitution} {a : Ty} {Δ}
-    (h : (σ.ty a).DefinedUnder Δ) (hm : σ.modes = []) :
-    EntailsAll Δ (σ.bounds a.wellFormedBounds) := by
-  rw [σ.wellFormedBounds_fixed hm]
-  exact (a.definedUnder_iff_entails_wellFormed Δ).mp ((a.definedUnder_substitute_types hm Δ).mp h).1
+    (h : (σ.ty a).DefinedUnder Δ) (_hm : σ.modes = []) :
+    EntailsAll Δ (σ.bounds a.wellFormedBounds) := h.subst_guards
 
 theorem Substitution.equal_entails (σ : Substitution) (Δ : Bounds) (v : TypeVar) (a : Ty) :
     Entails Δ (σ.constraint (.equal v a)) ↔
@@ -166,19 +175,19 @@ theorem Substitution.equal_entails (σ : Substitution) (Δ : Bounds) (v : TypeVa
       simp [Substitution.constraint, Substitution.type, he, Entails, TypeExpr.DefinedUnder,
         TypeExpr.wellFormedBounds, ModeModels, and_left_comm, and_comm]
 
-theorem Entails.substituted_assumptions {Δ c} {σ : Substitution}
-    (h : Entails Δ (σ.constraint c)) (hm : σ.modes = []) :
+theorem Entails.subst_assumptions {Δ c} {σ : Substitution}
+    (h : Entails Δ (σ.constraint c)) :
     EntailsAll Δ (σ.bounds c.assumptions) := by
   cases c
   case sub a b =>
-    have ha := TypeExpr.DefinedUnder.substituted_guards h.2.1 hm
-    have hb := TypeExpr.DefinedUnder.substituted_guards h.2.2 hm
+    have ha := TypeExpr.DefinedUnder.subst_guards h.2.1
+    have hb := TypeExpr.DefinedUnder.subst_guards h.2.2
     simpa only [Constraint.assumptions, Substitution.bounds, List.map_cons, List.map_nil,
       List.map_append, EntailsAll, List.mem_cons, List.mem_append, List.not_mem_nil, or_false,
       forall_eq_or_imp, forall_eq, or_imp, forall_and] using And.intro (And.intro h ha) hb
   case equiv a b =>
-    have ha := TypeExpr.DefinedUnder.substituted_guards h.2.2.1 hm
-    have hb := TypeExpr.DefinedUnder.substituted_guards h.2.2.2 hm
+    have ha := TypeExpr.DefinedUnder.subst_guards h.2.2.1
+    have hb := TypeExpr.DefinedUnder.subst_guards h.2.2.2
     have hab : Entails Δ (.sub (σ.ty a) (σ.ty b)) := ⟨h.1, h.2.2⟩
     have hba : Entails Δ (.sub (σ.ty b) (σ.ty a)) := ⟨h.2.1, h.2.2.2, h.2.2.1⟩
     simpa only [Constraint.assumptions, Substitution.bounds, List.map_cons, List.map_nil,
@@ -187,7 +196,7 @@ theorem Entails.substituted_assumptions {Δ c} {σ : Substitution}
       forall_eq_or_imp, forall_eq, or_imp, forall_and] using And.intro (And.intro ⟨hab, hba⟩ ha) hb
   case equal v a =>
     have hab := (σ.equal_entails Δ v a).mp h
-    have ha := TypeExpr.DefinedUnder.substituted_guards hab.1.2.2 hm
+    have ha := TypeExpr.DefinedUnder.subst_guards hab.1.2.2
     simpa only [Constraint.assumptions, Substitution.bounds, List.map_cons, List.map_nil,
       List.map_append, Substitution.constraint, Constraint.subst, Substitution.ty, TypeExpr.subst,
       EntailsAll, List.mem_cons, List.mem_append, List.not_mem_nil, or_false,
@@ -195,14 +204,45 @@ theorem Entails.substituted_assumptions {Δ c} {σ : Substitution}
   all_goals simpa only [Constraint.assumptions, Substitution.bounds, List.map_cons,
     List.map_nil, EntailsAll, List.mem_singleton, forall_eq] using h
 
-theorem EntailsAll.substituted_assumptions {Δ cs} {σ : Substitution}
-    (h : EntailsAll Δ (σ.bounds cs)) (hm : σ.modes = []) :
+theorem Entails.substituted_assumptions {Δ c} {σ : Substitution}
+    (h : Entails Δ (σ.constraint c)) (_hm : σ.modes = []) :
+    EntailsAll Δ (σ.bounds c.assumptions) := h.subst_assumptions
+
+theorem Entails.of_subst_assumptions {Δ c} {σ : Substitution}
+    (h : EntailsAll Δ (σ.bounds c.assumptions)) : Entails Δ (σ.constraint c) := by
+  cases c <;> simp only [Constraint.assumptions, Substitution.bounds, List.map_cons,
+    List.map_nil, List.map_append, EntailsAll, List.mem_cons, List.mem_append,
+    List.not_mem_nil, or_false, forall_eq, or_imp, forall_and] at h
+  case equal v a =>
+    exact (σ.equal_entails Δ v a).mpr h.1
+  case equiv a b => exact ⟨h.1.1.1.1, h.1.1.2.1, h.1.1.1.2⟩
+  case sub a b => exact h.1.1
+  all_goals exact h
+
+theorem EntailsAll.subst_assumptions {Δ cs} {σ : Substitution}
+    (h : EntailsAll Δ (σ.bounds cs)) :
     EntailsAll Δ (σ.bounds cs.assumptions) := by
   intro d hd
   obtain ⟨e, he, rfl⟩ := List.mem_map.mp hd
   obtain ⟨c, hc, he⟩ := List.mem_flatMap.mp he
-  exact (h _ (List.mem_map.mpr ⟨c, hc, rfl⟩)).substituted_assumptions hm _
+  exact (h _ (List.mem_map.mpr ⟨c, hc, rfl⟩)).subst_assumptions _
     (List.mem_map.mpr ⟨e, he, rfl⟩)
+
+theorem EntailsAll.substituted_assumptions {Δ cs} {σ : Substitution}
+    (h : EntailsAll Δ (σ.bounds cs)) (_hm : σ.modes = []) :
+    EntailsAll Δ (σ.bounds cs.assumptions) := h.subst_assumptions
+
+theorem EntailsAll.of_subst_assumptions {Δ cs} {σ : Substitution}
+    (h : EntailsAll Δ (σ.bounds cs.assumptions)) : EntailsAll Δ (σ.bounds cs) := by
+  intro d hd
+  obtain ⟨c, hc, rfl⟩ := List.mem_map.mp hd
+  exact Entails.of_subst_assumptions fun d hd => by
+    obtain ⟨e, he, rfl⟩ := List.mem_map.mp hd
+    exact h _ (List.mem_map.mpr ⟨e, List.mem_flatMap.mpr ⟨c, hc, he⟩, rfl⟩)
+
+theorem Substitution.bounds_assumptions_entails (σ : Substitution) (cs Δ : Bounds) :
+    EntailsAll Δ (σ.bounds cs.assumptions) ↔ EntailsAll Δ (σ.bounds cs) :=
+  ⟨EntailsAll.of_subst_assumptions, EntailsAll.subst_assumptions⟩
 
 /-- A consequence valid in every ambient context survives a type-only
 substitution when the type images appearing in its conclusion are defined. -/

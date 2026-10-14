@@ -22,7 +22,7 @@ solver correspondence/termination/completeness/principality, generation, elabora
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-819 public or established declarations transitively, including the complete
+847 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -419,8 +419,24 @@ Its bounds have equivalent entailment under every ambient context; raw constrain
 syntax can differ when an equality becomes an equivalence. The proof covers
 repeated quantified names and arbitrary internal modality images.
 `Typing.var_substitute` derives the variable-typing case using the transported
-instance, with result definedness explicit. Context joins, locks, generalization
-and the full generation-soundness induction remain open.
+instance, with result definedness explicit.
+
+`Proofs/SchemeBounds` makes equality directions and written definedness guards
+explicit in a scheme's bound assumptions. `Substitution.bounds_assumptions_entails`
+proves that this preserves bound entailment under arbitrary substitutions, including
+partial modality images; `Scheme.withAssumptions_instance` preserves precisely
+the original instances. Such schemes admit reflexive subsumption, and the original
+context weakens to the context with explicit assumptions. Fresh skolem renaming
+commutes with the assumption construction.
+
+`Proofs/GenerationContextTyping` builds declarative witnesses for symbolic context
+operations. `UsageSplit.declarative_bindings` handles every split of a context
+consisting of bindings, including sharing, and produces both the declarative join
+and weakening from the source. `Context.lock_withAssumptions` similarly constructs
+a whole-context lock. These results retain quantified freshness for ambient bounds
+and, for locking, the lock mode. Transport through arbitrary solution substitutions,
+enclosing symbolic locks, closed-definition generalization and typing of the actual
+generated annotations remain necessary for full generation and inference soundness.
 
 Evaluator correspondence, determinism, fuel stability, Boolean CNF reduction,
 and all-axis modality projection are also proved independently. Backend modality
@@ -617,6 +633,7 @@ All paths below are relative to `ModalityInference/`.
 | Annotation erasure | `Proofs/Erasure` | Proved for all evaluation rules and capture trimming; no admissions |
 | Recursive annotation transport | `Annotations`, `Proofs/Annotations` | Executable value substitution; proved evaluation, erasure, reference and freshness preservation |
 | Scheme-instance transport | `Proofs/SchemeInstantiation` | Proved transport through capture-avoiding substitution with exact body equality and equivalent bound entailment, including repeated parameters and partial images; proved the substituted variable-typing case with definedness explicit |
+| Scheme assumptions and symbolic context witnesses | `Proofs/SchemeBounds`, `Proofs/GenerationContextTyping` | Proved instance-preserving explicit assumptions, reflexive prepared contexts, binding-context splits and whole-context locks with freshness premises; substitution and the full generation induction remain open |
 | Simultaneous substitution | `Proofs/Substitution` | Proved composition for types, modalities, constraints and bounds, plus agreement of scheme substitution with its exposed binder action; no admissions |
 | Transport through scheme binders | `Annotations`, `Proofs/Annotations`, `Proofs/ScopedCaptures` | Executable per-capture binder transport and paired scheme/value substitution; proved erasure, reference, liveness and evaluation preservation; nested polymorphic witness |
 | Explicit value instantiation | `Annotations`, `Proofs/Instantiation`, `Proofs/ScopedCaptures` | Ordered arguments transport metadata; proved instantiation, definedness-guard and erasure contracts; optional transport route, not required by resource soundness |
