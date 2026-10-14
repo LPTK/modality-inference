@@ -1077,6 +1077,34 @@ constants = [
     'ModalityInference.Scheme.refineMode_lockAll_subsumes',
     'ModalityInference.Scheme.lockAll_aliased',
     'ModalityInference.Scheme.shared_lockAll_join',
+    'ModalityInference.Substitution.dropMode',
+    'ModalityInference.Substitution.dropMode_type',
+    'ModalityInference.Substitution.dropMode_mode',
+    'ModalityInference.Instantiates.drop_refineMode',
+    'ModalityInference.Substitution.dropMode_ty',
+    'ModalityInference.Substitution.dropMode_modExpr',
+    'ModalityInference.Substitution.dropMode_bounds',
+    'ModalityInference.Scheme.refineMode_instance_body',
+    'ModalityInference.Scheme.refineMode_instance_bounds',
+    'ModalityInference.Scheme.refined_shared_lockAll_instance',
+    'ModalityInference.Scheme.refined_shared_lockAll_many',
+    'ModalityInference.Scheme.refineMode_lockAll_subsumes_refined_shared',
+    'ModalityInference.Subtype.modal_aliased',
+    'ModalityInference.Scheme.refined_shared_lockAll_join',
+    'ModalityInference.AlgorithmicContext.refinedContext',
+    'ModalityInference.AlgorithmicContext.RefinementFresh',
+    'ModalityInference.AlgorithmicContext.RefinementFresh.tail',
+    'ModalityInference.ContextJoin.append',
+    'ModalityInference.UsageSplit.declarative_refined',
+    'ModalityInference.freshFold_le_iff',
+    'ModalityInference.Scheme.freshModeIndex_le_iff',
+    'ModalityInference.Scheme.share_freshModeIndex',
+    'ModalityInference.AlgorithmicContext.refinementFresh_binding',
+    'ModalityInference.AlgorithmicContext.refinementFresh_lock',
+    'ModalityInference.AlgorithmicContext.refinementFresh_nil',
+    'ModalityInference.UsageSplit.refinementFresh',
+    'ModalityInference.Scheme.lockAll_append',
+    'ModalityInference.Lookup.refinedContext_instance',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -1160,6 +1188,8 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.CaptureRefinement\n'
                     'import ModalityInference.Proofs.ModalRefinement\n'
                     'import ModalityInference.Proofs.NestedLockRefinement\n'
+                    'import ModalityInference.Proofs.RefinedSharing\n'
+                    'import ModalityInference.Proofs.RefinedContexts\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(
