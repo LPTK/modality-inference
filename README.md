@@ -40,7 +40,7 @@ prerequisites and counterexamples remain available. Neither the semantic
 entry point nor its dependencies import those worklists. The public library and
 executables also remain independent of them. The original generic solver is
 unchanged. The full-project audit continues to check
-1127 public or established declarations transitively, including the complete
+1139 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -613,6 +613,12 @@ obtains variable typing without separate target-freshness assumptions. The avoid
 set must contain the ambient bounds and substituted locks; this is a syntactic
 condition, not an extra entailment hypothesis. Combining these constructions
 uniformly across a generation derivation remains part of the open induction.
+
+`GeneralizedSubstitution` proves that substitution into a fully generalized
+scheme preserves its instances up to binder renaming, including the subsequent
+freshening and modal refinement. The original scheme subsumes the transformed
+scheme needed by the definition body. Ordinary substituted contexts also weaken
+to their freshened, refined versions. The full generation induction remains open.
 
 ## Build and run
 

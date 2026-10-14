@@ -72,6 +72,18 @@ for path in paths:
             assert not re.search(r'^import\s+ModalityInference\.Proofs', code, re.M), path
 
 constants = [
+    'ModalityInference.Scheme.substitutionAction_typeParam',
+    'ModalityInference.Scheme.substitutionAction_modParam',
+    'ModalityInference.Instantiates.unsubstitute_of_renaming',
+    'ModalityInference.Instantiates.unsubstitute_generalize',
+    'ModalityInference.Instantiates.unsubstAvoid_generalize',
+    'ModalityInference.Scheme.subsumes_refined_of_instances',
+    'ModalityInference.Scheme.generalize_subsumes_substAvoid_refined',
+    'ModalityInference.Scheme.subsumes_substAvoid_refined',
+    'ModalityInference.Context.substAvoid_refined_le',
+    'ModalityInference.Substitution.empty_ty',
+    'ModalityInference.Scheme.mono_subst',
+    'ModalityInference.Scheme.mono_substAvoid',
     'ModalityInference.Instantiates.substAvoid',
     'ModalityInference.Scheme.substAvoid_fresh',
     'ModalityInference.Scheme.share_substAvoid',
@@ -1245,6 +1257,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.RefinedLocks\n'
                     'import ModalityInference.Proofs.SubstitutedContexts\n'
                     'import ModalityInference.Proofs.FreshenedContexts\n'
+                    'import ModalityInference.Proofs.GeneralizedSubstitution\n'
                     'import ModalityInference.Proofs.TypeElimination\n'
                     'import ModalityInference.Proofs.SolverEntry\n'
                     'import ModalityInference.Proofs.Normalization\n'
