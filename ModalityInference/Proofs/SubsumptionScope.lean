@@ -34,6 +34,11 @@ theorem Scheme.lt_freshModeIndex {s : Scheme} {v : ModVar}
   simp only [List.mem_append, TypeExpr.mem_modeVariables, Bounds.mem_modeVariables]
   exact (Finset.mem_union.mp h).elim (fun h => Or.inl (Or.inr h)) Or.inr
 
+theorem Scheme.modeParam_lt_freshModeIndex {s : Scheme} {n : Nat} (h : n ∈ s.modParams) :
+    n < s.freshModeIndex := by
+  apply (freshFold_bounds ModVar.index _ 0).2 (.flex n)
+  exact List.mem_append_left _ (List.mem_append_left _ (List.mem_map_of_mem h))
+
 theorem Scheme.subsumptionIndices_type_fresh {Δ : Bounds} (s t : Scheme)
     {v : TypeVar} (h : v ∈ Δ.typeVariables) :
     v.index < (s.subsumptionIndices Δ t).1 :=

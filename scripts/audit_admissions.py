@@ -801,6 +801,36 @@ constants = [
     'ModalityInference.Solves.perm',
     'ModalityInference.generate_correspondence',
     'ModalityInference.Deferred.generator_correspondence',
+    'ModalityInference.AlgorithmicContext.FreshForMode',
+    'ModalityInference.Generates.Hygienic',
+    'ModalityInference.Generates.Hygienic.lam_fresh',
+    'ModalityInference.Scheme.ModParamsBounded',
+    'ModalityInference.AlgorithmicContext.ModParamsBounded',
+    'ModalityInference.GenerationScope.UnrestrictedGenerationSoundness',
+    'ModalityInference.Scheme.modeParam_lt_freshModeIndex',
+    'ModalityInference.generate_correspondence_hygienic',
+    'ModalityInference.generate_initial_hygienic',
+    'ModalityInference.AlgorithmicContext.modParamsBounded_nil',
+    'ModalityInference.AlgorithmicContext.modParamsBounded_binding',
+    'ModalityInference.AlgorithmicContext.modParamsBounded_lock',
+    'ModalityInference.AlgorithmicContext.ModParamsBounded.mono',
+    'ModalityInference.AlgorithmicContext.ModParamsBounded.fresh',
+    'ModalityInference.UsageSplit.modParamsBounded',
+    'ModalityInference.splitContext_modParamsBounded',
+    'ModalityInference.Scheme.generalize_modParamsBounded',
+    'ModalityInference.generate_closed_modParamsBounded',
+    'ModalityInference.initialInferenceState_modParamsBounded',
+    'ModalityInference.GenerationScope.generated',
+    'ModalityInference.GenerationScope.source_scoped',
+    'ModalityInference.GenerationScope.lock_collision',
+    'ModalityInference.GenerationScope.not_hygienic',
+    'ModalityInference.GenerationScope.solved',
+    'ModalityInference.GenerationScope.compatible',
+    'ModalityInference.GenerationScope.environment',
+    'ModalityInference.GenerationScope.realizes',
+    'ModalityInference.GenerationScope.no_reusable_capture',
+    'ModalityInference.GenerationScope.not_typable',
+    'ModalityInference.GenerationScope.no_unrestricted_generation_sound',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -867,6 +897,8 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.GenerationContexts\n'
                     'import ModalityInference.Proofs.GenerationSupplies\n'
                     'import ModalityInference.Proofs.GenerationCorrespondence\n'
+                    'import ModalityInference.Proofs.GenerationHygiene\n'
+                    'import ModalityInference.Proofs.GenerationScope\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

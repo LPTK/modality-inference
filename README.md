@@ -22,7 +22,7 @@ solver correspondence/termination/completeness/principality, generation, elabora
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-770 public or established declarations transitively, including the complete
+800 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -395,6 +395,23 @@ entailment and consistency for each closed RHS solve. The original
 `generator_correspondence` statement is discharged without additional premises;
 declarative generation soundness and the inference typing conjunct remain open.
 
+`Proofs/GenerationScope` refutes the former unrestricted generation-soundness
+contract. A lambda lock named `μ₀` can occur below a scheme binding that also
+quantifies `μ₀`; lookup then instantiates the lock along with that quantifier.
+The checked witness satisfies all generated constraints but gives a reusable
+closure a captured unique credit as its result. The proved resource semantics
+rules out any declarative typing, even though the source context is well scoped.
+
+`GenerationHygiene` records the missing scope condition: every lambda lock is
+fresh for the quantifiers in the schemes below it, and recursive derivations obey
+the same condition. `generate_correspondence_hygienic` proves this property when
+those quantifiers lie below the allocation supply; `generate_initial_hygienic`
+proves it for every context using the existing inference initializer. Closed
+RHS generalization preserves the supply invariant. The executable algorithm and
+source language are unchanged. Deferred generation soundness and closed-definition
+generalization now require this scope evidence, and generation completeness must
+produce it. Full declarative generation soundness is still open.
+
 Evaluator correspondence, determinism, fuel stability, Boolean CNF reduction,
 and all-axis modality projection are also proved independently. Backend modality
 entailment agrees with `ModeModels`; a positive inequality report establishes
@@ -557,6 +574,7 @@ All paths below are relative to `ModalityInference/`.
 | §4 inference and elaboration | `Inference` | Executable prototype |
 | Generation and elaboration invariants | `Proofs/GenerationExecution` | Proved source erasure for generation and inference, and exact-prefix preservation of accumulated constraints; typing remains deferred |
 | Executable generator correspondence | `Proofs/GenerationCorrespondence` | Proved independent relational derivations for every constructor, including closed-definition solves, with constraints preserved up to permutation |
+| Generation lock scope | `GenerationHygiene`, `Proofs/GenerationHygiene`, `Proofs/GenerationScope` | Refuted unrestricted generation soundness; proved lock hygiene for every initialized executable generation, including nested closed definitions |
 | Generator allocation and support | `Proofs/SolverCounters`, `Proofs/GenerationInstantiation`, `Proofs/GenerationContexts`, `Proofs/GenerationSupplies` | Proved monotone counters and bounded/flexible support through fresh instantiation, lookup, splitting, locks, generation and closed-definition solves |
 | Executable normalization | `Proofs/Normalization` | Proved preservation of partial evaluation, ground realization, definedness and declarative entailment; simulated by abstract rewriting |
 | Local solver soundness | `Proofs/ReductionEntailment`, `Proofs/SolverLocalSoundness` | Proved backward declarative entailment of every local reduction and successful type/modality step, including outer normalization and alternative residual orientations |
@@ -645,6 +663,7 @@ corrections. The POPL reviews and response are in the enclosing paper repository
 | Case routing includes both branches, excluding binders | `branchUsage`: right branch alone uses the outer argument |
 | Reversed past projection in `ModSplit` | Unique-to-aliased succeeds; aliased-to-unique rejects |
 | Closure adjoint orientation | Exhaustive 64 comparisons; same-operator swap has a counterexample |
+| Generated locks stay outside scheme quantifiers | `GenerationScope`: a lock/quantifier collision gave a reusable closure a captured unique result; the scoped generation contract excludes it and the unchanged public initializer establishes the required invariant |
 | Definedness survives generation and later type substitution | `GenerationDefinedness`: former variable inference accepted an undefined function; an unconstrained lambda domain admitted a partial image; corrected guards reject both |
 | Partial residual side conditions survive rewrites | Both undefined residuals reject, including inside type-variable bounds |
 | Substitution updates residual bounds and previous images | `α = β; β = unit`; conflicting repeated assignments reject |
@@ -728,7 +747,7 @@ definedness obligations.
 | --- | --- | --- |
 | `Structural` | Closed term substitution | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup, instance-indexed context joins and locking are proved |
 | `Soundness` | None: corrected fundamental soundness, termination/no-stuck, live results, and ownership bound are proved | Complete typing induction in `ResourceSoundness`, with resource semantics independent of capture metadata |
-| `Algorithms` | Scheduled termination, worklist correspondence, solve completeness, principal factorization, generation soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, scheme-subsumption soundness/completeness | Full executable solver soundness, generator correspondence, local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include worklist simulation/termination, representative-search completeness, rigid entailment and subsumption witness reconstruction |
+| `Algorithms` | Scheduled termination, worklist correspondence, solve completeness, principal factorization, generation soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, scheme-subsumption soundness/completeness | Full executable solver soundness, generator correspondence and initialized lock hygiene, local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include worklist simulation/termination, representative-search completeness, rigid entailment and subsumption witness reconstruction |
 
 Completeness statements require a sufficiently large fuel budget. Rewrite
 expansion requires distinct flexible variables fresh for the complete original

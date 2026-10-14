@@ -61,6 +61,8 @@ import ModalityInference.Proofs.GenerationInstantiation
 import ModalityInference.Proofs.GenerationContexts
 import ModalityInference.Proofs.GenerationSupplies
 import ModalityInference.Proofs.GenerationCorrespondence
+import ModalityInference.Proofs.GenerationHygiene
+import ModalityInference.Proofs.GenerationScope
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

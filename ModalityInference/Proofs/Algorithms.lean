@@ -95,23 +95,28 @@ theorem generator_correspondence {fuel Γ t s r}
   generate_correspondence h
 
 /-- DEFERRED. Prerequisites: generation rule induction, context splitting/locking,
-substitution, and generalization under the empty term context. Generation now
-emits guards for lookup, lambda domains/modes and unused sum branches;
-`Generates.definedUnder` proves result definedness under every solution. -/
+substitution, and generalization under the empty term context. `GenerationScope`
+refutes the unrestricted statement: a lock can be captured by a scheme quantifier.
+Hygiene keeps locks outside those quantifiers; `generate_initial_hygienic` proves
+it for actual generation from every initialized context. Definedness guards and
+`Generates.definedUnder` remain necessary under partial substitutions. -/
 theorem generation_sound {Γ : Context} {t a cs Δ σ}
-    (h : Generates (Γ.map ContextEntry.binding) t a cs) (hs : Solution cs Δ σ) :
+    (h : Generates (Γ.map ContextEntry.binding) t a cs) (hh : h.Hygienic)
+    (hs : Solution cs Δ σ) :
     RawTyping Δ (Γ.subst σ) t (σ.ty a) := by sorry
 
 /-- DEFERRED. Prerequisites: declarative inversion, fresh instantiation and
-constraint principality. Generates is independent of the executable functions. -/
+constraint principality. Completeness must produce a hygienic derivation;
+both generation judgments are independent of the executable functions. -/
 theorem generation_complete {Δ Γ t a} (h : RawTyping Δ Γ t a) :
-    ∃ b cs σ, Generates (Γ.map ContextEntry.binding) t b cs ∧
-      Solution cs Δ σ ∧ Subtype Δ (σ.ty b) a := by sorry
+    ∃ b cs σ, ∃ hg : Generates (Γ.map ContextEntry.binding) t b cs,
+      hg.Hygienic ∧ Solution cs Δ σ ∧ Subtype Δ (σ.ty b) a := by sorry
 
 /-- DEFERRED. Prerequisites: closed term environment, solve consistency and
-substitution, universal introduction over *all* remaining free variables. -/
+substitution, universal introduction over *all* remaining free variables.
+The RHS derivation obeys the same lock-scope condition as generation soundness. -/
 theorem closed_definition_generalization {rhs a cs residual σ}
-    (hg : Generates [] rhs a cs) (hc : rhs.freeVars = ∅)
+    (hg : Generates [] rhs a cs) (hh : hg.Hygienic) (hc : rhs.freeVars = ∅)
     (hs : Solves cs residual σ) :
     ∀ θ, Instantiates (Scheme.generalize residual (σ.ty a)) θ →
       EntailsAll [] (θ.bounds residual) → RawTyping [] [] rhs (θ.ty (σ.ty a)) := by sorry

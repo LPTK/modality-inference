@@ -5,6 +5,7 @@ import ModalityInference.Evaluation
 import ModalityInference.Semantics
 import ModalityInference.ResourceSemantics
 import ModalityInference.Generation
+import ModalityInference.GenerationHygiene
 import ModalityInference.Rewriting
 import ModalityInference.Inference
 import ModalityInference.SchemeSubsumption
