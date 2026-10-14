@@ -83,6 +83,7 @@ import ModalityInference.Proofs.NestedLockRefinement
 import ModalityInference.Proofs.RefinedSharing
 import ModalityInference.Proofs.RefinedContexts
 import ModalityInference.Proofs.RefinedLocks
+import ModalityInference.Proofs.SubstitutedContexts
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

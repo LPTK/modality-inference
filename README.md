@@ -40,7 +40,7 @@ prerequisites and counterexamples remain available. Neither the semantic
 entry point nor its dependencies import those worklists. The public library and
 executables also remain independent of them. The original generic solver is
 unchanged. The full-project audit continues to check
-1101 public or established declarations transitively, including the complete
+1114 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -598,6 +598,13 @@ generation derivation, a well-formed solution of its exact constraints, and the
 returned result type. This closes the executable plumbing for unannotated
 `inference_sound`; proving `generation_sound` remains necessary. The new bridge
 is independently included in the transitive axiom audit.
+
+`SubstitutedContexts` proves that sharing commutes with capture-avoiding
+substitution and usage splits preserve substitution and lock scope. Lookup
+instances retain their exact type and entailed bounds through substituted locks
+when both source and target locks avoid quantified parameters. The corresponding
+variable typing step in refined contexts is proved. Choosing globally fresh
+quantifiers and assembling the full generation induction remain open.
 
 ## Build and run
 
