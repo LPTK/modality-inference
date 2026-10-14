@@ -25,22 +25,27 @@ and `Quot.sound`. CI builds and audits this target independently. The historical
 
 **Inference soundness is proved.** Hygienic generation, closed-definition
 generalization, and unannotated executable inference soundness now have no admitted
-dependencies. Initialized constraint solving terminates on every input. Three direct
-admissions remain for solver completeness, generation completeness, and inference
-completeness. The inference target matches the paper's unannotated terms, with proof
+dependencies. Initialized constraint solving terminates on every input, accepts
+all satisfiable flexible inputs, and preserves every original ground solution
+through the returned substitution and residual bounds. One direct admission remains
+for closed inference completeness. The unused unrestricted generation-completeness
+statement was false; `GenerationCompletenessDomain` preserves its counterexample.
+The inference target matches the paper's unannotated terms, with proof
 annotations hidden existentially by `RawTyping`. The old assertion about the
 executable's specific capture metadata remains refuted by `SharingLockCapture`.
 `Proofs/Obligations` preserves closed-term substitution, abstract solver
 correspondence, principal factorization, and both scheme-subsumption checker
-contracts as **unproved proposition definitions**, with no admissions. Principality
-remains required for the paper's stronger completeness-and-principality claim;
-eventual inference success alone is insufficient. The other contracts remain
+contracts as **unproved proposition definitions**, with no admissions. The paper's
+solver ground-principality claim is proved by `solve_ground_principal`; symbolic
+factorization under arbitrary residual assumptions remains a stronger separate
+contract. Eventual inference success alone is insufficient for inference principality.
+The other contracts remain
 available as supporting or separate verification tasks. Their established
 prerequisites and counterexamples remain available. Neither the semantic
 entry point nor its dependencies import those worklists. The public library and
 executables also remain independent of them. The original generic solver is
 unchanged. The full-project audit continues to check
-1226 public or established declarations transitively, including the complete
+1279 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -115,8 +120,8 @@ substitution images and observations. Together, these prove the complete
 equivalence, discharge, reduction, recording, hypotheses, both expansions,
 substitution, propagation, and permutation. Every original observed solution is
 preserved, with fresh auxiliaries hidden existentially. Executable correspondence
-and completeness/principality remain separate obligations; initialized solver
-termination is proved independently.
+remains separate; initialized solver termination, completeness and ground
+principality are proved independently.
 
 `Proofs/Normalization` proves that executable modality normalization preserves
 partial evaluation exactly, and type normalization preserves ground realization.
@@ -144,8 +149,8 @@ normalization preserves type-variable support. `Proofs/SolverResidual` proves
 preservation of the residual grammar. Consequently, successful `solve` and
 `solveFrom` calls return an acyclic substitution and residual-form bounds. These
 two conjuncts of `solve_sound` are proved independently; `SolverSoundness` now
-proves its solution-entailment conjunct as well. Completeness and principality
-remain open. Residual consistency is
+proves its solution-entailment conjunct as well. `SolverCompleteness` proves
+completeness and ground principality. Residual consistency is
 proved below, including its finite closed-instantiation contract.
 
 `Proofs/ModeSearch` proves that successful Boolean search returns an assignment
@@ -281,7 +286,8 @@ constraint under the returned substitution and residual bounds.
 `solveFrom_solution` requires bounded initial supplies; `solve_solution` requires
 only successful execution. The original `Deferred.solve_sound` theorem is now
 fully proved: solution entailment, residual grammar, and acyclicity. Abstract
-rewrite correspondence, completeness and principality remain open.
+rewrite correspondence remains open; completeness and ground principality are
+proved directly for the executable.
 
 ## Corrections and retained witnesses
 
@@ -299,8 +305,8 @@ every ambient context; `record_groundModels` proves equality of their ground
 model sets. The discarded transitive work adds no information. The corrected
 solver succeeds on the witness for every fuel budget at least 100. Regressions
 compare all eight models in 64 constant-pair variants and check the reversed
-input order. Full initialized worklist termination is now proved; completeness
-still requires forward solution preservation.
+input order. Full initialized termination and forward solution preservation now
+prove completeness for all satisfiable flexible inputs.
 
 `Proofs/PrincipalAmbient` refutes the former unrestricted ambient principality
 statement. Solving `(α × unit) ≤ (unit × unit)` gives `α` a modal-unit image.
@@ -310,7 +316,7 @@ is flexible and finitely satisfiable; inconsistent assumptions are not the cause
 The former proposition is archived and its negation proved. The retained
 `Obligations.PrincipalFactorization` statement requires `Residual Δ`, matching the paper's
 grammar of variable-to-variable type bounds. Its equivalence-based conclusion
-and the paper's ground principality claim are unchanged and remain unproved.
+remains a separate obligation; the paper's ground principality claim is now proved.
 
 `Proofs/ModeCycle` records an unsatisfiable modality set formerly accepted by the
 worklist. With `a = absorbing`, `b = μ ∘ bottom`, and `c = μ ∘ many`, the
@@ -336,7 +342,8 @@ corrected solver succeeds on the witness for every fuel budget at least 12.
 Structural recursive types still fail the finite-shape precheck, and undefined
 modalities still fail their retained guards. Regressions cover all eight concrete
 modes, undefined modal equality and wrapped structural recursion. This removes
-a counterexample to solver completeness; the general theorem remains open.
+a counterexample to solver completeness; the corrected general theorem is proved
+in `SolverCompleteness`.
 
 The worklist entry validates its accumulated substitution with
 `Substitution.checkAcyclic`; `checkAcyclic_iff` proves that the executable check
@@ -388,6 +395,26 @@ model whenever the precheck succeeds. `Proofs/SolverTermination` concludes that
 ones. It also covers fresh, unbound saved worklist states. The unused admission
 about completely arbitrary hand-constructed states has been removed; no caller
 used it, and the proved result covers initialized execution directly.
+
+`Proofs/SolverGround` preserves every original ground solution through the
+executable worklist, observing any identifiers below the initial fresh supplies.
+`ModeGround` handles partial residuals, `TypeGround` excludes modeled type-step
+rejection, and `GroundFresh` realizes expansion with an assignment agreeing on
+all previously allocated identifiers. Equality elimination composes the saved
+substitution and preserves observations up to mutual ground subtyping.
+`Proofs/SolverCompleteness` combines this invariant with termination and finite
+mode search: `solve_complete` accepts every satisfiable flexible input;
+`solve_ground_principal` factors every original ground solution through every
+successful result. `GroundPrincipality` reifies that residual model as a finite
+closed substitution with well-formed images.
+
+`Proofs/GenerationEventualFuel` proves stability of successful Boolean search,
+solver, generator and inference results under increasing budgets.
+`GenerationCompletenessDomain` refutes the discarded unrestricted relational
+generation-completeness statement: an ambient subtype assumption can make an
+undefined binding usable through subsumption, but generated definedness guards
+cannot be solved. The remaining closed-input inference target has no such
+ambient assumption; its semantic-to-executable generation bridge remains open.
 
 
 `GroundInstantiates` fixes every identifier outside the quantified domain,
@@ -465,7 +492,7 @@ those quantifiers lie below the allocation supply; `generate_initial_hygienic`
 proves it for every context using the existing inference initializer. Closed
 RHS generalization preserves the supply invariant. The executable algorithm and
 source language are unchanged. Deferred generation soundness and closed-definition
-generalization now require this scope evidence, and generation completeness must
+generalization now require this scope evidence, and valid generation completeness must
 produce it. Full declarative generation soundness is now proved.
 
 `Proofs/SchemeInstantiation` supplies the syntactic instance-transport step.
@@ -849,6 +876,7 @@ All paths below are relative to `ModalityInference/`.
 | Entailment under later substitutions | `Proofs/EntailmentTransport`, `Proofs/SolverTransport` | Proved context and type-only substitution transport with explicit image-definedness premises, including cached consequences, local steps and normalization |
 | Accumulated image definedness | `Proofs/SolverStepEntailment`, `Proofs/SolverImages` | Proved backward entailment for steps preserving the substitution and image definedness through all steps/runs; every returned type image is defined under the returned residual bounds |
 | Full executable solver soundness | `Proofs/SolverExtension`, `Proofs/SolverSoundness` | Proved preservation of eliminated equations through later substitutions and complete backward reconstruction of original input constraints; all conjuncts of `Deferred.solve_sound` are admission-free |
+| Executable solver completeness and ground principality | `Proofs/SolverGround`, `Proofs/GroundPrincipality`, `Proofs/SolverCompleteness` | Proved eventual acceptance of every satisfiable flexible input and finite residual factorization of every original ground solution through every successful result |
 | Saved-substitution shape checking | `Proofs/ShapeEntry`, `Proofs/SolverEntry` | Proved a cyclic-shape witness with an acyclic saved substitution, rejection at every fuel at least two after applying that substitution, and unchanged empty-substitution behavior; initialized solver termination is now proved |
 | Ambient principality assumptions | `Proofs/PrincipalAmbient` | Refuted unrestricted whole-type assumptions using a finitely satisfiable witness; the deferred theorem now requires the paper's residual-bound grammar |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
@@ -948,7 +976,7 @@ They exercise every term constructor and both sum branches.
 
 ## Remaining inference obligations
 
-Each of the three remaining directly admitted theorems has a prerequisite comment immediately above it.
+The remaining directly admitted inference-completeness theorem has a prerequisite comment immediately above it.
 The former annotation-dependent fundamental claim remains separately recorded
 as a refuted proposition. Its corrected resource formulation and corollaries are
 proved for the whole core. Five further contracts are preserved as proposition
@@ -1026,9 +1054,9 @@ definedness obligations.
 | Proof module | Obligations | Prerequisites/dependencies |
 | --- | --- | --- |
 | `Structural` | None; the unused admitted closed-term-substitution statement was removed | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup, instance-indexed context joins and locking are proved |
-| `Obligations` | Unproved proposition definitions for principal factorization, solver correspondence, scheme-checker soundness/completeness, and optional closed-term substitution; no admissions | Preserves the removed contracts and their side conditions. Principality still needs a proof; merely defining its proposition does not establish the paper's claim |
+| `Obligations` | Unproved proposition definitions for principal factorization, solver correspondence, scheme-checker soundness/completeness, and optional closed-term substitution; no admissions | Preserves the removed contracts and their side conditions. Symbolic factorization remains open; the paper's ground solver factorization is proved separately in `SolverCompleteness` |
 | `Soundness` | None: corrected fundamental soundness, termination/no-stuck, live results, and ownership bound are proved | Complete typing induction in `ResourceSoundness`; independently built and audited without either deferred worklist |
-| `Algorithms` | Solve completeness, generation completeness and inference completeness; generation soundness, closed-definition generalization and unannotated inference soundness are proved | Full executable solver soundness, generator correspondence and initialized lock hygiene, local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include forward worklist solution preservation, representative-search completeness, rigid entailment and subsumption witness reconstruction |
+| `Algorithms` | Closed inference completeness; solver completeness, generation soundness, closed-definition generalization and unannotated inference soundness are proved | Solver ground factorization, generator correspondence, initialized lock hygiene and fuel stability are proved. The remaining main prerequisite is a ground semantic-to-executable generation construction, including closed definitions |
 
 Completeness statements require a sufficiently large fuel budget. Rewrite
 expansion requires distinct flexible variables fresh for the complete original

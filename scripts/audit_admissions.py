@@ -72,6 +72,59 @@ for path in paths:
             assert not re.search(r'^import\s+ModalityInference\.Proofs', code, re.M), path
 
 constants = [
+    'ModalityInference.SolverGround.Models.emit',
+    'ModalityInference.SolverGround.Models.retain',
+    'ModalityInference.SolverGround.mode_guards',
+    'ModalityInference.SolverGround.stepMode_models',
+    'ModalityInference.SolverGround.eval_closed',
+    'ModalityInference.SolverGround.constant_mode_check',
+    'ModalityInference.SolverGround.stepMode_succeeds',
+    'ModalityInference.TypeExpr.shapeUnder_structural_occurs_lt',
+    'ModalityInference.SolverShape.stepType_succeeds',
+    'ModalityInference.TypeExpr.outer_normalize_realize',
+    'ModalityInference.SolverGround.AgreesBelow.refl',
+    'ModalityInference.SolverGround.AgreesBelow.satisfies',
+    'ModalityInference.SolverGround.AgreesBelow.models',
+    'ModalityInference.SolverGround.skeleton_agreesBelow',
+    'ModalityInference.SolverGround.expansion_models',
+    'ModalityInference.SolverGround.type_mode_guards',
+    'ModalityInference.SolverGround.stepType_models',
+    'ModalityInference.Deferred.ConfigModels.initial',
+    'ModalityInference.Deferred.ConfigModels.factorization',
+    'ModalityInference.GroundAssignment.finiteSubstitution_realize',
+    'ModalityInference.GroundAssignment.finiteSubstitution_closed',
+    'ModalityInference.GroundAssignment.finiteSubstitution_subtype',
+    'ModalityInference.GroundAssignment.finiteSubstitution_eval',
+    'ModalityInference.GroundAssignment.finiteSubstitution_wellFormed',
+    'ModalityInference.GroundAssignment.finiteSubstitution_solution',
+    'ModalityInference.GroundFactorization.finite',
+    'ModalityInference.SolverGround.AgreesBelow.realize',
+    'ModalityInference.SolverGround.AgreesBelow.eval',
+    'ModalityInference.SolverGround.stepType_configModels',
+    'ModalityInference.SolverGround.stepMode_configModels',
+    'ModalityInference.SolverGround.solverStep_complete',
+    'ModalityInference.SolverGround.runWorklist_complete',
+    'ModalityInference.SolverGround.runSolver_complete',
+    'ModalityInference.SolverGround.runSolver_eventual_complete',
+    'ModalityInference.solveFrom_complete',
+    'ModalityInference.solve_complete',
+    'ModalityInference.solveFrom_ground_factorization',
+    'ModalityInference.solve_ground_principal',
+    'ModalityInference.GenerationCompletenessDomain.source_subsumes',
+    'ModalityInference.GenerationCompletenessDomain.typed',
+    'ModalityInference.GenerationCompletenessDomain.no_generated_solution',
+    'ModalityInference.GenerationCompletenessDomain.no_unrestricted_generation_completeness',
+    'ModalityInference.cnfOr_monotone',
+    'ModalityInference.toCNF_monotone',
+    'ModalityInference.searchCNF_stable',
+    'ModalityInference.satisfiableModes_monotone',
+    'ModalityInference.checkShapePairs_stable',
+    'ModalityInference.runWorklist_stable',
+    'ModalityInference.runSolver_monotone',
+    'ModalityInference.solveFrom_monotone',
+    'ModalityInference.generate_monotone',
+    'ModalityInference.infer_monotone',
+    'ModalityInference.Deferred.solve_complete',
     'ModalityInference.TypeExpr.shapeUnder_outer',
     'ModalityInference.TypeExpr.shapeUnder_normalize',
     'ModalityInference.TypeExpr.shapeUnder_congr',
@@ -1369,6 +1422,9 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.WorklistOrder\n'
                     'import ModalityInference.Proofs.ModeWorklist\n'
                     'import ModalityInference.Proofs.SolverTermination\n'
+                    'import ModalityInference.Proofs.SolverCompleteness\n'
+                    'import ModalityInference.Proofs.GenerationCompletenessDomain\n'
+                    'import ModalityInference.Proofs.GenerationEventualFuel\n'
                     'import ModalityInference.Proofs.BoundedSupport\n'
                     'import ModalityInference.Proofs.SolverFresh\n'
                     'import ModalityInference.Proofs.TypeOrientation\n'

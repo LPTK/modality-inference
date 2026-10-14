@@ -12,6 +12,7 @@ import ModalityInference.Proofs.GenerationCorrespondence
 import ModalityInference.Proofs.GeneralizationTransport
 import ModalityInference.Proofs.InferenceDerivation
 import ModalityInference.Proofs.GenerationSoundness
+import ModalityInference.Proofs.SolverCompleteness
 
 namespace ModalityInference.Deferred
 
@@ -46,14 +47,14 @@ theorem solve_consistency {fuel cs result} (hf : FlexibleBounds cs)
     (h : solve fuel cs = .success result) : BoundsSatisfiable result.bounds :=
   solveFrom_consistency (cs.flexible_iff.mpr hf) h
 
-/-- DEFERRED. Prerequisite: forward preservation of ground solutions by the
-executable worklist. Initialized solver termination is proved in `SolverTermination`,
-and mode search completeness is proved independently. `ModalEquality` records the former modal
-self-equality counterexample and the corrected reduction. `ModePropagation`
-records a satisfiable input on which former transitive work exhausted every budget.
-A sufficiently large budget is essential for the corrected solver. -/
+/-- Every satisfiable flexible input is accepted with sufficiently large fuel.
+Ground solutions survive fresh expansion, equality elimination and all ordinary
+worklist steps; initialized termination and modality-search completeness finish
+the executable proof. `solve_ground_principal` additionally establishes the
+paper's ground factorization property for every successful result. -/
 theorem solve_complete {cs} (hf : FlexibleBounds cs) (hs : BoundsSatisfiable cs) :
-    ∃ n, ∀ fuel ≥ n, ∃ result, solve fuel cs = .success result := by sorry
+    ∃ n, ∀ fuel ≥ n, ∃ result, solve fuel cs = .success result :=
+  ModalityInference.solve_complete (cs.flexible_iff.mpr hf) hs
 
 /-- Proved for every constructor, including fresh instantiation, lazy locks,
 context usage routing and closed-definition solves. Bounded and flexible support
@@ -73,13 +74,6 @@ theorem generation_sound {Γ : Context} {t a cs Δ σ}
     (h : Generates (Γ.map ContextEntry.binding) t a cs) (hh : h.Hygienic)
     (hs : Solution cs Δ σ) (hσ : σ.WellFormedUnder Δ) :
     RawTyping Δ (Γ.subst σ) t (σ.ty a) := h.sound hh hs hσ
-
-/-- DEFERRED. Prerequisites: declarative inversion, fresh instantiation and
-constraint principality. Completeness must produce a hygienic derivation;
-both generation judgments are independent of the executable functions. -/
-theorem generation_complete {Δ Γ t a} (h : RawTyping Δ Γ t a) :
-    ∃ b cs σ, ∃ hg : Generates (Γ.map ContextEntry.binding) t b cs,
-      hg.Hygienic ∧ Solution cs Δ σ ∧ σ.WellFormedUnder Δ ∧ Subtype Δ (σ.ty b) a := by sorry
 
 /-- Generalization follows from generation soundness and transport of solved
 constraints through every well-formed generalized instance, without admissions.

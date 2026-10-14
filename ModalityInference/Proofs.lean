@@ -93,6 +93,9 @@ import ModalityInference.Proofs.FreshenedContexts
 import ModalityInference.Proofs.GeneralizedSubstitution
 import ModalityInference.Proofs.RefinedReuse
 import ModalityInference.Proofs.GenerationSoundness
+import ModalityInference.Proofs.SolverCompleteness
+import ModalityInference.Proofs.GenerationCompletenessDomain
+import ModalityInference.Proofs.GenerationEventualFuel
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
