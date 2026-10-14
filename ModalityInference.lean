@@ -16,6 +16,9 @@ import ModalityInference.Rewriting
 import ModalityInference.Inference
 import ModalityInference.SchemeSubsumption
 import ModalityInference.SchemePreparation
+import ModalityInference.ComparisonTypes
+import ModalityInference.ComparisonInterpolation
+import ModalityInference.ComparisonPreparation
 
 /-! Public library: definitions and executables only. Deferred proofs are opt-in
 via `ModalityInference.Proofs`; the original solver remains independently importable. -/

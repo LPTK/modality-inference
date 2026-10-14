@@ -84,6 +84,15 @@ source obligations, a separate body comparison, and expanded target assumptions.
 These APIs do not return a subsumption decision and are not used by
 `checkSubsumption`.
 
+`CompareTy` is a separate finite witness language with binary joins and meets.
+`CompareSubsumes` uses it for comparison instantiations; public `Ty` and `Scheme`
+remain join-free. The original subtype and scheme relations embed into the new
+relation. `ComparisonInterpolation.witness` reconstructs an isolated variable
+from its lower or upper endpoints, with an exact crossed-bound criterion and
+preservation of written guards. It does not yet handle structural or modalized
+occurrences. The source typing and semantic theorems still use the original
+scheme relation.
+
 ## Constraint solving
 
 `solve` first runs the deterministic structural worklist in `Constraints`.
@@ -206,10 +215,13 @@ construct legal type and modality images satisfying the original scheme goals.
 `SchemePreparation.reconstruct_sound` proves the final bridge once supplied an
 action that fixes the original identifiers and solves the prepared guarded bounds
 and unguarded body comparison. It does not supply the action itself.
-`Proofs/SchemeReconstruction` proves that all crossed rigid consequences and
-projected coordinate witnesses may exist without any type realizing the required
-intermediate bounds. Suspended type constraints would preserve that remaining
-problem, but would not constitute successful subsumption checking.
+The comparison witness for crossed rigid bounds can use an internal join;
+`ComparisonInterpolation.exists_interval_iff` proves exact reconstruction for
+isolated lower/upper bounds. Global reduction must also handle structural cycles
+and modalized occurrences without assuming constructor or modality distribution
+laws absent from `CompareSubtype`. Returning unresolved constraints is a reduction
+API, not a successful comparison decision. The semantic relationship of extended
+comparison to the core's ordinary scheme instances is also a separate obligation.
 
 The current checker can also instantiate unquantified flexible identifiers,
 omits expansion of target assumptions, and requires body definedness beyond

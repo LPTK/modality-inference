@@ -109,6 +109,9 @@ import ModalityInference.Proofs.SchemePreparation
 import ModalityInference.Proofs.SchemePreparedScope
 import ModalityInference.Proofs.SchemeReconstruction
 import ModalityInference.Proofs.SchemeReconstructionClosed
+import ModalityInference.Proofs.ComparisonTypes
+import ModalityInference.Proofs.ComparisonInterpolation
+import ModalityInference.Proofs.ComparisonPreparation
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

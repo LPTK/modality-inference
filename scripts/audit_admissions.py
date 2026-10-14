@@ -1763,6 +1763,46 @@ constants += [
     'ModalityInference.SchemeReconstructionClosed.no_shape_interpolant',
     'ModalityInference.SchemeReconstructionClosed.closed_no_subsumes',
     'ModalityInference.SchemeReconstructionClosed.closed_domains',
+    'ModalityInference.CompareTy.wellFormedBounds_ofTy',
+    'ModalityInference.Subtype.to_compare',
+    'ModalityInference.CompareTy.definedUnder_ofTy',
+    'ModalityInference.Entails.to_compare',
+    'ModalityInference.CompareSubstitution.ofSubstitution_type',
+    'ModalityInference.CompareSubstitution.ofSubstitution_mode',
+    'ModalityInference.CompareSubstitution.ofSubstitution_ty',
+    'ModalityInference.CompareSubstitution.ofSubstitution_constraint',
+    'ModalityInference.CompareSubstitution.ofSubstitution_bounds',
+    'ModalityInference.Instantiates.to_compare',
+    'ModalityInference.EntailsAll.to_compare',
+    'ModalityInference.Subsumes.to_compare',
+    'ModalityInference.CompareSubtype.join_interpolant',
+    'ModalityInference.CompareSubsumes.bowtie',
+    'ModalityInference.ComparisonInterpolation.join_subtype_iff',
+    'ModalityInference.ComparisonInterpolation.subtype_meet_iff',
+    'ModalityInference.ComparisonInterpolation.witness_interval',
+    'ModalityInference.ComparisonInterpolation.Interval.crossed',
+    'ModalityInference.ComparisonInterpolation.witness_interval_iff',
+    'ModalityInference.ComparisonInterpolation.exists_interval_iff',
+    'ModalityInference.ComparisonInterpolation.join_defined_iff',
+    'ModalityInference.ComparisonInterpolation.meet_defined_iff',
+    'ModalityInference.ComparisonInterpolation.witness_defined',
+    'ModalityInference.ComparisonInterpolation.guarded_witness',
+    'ModalityInference.ComparisonInterpolation.eliminate_spec',
+    'ModalityInference.ComparisonInterpolation.GuardedInterval.eliminate',
+    'ModalityInference.ComparisonInterpolation.eliminate_witness',
+    'ModalityInference.ComparisonInterpolation.eliminate_iff',
+    'ModalityInference.ComparisonInterpolation.exists_guarded_interval_iff',
+    'ModalityInference.ComparisonInterpolation.join_support_iff',
+    'ModalityInference.ComparisonInterpolation.meet_support_iff',
+    'ModalityInference.ComparisonInterpolation.witness_support',
+    'ModalityInference.ComparisonPreparation.reconstruct_type',
+    'ModalityInference.ComparisonPreparation.reconstruct_mode',
+    'ModalityInference.ComparisonPreparation.reconstruct_modeExpr',
+    'ModalityInference.ComparisonPreparation.reconstruct_ty',
+    'ModalityInference.ComparisonPreparation.reconstruct_constraint',
+    'ModalityInference.ComparisonPreparation.reconstruct_bounds',
+    'ModalityInference.ComparisonPreparation.reconstruct_instantiates',
+    'ModalityInference.ComparisonPreparation.reconstruct_sound',
 ]
 if args.semantic:
     constants = [
@@ -1811,6 +1851,9 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SchemePreparedScope\n'
                     'import ModalityInference.Proofs.SchemeReconstruction\n'
                     'import ModalityInference.Proofs.SchemeReconstructionClosed\n'
+                    'import ModalityInference.Proofs.ComparisonTypes\n'
+                    'import ModalityInference.Proofs.ComparisonInterpolation\n'
+                    'import ModalityInference.Proofs.ComparisonPreparation\n'
                     'import ModalityInference.Proofs.PolarizedConstraints\n'
                     'import ModalityInference.Proofs.PropagationSchedule\n'
                     'import ModalityInference.Proofs.ModeConsistency\n'
