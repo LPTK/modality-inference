@@ -72,6 +72,44 @@ for path in paths:
             assert not re.search(r'^import\s+ModalityInference\.Proofs', code, re.M), path
 
 constants = [
+    'ModalityInference.TypeExpr.shapeUnder_outer',
+    'ModalityInference.TypeExpr.shapeUnder_normalize',
+    'ModalityInference.TypeExpr.shapeUnder_congr',
+    'ModalityInference.TypeExpr.shapeUnder_singleType',
+    'ModalityInference.SolverShape.mass_congr',
+    'ModalityInference.SolverShape.mass_eliminate',
+    'ModalityInference.SolverShape.expand_below',
+    'ModalityInference.SolverShape.expand_type',
+    'ModalityInference.SolverShape.expand_skeleton',
+    'ModalityInference.SolverShape.mass_expansion',
+    'ModalityInference.SolverShape.satisfies_normalize',
+    'ModalityInference.SolverShape.models_cons',
+    'ModalityInference.SolverShape.models_append',
+    'ModalityInference.SolverShape.satisfies_singleType',
+    'ModalityInference.SolverShape.models_singleType',
+    'ModalityInference.SolverShape.satisfies_expand',
+    'ModalityInference.SolverShape.models_expand',
+    'ModalityInference.SolverShape.models_wellFormedBounds',
+    'ModalityInference.SolverShape.StateModels.emit',
+    'ModalityInference.SolverShape.StateModels.retain',
+    'ModalityInference.SolverShape.stepMode_models',
+    'ModalityInference.SolverShape.expansion_progress',
+    'ModalityInference.SolverShape.models_of_ground',
+    'ModalityInference.SolverShape.stepType_progress',
+    'ModalityInference.SolverShape.stepMode_weight',
+    'ModalityInference.SolverShape.descends_weight',
+    'ModalityInference.SolverShape.descends_pending',
+    'ModalityInference.SolverShape.solverStep_progress',
+    'ModalityInference.SolverShape.descends_wellFounded',
+    'ModalityInference.SolverShape.eventually_of_step',
+    'ModalityInference.SolverShape.runWorklist_eventually',
+    'ModalityInference.SolverShape.pairModels_cons',
+    'ModalityInference.SolverShape.pairModels_replace',
+    'ModalityInference.SolverShape.checkShapePairs_model',
+    'ModalityInference.SolverShape.checkShapes_model',
+    'ModalityInference.runSolver_eventually',
+    'ModalityInference.solveFrom_terminates',
+    'ModalityInference.solve_terminates',
     'ModalityInference.WorklistOrder.rank_type',
     'ModalityInference.WorklistOrder.rank_mode',
     'ModalityInference.WorklistOrder.wellFounded',
@@ -1330,6 +1368,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ShapeCompleteness\n'
                     'import ModalityInference.Proofs.WorklistOrder\n'
                     'import ModalityInference.Proofs.ModeWorklist\n'
+                    'import ModalityInference.Proofs.SolverTermination\n'
                     'import ModalityInference.Proofs.BoundedSupport\n'
                     'import ModalityInference.Proofs.SolverFresh\n'
                     'import ModalityInference.Proofs.TypeOrientation\n'

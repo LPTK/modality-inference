@@ -25,8 +25,9 @@ and `Quot.sound`. CI builds and audits this target independently. The historical
 
 **Inference soundness is proved.** Hygienic generation, closed-definition
 generalization, and unannotated executable inference soundness now have no admitted
-dependencies. Four direct admissions remain for solver termination and completeness,
-generation completeness, and inference completeness. The inference target matches the paper's unannotated terms, with proof
+dependencies. Initialized constraint solving terminates on every input. Three direct
+admissions remain for solver completeness, generation completeness, and inference
+completeness. The inference target matches the paper's unannotated terms, with proof
 annotations hidden existentially by `RawTyping`. The old assertion about the
 executable's specific capture metadata remains refuted by `SharingLockCapture`.
 `Proofs/Obligations` preserves closed-term substitution, abstract solver
@@ -39,7 +40,7 @@ prerequisites and counterexamples remain available. Neither the semantic
 entry point nor its dependencies import those worklists. The public library and
 executables also remain independent of them. The original generic solver is
 unchanged. The full-project audit continues to check
-1188 public or established declarations transitively, including the complete
+1226 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -87,7 +88,8 @@ These results are in `Proofs/ResourceSubtyping`, `ResourceSubsumption`,
 `ResourceContexts`, `ResourceClosure`, `ResourceApplication`, `ResourceProducts`,
 `ResourceReuse`, `ResourceRegions`, `ResourceEliminations`, and `ResourceDefinitions`.
 The full induction uses these proved steps without assuming its own conclusion.
-The separate algorithmic generalization theorem is still open.
+Algorithmic closed-definition generalization is also proved, using hygienic
+generation soundness and well-formed generalized instances.
 
 ## Proved local constraint rewriting
 
@@ -112,8 +114,9 @@ substitution images and observations. Together, these prove the complete
 `rewrite_solution_preservation` theorem for every abstract rewrite constructor:
 equivalence, discharge, reduction, recording, hypotheses, both expansions,
 substitution, propagation, and permutation. Every original observed solution is
-preserved, with fresh auxiliaries hidden existentially. Executable correspondence,
-termination, and the solver/inference results remain separate obligations.
+preserved, with fresh auxiliaries hidden existentially. Executable correspondence
+and completeness/principality remain separate obligations; initialized solver
+termination is proved independently.
 
 `Proofs/Normalization` proves that executable modality normalization preserves
 partial evaluation exactly, and type normalization preserves ground realization.
@@ -278,7 +281,7 @@ constraint under the returned substitution and residual bounds.
 `solveFrom_solution` requires bounded initial supplies; `solve_solution` requires
 only successful execution. The original `Deferred.solve_sound` theorem is now
 fully proved: solution entailment, residual grammar, and acyclicity. Abstract
-rewrite correspondence, termination, completeness and principality remain open.
+rewrite correspondence, completeness and principality remain open.
 
 ## Corrections and retained witnesses
 
@@ -296,7 +299,8 @@ every ambient context; `record_groundModels` proves equality of their ground
 model sets. The discarded transitive work adds no information. The corrected
 solver succeeds on the witness for every fuel budget at least 100. Regressions
 compare all eight models in 64 constant-pair variants and check the reversed
-input order. Full worklist termination and completeness still require proofs.
+input order. Full initialized worklist termination is now proved; completeness
+still requires forward solution preservation.
 
 `Proofs/PrincipalAmbient` refutes the former unrestricted ambient principality
 statement. Solving `(α × unit) ≤ (unit × unit)` gives `α` a modal-unit image.
@@ -342,7 +346,8 @@ records a supplied state with `α₀ ↦ α₀ → unit`: the former precheck su
 the former entry exhausts twenty steps; the corrected entry rejects it at every
 fuel budget. Empty-substitution behavior is proved unchanged for every fuel
 budget, covering the entry states used by inference. These are finite checked
-witnesses and an entry-invariant proof; full worklist termination remains open.
+witnesses and an entry-invariant proof. `SolverTermination` now proves termination
+for all initialized inputs.
 
 The entry also applies the accumulated substitution before checking shapes.
 `Proofs/ShapeEntry` records the acyclic saved substitution `α₀ ↦ α₁ × unit`
@@ -363,7 +368,7 @@ a variable, while decomposition reduces nodes. `Proofs/ShapeCompleteness` proves
 that every satisfiable constraint list eventually passes the precheck. Ground
 subtyping preserves finite shape; a strict constructor-size argument rules out
 occurs-check rejection, and substitution preserves shape compatibility. These
-proofs cover the separate precheck, not yet the main solver worklist.
+proofs supply prerequisites for the main worklist termination proof below.
 
 `Proofs/WorklistOrder` lifts local type and modality ranks to a well-founded
 multiset order on pending constraints. Every successful step from a fresh,
@@ -371,8 +376,18 @@ acyclic, unbound state either decreases this order, changes the saved substituti
 or produces an expansion state whose next step clears the cache.
 `Proofs/ModeWorklist` proves eventual stable termination when all pending constraints
 are modality obligations and the saved substitution has no mode assignments.
-Each individual solver step also terminates without fuel exhaustion. Full mixed
-worklist termination still requires a measure for expansion and substitution.
+Each individual solver step also terminates without fuel exhaustion.
+
+`Proofs/SolverShape` bounds the remaining shape size of unbound flexible variables.
+Substitution removes a positive amount; expansion followed by substitution replaces
+a parent by its children and decreases the total by one. `Proofs/ShapeWorklist`
+combines this measure with the pending multiset order to prove eventual stable
+termination under a finite shape model. `Proofs/ShapeWitness` constructs such a
+model whenever the precheck succeeds. `Proofs/SolverTermination` concludes that
+`solve` eventually succeeds or rejects on **every** input, including unsatisfiable
+ones. It also covers fresh, unbound saved worklist states. The unused admission
+about completely arbitrary hand-constructed states has been removed; no caller
+used it, and the proved result covers initialized execution directly.
 
 
 `GroundInstantiates` fixes every identifier outside the quantified domain,
@@ -825,7 +840,7 @@ All paths below are relative to `ModalityInference/`.
 | Modal self-equality | `Proofs/ModalEquality` | Proved finite satisfiability, failure of the former occurs policy at every fuel, equivalence of the corrected reduction, and corrected success for every fuel at least 12 |
 | Tied residual orientation | `Proofs/ModeCycle` | Proved an unsatisfiable set was formerly accepted without a solution; corrected retention and rejection for every fuel at least 100 |
 | Transitive mode work | `Proofs/ModePropagation` | Proved all-fuel exhaustion of a satisfiable input under the former policy; direct retention preserves exact declarative obligations and ground models, and succeeds on the witness for every fuel at least 100 |
-| Modality orientation | `Proofs/ModeOrientation` | Proved a well-founded rank decreases for every newly emitted modality/definedness obligation, including after normalization; full worklist termination remains open |
+| Modality orientation | `Proofs/ModeOrientation` | Proved a well-founded rank decreases for every newly emitted modality/definedness obligation, including after normalization; combined with finite-shape measures in the full termination proof |
 | Visited modality constraints | `Proofs/ModeSeen` | Proved the modality-cache invariant through every solver transition and complete runs, sound duplicate discharge, and entailment of the final visited modality/definedness constraints |
 | Solver identifier freshness | `Proofs/BoundedSupport`, `Proofs/SolverFresh` | Proved allocation bounds through complete runs, executable skeleton freshness for abstract expansion, and exact elimination of the scheduled equality with cache reset |
 | Type-step orientation | `Proofs/TypeOrientation` | Proved normalization preserves structural rank and every type step either adds smaller obligations or enters a state whose next step clears the cache |
@@ -834,7 +849,7 @@ All paths below are relative to `ModalityInference/`.
 | Entailment under later substitutions | `Proofs/EntailmentTransport`, `Proofs/SolverTransport` | Proved context and type-only substitution transport with explicit image-definedness premises, including cached consequences, local steps and normalization |
 | Accumulated image definedness | `Proofs/SolverStepEntailment`, `Proofs/SolverImages` | Proved backward entailment for steps preserving the substitution and image definedness through all steps/runs; every returned type image is defined under the returned residual bounds |
 | Full executable solver soundness | `Proofs/SolverExtension`, `Proofs/SolverSoundness` | Proved preservation of eliminated equations through later substitutions and complete backward reconstruction of original input constraints; all conjuncts of `Deferred.solve_sound` are admission-free |
-| Saved-substitution shape checking | `Proofs/ShapeEntry`, `Proofs/SolverEntry` | Proved a cyclic-shape witness with an acyclic saved substitution, rejection at every fuel at least two after applying that substitution, and unchanged empty-substitution behavior; full termination remains open |
+| Saved-substitution shape checking | `Proofs/ShapeEntry`, `Proofs/SolverEntry` | Proved a cyclic-shape witness with an acyclic saved substitution, rejection at every fuel at least two after applying that substitution, and unchanged empty-substitution behavior; initialized solver termination is now proved |
 | Ambient principality assumptions | `Proofs/PrincipalAmbient` | Refuted unrestricted whole-type assumptions using a finitely satisfiable witness; the deferred theorem now requires the paper's residual-bound grammar |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
 | §5 generic concrete modality solver | `Subsumption` | **Existing proved correctness and stabilization, unchanged** |
@@ -933,7 +948,7 @@ They exercise every term constructor and both sum branches.
 
 ## Remaining inference obligations
 
-Each of the four remaining directly admitted theorems has a prerequisite comment immediately above it.
+Each of the three remaining directly admitted theorems has a prerequisite comment immediately above it.
 The former annotation-dependent fundamental claim remains separately recorded
 as a refuted proposition. Its corrected resource formulation and corollaries are
 proved for the whole core. Five further contracts are preserved as proposition
@@ -1013,14 +1028,14 @@ definedness obligations.
 | `Structural` | None; the unused admitted closed-term-substitution statement was removed | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup, instance-indexed context joins and locking are proved |
 | `Obligations` | Unproved proposition definitions for principal factorization, solver correspondence, scheme-checker soundness/completeness, and optional closed-term substitution; no admissions | Preserves the removed contracts and their side conditions. Principality still needs a proof; merely defining its proposition does not establish the paper's claim |
 | `Soundness` | None: corrected fundamental soundness, termination/no-stuck, live results, and ownership bound are proved | Complete typing induction in `ResourceSoundness`; independently built and audited without either deferred worklist |
-| `Algorithms` | Scheduled termination, solve completeness, generation completeness and inference completeness; generation soundness, closed-definition generalization and unannotated inference soundness are proved | Full executable solver soundness, generator correspondence and initialized lock hygiene, local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include worklist simulation/termination, representative-search completeness, rigid entailment and subsumption witness reconstruction |
+| `Algorithms` | Solve completeness, generation completeness and inference completeness; generation soundness, closed-definition generalization and unannotated inference soundness are proved | Full executable solver soundness, generator correspondence and initialized lock hygiene, local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include forward worklist solution preservation, representative-search completeness, rigid entailment and subsumption witness reconstruction |
 
 Completeness statements require a sufficiently large fuel budget. Rewrite
 expansion requires distinct flexible variables fresh for the complete original
 constraint, pending/residual constraints and accumulated substitution. Subsumption
 statements require distinct scheme parameters and residual declared bounds.
-Rewrite termination is a separate obligation from the already-proved generic solver
-stabilization theorem. The paper's operation-count discussion is not a Lean cost
+Initialized worklist termination is proved independently of the generic solver
+stabilization theorem. Arbitrary abstract rewrite schedules are not covered. The paper's operation-count discussion is not a Lean cost
 model, and the finite search/CNF prototype may take exponential time or space.
 
 Borrowing, references as language constructs, concurrency, local let-polymorphism,

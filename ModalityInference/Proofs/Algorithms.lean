@@ -30,13 +30,6 @@ theorem rewrite_solution_preservation {s t scope} (h : Rewrites s t)
     (ht : scope.types ⊆ s.typeVars) (hm : scope.modes ⊆ s.modVars) :
     ∀ ρ, ConfigModels scope s ρ ↔ ConfigModels scope t ρ := Rewrites.configModels h ht hm
 
-/-- DEFERRED. Prerequisites: fixed identifier orientation, duplicate suppression,
-and finite shape expansion. `ModePropagation` refutes the former unbounded
-transitive work: mode bounds are now retained directly for finite checking.
-No polynomial complexity claim is made. -/
-theorem rewrite_termination (s : SolverState) :
-    ∃ n, ∀ fuel ≥ n, runSolver fuel s ≠ .exhausted := by sorry
-
 /-- Proved full input solution entailment, residual grammar and acyclicity.
 `SolverExtension` preserves earlier eliminated equations through later substitutions;
 `SolverSoundness` reconstructs the complete input using the cache, support, freshness
@@ -53,8 +46,9 @@ theorem solve_consistency {fuel cs result} (hf : FlexibleBounds cs)
     (h : solve fuel cs = .success result) : BoundsSatisfiable result.bounds :=
   solveFrom_consistency (cs.flexible_iff.mpr hf) h
 
-/-- DEFERRED. Prerequisites: rewrite completeness and termination. Mode search
-completeness is proved independently. `ModalEquality` records the former modal
+/-- DEFERRED. Prerequisite: forward preservation of ground solutions by the
+executable worklist. Initialized solver termination is proved in `SolverTermination`,
+and mode search completeness is proved independently. `ModalEquality` records the former modal
 self-equality counterexample and the corrected reduction. `ModePropagation`
 records a satisfiable input on which former transitive work exhausted every budget.
 A sufficiently large budget is essential for the corrected solver. -/
