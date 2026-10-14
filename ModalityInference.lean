@@ -6,6 +6,7 @@ import ModalityInference.Evaluation
 import ModalityInference.Runtime
 import ModalityInference.Semantics
 import ModalityInference.ResourceSemantics
+import ModalityInference.RuntimeSemantics
 import ModalityInference.Generation
 import ModalityInference.GenerationHygiene
 import ModalityInference.Rewriting

@@ -7,7 +7,7 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
-SEMANTIC_ROOT = 'ModalityInference.Proofs.Soundness'
+SEMANTIC_ROOT = 'ModalityInference.Proofs.SourceSoundness'
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--semantic', action='store_true',
@@ -74,10 +74,6 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
-    'ModalityInference.Typing.source',
-    'ModalityInference.SourceTyping.to_rawTyping',
-    'ModalityInference.SourceTyping.of_rawTyping',
-    'ModalityInference.sourceTyping_iff_rawTyping',
     'ModalityInference.GroundFactorization.type',
     'ModalityInference.Scheme.generalize_closed',
     'ModalityInference.Scheme.generalize_ground',
@@ -1430,6 +1426,56 @@ constants = [
     'ModalityInference.Scheme.lockAll_append',
     'ModalityInference.Lookup.refinedContext_instance',
 ]
+source_semantic_constants = [
+    'ModalityInference.Typing.source',
+    'ModalityInference.SourceTyping.to_rawTyping',
+    'ModalityInference.SourceTyping.of_rawTyping',
+    'ModalityInference.sourceTyping_iff_rawTyping',
+    'ModalityInference.ValueErasure.symm',
+    'ModalityInference.Runtime.trimEnvironment_erase',
+    'ModalityInference.Runtime.evalFuel_erase',
+    'ModalityInference.Runtime.erase_annotateTerm',
+    'ModalityInference.Runtime.eraseValue_annotate',
+    'ModalityInference.Runtime.annotate_erasure',
+    'ModalityInference.Runtime.evalFuel_sound',
+    'ModalityInference.Runtime.Eval.fuel_complete',
+    'ModalityInference.Runtime.Eval.deterministic',
+    'ModalityInference.Runtime.evalFuel_stable',
+    'ModalityInference.Runtime.evalFuel_monotone',
+    'ModalityInference.Runtime.Eval.no_rejection',
+    'ModalityInference.Runtime.eval_erase',
+    'ModalityInference.Runtime.References.closure_iff',
+    'ModalityInference.Runtime.references_erase',
+    'ModalityInference.Runtime.environmentReferences_erase',
+    'ModalityInference.Runtime.validValue_erase',
+    'ModalityInference.Runtime.compatible_erase',
+    'ModalityInference.Runtime.eval_iff',
+    'ModalityInference.Runtime.evalFuel_success_iff',
+    'ModalityInference.Runtime.evalFuel_rejected_iff',
+    'ModalityInference.Runtime.evalFuel_exhausted_iff',
+    'ModalityInference.Runtime.evalFuel_annotate',
+    'ModalityInference.Runtime.eval_annotate_iff',
+    'ModalityInference.ResourceSchemeInterpretation.erasure',
+    'ModalityInference.ResourceEnvironmentInterpretation.erasure',
+    'ModalityInference.Runtime.resourceInterpretation_erase',
+    'ModalityInference.Runtime.resourceSchemeInterpretation_erase',
+    'ModalityInference.Runtime.resourceEnvironmentInterpretation_erase',
+    'ModalityInference.Runtime.ResourceInterpretation.valid',
+    'ModalityInference.Runtime.ResourceInterpretation.references',
+    'ModalityInference.SourceTyping.realize_defined',
+    'ModalityInference.SourceTyping.resource_semantic',
+    'ModalityInference.SourceTyping.termination_no_stuck',
+    'ModalityInference.SourceTyping.live_result',
+    'ModalityInference.SourceTyping.ownership_bound',
+    'ModalityInference.SourceTyping.resource_closed',
+]
+constants += source_semantic_constants + [
+    'ModalityInference.Generates.source_sound',
+    'ModalityInference.inference_source_sound',
+    'ModalityInference.inference_source_semantic',
+    'ModalityInference.SourceTyping.inference_complete',
+    'ModalityInference.SourceTyping.inference_ground_principal',
+]
 if args.semantic:
     constants = [
         'ModalityInference.Typing.resource_semantic_used',
@@ -1453,11 +1499,12 @@ if args.semantic:
         'ModalityInference.Deferred.shared_support',
         'ModalityInference.Eval.deterministic',
         'ModalityInference.Eval.no_rejection',
-    ]
+    ] + source_semantic_constants
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
     path.write_text((f'import {SEMANTIC_ROOT}\n' if args.semantic else
-                    'import ModalityInference\nimport ModalityInference.Proofs.Evaluation\n'
+                    'import ModalityInference\nimport ModalityInference.Proofs.SourceInference\n'
+                    'import ModalityInference.Proofs.Evaluation\n'
                     'import ModalityInference.Proofs.Interpretation\n'
                     'import ModalityInference.Proofs.Erasure\n'
                     'import ModalityInference.Proofs.Substitution\n'

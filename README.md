@@ -16,11 +16,14 @@ term satisfying those premises. `Typing.resource_closed` additionally gives
 a closed program's ground result, evaluation, interpretation, and fresh-only
 ownership without assuming an interpreted value or an already realized type.
 
-**The semantic-soundness milestone is complete.** `Proofs/Soundness` is a standalone
-entry point: its complete local import closure contains **51 modules and zero
-admissions**. The dedicated semantic audit checks 21 fundamental, structural-semantic
-and evaluator results transitively, allowing only `propext`, `Classical.choice`
-and `Quot.sound`. CI builds and audits this target independently. The historical
+**Source soundness is proved for unannotated execution.**
+`SourceTyping.resource_semantic` and its termination, liveness, ownership and
+closed-program corollaries apply to `Runtime.evalFuel` and `Runtime.Eval`.
+`Proofs/SourceSoundness` is a standalone entry point whose complete local import
+closure has zero admissions and no inference dependencies. The dedicated semantic
+audit checks both source and annotated guarantees, resource transport and evaluator
+correspondence transitively, allowing only `propext`, `Classical.choice` and
+`Quot.sound`. CI builds and audits this target independently. The historical
 `Deferred` namespace on the exported corollaries remains only for name compatibility.
 
 **Inference soundness, closed completeness, and ground principality are proved.**
@@ -33,9 +36,11 @@ flexible inputs, and preserves every original ground solution through its result
 **No Lean admissions remain.** The default audit rejects any new admission.
 The unused unrestricted generation-completeness
 statement was false; `GenerationCompletenessDomain` preserves its counterexample.
-The inference target matches the paper's unannotated terms, with proof
-annotations hidden existentially by `RawTyping`. The old assertion about the
-executable's specific capture metadata remains refuted by `SharingLockCapture`.
+Generation and inference return unannotated source terms, and `SourceTyping`
+states the paper's typing rules directly on those terms. Runtime closures in
+`Runtime.Value` contain only their environment and unannotated body.
+The annotated representation remains a proof bridge; `SharingLockCapture`
+retains an explicit historical annotation counterexample.
 `Proofs/Obligations` preserves closed-term substitution, abstract solver
 correspondence, principal factorization, and both scheme-subsumption checker
 contracts as **unproved proposition definitions**, with no admissions. The paper's
@@ -47,10 +52,17 @@ The other contracts remain available as supporting or separate verification task
 prerequisites and counterexamples remain available. Neither the semantic
 entry point nor its dependencies import those worklists. The public library and
 executables also remain independent of them. The original generic solver is
-unchanged. The full-project audit continues to check
-1366 public or established declarations transitively, including the complete
+unchanged. The full-project audit checks public and established declarations
+transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
+
+`Proofs/SourceInference` proves that a successful inference result contains the
+exact input term and a direct `SourceTyping` derivation at its inferred type.
+Its `inference_source_semantic` theorem connects this actual output to raw
+execution under modeled residual bounds and an interpreted input environment.
+Closed completeness and ground principality also hold for the direct source
+judgment. No capture annotation needs to be emitted or validated.
 
 ## Corrected semantics and proof
 
@@ -471,12 +483,12 @@ solution entailment and well-formed substitution images. These proofs use no
 admissions. Full generation and unannotated inference soundness are now proved in `GenerationSoundness`.
 
 `Proofs/GenerationExecution` proves that every successful `generate` result
-erases to its original source term and retains the initial constraints as an
-exact prefix, including order and multiplicity. Both inductions cover all term
-constructors, including nested closed definitions. `infer_erases` additionally
-accounts for the final substitution of capture annotations, discharging the
-erasure conjunct of `inference_sound`. Its unannotated typing conjunct is now
-proved by `GenerationSoundness`.
+contains exactly its original source term and retains the initial constraints
+as an exact prefix, including order and multiplicity. Both inductions cover all
+term constructors, including nested closed definitions. `infer_term` proves
+exact source preservation by inference as well: type substitutions affect
+schemes and constraints, without changing the returned syntax.
+`GenerationSoundness` proves its unannotated typing guarantee.
 `Proofs/GenerationCorrespondence` now proves the full independent `Generates`
 derivation, with output constraints equal up to permutation to the initial
 constraints followed by those generated. The proof covers every constructor,
@@ -539,9 +551,9 @@ operations. `UsageSplit.declarative_bindings` handles every split of a context
 consisting of bindings, including sharing, and produces both the declarative join
 and weakening from the source. `Context.lock_withAssumptions` similarly constructs
 a whole-context lock. These results retain quantified freshness for ambient bounds
-and, for locking, the lock mode. Transport through arbitrary solution substitutions,
-enclosing symbolic locks, closed-definition generalization and typing of the actual
-generated annotations remain necessary for full generation and inference soundness.
+and, for locking, the lock mode. `GenerationSoundness` integrates transport
+through arbitrary solution substitutions, enclosing symbolic locks, and
+closed-definition generalization into source inference soundness.
 
 `Proofs/SchemeFreshening` supplies fresh contexts for those structural witnesses.
 `Scheme.freshenedFor` renames binders beyond any supplied ambient bounds and makes
@@ -555,9 +567,9 @@ syntax, so their preservation is stated as equivalent entailment.
 
 `Context.freshenedFor_le` and `freshenedFor_fresh` lift these facts to contexts.
 Including the lock mode among the avoided bounds gives `freshenedFor_lock` for
-every context, ambient bound list and mode. Generation still needs transport
-through enclosing symbolic locks and arbitrary solutions, and inference still
-requires the actual generated capture annotations.
+every context, ambient bound list and mode. These contexts supply proof witnesses
+for source typing through enclosing symbolic locks and arbitrary solutions.
+They are not emitted as term annotations.
 
 `Proofs/SubsumptionInstances` proves syntactic instance preservation for declarative
 scheme subsumption. Given a target instance with entailed bounds and a defined
@@ -582,26 +594,26 @@ holds for every used scheme recorded in a typed lambda's capture annotation.
 Unused bindings need no admissible instance. These theorems keep the ambient
 definedness premise explicit and add no restriction to the declarative rules.
 
-`Proofs/SharingLockCapture` now refutes the current emitted-annotation contract
-of `inference_sound`. In the context `x : α`, inference succeeds on `λy. (x,x)`
-with identity substitution. Its capture scheme requires the unaliased crossing
+`Proofs/SharingLockCapture` preserves the historical capture-annotation defect.
+In the context `x : α`, inference succeeds on `λy. (x,x)` with identity
+substitution and returns that same unannotated term. The historical annotation
+fixture requires the unaliased crossing
 bound `α ≤ α @ future μ`, but the residual constraints contain the crossing bound
 only after aliasing, together with `α ≤ α @ many`. `TypeVariablePredicates` gives
 a syntactic subtyping invariant proving that the missing bound is not derivable.
-The capture-admissibility theorem then rules out typing the emitted annotation
-under any context and at any result type. This is a proved defect, not merely a
-computed example or an unproved generation prerequisite.
+The capture-admissibility theorem rules out typing that historical annotation
+under any context and at any result type. Current inference emits no such
+annotation.
 
 `Proofs/CaptureRefinement` types a replacement annotation for the exact successful
 inference result, with the same source context, residual bounds and inferred type.
 The source capture scheme quantifies a fresh modality `p`, assumes `α ≤ α @ p`
 and `α @ p ≤ (α @ p) @ future μ`, and captures `(α @ p) @ capture μ`.
 The shared body selects `p = aliased`. Source subsumption, locking, the body join
-and the complete lambda derivation are all proved. The executable still emits the
-old annotation. `GenerationSoundness` integrates refinement and freshening into
-proof contexts, proving the paper's unannotated `inference_sound` target while
-preserving the counterexample to the emitted-annotation contract.
-No admission has been discharged by this counterexample or its positive witness.
+and the complete lambda derivation are all proved. `GenerationSoundness`
+integrates refinement and freshening into proof contexts, proving the paper's
+unannotated `inference_sound` target. These proof contexts remain separate from
+the unannotated executable output.
 
 `Scheme.refineMode` now defines the quantified weakening for arbitrary schemes.
 `Proofs/ModalRefinement` proves source subsumption, exact instantiated body and
@@ -645,11 +657,9 @@ Its explicit freshness invariant survives both branches of every split.
 at the same binding index, with entailed bounds and mutual body subtyping.
 `RefinedLocks` now proves lambda locking for these complete contexts, variable
 typing at every retained instance, source-context weakening, and the lambda
-typing step with its exact refined capture annotation. Whole-term generation
-soundness and solution transport are now proved; the emitted-annotation contract
-remains separately refuted. Neither
-`refineMode` nor `lockAll` is yet used by `captureContext` or `infer`, so the
-recorded counterexample still describes the current executable.
+typing step with its refined capture context. Whole-term generation soundness
+and solution transport use those contexts to reconstruct declarative proofs.
+Inference returns source syntax and does not construct capture metadata.
 
 Evaluator correspondence, determinism, fuel stability, Boolean CNF reduction,
 and all-axis modality projection are also proved independently. Backend modality
@@ -703,7 +713,7 @@ All three exported results are checked by the transitive axiom audit.
 Build and audit the completed semantic milestone independently:
 
 ```sh
-lake build ModalityInference.Proofs.Soundness
+lake build ModalityInference.Proofs.SourceSoundness
 python3 scripts/audit_admissions.py --semantic
 ```
 
@@ -725,7 +735,6 @@ Mathlib remains locked at `bd350e6b5fe8a1dd9a2729913b022f3b5761787a` in
 `lake-manifest.json`. The pinned toolchain and dependency cache were restored and
 the original solver was built before extending the development. CI builds the
 regressions and optional proof statements and audits the admission boundary.
-Warnings about the explicitly deferred theorems are expected.
 
 Create a Lean file containing this example and run `lake env lean Example.lean`:
 
@@ -741,7 +750,7 @@ def program : RawTerm := .defn idTerm
 #eval (infer 5000 [] program).isSuccess  -- true
 #eval do
   let result ← infer 5000 [] program
-  evalFuel 100 {} [] result.elaborated
+  Runtime.evalFuel 100 {} [] result.elaborated
 
 #eval solve 500 [
   .mode (.const Mode.bottom) (.var (.flex 0)),
@@ -752,7 +761,8 @@ def program : RawTerm := .defn idTerm
   (.mono (.fn .unit .unit))).isSuccess  -- true
 ```
 
-Explicit scheme/value instantiation is also runnable:
+The retained annotated proof representation also supports explicit scheme/value
+instantiation, independently of source execution:
 
 ```lean
 import ModalityInference.Examples
@@ -769,10 +779,10 @@ The API is in namespace `ModalityInference`:
 
 | Function | Result on success |
 | --- | --- |
-| `infer fuel context term` | `Inferred`: scheme, annotated term, substitution, residual bounds, rewrite trace |
+| `infer fuel context term` | `Inferred`: scheme, unchanged source term, substitution, residual bounds, rewrite trace |
 | `solve fuel constraints` | `Solved`: substitution, residual bounds, concrete consistency witness, fresh counters, trace |
 | `checkSubsumption fuel inferred declared` | `SubsumptionEvidence`: structural substitution, preserved assumptions, obligations, flexible Boolean atoms, normalized query and backend report |
-| `evalFuel fuel supplies environment term` | A `Value` |
+| `Runtime.evalFuel fuel supplies environment term` | A `Runtime.Value`, with no capture annotations |
 
 All four return `RunResult`: `success`, `rejected diagnostic`, or `exhausted`.
 Increase the fuel after exhaustion; it is **not evidence of rejection**. Fuel is a
@@ -823,15 +833,17 @@ normalization work. It is not a machine-instruction counter or a complexity boun
 
 ## Evaluation, ownership and liveness
 
-`Eval` is an independent environment-passing big-step judgment; `evalFuel` is its
-executable counterpart. They cover unit, variables, closures, application,
+`Runtime.Eval` is an independent environment-passing big-step judgment;
+`Runtime.evalFuel` is its executable counterpart. They cover unit, variables, closures, application,
 products, sums, case, split, closed definitions, heap/stack allocation, reuse and
-regions. Runtime capture selection uses syntax free variables, independently of
-type annotations. Unused environment slots become unit so indices remain stable.
+regions. Closures store their environment and raw body, with captures selected
+by syntax free variables. Unused environment slots become unit so indices
+remain stable. `Evaluation` retains the annotated proof representation used
+by the existing semantic proofs; `Proofs/Runtime` connects both evaluators.
 
 `Supplies` partitions infinite arithmetic progressions for heap cells, cells in
 the current stack frame, and identities of future frames. `World` records live
-frames separately. Soundness requires `World.Compatible`: positive strides, an
+frames separately. Source soundness requires `Runtime.Compatible`: positive strides, an
 active current frame, fresh future frames and no collision with any input
 reference. Evaluation itself is not a dynamic ownership or liveness checker.
 
@@ -844,6 +856,14 @@ all references. The earlier `ValueInterpretation`, `Owns`, and associated scheme
 environment, and evaluation definitions are retained to state the historical
 counterexample and their independently proved properties. `firstOrderSupport`
 is executable on first-order values and does not guess an instance for closures.
+
+The corresponding `Runtime` resource predicates use a canonical proof
+representation internally. `Proofs/SourceSoundness` proves that erasing any
+annotated representation preserves exactly the same owned resources and binding
+reserves, including every polymorphic instance. The public source statements
+quantify raw environments and values and require no annotation witness.
+`Proofs/Runtime` proves exact agreement at every fuel budget, including rejection
+diagnostics and exhaustion, and equivalence of both big-step judgments.
 
 The critical counterexample is a unique pair at heap cell 0 containing an aliased
 credit for stack cell `(9,1)`. At the declared type its ownership support is only
@@ -858,12 +878,14 @@ All paths below are relative to `ModalityInference/`.
 | Paper material | Modules | Status |
 | --- | --- | --- |
 | §3 syntax, three axes, polarized grammar and residuals | `Core/Mode`, `Core/Syntax`, `Core/Scoping` | Definitions and exhaustive finite regressions |
-| §3 subtyping, schemes, weakening, joins, locks, all typing rules | `Declarative` | Independent inductive judgments |
-| §3 allocation and environment semantics | `Evaluation` | Independent judgment plus runnable evaluator |
+| §3 subtyping, schemes, weakening, joins, locks, all typing rules | `Declarative`, `SourceTyping` | Independent inductive judgments, with direct source typing equivalent to the annotated proof representation |
+| §3 allocation and environment semantics | `Runtime`, `Evaluation`, `Proofs/Runtime` | Unannotated evaluator and independent judgment, connected to the annotated proof representation |
+| §3 source resource soundness | `RuntimeSemantics`, `Proofs/SourceSoundness` | Full open-environment soundness, no rejection, liveness, ownership bounds and closed-program corollary; exact erasure preserves instance-specific reserves |
 | §3 ground types, ownership, separation and liveness | `Semantics`, `ResourceSemantics` | Ground definitions and corrected instance-indexed resource interpretation; old annotation-dependent interpretation retained for its counterexample |
 | §4 independent constraint-generation relation | `Generation` | Inductive rules, including closed `def` and `region` |
-| §4 inference and elaboration | `Inference` | Executable prototype |
-| Generation and elaboration invariants | `Proofs/GenerationExecution` | Proved source erasure for generation and inference, and exact-prefix preservation of accumulated constraints; typing remains deferred |
+| §4 inference | `Inference` | Executable prototype returning unchanged source syntax |
+| §4 source inference guarantees | `Proofs/SourceInference` | Direct typing and semantic soundness of the actual output, closed completeness and ground principality |
+| Generation and inference invariants | `Proofs/GenerationExecution` | Proved exact source preservation for generation and inference, and exact-prefix preservation of accumulated constraints |
 | Executable generator correspondence | `Proofs/GenerationCorrespondence` | Proved independent relational derivations for every constructor, including closed-definition solves, with constraints preserved up to permutation |
 | Generation lock scope | `GenerationHygiene`, `Proofs/GenerationHygiene`, `Proofs/GenerationScope` | Refuted unrestricted generation soundness; proved lock hygiene for every initialized executable generation, including nested closed definitions |
 | Generator allocation and support | `Proofs/SolverCounters`, `Proofs/GenerationInstantiation`, `Proofs/GenerationContexts`, `Proofs/GenerationSupplies` | Proved monotone counters and bounded/flexible support through fresh instantiation, lookup, splitting, locks, generation and closed-definition solves |
@@ -906,7 +928,7 @@ All paths below are relative to `ModalityInference/`.
 | Defined generalized instances | `Proofs/GeneralizationDefinedness` | Refuted a contract missing well-formed instance substitutions; the corrected constant-function example is proved for every substitution satisfying that hypothesis |
 | Syntactic subsumption instances | `Proofs/SkolemSubstitution`, `Proofs/InstanceDefinedness`, `Proofs/SubsumptionInstances` | Proved source-instance reconstruction and subtyping for every defined target instance, retaining arbitrary ambient bounds, repeated parameters and unused partial images |
 | Admissibility of used bindings | `Proofs/TypingAdmissibility` | With defined ambient subtype operands, proved result definedness and admissible syntactic instances for used bindings and lambda capture annotations; solver residuals satisfy the premise |
-| Sharing below capture locks | `Proofs/TypeVariablePredicates`, `Proofs/SharingLockCapture`, `Proofs/CaptureRefinement` | Refuted the current inferred capture annotation and proved a refined annotation at the same inferred type and residual bounds; executable repair and its general proof remain open |
+| Sharing below capture locks | `Proofs/TypeVariablePredicates`, `Proofs/SharingLockCapture`, `Proofs/CaptureRefinement` | Historical annotation fixture is untypable; refined proof contexts type the same source at the inferred type and bounds; executable inference returns unchanged source syntax |
 | Quantified modal refinement | `Inference`, `Proofs/ModalRefinement`, `Proofs/NestedLockRefinement`, `Proofs/RefinedSharing`, `Proofs/RefinedContexts` | Proved nested instance retention, refined shared-branch comparison, complete context splitting and freshness preservation, and lookup-instance recovery; whole-term source soundness and closed executable completeness are proved |
 | Simultaneous substitution | `Proofs/Substitution` | Proved composition for types, modalities, constraints and bounds, plus agreement of scheme substitution with its exposed binder action; no admissions |
 | Transport through scheme binders | `Annotations`, `Proofs/Annotations`, `Proofs/ScopedCaptures` | Executable per-capture binder transport and paired scheme/value substitution; proved erasure, reference, liveness and evaluation preservation; nested polymorphic witness |
@@ -958,7 +980,7 @@ corrections. The POPL reviews and response are in the enclosing paper repository
 | Explicit bounds instead of joins/meets in ordinary object modalities | `stackPair`: `localLower ≤ μ`; `stackEscape` rejects |
 | Separate lower and upper `BOUND` rules | A mode constrained between `bottom` and `identity` |
 | Symbolic function subtyping ignores past | Same arrow at aliased/unique outer modes |
-| Symbolic locks depend only on future; typed capture metadata | Modes differing only in uniqueness have identical captures |
+| Symbolic locks depend only on future; capture contexts belong to typing proofs | Modes differing only in uniqueness have identical captures |
 | Closed `def` inference solves before generalizing | `polyIdentity`, `nonClosedDef`, `inconsistentUnused`; an unused `stackEscape` also rejects |
 | Missing `region` inference | `stackScoped` succeeds, `stackEscape` rejects |
 | Reuse locality follows the credit | `reusePair` keeps its stack location; it cannot escape its region |

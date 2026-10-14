@@ -1,4 +1,6 @@
 import ModalityInference.Proofs.Soundness
+import ModalityInference.Proofs.SourceSoundness
+import ModalityInference.Proofs.SourceInference
 import ModalityInference.Proofs.Algorithms
 import ModalityInference.Proofs.Obligations
 import ModalityInference.Proofs.PolymorphicCapture
