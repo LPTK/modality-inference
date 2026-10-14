@@ -72,6 +72,7 @@ import ModalityInference.Proofs.GeneralizationDefinedness
 import ModalityInference.Proofs.SkolemSubstitution
 import ModalityInference.Proofs.InstanceDefinedness
 import ModalityInference.Proofs.SubsumptionInstances
+import ModalityInference.Proofs.TypingAdmissibility
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

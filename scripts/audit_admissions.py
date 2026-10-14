@@ -973,6 +973,21 @@ constants = [
     'ModalityInference.Instantiates.skolemized_mode_map',
     'ModalityInference.Instantiates.skolemMap',
     'ModalityInference.Subsumes.instantiate',
+    'ModalityInference.Bounds.TypeBoundsDefined',
+    'ModalityInference.ModExpr.wellFormed_compose',
+    'ModalityInference.Entails.defined_compose_iff',
+    'ModalityInference.Subtype.definedUnder_iff',
+    'ModalityInference.solveFrom_typeBoundsDefined',
+    'ModalityInference.solve_typeBoundsDefined',
+    'ModalityInference.Typing.definedUnder',
+    'ModalityInference.Scheme.Admissible',
+    'ModalityInference.Subsumes.admissible',
+    'ModalityInference.Scheme.Admissible.of_modal',
+    'ModalityInference.Scheme.Admissible.modal_const',
+    'ModalityInference.ContextJoin.left_admissible',
+    'ModalityInference.ContextJoin.right_admissible',
+    'ModalityInference.Typing.freeVars_admissible',
+    'ModalityInference.Typing.lam_capture_admissible',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -1050,6 +1065,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SkolemSubstitution\n'
                     'import ModalityInference.Proofs.InstanceDefinedness\n'
                     'import ModalityInference.Proofs.SubsumptionInstances\n'
+                    'import ModalityInference.Proofs.TypingAdmissibility\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

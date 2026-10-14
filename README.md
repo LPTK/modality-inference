@@ -22,7 +22,7 @@ solver correspondence/termination/completeness/principality, generation, elabora
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-942 public or established declarations transitively, including the complete
+957 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -479,6 +479,17 @@ names and retains the source witness's exact quantified domain. It requires no
 self-entailment premise for the ambient bounds and does not assert that subtyping
 preserves `DefinedUnder` under arbitrary raw bounds.
 
+`Proofs/TypingAdmissibility` supplies that stronger result when each ambient
+subtype assumption has defined operands. Successful solver residuals meet this
+condition by the existing definedness invariant. Under it, subtyping preserves
+`DefinedUnder` in both directions, every typing result is defined, and declarative
+scheme subsumption preserves admissible syntactic instances. Every free binding
+actually used by a typed term has such an instance, including through context
+subsumption, sharing, locks and closed definitions. The same necessary condition
+holds for every used scheme recorded in a typed lambda's capture annotation.
+Unused bindings need no admissible instance. These theorems keep the ambient
+definedness premise explicit and add no restriction to the declarative rules.
+
 Evaluator correspondence, determinism, fuel stability, Boolean CNF reduction,
 and all-axis modality projection are also proved independently. Backend modality
 entailment agrees with `ModeModels`; a positive inequality report establishes
@@ -679,6 +690,7 @@ All paths below are relative to `ModalityInference/`.
 | Target assumptions in scheme comparison | `Proofs/SubsumptionAssumptions`, `Proofs/ConstraintModels`, `Proofs/SchemeBounds` | Refuted reflexivity of the raw-target rule on an inhabited equality scheme; corrected comparison is reflexive for every scheme, preserves every former comparison, and retains whole-core resource soundness |
 | Defined generalized instances | `Proofs/GeneralizationDefinedness` | Refuted the former unguarded generalization contract with a hygienic constant function; corrected contract requires instance definedness, and the example is proved typable for every defined instance |
 | Syntactic subsumption instances | `Proofs/SkolemSubstitution`, `Proofs/InstanceDefinedness`, `Proofs/SubsumptionInstances` | Proved source-instance reconstruction and subtyping for every defined target instance, retaining arbitrary ambient bounds, repeated parameters and unused partial images |
+| Admissibility of used bindings | `Proofs/TypingAdmissibility` | With defined ambient subtype operands, proved result definedness and admissible syntactic instances for used bindings and lambda capture annotations; solver residuals satisfy the premise |
 | Simultaneous substitution | `Proofs/Substitution` | Proved composition for types, modalities, constraints and bounds, plus agreement of scheme substitution with its exposed binder action; no admissions |
 | Transport through scheme binders | `Annotations`, `Proofs/Annotations`, `Proofs/ScopedCaptures` | Executable per-capture binder transport and paired scheme/value substitution; proved erasure, reference, liveness and evaluation preservation; nested polymorphic witness |
 | Explicit value instantiation | `Annotations`, `Proofs/Instantiation`, `Proofs/ScopedCaptures` | Ordered arguments transport metadata; proved instantiation, definedness-guard and erasure contracts; optional transport route, not required by resource soundness |
