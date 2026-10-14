@@ -49,6 +49,8 @@ import ModalityInference.Proofs.ModeSeen
 import ModalityInference.Proofs.ShapeEntry
 import ModalityInference.Proofs.ShapeTermination
 import ModalityInference.Proofs.ShapeCompleteness
+import ModalityInference.Proofs.WorklistOrder
+import ModalityInference.Proofs.ModeWorklist
 import ModalityInference.Proofs.BoundedSupport
 import ModalityInference.Proofs.SolverFresh
 import ModalityInference.Proofs.TypeOrientation

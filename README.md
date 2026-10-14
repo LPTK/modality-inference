@@ -39,7 +39,7 @@ prerequisites and counterexamples remain available. Neither the semantic
 entry point nor its dependencies import those worklists. The public library and
 executables also remain independent of them. The original generic solver is
 unchanged. The full-project audit continues to check
-1175 public or established declarations transitively, including the complete
+1188 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -364,6 +364,15 @@ that every satisfiable constraint list eventually passes the precheck. Ground
 subtyping preserves finite shape; a strict constructor-size argument rules out
 occurs-check rejection, and substitution preserves shape compatibility. These
 proofs cover the separate precheck, not yet the main solver worklist.
+
+`Proofs/WorklistOrder` lifts local type and modality ranks to a well-founded
+multiset order on pending constraints. Every successful step from a fresh,
+acyclic, unbound state either decreases this order, changes the saved substitution,
+or produces an expansion state whose next step clears the cache.
+`Proofs/ModeWorklist` proves eventual stable termination when all pending constraints
+are modality obligations and the saved substitution has no mode assignments.
+Each individual solver step also terminates without fuel exhaustion. Full mixed
+worklist termination still requires a measure for expansion and substitution.
 
 
 `GroundInstantiates` fixes every identifier outside the quantified domain,

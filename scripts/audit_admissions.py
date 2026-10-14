@@ -72,6 +72,19 @@ for path in paths:
             assert not re.search(r'^import\s+ModalityInference\.Proofs', code, re.M), path
 
 constants = [
+    'ModalityInference.WorklistOrder.rank_type',
+    'ModalityInference.WorklistOrder.rank_mode',
+    'ModalityInference.WorklistOrder.wellFounded',
+    'ModalityInference.WorklistOrder.replace_head',
+    'ModalityInference.WorklistOrder.tail',
+    'ModalityInference.WorklistOrder.stepMode_decreases',
+    'ModalityInference.WorklistOrder.stepType_decreases_or_clears',
+    'ModalityInference.solverStep_progress',
+    'ModalityInference.stepMode_ne_exhausted',
+    'ModalityInference.stepType_ne_exhausted',
+    'ModalityInference.solverStep_ne_exhausted',
+    'ModalityInference.solverStep_modality_progress',
+    'ModalityInference.runWorklist_modality_eventually',
     'ModalityInference.ShapePairs.mem_vars',
     'ModalityInference.ShapePairs.lt_tail',
     'ModalityInference.ShapePairs.subst_vars_subset',
@@ -1315,6 +1328,8 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ShapeEntry\n'
                     'import ModalityInference.Proofs.ShapeTermination\n'
                     'import ModalityInference.Proofs.ShapeCompleteness\n'
+                    'import ModalityInference.Proofs.WorklistOrder\n'
+                    'import ModalityInference.Proofs.ModeWorklist\n'
                     'import ModalityInference.Proofs.BoundedSupport\n'
                     'import ModalityInference.Proofs.SolverFresh\n'
                     'import ModalityInference.Proofs.TypeOrientation\n'
