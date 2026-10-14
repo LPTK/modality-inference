@@ -50,6 +50,8 @@ import ModalityInference.Proofs.SolverFresh
 import ModalityInference.Proofs.TypeOrientation
 import ModalityInference.Proofs.SolverUnbound
 import ModalityInference.Proofs.TypeSeen
+import ModalityInference.Proofs.EntailmentTransport
+import ModalityInference.Proofs.SolverTransport
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
