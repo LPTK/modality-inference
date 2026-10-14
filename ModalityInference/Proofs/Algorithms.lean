@@ -125,6 +125,10 @@ theorem closed_definition_generalization {rhs a cs residual σ}
       RawTyping [] [] rhs (θ.ty (σ.ty a)) := by sorry
 
 /-- DEFERRED typing conjunct; erasure of the actual inferred term is proved.
+The current capture construction is refuted by `SharingLockCapture`; repairing
+the emitted annotations is necessary before this intended contract can hold.
+`CaptureRefinement` proves a replacement annotation for that exact witness,
+under the same residual bounds and inferred type; the general repair remains.
 Typing still needs generation soundness, solver soundness, fresh scheme
 instantiation and substitution of typed capture annotations. This checks the actual
 elaborated term, not just the existence of some typing annotation. -/

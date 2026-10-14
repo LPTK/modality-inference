@@ -988,6 +988,47 @@ constants = [
     'ModalityInference.ContextJoin.right_admissible',
     'ModalityInference.Typing.freeVars_admissible',
     'ModalityInference.Typing.lam_capture_admissible',
+    'ModalityInference.TypeExpr.variablePredicate',
+    'ModalityInference.TypeExpr.variablePredicate_mono',
+    'ModalityInference.TypeExpr.variablePredicate_compose',
+    'ModalityInference.Subtype.variablePredicate',
+    'ModalityInference.SharingLockCapture.α',
+    'ModalityInference.SharingLockCapture.μ',
+    'ModalityInference.SharingLockCapture.context',
+    'ModalityInference.SharingLockCapture.term',
+    'ModalityInference.SharingLockCapture.captured',
+    'ModalityInference.SharingLockCapture.elaborated',
+    'ModalityInference.SharingLockCapture.aliasCapture',
+    'ModalityInference.SharingLockCapture.aliasFuture',
+    'ModalityInference.SharingLockCapture.residual',
+    'ModalityInference.SharingLockCapture.succeeds',
+    'ModalityInference.SharingLockCapture.modes',
+    'ModalityInference.SharingLockCapture.predicate',
+    'ModalityInference.SharingLockCapture.predicate_mono',
+    'ModalityInference.SharingLockCapture.mode_models',
+    'ModalityInference.SharingLockCapture.bounds_preserve',
+    'ModalityInference.SharingLockCapture.missing_crossing',
+    'ModalityInference.SharingLockCapture.residual_defined',
+    'ModalityInference.SharingLockCapture.capture_not_admissible',
+    'ModalityInference.SharingLockCapture.not_typable',
+    'ModalityInference.SharingLockCapture.context_scoped',
+    'ModalityInference.SharingLockCapture.UnsharedCaptureInferenceSoundness',
+    'ModalityInference.SharingLockCapture.no_unshared_capture_inference_soundness',
+    'ModalityInference.Subtype.modal_comm',
+    'ModalityInference.SharingLockCapture.refinedSource',
+    'ModalityInference.SharingLockCapture.refinedCapture',
+    'ModalityInference.SharingLockCapture.sharedType',
+    'ModalityInference.SharingLockCapture.original_subsumes_refined',
+    'ModalityInference.SharingLockCapture.refined_lock',
+    'ModalityInference.SharingLockCapture.sharedInstance',
+    'ModalityInference.SharingLockCapture.shared_instance_bounds',
+    'ModalityInference.SharingLockCapture.shared_many',
+    'ModalityInference.SharingLockCapture.refined_subsumes_shared',
+    'ModalityInference.SharingLockCapture.shared_join',
+    'ModalityInference.SharingLockCapture.shared_variable',
+    'ModalityInference.SharingLockCapture.refined_body',
+    'ModalityInference.SharingLockCapture.refined_typable',
+    'ModalityInference.SharingLockCapture.inferred_type_with_refined_annotation',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -1066,6 +1107,9 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.InstanceDefinedness\n'
                     'import ModalityInference.Proofs.SubsumptionInstances\n'
                     'import ModalityInference.Proofs.TypingAdmissibility\n'
+                    'import ModalityInference.Proofs.TypeVariablePredicates\n'
+                    'import ModalityInference.Proofs.SharingLockCapture\n'
+                    'import ModalityInference.Proofs.CaptureRefinement\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

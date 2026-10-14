@@ -22,7 +22,7 @@ solver correspondence/termination/completeness/principality, generation, elabora
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-957 public or established declarations transitively, including the complete
+998 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -490,6 +490,26 @@ holds for every used scheme recorded in a typed lambda's capture annotation.
 Unused bindings need no admissible instance. These theorems keep the ambient
 definedness premise explicit and add no restriction to the declarative rules.
 
+`Proofs/SharingLockCapture` now refutes the current emitted-annotation contract
+of `inference_sound`. In the context `x : α`, inference succeeds on `λy. (x,x)`
+with identity substitution. Its capture scheme requires the unaliased crossing
+bound `α ≤ α @ future μ`, but the residual constraints contain the crossing bound
+only after aliasing, together with `α ≤ α @ many`. `TypeVariablePredicates` gives
+a syntactic subtyping invariant proving that the missing bound is not derivable.
+The capture-admissibility theorem then rules out typing the emitted annotation
+under any context and at any result type. This is a proved defect, not merely a
+computed example or an unproved generation prerequisite.
+
+`Proofs/CaptureRefinement` types a replacement annotation for the exact successful
+inference result, with the same source context, residual bounds and inferred type.
+The source capture scheme quantifies a fresh modality `p`, assumes `α ≤ α @ p`
+and `α @ p ≤ (α @ p) @ future μ`, and captures `(α @ p) @ capture μ`.
+The shared body selects `p = aliased`. Source subsumption, locking, the body join
+and the complete lambda derivation are all proved. The executable still emits the
+old annotation: general refinement through nested locks and freshening relative
+to final residual bounds remain necessary before `inference_sound` can hold.
+No admission has been discharged by this counterexample or its positive witness.
+
 Evaluator correspondence, determinism, fuel stability, Boolean CNF reduction,
 and all-axis modality projection are also proved independently. Backend modality
 entailment agrees with `ModeModels`; a positive inequality report establishes
@@ -691,6 +711,7 @@ All paths below are relative to `ModalityInference/`.
 | Defined generalized instances | `Proofs/GeneralizationDefinedness` | Refuted the former unguarded generalization contract with a hygienic constant function; corrected contract requires instance definedness, and the example is proved typable for every defined instance |
 | Syntactic subsumption instances | `Proofs/SkolemSubstitution`, `Proofs/InstanceDefinedness`, `Proofs/SubsumptionInstances` | Proved source-instance reconstruction and subtyping for every defined target instance, retaining arbitrary ambient bounds, repeated parameters and unused partial images |
 | Admissibility of used bindings | `Proofs/TypingAdmissibility` | With defined ambient subtype operands, proved result definedness and admissible syntactic instances for used bindings and lambda capture annotations; solver residuals satisfy the premise |
+| Sharing below capture locks | `Proofs/TypeVariablePredicates`, `Proofs/SharingLockCapture`, `Proofs/CaptureRefinement` | Refuted the current inferred capture annotation and proved a refined annotation at the same inferred type and residual bounds; executable repair and its general proof remain open |
 | Simultaneous substitution | `Proofs/Substitution` | Proved composition for types, modalities, constraints and bounds, plus agreement of scheme substitution with its exposed binder action; no admissions |
 | Transport through scheme binders | `Annotations`, `Proofs/Annotations`, `Proofs/ScopedCaptures` | Executable per-capture binder transport and paired scheme/value substitution; proved erasure, reference, liveness and evaluation preservation; nested polymorphic witness |
 | Explicit value instantiation | `Annotations`, `Proofs/Instantiation`, `Proofs/ScopedCaptures` | Ordered arguments transport metadata; proved instantiation, definedness-guard and erasure contracts; optional transport route, not required by resource soundness |
