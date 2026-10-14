@@ -4,31 +4,6 @@ import ModalityInference.Proofs.ModeSearchComplete
 /-! Increasing a successful execution budget preserves the complete result. -/
 namespace ModalityInference
 
-theorem cnfOr_monotone {n a b cs} (h : cnfOr n a b = .success cs) :
-    ∀ fuel ≥ n, cnfOr fuel a b = .success cs := by
-  intro fuel hf
-  simp only [cnfOr] at h ⊢
-  split at h
-  · contradiction
-  · split
-    · omega
-    · exact h
-
-theorem toCNF_monotone {n positive e cs} (h : toCNF n positive e = .success cs) :
-    ∀ fuel ≥ n, toCNF fuel positive e = .success cs := by
-  induction n generalizing positive e cs
-  case zero => cases h
-  case succ n ih =>
-    rintro (_ | fuel) hFuel
-    · omega
-    have step (p e cs) (hs : toCNF n p e = .success cs) :
-        toCNF fuel p e = .success cs := ih hs fuel (Nat.le_of_succ_le_succ hFuel)
-    cases e
-    all_goals simp only [toCNF, bind, pure, RunResult.bind] at h ⊢
-    all_goals repeat' (split at h <;> try contradiction)
-    all_goals simp_all
-    all_goals exact cnfOr_monotone h _ (by omega)
-
 theorem searchCNF_stable {n todo r} (hr : r ≠ .exhausted)
     (h : searchCNF n todo = r) : ∀ fuel ≥ n, searchCNF fuel todo = r := by
   induction n generalizing todo r

@@ -1476,6 +1476,37 @@ constants += source_semantic_constants + [
     'ModalityInference.SourceTyping.inference_complete',
     'ModalityInference.SourceTyping.inference_ground_principal',
 ]
+constants += [
+    'ModalityInference.HornPropagation.positive_eval',
+    'ModalityInference.HornPropagation.horn_eval',
+    'ModalityInference.HornPropagation.atomFin_exists',
+    'ModalityInference.HornPropagation.positive_sound',
+    'ModalityInference.HornPropagation.horn_sound',
+    'ModalityInference.HornPropagation.positive_complete',
+    'ModalityInference.HornPropagation.horn_complete',
+    'ModalityInference.HornPropagation.horn_domain_iff',
+    'ModalityInference.HornPropagation.Model.eval_matches',
+    'ModalityInference.HornPropagation.horn_eval_model',
+    'ModalityInference.HornPropagation.horn_satisfiable_iff',
+    'ModalityInference.HornPropagation.hornSolve_satisfiable_iff',
+    'ModalityInference.HornPropagation.checkFormula_success_iff',
+    'ModalityInference.HornPropagation.checkFormula_sound',
+    'ModalityInference.HornPropagation.checkFormula_supported',
+    'ModalityInference.HornPropagation.checkFormula_complete',
+    'ModalityInference.HornPropagation.checkFormula_satisfiable_iff',
+    'ModalityInference.HornPropagation.checkFormula_not_exhausted',
+    'ModalityInference.HornPropagation.checkFormula_rejected_iff',
+    'ModalityInference.HornPropagation.checkFormula_mono',
+    'ModalityInference.HornPropagation.checkFormula_stable',
+    'ModalityInference.HornPropagation.checkFormula_fixpoint',
+    'ModalityInference.HornPropagation.checkFormula_least',
+    'ModalityInference.HornPropagation.update_le_iff_atomicObligations',
+    'ModalityInference.HornPropagation.update_fixed_iff_atomicObligations',
+    'ModalityInference.HornPropagation.eval_iff_atomicObligations_and_constants',
+    'ModalityInference.HornPropagation.checkFormula_saturated',
+    'ModalityInference.ModeAssignment.ofBooleans_lookup',
+    'ModalityInference.ModeAssignment.ofBooleans_models',
+]
 if args.semantic:
     constants = [
         'ModalityInference.Typing.resource_semantic_used',
@@ -1516,6 +1547,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ScopedCaptures\n'
                     'import ModalityInference.Proofs.Backend\n'
                     'import ModalityInference.Proofs.Projection\n'
+                    'import ModalityInference.Proofs.HornPropagation\n'
                     'import ModalityInference.Proofs.ContextScoping\n'
                     'import ModalityInference.Proofs.SubsumptionScope\n'
                     'import ModalityInference.Proofs.ResourceCapture\n'

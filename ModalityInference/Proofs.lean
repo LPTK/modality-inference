@@ -6,6 +6,7 @@ import ModalityInference.Proofs.Obligations
 import ModalityInference.Proofs.PolymorphicCapture
 import ModalityInference.Proofs.ScopedCaptures
 import ModalityInference.Proofs.Projection
+import ModalityInference.Proofs.HornPropagation
 import ModalityInference.Proofs.ContextScoping
 import ModalityInference.Proofs.SubsumptionScope
 import ModalityInference.Proofs.Resources

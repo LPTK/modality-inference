@@ -1,4 +1,5 @@
 import ModalityInference.Proofs.ModeSearch
+import ModalityInference.Proofs.CNFNormalization
 
 /-! Termination and completeness of Boolean and modality consistency search. -/
 namespace ModalityInference
@@ -105,47 +106,6 @@ theorem searchCNF_complete {fuel todo}
   | success result => exact ⟨result, rfl⟩
   | rejected message => exact False.elim (searchCNF_rejected h cs σ hm η hη)
   | exhausted => exact False.elim (searchCNF_terminates hf h)
-
-/-- Normalization eventually returns the same clauses for every larger budget,
-including the intermediate Cartesian-product size check. -/
-theorem toCNF_complete (e : BoolExpr) (positive : Bool) :
-    ∃ n cs, ∀ fuel ≥ n, toCNF fuel positive e = .success cs := by
-  induction e generalizing positive with
-  | const b => exact ⟨1, if b == positive then [] else [[]],
-      fun fuel hf => by cases fuel <;> simp_all [toCNF]⟩
-  | atom v => exact ⟨1, [[(v,positive)]],
-      fun fuel hf => by cases fuel <;> simp_all [toCNF]⟩
-  | and a b ia ib =>
-    obtain ⟨na, ca, ha⟩ := ia positive
-    obtain ⟨nb, cb, hb⟩ := ib positive
-    refine ⟨na + nb + ca.length * cb.length + 1,
-      if positive then cleanCNF (ca ++ cb)
-        else cleanCNF (ca.flatMap fun x => cb.map (x ++ ·)), ?_⟩
-    rintro (_ | fuel) hf
-    · omega
-    · cases positive <;> simp [toCNF, ha fuel (by omega), hb fuel (by omega),
-        bind, pure, RunResult.bind, cnfOr, show ¬ca.length * cb.length > fuel + 1 by omega]
-  | or a b ia ib =>
-    obtain ⟨na, ca, ha⟩ := ia positive
-    obtain ⟨nb, cb, hb⟩ := ib positive
-    refine ⟨na + nb + ca.length * cb.length + 1,
-      if positive then cleanCNF (ca.flatMap fun x => cb.map (x ++ ·))
-        else cleanCNF (ca ++ cb), ?_⟩
-    rintro (_ | fuel) hf
-    · omega
-    · cases positive <;> simp [toCNF, ha fuel (by omega), hb fuel (by omega),
-        bind, pure, RunResult.bind, cnfOr, show ¬ca.length * cb.length > fuel + 1 by omega]
-  | imp a b ia ib =>
-    obtain ⟨na, ca, ha⟩ := ia (!positive)
-    obtain ⟨nb, cb, hb⟩ := ib positive
-    refine ⟨na + nb + ca.length * cb.length + 1,
-      if positive then cleanCNF (ca.flatMap fun x => cb.map (x ++ ·))
-        else cleanCNF (ca ++ cb), ?_⟩
-    rintro (_ | fuel) hf
-    · omega
-    · cases positive <;> simp only [Bool.not_true, Bool.not_false] at ha <;>
-        simp [toCNF, ha fuel (by omega), hb fuel (by omega),
-        bind, pure, RunResult.bind, cnfOr, show ¬ca.length * cb.length > fuel + 1 by omega]
 
 theorem satisfiableModes_complete {cs η} (hη : ModeModels cs η) :
     ∃ n, ∀ fuel ≥ n, ∃ result, satisfiableModes fuel cs = .success result := by
