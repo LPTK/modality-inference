@@ -35,8 +35,8 @@ theorem rewrite_termination (s : SolverState) :
 /-- DEFERRED. Prerequisites: each worklist transition is simulated by abstract
 rewriting. `ModeSeen` and `TypeSeen` justify duplicate discharge for every constraint
 kind throughout the complete worklist. `SolverTransport` transports these
-consequences through later type substitutions under image-definedness premises;
-complete substitution simulation remains. -/
+consequences through later type substitutions, and `SolverImages` proves definedness
+of returned type images; complete substitution simulation remains. -/
 theorem runSolver_correspondence {fuel s t}
     (hft : ∀ v ∈ (s.pending ++ s.bounds).typeVariables, v.index < s.nextType)
     (hfm : ∀ v ∈ (s.pending ++ s.bounds).modeVariables, v.index < s.nextMode)
@@ -48,8 +48,9 @@ theorem runSolver_correspondence {fuel s t}
 /-- DEFERRED solution entailment. Local type and modality steps reconstruct input
 entailment; normalization, residual output form and acyclic substitution preservation
 are proved independently. `ModeSeen` and `TypeSeen` prove cache soundness through all
-transitions. `SolverTransport` handles later type substitutions assuming defined
-images; complete worklist simulation and the image-definedness invariant remain.
+transitions. `SolverTransport` handles later type substitutions, and `SolverImages`
+proves definedness of accumulated type images. Preservation of earlier eliminated
+equalities and complete backward worklist reconstruction remain.
 `ModeCycle` refutes the former
 tied `sub2` orientation; the corrected step retains that inequality for projection. -/
 theorem solve_sound {fuel cs result} (h : solve fuel cs = .success result) :

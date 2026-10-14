@@ -2,7 +2,7 @@ import ModalityInference.Proofs.TypeSeen
 import ModalityInference.Proofs.EntailmentTransport
 
 /-! Cached consequences under later type substitutions. Definedness of inserted
-images is a premise here; full solver input entailment still needs to establish it. -/
+images is explicit here and established for actual results in `SolverImages`. -/
 namespace ModalityInference
 
 theorem SolverState.TypeReady.duplicate_substitute_entails {s : SolverState}

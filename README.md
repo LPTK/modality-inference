@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-696 public or established declarations transitively, including the complete
+711 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -113,8 +113,8 @@ subtyping rules. `Proofs/SolverLocalSoundness` connects this result to executabl
 and retained bounds entails its original input. Outer-modality flattening and
 normalization preserve realization, definedness and mutual subtyping. The proof
 also covers alternative residual orientations, concrete checks and retained
-bounds. Full worklist soundness still requires complete simulation and definedness
-of accumulated type images; these local results do not discharge that admission.
+bounds. Full worklist soundness still requires complete simulation; these local
+results do not discharge that admission.
 
 `Proofs/SolverSubstitution` proves acyclicity for every successful worklist
 transition and run, including updates to all prior substitution images.
@@ -232,9 +232,19 @@ without an extra premise.
 `Proofs/SolverTransport` applies this result to duplicate discharge, local type
 and modality steps, the final cache, and normalization. It also proves that a
 single occurs-free type substitution satisfies the equality it eliminates when
-its image is defined. These are conditional transport results: full solver
-soundness still needs definedness of accumulated images and an argument that
-later substitutions preserve earlier eliminated equalities.
+its image is defined. `SolverImages` supplies image definedness for actual results.
+
+`Proofs/SolverStepEntailment` proves backward entailment of the entire pending and
+retained constraint list for every step preserving the saved substitution,
+including duplicate discharge. It also identifies the exact equality-elimination
+case when that substitution changes. `Proofs/SolverImages` uses these results and
+entailment transport to prove that all accumulated type images are defined under
+any context entailing the remaining constraints, through every step and complete
+run. Equality elimination's queued guards establish the new image's definedness;
+transport handles its insertion into all earlier images. Returned residual bounds
+entail themselves, and `solve_images_defined` proves that every returned type
+image is defined under those bounds. Full input entailment still needs preservation
+of earlier eliminated equalities and complete backward run reconstruction.
 
 ## Corrections and retained witnesses
 
@@ -540,6 +550,7 @@ All paths below are relative to `ModalityInference/`.
 | Eliminated identifiers and substitution fixed points | `Proofs/SolverUnbound` | Proved exclusion of eliminated identifiers from pending, retained, and visited constraints through complete runs; all three lists and returned solver bounds are fixed by the accumulated substitution |
 | Complete constraint cache | `Proofs/TypeSeen` | Proved type-cache preservation with the forced-reset expansion case, duplicate discharge for every constraint kind, and entailment of all constraints still cached after successful runs; full input solution entailment remains open |
 | Entailment under later substitutions | `Proofs/EntailmentTransport`, `Proofs/SolverTransport` | Proved context and type-only substitution transport with explicit image-definedness premises, including cached consequences, local steps and normalization; complete run reconstruction remains open |
+| Accumulated image definedness | `Proofs/SolverStepEntailment`, `Proofs/SolverImages` | Proved backward entailment for steps preserving the substitution and image definedness through all steps/runs; every returned type image is defined under the returned residual bounds |
 | Saved-substitution shape checking | `Proofs/ShapeEntry`, `Proofs/SolverEntry` | Proved a cyclic-shape witness with an acyclic saved substitution, rejection at every fuel at least two after applying that substitution, and unchanged empty-substitution behavior; full termination remains open |
 | Ambient principality assumptions | `Proofs/PrincipalAmbient` | Refuted unrestricted whole-type assumptions using a finitely satisfiable witness; the deferred theorem now requires the paper's residual-bound grammar |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |

@@ -727,6 +727,21 @@ constants = [
     'ModalityInference.stepMode_substitute_entails',
     'ModalityInference.SolverState.TypeReady.finished_substitute_entails',
     'ModalityInference.Substitution.singleType_equal_entails',
+    'ModalityInference.SolverState.entails_head',
+    'ModalityInference.stepType_head_entails',
+    'ModalityInference.stepMode_head_entails',
+    'ModalityInference.solverStep_entails_of_same_substitution',
+    'ModalityInference.solverStep_substitution_cases',
+    'ModalityInference.SolverState.ImagesInvariant.backward',
+    'ModalityInference.Substitution.singleType_images_defined',
+    'ModalityInference.SolverState.ImagesInvariant.eliminate',
+    'ModalityInference.solverStep_imagesInvariant',
+    'ModalityInference.SolverState.ImagesInvariant.empty',
+    'ModalityInference.runWorklist_imagesInvariant',
+    'ModalityInference.runSolver_imagesInvariant',
+    'ModalityInference.SolverState.DefinedInvariant.bounds_entails',
+    'ModalityInference.solveFrom_images_defined',
+    'ModalityInference.solve_images_defined',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -784,6 +799,8 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.TypeSeen\n'
                     'import ModalityInference.Proofs.EntailmentTransport\n'
                     'import ModalityInference.Proofs.SolverTransport\n'
+                    'import ModalityInference.Proofs.SolverStepEntailment\n'
+                    'import ModalityInference.Proofs.SolverImages\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(
