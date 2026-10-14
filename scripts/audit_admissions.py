@@ -931,6 +931,48 @@ constants = [
     'ModalityInference.GeneralizationDefinedness.defined_instance_typable',
     'ModalityInference.GeneralizationDefinedness.UnguardedGeneralization',
     'ModalityInference.GeneralizationDefinedness.no_unguarded_generalization',
+    'ModalityInference.JudgmentMap',
+    'ModalityInference.JudgmentMap.submode',
+    'ModalityInference.JudgmentMap.subtype',
+    'ModalityInference.JudgmentMap.defined',
+    'ModalityInference.JudgmentMap.type_defined',
+    'ModalityInference.JudgmentMap.entails',
+    'ModalityInference.ModExpr.subst_subst',
+    'ModalityInference.TypeExpr.subst_subst',
+    'ModalityInference.Constraint.subst_subst',
+    'ModalityInference.Constraint.subst_congr',
+    'ModalityInference.Substitution.constraint_subst_entails',
+    'ModalityInference.Substitution.constraint_subst',
+    'ModalityInference.Substitution.mapFunctions',
+    'ModalityInference.Instantiates.mapFunctions',
+    'ModalityInference.Substitution.mapFunctions_type',
+    'ModalityInference.Substitution.mapFunctions_mode',
+    'ModalityInference.Substitution.mapFunctions_ty',
+    'ModalityInference.Substitution.mapFunctions_constraint_entails',
+    'ModalityInference.JudgmentMap.bounds_entails',
+    'ModalityInference.TypeExpr.wellFormedBounds_subst_subset',
+    'ModalityInference.TypeExpr.DefinedUnder.subst_function_guards',
+    'ModalityInference.Entails.subst_function_assumptions',
+    'ModalityInference.EntailsAll.subst_function_assumptions',
+    'ModalityInference.ModeSatisfies.subst_functions',
+    'ModalityInference.JudgmentMap.append_of_fixed',
+    'ModalityInference.ModExpr.eval_vars_defined',
+    'ModalityInference.ModExpr.WellFormed.subst_var',
+    'ModalityInference.TypeExpr.DefinedUnder.subst_types',
+    'ModalityInference.TypeExpr.DefinedUnder.subst_modes',
+    'ModalityInference.Entails.subst_types_defined',
+    'ModalityInference.Entails.subst_modes_defined',
+    'ModalityInference.Scheme.instance_support_defined',
+    'ModalityInference.Scheme.instanceTypeMap',
+    'ModalityInference.Scheme.instanceModeMap',
+    'ModalityInference.Scheme.instanceTypeMap_lt',
+    'ModalityInference.Scheme.instanceModeMap_lt',
+    'ModalityInference.Scheme.instanceTypeMap_defined',
+    'ModalityInference.Scheme.instanceModeMap_defined',
+    'ModalityInference.Instantiates.skolemized_type_map',
+    'ModalityInference.Instantiates.skolemized_mode_map',
+    'ModalityInference.Instantiates.skolemMap',
+    'ModalityInference.Subsumes.instantiate',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -1005,6 +1047,9 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SchemeFreshening\n'
                     'import ModalityInference.Proofs.SubsumptionAssumptions\n'
                     'import ModalityInference.Proofs.GeneralizationDefinedness\n'
+                    'import ModalityInference.Proofs.SkolemSubstitution\n'
+                    'import ModalityInference.Proofs.InstanceDefinedness\n'
+                    'import ModalityInference.Proofs.SubsumptionInstances\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

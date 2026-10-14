@@ -22,7 +22,7 @@ solver correspondence/termination/completeness/principality, generation, elabora
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-900 public or established declarations transitively, including the complete
+942 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -467,6 +467,18 @@ every context, ambient bound list and mode. Generation still needs transport
 through enclosing symbolic locks and arbitrary solutions, and inference still
 requires the actual generated capture annotations.
 
+`Proofs/SubsumptionInstances` proves syntactic instance preservation for declarative
+scheme subsumption. Given a target instance with entailed bounds and a defined
+body, `Subsumes.instantiate` constructs a source instance with entailed bounds
+whose body is a subtype of that target body. `SkolemSubstitution` transports
+subtyping, submoding, entailment and definedness while fixing the ambient bounds.
+`InstanceDefinedness` extracts defined images only for variables that occur in the
+target body or bounds. Unused quantified images can be partial; reconstruction
+replaces their skolems with defined defaults. The proof permits repeated parameter
+names and retains the source witness's exact quantified domain. It requires no
+self-entailment premise for the ambient bounds and does not assert that subtyping
+preserves `DefinedUnder` under arbitrary raw bounds.
+
 Evaluator correspondence, determinism, fuel stability, Boolean CNF reduction,
 and all-axis modality projection are also proved independently. Backend modality
 entailment agrees with `ModeModels`; a positive inequality report establishes
@@ -666,6 +678,7 @@ All paths below are relative to `ModalityInference/`.
 | Fresh schemes and contexts | `Proofs/SchemeFreshening` | Proved freshening beyond arbitrary ambient bounds, exact instance equivalence, source subsumption and context weakening; a fresh context supplies all lock freshness premises |
 | Target assumptions in scheme comparison | `Proofs/SubsumptionAssumptions`, `Proofs/ConstraintModels`, `Proofs/SchemeBounds` | Refuted reflexivity of the raw-target rule on an inhabited equality scheme; corrected comparison is reflexive for every scheme, preserves every former comparison, and retains whole-core resource soundness |
 | Defined generalized instances | `Proofs/GeneralizationDefinedness` | Refuted the former unguarded generalization contract with a hygienic constant function; corrected contract requires instance definedness, and the example is proved typable for every defined instance |
+| Syntactic subsumption instances | `Proofs/SkolemSubstitution`, `Proofs/InstanceDefinedness`, `Proofs/SubsumptionInstances` | Proved source-instance reconstruction and subtyping for every defined target instance, retaining arbitrary ambient bounds, repeated parameters and unused partial images |
 | Simultaneous substitution | `Proofs/Substitution` | Proved composition for types, modalities, constraints and bounds, plus agreement of scheme substitution with its exposed binder action; no admissions |
 | Transport through scheme binders | `Annotations`, `Proofs/Annotations`, `Proofs/ScopedCaptures` | Executable per-capture binder transport and paired scheme/value substitution; proved erasure, reference, liveness and evaluation preservation; nested polymorphic witness |
 | Explicit value instantiation | `Annotations`, `Proofs/Instantiation`, `Proofs/ScopedCaptures` | Ordered arguments transport metadata; proved instantiation, definedness-guard and erasure contracts; optional transport route, not required by resource soundness |
