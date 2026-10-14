@@ -878,6 +878,32 @@ constants = [
     'ModalityInference.Lock.append',
     'ModalityInference.Context.lock_withAssumptions',
     'ModalityInference.UsageSplit.declarative_bindings',
+    'ModalityInference.lookup_map_values',
+    'ModalityInference.Substitution.identity_bounds_entails',
+    'ModalityInference.Substitution.mapImages',
+    'ModalityInference.Substitution.mapImages_type',
+    'ModalityInference.Substitution.mapImages_mode',
+    'ModalityInference.Instantiates.mapImages',
+    'ModalityInference.Instantiates.subst_type_lt',
+    'ModalityInference.Instantiates.subst_mode_lt',
+    'ModalityInference.Instantiates.unsubstitute_identity',
+    'ModalityInference.Scheme.subsumes_subst_identity',
+    'ModalityInference.Scheme.subst_identity_instances',
+    'ModalityInference.Substitution.identityAt',
+    'ModalityInference.Substitution.identityAt_type',
+    'ModalityInference.Substitution.identityAt_mode',
+    'ModalityInference.Scheme.freshening_identityAt',
+    'ModalityInference.Scheme.subst_freshForBounds',
+    'ModalityInference.Scheme.freshenedFor',
+    'ModalityInference.Scheme.freshenedFor_fresh',
+    'ModalityInference.Scheme.subsumes_freshenedFor',
+    'ModalityInference.Scheme.freshenedFor_instances',
+    'ModalityInference.Scheme.FreshForBounds.of_subset',
+    'ModalityInference.Scheme.FreshForBounds.defined',
+    'ModalityInference.Context.freshenedFor',
+    'ModalityInference.Context.freshenedFor_le',
+    'ModalityInference.Context.freshenedFor_fresh',
+    'ModalityInference.Context.freshenedFor_lock',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -949,6 +975,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SchemeInstantiation\n'
                     'import ModalityInference.Proofs.SchemeBounds\n'
                     'import ModalityInference.Proofs.GenerationContextTyping\n'
+                    'import ModalityInference.Proofs.SchemeFreshening\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

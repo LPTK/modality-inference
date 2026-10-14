@@ -33,14 +33,6 @@ theorem TypeExpr.realize_setType_fresh {ρ : GroundAssignment} {n a} (b : Ty)
     · rfl
   · exact fun _ _ => rfl
 
-private theorem lookup_map_values (xs : List (Nat × Ty)) (f : Ty → Ty) (n : Nat) :
-    (xs.map (fun (k, v) => (k, f v))).lookup n = (xs.lookup n).map f := by
-  induction xs with
-  | nil => rfl
-  | cons p xs ih =>
-    rcases p with ⟨k, v⟩
-    cases h : (n == k) <;> simp [List.lookup_cons, h, ih]
-
 theorem Substitution.extendType_type {σ : Substitution} {n t}
     (hn : n ∉ σ.types.map Prod.fst) (v : TypeVar) :
     (σ.extendType n t).type v = ({types := [(n,t)]} : Substitution).ty (σ.type v) := by

@@ -3,7 +3,7 @@ import ModalityInference.Core.Syntax
 /-! Composition of simultaneous type and modality substitutions. -/
 namespace ModalityInference
 
-private theorem lookup_map_values (xs : List (Nat × A)) (f : A → B) (n : Nat) :
+theorem lookup_map_values (xs : List (Nat × A)) (f : A → B) (n : Nat) :
     (xs.map (fun (k, v) => (k, f v))).lookup n = (xs.lookup n).map f := by
   induction xs with
   | nil => rfl

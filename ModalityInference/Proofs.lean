@@ -66,6 +66,7 @@ import ModalityInference.Proofs.GenerationScope
 import ModalityInference.Proofs.SchemeInstantiation
 import ModalityInference.Proofs.SchemeBounds
 import ModalityInference.Proofs.GenerationContextTyping
+import ModalityInference.Proofs.SchemeFreshening
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
