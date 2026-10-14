@@ -1,4 +1,5 @@
 import ModalityInference.Proofs.SolverFlexible
+import ModalityInference.Proofs.ModeConsistency
 import ModalityInference.Proofs.ConstraintModels
 
 /-! Unbounded syntactic growth from redundant modality-bound propagation. -/
@@ -285,7 +286,28 @@ theorem satisfiable : BoundsSatisfiable bounds :=
   ground_model.boundsSatisfiable hf.1 hf.2
 
 theorem corrected_succeeds (fuel : Nat) :
-    ∃ result, solve (fuel + 100) bounds = .success result := ⟨_, rfl⟩
+    ∃ result, solve (fuel + 100) bounds = .success result := by
+  let s : SolverState := match runSolver 100
+      {pending := bounds, nextType := bounds.freshTypeIndex, nextMode := bounds.freshModeIndex} with
+    | .success s => s
+    | _ => {pending := []}
+  have hh : (boundsModeFormula s.bounds).IsHorn := by repeat' constructor
+  have hf : HornPropagation.requiredFuel (boundsModeFormula s.bounds) ≤ (fuel + 100) := by
+    simp only [HornPropagation.requiredFuel, HornPropagation.domain, List.length_mergeSort]
+    change 83 ≤ fuel + 100
+    omega
+  obtain ⟨model, hm⟩ := (HornPropagation.checkFormula_satisfiable_iff hh hf).mpr
+    ⟨fun n => n % 3 == 2, by decide⟩
+  have hw : satisfiableModes (fuel + 100) s.bounds =
+      .success (ModeAssignment.ofBooleans s.bounds model.eval) := by
+    rw [satisfiableModes, ModeConsistency.solve_of_polarized hh]
+    simp [HornPropagation.satisfiableModes, hm, bind, pure, RunResult.bind]
+  refine ⟨⟨s.substitution, s.bounds, ModeAssignment.ofBooleans s.bounds model.eval,
+    s.nextType, s.nextMode, s.trace.reverse⟩, ?_⟩
+  change (do
+    let w ← satisfiableModes (fuel + 100) s.bounds
+    pure (⟨s.substitution, s.bounds, w, s.nextType, s.nextMode, s.trace.reverse⟩ : Solved)) = _
+  simp only [hw, bind, pure, RunResult.bind]
 
 theorem corrected_eventual_success :
     ∃ n, ∀ fuel ≥ n, ∃ result, solve fuel bounds = .success result :=

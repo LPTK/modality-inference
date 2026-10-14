@@ -1,7 +1,8 @@
 import ModalityInference.Proofs.ModeWitness
+import ModalityInference.Proofs.ModeConsistency
 import ModalityInference.Constraints
 
-/-! Correctness of the finite consistency search and its returned witness. -/
+/-! Optional search-oracle proofs and compatibility exports for propagation witnesses. -/
 namespace ModalityInference
 
 theorem ClauseHolds.filter_assigned {σ : Nat → Bool} {v b} (hv : σ v = b) (c : Clause) :
@@ -127,22 +128,12 @@ theorem searchCNF_single_sound {fuel cs σ result}
 
 theorem satisfiableModes_witness {fuel cs result}
     (h : satisfiableModes fuel cs = .success result) :
-    ∃ η, ModeModels cs η ∧ ∀ v ∈ cs.modVars, result.lookup v = some (η v) := by
-  unfold satisfiableModes at h
-  cases hc : toCNF fuel true (boundsModeFormula cs) <;>
-    simp [hc, bind, RunResult.bind] at h
-  rename_i clauses
-  cases hs : searchCNF fuel [(clauses, [])] <;> simp [hs, pure] at h
-  rename_i σ
-  subst result
-  refine ⟨projectedModes (booleanValuation σ), ?_, ?_⟩
-  · exact (boundsModeFormula_correct _ _).mp ((toCNF_correct hc _).mp (searchCNF_single_sound hs))
-  · exact fun v hv => lookup_map_self cs.modeVariables _ ((cs.mem_modeVariables v).mpr hv)
+    ∃ η, ModeModels cs η ∧ ∀ v ∈ cs.modVars, result.lookup v = some (η v) :=
+  ModeConsistency.solve_witness h
 
 theorem satisfiableModes_sound {fuel cs result}
-    (h : satisfiableModes fuel cs = .success result) : ModeModels cs result.total := by
-  obtain ⟨η, hη, hv⟩ := satisfiableModes_witness h
-  exact (ModeModels.congr cs (fun v hm => by simp [ModeAssignment.total, hv v hm])).mpr hη
+    (h : satisfiableModes fuel cs = .success result) : ModeModels cs result.total :=
+  ModeConsistency.solve_sound h
 
 theorem solveFrom_mode_witness {fuel nt nm cs result}
     (h : solveFrom fuel nt nm cs = .success result) :

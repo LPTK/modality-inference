@@ -81,8 +81,11 @@ theorem refined_typable : Typing residual context
 theorem inferred_type_with_refined_annotation : ∃ result, infer 100 context term = .success result ∧
     (.lam [some refinedCapture] (.pair (.var 1) (.var 1)) : AnnotatedTerm).erase = term ∧
     Typing result.residual (context.subst result.substitution)
-      (.lam [some refinedCapture] (.pair (.var 1) (.var 1))) result.scheme.body :=
-  ⟨_, rfl, rfl, refined_typable⟩
+      (.lam [some refinedCapture] (.pair (.var 1) (.var 1))) result.scheme.body := by
+  obtain ⟨result, hi, hb, _, hs, hbody⟩ := succeeds_with_type
+  refine ⟨result, hi, rfl, ?_⟩
+  rw [hb, hs, hbody]
+  exact refined_typable
 
 end SharingLockCapture
 end ModalityInference

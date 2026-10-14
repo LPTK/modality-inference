@@ -1,7 +1,7 @@
 import ModalityInference.Proofs.ModeSearch
 import ModalityInference.Proofs.CNFNormalization
 
-/-! Termination and completeness of Boolean and modality consistency search. -/
+/-! Optional search-oracle proofs and compatibility exports for propagation completeness. -/
 namespace ModalityInference
 
 /-- Base three pays for both children while leaving a step for the parent. -/
@@ -108,26 +108,12 @@ theorem searchCNF_complete {fuel todo}
   | exhausted => exact False.elim (searchCNF_terminates hf h)
 
 theorem satisfiableModes_complete {cs η} (hη : ModeModels cs η) :
-    ∃ n, ∀ fuel ≥ n, ∃ result, satisfiableModes fuel cs = .success result := by
-  obtain ⟨n, clauses, hc⟩ := toCNF_complete (boundsModeFormula cs) true
-  have hm : CNFHolds (encodeModes η) clauses := by
-    simpa only [toCNF_correct (hc n le_rfl), boundsModeFormula_correct,
-      projectedModes_encodeModes] using hη
-  refine ⟨n + clauses.searchWeight + 1, fun fuel hf => ?_⟩
-  have hw : CNF.frontierWeight [(clauses, [])] < fuel := by
-    simpa [CNF.frontierWeight] using (show clauses.searchWeight < fuel by omega)
-  obtain ⟨σ, hs⟩ := searchCNF_complete hw ⟨clauses, [], encodeModes η, by simp, hm⟩
-  simp [satisfiableModes, hc fuel (by omega), hs, bind, pure, RunResult.bind]
+    ∃ n, ∀ fuel ≥ n, ∃ result, satisfiableModes fuel cs = .success result :=
+  ModeConsistency.solve_complete hη
 
 theorem satisfiableModes_terminates (cs : Bounds) :
-    ∃ n, ∀ fuel ≥ n, satisfiableModes fuel cs ≠ .exhausted := by
-  obtain ⟨n, clauses, hc⟩ := toCNF_complete (boundsModeFormula cs) true
-  refine ⟨n + clauses.searchWeight + 1, fun fuel hf => ?_⟩
-  have hw : CNF.frontierWeight [(clauses, [])] < fuel := by
-    simpa [CNF.frontierWeight] using (show clauses.searchWeight < fuel by omega)
-  have ht := searchCNF_terminates hw
-  cases hs : searchCNF fuel [(clauses, [])] <;>
-    simp_all [satisfiableModes, hc fuel (by omega), bind, pure, RunResult.bind]
+    ∃ n, ∀ fuel ≥ n, satisfiableModes fuel cs ≠ .exhausted :=
+  ModeConsistency.solve_terminates cs
 
 theorem satisfiableModes_success_iff (cs : Bounds) :
     (∃ fuel result, satisfiableModes fuel cs = .success result) ↔ ∃ η, ModeModels cs η := by

@@ -1,4 +1,5 @@
 import ModalityInference.Proofs.SolverFlexible
+import ModalityInference.Proofs.ModeConsistency
 
 /-! A tied minimum allowed residual swaps to erase a false inequality. -/
 namespace ModalityInference.ModeCycle
@@ -82,7 +83,27 @@ def bounds : Bounds := [inequality, .mode modeVar (.const Mode.identity)]
 
 theorem former_succeeds : ∃ result, formerSolve 100 bounds = .success result ∧
     result.substitution = {} ∧
-    satisfiableModes 100 result.bounds = .success result.witness := ⟨_, rfl, rfl, rfl⟩
+    satisfiableModes 100 result.bounds = .success result.witness := by
+  let s : SolverState := match formerWorklist 100
+      {pending := bounds, nextType := bounds.freshTypeIndex, nextMode := bounds.freshModeIndex} with
+    | .success s => s
+    | _ => {pending := []}
+  have hh : (boundsModeFormula s.bounds).IsHorn := by repeat' constructor
+  have hf : HornPropagation.requiredFuel (boundsModeFormula s.bounds) ≤ 100 := by
+    simp only [HornPropagation.requiredFuel, HornPropagation.domain, List.length_mergeSort]
+    decide
+  obtain ⟨model, hm⟩ := (HornPropagation.checkFormula_satisfiable_iff hh hf).mpr
+    ⟨fun n => n % 3 == 2, by decide⟩
+  have hw : satisfiableModes 100 s.bounds =
+      .success (ModeAssignment.ofBooleans s.bounds model.eval) := by
+    rw [satisfiableModes, ModeConsistency.solve_of_polarized hh]
+    simp [HornPropagation.satisfiableModes, hm, bind, pure, RunResult.bind]
+  refine ⟨⟨s.substitution, s.bounds, ModeAssignment.ofBooleans s.bounds model.eval,
+    s.nextType, s.nextMode, s.trace.reverse⟩, ?_, rfl, hw⟩
+  change (do
+    let w ← satisfiableModes 100 s.bounds
+    pure (⟨s.substitution, s.bounds, w, s.nextType, s.nextMode, s.trace.reverse⟩ : Solved)) = _
+  simp only [hw, bind, pure, RunResult.bind]
 
 theorem no_model (η : ModVar → Mode) : ¬ ModeModels bounds η := by
   intro h
@@ -108,6 +129,32 @@ theorem corrected_retains (s : SolverState) :
 
 theorem corrected_rejects (fuel : Nat) :
     solve (fuel + 100) bounds = .rejected "inconsistent modality bounds" := by
-  rfl
+  let s : SolverState := match runSolver 100
+      {pending := bounds, nextType := bounds.freshTypeIndex, nextMode := bounds.freshModeIndex} with
+    | .success s => s
+    | _ => {pending := []}
+  have hh : (boundsModeFormula s.bounds).IsHorn := by repeat' constructor
+  have hf : HornPropagation.requiredFuel (boundsModeFormula s.bounds) ≤ fuel + 100 := by
+    simp only [HornPropagation.requiredFuel, HornPropagation.domain, List.length_mergeSort]
+    change 73 ≤ fuel + 100
+    omega
+  have hn : ¬ ∃ σ, (boundsModeFormula s.bounds).eval σ = true := by
+    rintro ⟨σ, hσ⟩
+    have hm := (boundsModeFormula_correct s.bounds σ).mp hσ
+    apply no_model (projectedModes σ)
+    intro c hc
+    apply hm c
+    change c ∈ [.defined modeVar, .mode modeVar (.const Mode.identity), inequality]
+    simp only [bounds, List.mem_cons, List.not_mem_nil, or_false] at hc
+    rcases hc with rfl | rfl <;> decide
+  have hw : satisfiableModes (fuel + 100) s.bounds =
+      .rejected "inconsistent modality bounds" := by
+    rw [satisfiableModes, ModeConsistency.solve_of_polarized hh]
+    simp [HornPropagation.satisfiableModes,
+      (HornPropagation.checkFormula_rejected_iff hh hf).mpr hn, bind, RunResult.bind]
+  change (do
+    let w ← satisfiableModes (fuel + 100) s.bounds
+    pure (⟨s.substitution, s.bounds, w, s.nextType, s.nextMode, s.trace.reverse⟩ : Solved)) = _
+  simp only [hw, bind, RunResult.bind]
 
 end ModalityInference.ModeCycle

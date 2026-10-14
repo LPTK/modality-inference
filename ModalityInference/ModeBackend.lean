@@ -212,7 +212,8 @@ def searchCNF : Nat → List (CNF × List (Nat × Bool)) → RunResult (List (Na
         searchCNF fuel ((assignCNF cs v false, (v,false)::σ) ::
           (assignCNF cs v true, (v,true)::σ) :: todo)
 
-def satisfiableModes (fuel : Nat) (cs : Bounds) : RunResult ModeAssignment := do
+/-- Optional DPLL oracle for differential checks; inference uses `ModeConsistency`. -/
+def searchSatisfiableModes (fuel : Nat) (cs : Bounds) : RunResult ModeAssignment := do
   let clauses ← toCNF fuel true (boundsModeFormula cs)
   let σ ← searchCNF fuel [(clauses, [])]
   return cs.modeVariables.map fun v =>

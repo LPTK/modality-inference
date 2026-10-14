@@ -1,4 +1,4 @@
-import ModalityInference.ModeBackend
+import ModalityInference.ModeConsistency
 import ModalityInference.Declarative
 import ModalityInference.Core.Scoping
 

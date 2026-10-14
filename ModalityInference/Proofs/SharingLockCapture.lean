@@ -21,9 +21,86 @@ def residual : Bounds :=
    .sub (.modal (α 0) (.const Mode.aliased)) (.modal (α 0) aliasFuture),
    .sub (.modal (α 0) .epsilon) (.modal (α 0) (.const Mode.many))]
 
+private theorem infer_from_stages {fuel Γ t g s witness}
+    (hg : generate fuel (Γ.map ContextEntry.binding) t (initialInferenceState Γ) =
+      .success g)
+    (hr : runSolver fuel
+      {pending := g.state.constraints, nextType := g.state.nextType,
+       nextMode := g.state.nextMode} = .success s)
+    (hw : satisfiableModes fuel s.bounds = .success witness) :
+    ∃ result, infer fuel Γ t = .success result ∧ result.residual = s.bounds ∧
+      result.elaborated = g.term ∧ result.substitution = s.substitution ∧
+      result.scheme.body = s.substitution.ty g.type := by
+  have hc : solveFrom fuel g.state.nextType g.state.nextMode g.state.constraints =
+      .success ⟨s.substitution, s.bounds, witness, s.nextType, s.nextMode, s.trace.reverse⟩ := by
+    unfold solveFrom
+    rw [hr]
+    simp only [bind, RunResult.bind]
+    rw [hw]
+    rfl
+  unfold infer
+  rw [hg]
+  simp only [bind, RunResult.bind]
+  rw [hc]
+  exact ⟨_, rfl, rfl, rfl, rfl, rfl⟩
+
+set_option maxHeartbeats 5000000 in
+theorem succeeds_with_type : ∃ result, infer 100 context term = .success result ∧
+    result.residual = residual ∧ result.elaborated = term ∧ result.substitution = {} ∧
+    result.scheme.body = .modal (.fn (α 1) (.modal (.prod (α 2) (α 3)) (μ 1))) (μ 0) := by
+  have hdomain : HornPropagation.domain (boundsModeFormula residual) = [] := by
+    simp [HornPropagation.domain, boundsModeFormula, residual, constraintModeFormula,
+      ModExpr.project, μ, aliasCapture, aliasFuture, BoolExpr.all, BoolExpr.atoms]
+  have hpolar : (boundsModeFormula residual).IsHorn := by
+    dsimp [boundsModeFormula, residual, constraintModeFormula, ModExpr.project,
+      μ, aliasCapture, aliasFuture, BoolExpr.all]
+    repeat constructor
+  have hsuccess : (satisfiableModes 100 residual).isSuccess = true := by
+    obtain ⟨model, hm⟩ := HornPropagation.checkFormula_complete hpolar
+      ⟨fun _ => false, by decide⟩
+    have hf : HornPropagation.requiredFuel (boundsModeFormula residual) ≤ 100 := by
+      simp only [HornPropagation.requiredFuel, hdomain]
+      decide
+    simp [satisfiableModes, ModeConsistency.solve_of_polarized hpolar,
+      HornPropagation.satisfiableModes, hm 100 hf, bind, pure, RunResult.bind, RunResult.isSuccess]
+  cases hs : satisfiableModes 100 residual <;> simp [hs, RunResult.isSuccess] at hsuccess
+  rename_i witness
+  let shared : Constraint := .sub (α 0) (.modal (α 0) (.const Mode.many))
+  let crossing : Constraint := .sub (.modal (α 0) (.const Mode.aliased))
+    (.modal (.modal (α 0) (.const Mode.aliased)) (.future (μ 0)))
+  let use : Nat → Constraint := fun n => .sub
+    (.modal (.modal (α 0) (.const Mode.aliased)) (.capture (μ 0)))
+    (.modal (α n) (μ 1))
+  let g : Generated :=
+    ⟨.modal (.fn (α 1) (.modal (.prod (α 2) (α 3)) (μ 1))) (μ 0), term,
+      {nextType := 4, nextMode := 2, constraints :=
+        [shared, crossing, .defined (.const Mode.aliased), .defined (.capture (μ 0)),
+         shared, crossing, .defined (.const Mode.aliased), .defined (.capture (μ 0)),
+         use 2, use 3]}⟩
+  have hg : generate 100 (context.map ContextEntry.binding) term
+      (initialInferenceState context) = .success g := by rfl
+  have hterm : g.term = term := by rfl
+  have hp : (match runSolver 100
+      {pending := g.state.constraints, nextType := g.state.nextType,
+       nextMode := g.state.nextMode} with
+    | .success s => decide (s.bounds = residual) && decide (s.substitution = {})
+    | _ => false) = true := by decide
+  cases hr : runSolver 100
+      {pending := g.state.constraints, nextType := g.state.nextType,
+       nextMode := g.state.nextMode} <;> simp only [hr, Bool.and_eq_true,
+         decide_eq_true_eq, Bool.false_eq_true] at hp
+  rename_i s
+  obtain ⟨hb, hsub⟩ := hp
+  have hw : satisfiableModes 100 s.bounds = .success witness := by rw [hb]; exact hs
+  obtain ⟨result, hi, hb', ht', hs', hbody⟩ := infer_from_stages hg hr hw
+  refine ⟨result, hi, hb'.trans hb, ht'.trans hterm, hs'.trans hsub, ?_⟩
+  rw [hbody, hsub]
+  rfl
+
 theorem succeeds : ∃ result, infer 100 context term = .success result ∧
-    result.residual = residual ∧ result.elaborated = term ∧ result.substitution = {} :=
-  ⟨_, rfl, rfl, rfl, rfl⟩
+    result.residual = residual ∧ result.elaborated = term ∧ result.substitution = {} := by
+  obtain ⟨result, hi, hb, ht, hs, _⟩ := succeeds_with_type
+  exact ⟨result, hi, hb, ht, hs⟩
 
 def modes : ModVar → Mode
   | .flex 0 => Mode.global

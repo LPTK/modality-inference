@@ -1,4 +1,5 @@
 import ModalityInference.Proofs.SolverFlexible
+import ModalityInference.Proofs.ModeConsistency
 
 /-! Modal self-equality has finite solutions despite a syntactic occurrence. -/
 namespace ModalityInference
@@ -83,7 +84,27 @@ theorem former_no_eventual_success :
 
 theorem corrected_succeeds (fuel : Nat) :
     ∃ result, solve (fuel + 12) bounds = .success result := by
-  exact ⟨_, rfl⟩
+  let s : SolverState := match runSolver 12
+      {pending := bounds, nextType := bounds.freshTypeIndex, nextMode := bounds.freshModeIndex} with
+    | .success s => s
+    | _ => {pending := []}
+  have hh : (boundsModeFormula s.bounds).IsHorn := by repeat' constructor
+  have hf : HornPropagation.requiredFuel (boundsModeFormula s.bounds) ≤ (fuel + 12) := by
+    simp only [HornPropagation.requiredFuel, HornPropagation.domain, List.length_mergeSort]
+    change 6 ≤ fuel + 12
+    omega
+  obtain ⟨model, hm⟩ := (HornPropagation.checkFormula_satisfiable_iff hh hf).mpr
+    ⟨fun n => n % 3 == 2, by decide⟩
+  have hw : satisfiableModes (fuel + 12) s.bounds =
+      .success (ModeAssignment.ofBooleans s.bounds model.eval) := by
+    rw [satisfiableModes, ModeConsistency.solve_of_polarized hh]
+    simp [HornPropagation.satisfiableModes, hm, bind, pure, RunResult.bind]
+  refine ⟨⟨s.substitution, s.bounds, ModeAssignment.ofBooleans s.bounds model.eval,
+    s.nextType, s.nextMode, s.trace.reverse⟩, ?_⟩
+  change (do
+    let w ← satisfiableModes (fuel + 12) s.bounds
+    pure (⟨s.substitution, s.bounds, w, s.nextType, s.nextMode, s.trace.reverse⟩ : Solved)) = _
+  simp only [hw, bind, pure, RunResult.bind]
 
 theorem corrected_eventual_success :
     ∃ n, ∀ fuel ≥ n, ∃ result, solve fuel bounds = .success result := by

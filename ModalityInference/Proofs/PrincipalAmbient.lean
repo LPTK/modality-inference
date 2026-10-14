@@ -1,4 +1,5 @@
 import ModalityInference.Proofs.SolverFlexible
+import ModalityInference.Proofs.ModeConsistency
 
 /-! Whole-type assumptions need not expose their component constraints. -/
 namespace ModalityInference.PrincipalAmbient
@@ -24,8 +25,27 @@ theorem not_residual : ¬ Residual bounds := by
   simp [Residual, bounds, TypeExpr.outer]
 
 theorem succeeds : ∃ result, solve 50 bounds = .success result ∧
-    result.substitution.type (.flex 0) = .modal .unit (.var (.flex 0)) :=
-  ⟨_, rfl, rfl⟩
+    result.substitution.type (.flex 0) = .modal .unit (.var (.flex 0)) := by
+  let s : SolverState := match runSolver 50
+      {pending := bounds, nextType := bounds.freshTypeIndex, nextMode := bounds.freshModeIndex} with
+    | .success s => s
+    | _ => {pending := []}
+  have hh : (boundsModeFormula s.bounds).IsHorn := by repeat' constructor
+  have hf : HornPropagation.requiredFuel (boundsModeFormula s.bounds) ≤ 50 := by
+    simp only [HornPropagation.requiredFuel, HornPropagation.domain, List.length_mergeSort]
+    decide
+  obtain ⟨model, hm⟩ := (HornPropagation.checkFormula_satisfiable_iff hh hf).mpr
+    ⟨fun n => n % 3 == 2, by decide⟩
+  have hw : satisfiableModes 50 s.bounds =
+      .success (ModeAssignment.ofBooleans s.bounds model.eval) := by
+    rw [satisfiableModes, ModeConsistency.solve_of_polarized hh]
+    simp [HornPropagation.satisfiableModes, hm, bind, pure, RunResult.bind]
+  refine ⟨⟨s.substitution, s.bounds, ModeAssignment.ofBooleans s.bounds model.eval,
+    s.nextType, s.nextMode, s.trace.reverse⟩, ?_, rfl⟩
+  change (do
+    let w ← satisfiableModes 50 s.bounds
+    pure (⟨s.substitution, s.bounds, w, s.nextType, s.nextMode, s.trace.reverse⟩ : Solved)) = _
+  simp only [hw, bind, pure, RunResult.bind]
 
 theorem no_variable_unit (m : ModExpr) :
     ¬ Subtype bounds (.var (.flex 0)) (.modal .unit m) :=

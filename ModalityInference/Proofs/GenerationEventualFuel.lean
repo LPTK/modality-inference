@@ -20,12 +20,8 @@ theorem searchCNF_stable {n todo r} (hr : r ≠ .exhausted)
 
 theorem satisfiableModes_monotone {n cs result}
     (h : satisfiableModes n cs = .success result) :
-    ∀ fuel ≥ n, satisfiableModes fuel cs = .success result := by
-  intro fuel hf
-  simp only [satisfiableModes, bind, pure, RunResult.bind] at h ⊢
-  repeat' (split at h <;> try contradiction)
-  rename_i _ clauses hc _ assignment ha
-  simpa only [toCNF_monotone hc fuel hf, searchCNF_stable (by simp) ha fuel hf] using h
+    ∀ fuel ≥ n, satisfiableModes fuel cs = .success result :=
+  ModeConsistency.solve_monotone h
 
 theorem checkShapePairs_stable {n ps r} (hr : r ≠ .exhausted)
     (h : checkShapePairs n ps = r) :

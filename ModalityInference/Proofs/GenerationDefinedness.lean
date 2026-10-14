@@ -2,6 +2,7 @@ import ModalityInference.Core.Scoping
 import ModalityInference.Proofs.UndefinedDomain
 import ModalityInference.Proofs.GenerationTypes
 import ModalityInference.Inference
+import ModalityInference.Proofs.ModeConsistency
 
 /-! Unrestricted raw substitutions can insert undefined internal types into an
 unused lambda domain. The inference theorem excludes them with well-formed-image
@@ -63,7 +64,18 @@ def formerVariableInference (fuel : Nat) (Γ : Context) (i : Nat) : RunResult In
     s.substitution, s.bounds, s.trace⟩
 
 theorem former_inference_success :
-    formerVariableInference 40 [some scheme] 0 = .success ⟨scheme, .var 0, {}, [], []⟩ := rfl
+    formerVariableInference 40 [some scheme] 0 = .success ⟨scheme, .var 0, {}, [], []⟩ := by
+  unfold formerVariableInference
+  simp only [show lookupScheme ([some scheme].map ContextEntry.binding) 0 = .success scheme from rfl,
+    bind, RunResult.bind]
+  change (solveFrom 40 0 0 []).bind _ = _
+  have hs : solveFrom 40 0 0 [] = .success ⟨{}, [], [], 0, 0, []⟩ := by
+    unfold solveFrom
+    change (satisfiableModes 40 []).bind _ = _
+    rw [show satisfiableModes 40 [] = .success [] from ModeConsistency.solve_nil (by decide)]
+    rfl
+  rw [hs]
+  rfl
 
 theorem no_inference_derivation (Γ : Context) (t : AnnotatedTerm) :
     ¬Typing [] Γ t scheme.body := corrected_function_rejected Γ t
