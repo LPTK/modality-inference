@@ -54,6 +54,8 @@ import ModalityInference.Proofs.EntailmentTransport
 import ModalityInference.Proofs.SolverTransport
 import ModalityInference.Proofs.SolverStepEntailment
 import ModalityInference.Proofs.SolverImages
+import ModalityInference.Proofs.SolverExtension
+import ModalityInference.Proofs.SolverSoundness
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

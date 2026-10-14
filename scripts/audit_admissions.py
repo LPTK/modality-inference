@@ -742,6 +742,28 @@ constants = [
     'ModalityInference.SolverState.DefinedInvariant.bounds_entails',
     'ModalityInference.solveFrom_images_defined',
     'ModalityInference.solve_images_defined',
+    'ModalityInference.Substitution.extendsTypes_self',
+    'ModalityInference.Substitution.ExtendsTypes.ty',
+    'ModalityInference.Substitution.extendsTypes_singleType',
+    'ModalityInference.Substitution.ExtendsTypes.extendType_single',
+    'ModalityInference.Substitution.ExtendsTypes.extendType_previous',
+    'ModalityInference.solverStep_modes',
+    'ModalityInference.solverStep_extendsTypes_previous',
+    'ModalityInference.runWorklist_extendsTypes',
+    'ModalityInference.runSolver_extendsTypes',
+    'ModalityInference.Substitution.constraint_entails_congr',
+    'ModalityInference.Substitution.ExtendsTypes.constraint_entails',
+    'ModalityInference.Substitution.ExtendsTypes.bounds_entails',
+    'ModalityInference.Substitution.ExtendsTypes.singleType_equation',
+    'ModalityInference.Substitution.ExtendsTypes.singleType_entails',
+    'ModalityInference.runWorklist_extendsTypes_previous',
+    'ModalityInference.solverStep_substituted_entails',
+    'ModalityInference.runWorklist_substituted_entails',
+    'ModalityInference.runSolver_substituted_entails',
+    'ModalityInference.runSolver_entails',
+    'ModalityInference.solveFrom_solution',
+    'ModalityInference.solve_solution',
+    'ModalityInference.Deferred.solve_sound',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -801,6 +823,8 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SolverTransport\n'
                     'import ModalityInference.Proofs.SolverStepEntailment\n'
                     'import ModalityInference.Proofs.SolverImages\n'
+                    'import ModalityInference.Proofs.SolverExtension\n'
+                    'import ModalityInference.Proofs.SolverSoundness\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

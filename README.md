@@ -16,14 +16,14 @@ term satisfying those premises. `Typing.resource_closed` additionally gives
 a closed program's ground result, evaluation, interpretation, and fresh-only
 ownership without assuming an interpreted value or an already realized type.
 
-**The overall verification objective is still incomplete: 14 admissions remain.**
-They are closed term substitution and 13 algorithmic obligations, including
-solver correctness/completeness/principality, generation, elaborated
+**The overall verification objective is still incomplete: 13 admissions remain.**
+They are closed term substitution and 12 algorithmic obligations, including
+solver correspondence/termination/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-711 public or established declarations transitively, including the complete
-fundamental theorem and all three soundness corollaries.
+733 public or established declarations transitively, including the complete
+fundamental theorem, all three soundness corollaries, and executable solver soundness.
 
 ## Corrected semantics and proof
 
@@ -113,8 +113,8 @@ subtyping rules. `Proofs/SolverLocalSoundness` connects this result to executabl
 and retained bounds entails its original input. Outer-modality flattening and
 normalization preserve realization, definedness and mutual subtyping. The proof
 also covers alternative residual orientations, concrete checks and retained
-bounds. Full worklist soundness still requires complete simulation; these local
-results do not discharge that admission.
+bounds. `Proofs/SolverSoundness` lifts these results through the complete worklist
+using the cache and substitution invariants described below.
 
 `Proofs/SolverSubstitution` proves acyclicity for every successful worklist
 transition and run, including updates to all prior substitution images.
@@ -122,8 +122,9 @@ transition and run, including updates to all prior substitution images.
 normalization preserves type-variable support. `Proofs/SolverResidual` proves
 preservation of the residual grammar. Consequently, successful `solve` and
 `solveFrom` calls return an acyclic substitution and residual-form bounds. These
-two conjuncts of `solve_sound` are now proved independently; its solution-entailment
-conjunct, completeness, and principality remain open. Residual consistency is
+two conjuncts of `solve_sound` are proved independently; `SolverSoundness` now
+proves its solution-entailment conjunct as well. Completeness and principality
+remain open. Residual consistency is
 proved below, including its finite closed-instantiation contract.
 
 `Proofs/ModeSearch` proves that successful Boolean search returns an assignment
@@ -178,7 +179,7 @@ bounds and only strictly smaller normalized pending modality obligations.
 letting it justify itself. On successful completion, `runSolver_seen_entails`
 reconstructs every modality/definedness constraint still in the visited cache
 under any ambient context entailing the returned bounds. `TypeSeen` extends cache
-soundness to type constraints below; full input solution entailment remains open.
+soundness to type constraints below; `SolverSoundness` reconstructs full input entailment.
 
 `Proofs/BoundedSupport` and `Proofs/SolverFresh` prove that allocation counters
 bound every identifier in pending constraints, retained bounds, visited entries,
@@ -215,8 +216,8 @@ Every solver transition and complete run preserves this disjunction.
 `TypeReady.duplicate_entails` justifies duplicate discharge for every constraint
 kind. `runSolver_all_seen_entails` reconstructs every constraint still cached after
 a successful run from a fresh state with empty substitution and cache, under any
-context entailing the returned bounds. Full input solution entailment, termination
-and the 14 deferred obligations remain open.
+context entailing the returned bounds. The backward proof below also recovers
+input constraints cleared from the cache by equality elimination.
 
 `Proofs/EntailmentTransport` proves context transport and transport through the
 solver's type-only substitutions. Definedness after substitution is characterized
@@ -243,8 +244,21 @@ any context entailing the remaining constraints, through every step and complete
 run. Equality elimination's queued guards establish the new image's definedness;
 transport handles its insertion into all earlier images. Returned residual bounds
 entail themselves, and `solve_images_defined` proves that every returned type
-image is defined under those bounds. Full input entailment still needs preservation
-of earlier eliminated equalities and complete backward run reconstruction.
+image is defined under those bounds.
+
+`Proofs/SolverExtension` proves that later substitutions preserve every earlier
+eliminated equation: the final substitution acts identically on an original
+variable and its saved image. This relation passes backward through every step
+and complete run. It transports constraint entailment even when substitution
+changes an equality into an equivalence.
+
+`Proofs/SolverSoundness` combines this extension property with the cache, support,
+freshness and image-definedness invariants to reconstruct every original input
+constraint under the returned substitution and residual bounds.
+`solveFrom_solution` requires bounded initial supplies; `solve_solution` requires
+only successful execution. The original `Deferred.solve_sound` theorem is now
+fully proved: solution entailment, residual grammar, and acyclicity. Abstract
+rewrite correspondence, termination, completeness and principality remain open.
 
 ## Corrections and retained witnesses
 
@@ -285,7 +299,8 @@ smaller than both other operands' minima; a tie retains the exact inequality for
 finite projection. The corrected solver rejects this witness for every fuel
 budget at least 100. Regressions compare all eight valuations in 1,024 related
 single-variable cases, including both residual and composition entry forms.
-This repairs a soundness counterexample; the general worklist theorem is open.
+This repairs a soundness counterexample; `SolverSoundness` proves the corrected
+worklist's input solution contract.
 
 `Proofs/ModalEquality` records a satisfiable flexible constraint formerly rejected
 by the syntactic equality occurs check: `α = α @ bottom`. Assigning `α` unit at
@@ -533,8 +548,8 @@ All paths below are relative to `ModalityInference/`.
 | §4 inference and elaboration | `Inference` | Executable prototype |
 | Generation and elaboration invariants | `Proofs/GenerationExecution` | Proved source erasure for generation and inference, and exact-prefix preservation of accumulated constraints; typing and relational correspondence remain deferred |
 | Executable normalization | `Proofs/Normalization` | Proved preservation of partial evaluation, ground realization, definedness and declarative entailment; simulated by abstract rewriting |
-| Local solver soundness | `Proofs/ReductionEntailment`, `Proofs/SolverLocalSoundness` | Proved backward declarative entailment of every local reduction and successful type/modality step, including outer normalization and alternative residual orientations; complete worklist soundness remains deferred |
-| Executable solver output invariants | `Proofs/SubstitutionSupport`, `Proofs/SolverSubstitution`, `Proofs/SolverResidual` | Proved normalized acyclic substitution preservation and residual output grammar; solution entailment remains deferred |
+| Local solver soundness | `Proofs/ReductionEntailment`, `Proofs/SolverLocalSoundness` | Proved backward declarative entailment of every local reduction and successful type/modality step, including outer normalization and alternative residual orientations |
+| Executable solver output invariants | `Proofs/SubstitutionSupport`, `Proofs/SolverSubstitution`, `Proofs/SolverResidual` | Proved normalized acyclic substitution preservation and residual output grammar |
 | §4 constraint rewriting | `Rewriting`, `Constraints` | Independent relation and executable worklist |
 | §5 scheme subsumption | `SchemeSubsumption` | Executable prototype; reduction correctness deferred |
 | §5 future/past projection and modality entailment | `ModeBackend`, `Proofs/Projection` | Proved all expression projections, partial definedness, both flexible/rigid identifier encodings, bounds entailment and positive-query declarative soundness |
@@ -545,12 +560,13 @@ All paths below are relative to `ModalityInference/`.
 | Transitive mode work | `Proofs/ModePropagation` | Proved all-fuel exhaustion of a satisfiable input under the former policy; direct retention preserves exact declarative obligations and ground models, and succeeds on the witness for every fuel at least 100 |
 | Modality orientation | `Proofs/ModeOrientation` | Proved a well-founded rank decreases for every newly emitted modality/definedness obligation, including after normalization; full worklist termination remains open |
 | Visited modality constraints | `Proofs/ModeSeen` | Proved the modality-cache invariant through every solver transition and complete runs, sound duplicate discharge, and entailment of the final visited modality/definedness constraints |
-| Solver identifier freshness | `Proofs/BoundedSupport`, `Proofs/SolverFresh` | Proved allocation bounds through complete runs, executable skeleton freshness for abstract expansion, and exact elimination of the scheduled equality with cache reset; full type-cache soundness remains open |
+| Solver identifier freshness | `Proofs/BoundedSupport`, `Proofs/SolverFresh` | Proved allocation bounds through complete runs, executable skeleton freshness for abstract expansion, and exact elimination of the scheduled equality with cache reset |
 | Type-step orientation | `Proofs/TypeOrientation` | Proved normalization preserves structural rank and every type step either adds smaller obligations or enters a state whose next step clears the cache |
 | Eliminated identifiers and substitution fixed points | `Proofs/SolverUnbound` | Proved exclusion of eliminated identifiers from pending, retained, and visited constraints through complete runs; all three lists and returned solver bounds are fixed by the accumulated substitution |
-| Complete constraint cache | `Proofs/TypeSeen` | Proved type-cache preservation with the forced-reset expansion case, duplicate discharge for every constraint kind, and entailment of all constraints still cached after successful runs; full input solution entailment remains open |
-| Entailment under later substitutions | `Proofs/EntailmentTransport`, `Proofs/SolverTransport` | Proved context and type-only substitution transport with explicit image-definedness premises, including cached consequences, local steps and normalization; complete run reconstruction remains open |
+| Complete constraint cache | `Proofs/TypeSeen` | Proved type-cache preservation with the forced-reset expansion case, duplicate discharge for every constraint kind, and entailment of all constraints still cached after successful runs |
+| Entailment under later substitutions | `Proofs/EntailmentTransport`, `Proofs/SolverTransport` | Proved context and type-only substitution transport with explicit image-definedness premises, including cached consequences, local steps and normalization |
 | Accumulated image definedness | `Proofs/SolverStepEntailment`, `Proofs/SolverImages` | Proved backward entailment for steps preserving the substitution and image definedness through all steps/runs; every returned type image is defined under the returned residual bounds |
+| Full executable solver soundness | `Proofs/SolverExtension`, `Proofs/SolverSoundness` | Proved preservation of eliminated equations through later substitutions and complete backward reconstruction of original input constraints; all conjuncts of `Deferred.solve_sound` are admission-free |
 | Saved-substitution shape checking | `Proofs/ShapeEntry`, `Proofs/SolverEntry` | Proved a cyclic-shape witness with an acyclic saved substitution, rejection at every fuel at least two after applying that substitution, and unchanged empty-substitution behavior; full termination remains open |
 | Ambient principality assumptions | `Proofs/PrincipalAmbient` | Refuted unrestricted whole-type assumptions using a finitely satisfiable witness; the deferred theorem now requires the paper's residual-bound grammar |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
@@ -576,7 +592,7 @@ All paths below are relative to `ModalityInference/`.
 | Semantic context joins | `Proofs/GroundAssignment`, `Proofs/ResourceContexts` | Proved fresh ground instantiation, empty ownership for polymorphic sharing, and valid, contained, disjoint component environments for every join rule |
 | Polymorphic capture diagnostic | `Proofs/PolymorphicCapture` | Proved counterexample to the former annotation-dependent fundamental statement; no admissions |
 | Whole-core fundamental theorem and corollaries | `Proofs/ResourceSoundness`, `Proofs/Soundness` | Proved for every typing constructor, with termination/no-stuck, live references, resource bounds, and a closed-program corollary; no admissions |
-| Remaining structural and algorithmic metatheory | `Proofs/Structural`, `Proofs/Algorithms` | 14 explicit admitted obligations |
+| Remaining structural and algorithmic metatheory | `Proofs/Structural`, `Proofs/Algorithms` | 13 explicit admitted obligations |
 
 ```text
 Core/Mode → Core/Syntax → Core/Scoping
@@ -638,7 +654,7 @@ They exercise every term constructor and both sum branches.
 
 ## Deferred proof work and prerequisites
 
-Each of the 14 remaining deferred theorems has a prerequisite comment immediately above it.
+Each of the 13 remaining deferred theorems has a prerequisite comment immediately above it.
 The former annotation-dependent fundamental claim remains separately recorded
 as a refuted proposition. Its corrected resource formulation and corollaries are
 proved for the whole core; this does not discharge the algorithmic obligations.
@@ -701,7 +717,7 @@ definedness obligations.
 | --- | --- | --- |
 | `Structural` | Closed term substitution | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup, instance-indexed context joins and locking are proved |
 | `Soundness` | None: corrected fundamental soundness, termination/no-stuck, live results, and ownership bound are proved | Complete typing induction in `ResourceSoundness`, with resource semantics independent of capture metadata |
-| `Algorithms` | Scheduled termination, worklist correspondence, solve soundness/completeness, principal factorization, generation correspondence/soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, scheme-subsumption soundness/completeness | Local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include worklist simulation/termination, representative-search completeness, rigid entailment and subsumption witness reconstruction |
+| `Algorithms` | Scheduled termination, worklist correspondence, solve completeness, principal factorization, generation correspondence/soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, scheme-subsumption soundness/completeness | Full executable solver soundness, local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include worklist simulation/termination, representative-search completeness, rigid entailment and subsumption witness reconstruction |
 
 Completeness statements require a sufficiently large fuel budget. Rewrite
 expansion requires distinct flexible variables fresh for the complete original

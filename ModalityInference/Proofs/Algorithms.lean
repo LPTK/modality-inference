@@ -7,6 +7,7 @@ import ModalityInference.Proofs.RewriteSoundness
 import ModalityInference.Proofs.SolverResidual
 import ModalityInference.Proofs.SolverFlexible
 import ModalityInference.Proofs.GenerationExecution
+import ModalityInference.Proofs.SolverSoundness
 
 namespace ModalityInference.Deferred
 
@@ -45,18 +46,14 @@ theorem runSolver_correspondence {fuel s t}
     RewriteStar ⟨s.pending, s.bounds, s.substitution⟩
       ⟨t.pending, t.bounds, t.substitution⟩ := by sorry
 
-/-- DEFERRED solution entailment. Local type and modality steps reconstruct input
-entailment; normalization, residual output form and acyclic substitution preservation
-are proved independently. `ModeSeen` and `TypeSeen` prove cache soundness through all
-transitions. `SolverTransport` handles later type substitutions, and `SolverImages`
-proves definedness of accumulated type images. Preservation of earlier eliminated
-equalities and complete backward worklist reconstruction remain.
-`ModeCycle` refutes the former
-tied `sub2` orientation; the corrected step retains that inequality for projection. -/
+/-- Proved full input solution entailment, residual grammar and acyclicity.
+`SolverExtension` preserves earlier eliminated equations through later substitutions;
+`SolverSoundness` reconstructs the complete input using the cache, support, freshness
+and image-definedness invariants. -/
 theorem solve_sound {fuel cs result} (h : solve fuel cs = .success result) :
     Solution cs result.bounds result.substitution ∧ Residual result.bounds ∧
       result.substitution.Acyclic :=
-  ⟨by sorry, solve_residual h, solve_acyclic h⟩
+  ⟨solve_solution h, solve_residual h, solve_acyclic h⟩
 
 /-- Proved syntactic consistency witness. Flexible support is preserved by all
 worklist steps. The returned modality witness extends to a residual ground model,
