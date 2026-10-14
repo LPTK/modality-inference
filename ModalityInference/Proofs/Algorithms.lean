@@ -8,6 +8,7 @@ import ModalityInference.Proofs.SolverResidual
 import ModalityInference.Proofs.SolverFlexible
 import ModalityInference.Proofs.GenerationExecution
 import ModalityInference.Proofs.SolverSoundness
+import ModalityInference.Proofs.GenerationCorrespondence
 
 namespace ModalityInference.Deferred
 
@@ -84,13 +85,14 @@ theorem principal_factorization {fuel cs result Δ θ}
         Submode Δ (θ.mode v) ((result.substitution.mode v).subst τ.mode) ∧
         Submode Δ ((result.substitution.mode v).subst τ.mode) (θ.mode v)) := by sorry
 
-/-- DEFERRED. Executable generation preserves source erasure and accumulated
-constraints. Relational correspondence still needs fresh instantiation, lazy locks,
-all syntax-directed rules, context usage routing and closed-definition solves.
+/-- Proved for every constructor, including fresh instantiation, lazy locks,
+context usage routing and closed-definition solves. Bounded and flexible support
+invariants establish the solver premises for closed right-hand sides.
 Constraint order is immaterial. -/
 theorem generator_correspondence {fuel Γ t s r}
     (h : generate fuel Γ t s = .success r) :
-    ∃ cs, Generates Γ t r.type cs ∧ r.state.constraints.Perm (s.constraints ++ cs) := by sorry
+    ∃ cs, Generates Γ t r.type cs ∧ r.state.constraints.Perm (s.constraints ++ cs) :=
+  generate_correspondence h
 
 /-- DEFERRED. Prerequisites: generation rule induction, context splitting/locking,
 substitution, and generalization under the empty term context. Generation now

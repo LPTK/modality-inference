@@ -56,6 +56,11 @@ import ModalityInference.Proofs.SolverStepEntailment
 import ModalityInference.Proofs.SolverImages
 import ModalityInference.Proofs.SolverExtension
 import ModalityInference.Proofs.SolverSoundness
+import ModalityInference.Proofs.SolverCounters
+import ModalityInference.Proofs.GenerationInstantiation
+import ModalityInference.Proofs.GenerationContexts
+import ModalityInference.Proofs.GenerationSupplies
+import ModalityInference.Proofs.GenerationCorrespondence
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

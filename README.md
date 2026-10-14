@@ -16,14 +16,15 @@ term satisfying those premises. `Typing.resource_closed` additionally gives
 a closed program's ground result, evaluation, interpretation, and fresh-only
 ownership without assuming an interpreted value or an already realized type.
 
-**The overall verification objective is still incomplete: 13 admissions remain.**
-They are closed term substitution and 12 algorithmic obligations, including
+**The overall verification objective is still incomplete: 12 admissions remain.**
+They are closed term substitution and 11 algorithmic obligations, including
 solver correspondence/termination/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-733 public or established declarations transitively, including the complete
-fundamental theorem, all three soundness corollaries, and executable solver soundness.
+770 public or established declarations transitively, including the complete
+fundamental theorem, all three soundness corollaries, executable solver soundness,
+and executable generator correspondence.
 
 ## Corrected semantics and proof
 
@@ -383,8 +384,16 @@ exact prefix, including order and multiplicity. Both inductions cover all term
 constructors, including nested closed definitions. `infer_erases` additionally
 accounts for the final substitution of capture annotations, discharging the
 erasure conjunct of `inference_sound`. Its typing conjunct remains deferred.
-These executable invariants do not assume solver soundness; full correspondence
-with `Generates`, especially its closed-definition solve premise, still needs it.
+`Proofs/GenerationCorrespondence` now proves the full independent `Generates`
+derivation, with output constraints equal up to permutation to the initial
+constraints followed by those generated. The proof covers every constructor,
+including fresh instantiation, lazy locks, context usage routing, and nested
+closed definitions. `SolverCounters`, `GenerationInstantiation`,
+`GenerationContexts`, and `GenerationSupplies` prove monotone allocation counters,
+bounded identifiers, and flexible support. These establish both solution
+entailment and consistency for each closed RHS solve. The original
+`generator_correspondence` statement is discharged without additional premises;
+declarative generation soundness and the inference typing conjunct remain open.
 
 Evaluator correspondence, determinism, fuel stability, Boolean CNF reduction,
 and all-axis modality projection are also proved independently. Backend modality
@@ -546,7 +555,9 @@ All paths below are relative to `ModalityInference/`.
 | §3 ground types, ownership, separation and liveness | `Semantics`, `ResourceSemantics` | Ground definitions and corrected instance-indexed resource interpretation; old annotation-dependent interpretation retained for its counterexample |
 | §4 independent constraint-generation relation | `Generation` | Inductive rules, including closed `def` and `region` |
 | §4 inference and elaboration | `Inference` | Executable prototype |
-| Generation and elaboration invariants | `Proofs/GenerationExecution` | Proved source erasure for generation and inference, and exact-prefix preservation of accumulated constraints; typing and relational correspondence remain deferred |
+| Generation and elaboration invariants | `Proofs/GenerationExecution` | Proved source erasure for generation and inference, and exact-prefix preservation of accumulated constraints; typing remains deferred |
+| Executable generator correspondence | `Proofs/GenerationCorrespondence` | Proved independent relational derivations for every constructor, including closed-definition solves, with constraints preserved up to permutation |
+| Generator allocation and support | `Proofs/SolverCounters`, `Proofs/GenerationInstantiation`, `Proofs/GenerationContexts`, `Proofs/GenerationSupplies` | Proved monotone counters and bounded/flexible support through fresh instantiation, lookup, splitting, locks, generation and closed-definition solves |
 | Executable normalization | `Proofs/Normalization` | Proved preservation of partial evaluation, ground realization, definedness and declarative entailment; simulated by abstract rewriting |
 | Local solver soundness | `Proofs/ReductionEntailment`, `Proofs/SolverLocalSoundness` | Proved backward declarative entailment of every local reduction and successful type/modality step, including outer normalization and alternative residual orientations |
 | Executable solver output invariants | `Proofs/SubstitutionSupport`, `Proofs/SolverSubstitution`, `Proofs/SolverResidual` | Proved normalized acyclic substitution preservation and residual output grammar |
@@ -592,7 +603,7 @@ All paths below are relative to `ModalityInference/`.
 | Semantic context joins | `Proofs/GroundAssignment`, `Proofs/ResourceContexts` | Proved fresh ground instantiation, empty ownership for polymorphic sharing, and valid, contained, disjoint component environments for every join rule |
 | Polymorphic capture diagnostic | `Proofs/PolymorphicCapture` | Proved counterexample to the former annotation-dependent fundamental statement; no admissions |
 | Whole-core fundamental theorem and corollaries | `Proofs/ResourceSoundness`, `Proofs/Soundness` | Proved for every typing constructor, with termination/no-stuck, live references, resource bounds, and a closed-program corollary; no admissions |
-| Remaining structural and algorithmic metatheory | `Proofs/Structural`, `Proofs/Algorithms` | 13 explicit admitted obligations |
+| Remaining structural and algorithmic metatheory | `Proofs/Structural`, `Proofs/Algorithms` | 12 explicit admitted obligations |
 
 ```text
 Core/Mode → Core/Syntax → Core/Scoping
@@ -654,7 +665,7 @@ They exercise every term constructor and both sum branches.
 
 ## Deferred proof work and prerequisites
 
-Each of the 13 remaining deferred theorems has a prerequisite comment immediately above it.
+Each of the 12 remaining deferred theorems has a prerequisite comment immediately above it.
 The former annotation-dependent fundamental claim remains separately recorded
 as a refuted proposition. Its corrected resource formulation and corollaries are
 proved for the whole core; this does not discharge the algorithmic obligations.
@@ -717,7 +728,7 @@ definedness obligations.
 | --- | --- | --- |
 | `Structural` | Closed term substitution | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup, instance-indexed context joins and locking are proved |
 | `Soundness` | None: corrected fundamental soundness, termination/no-stuck, live results, and ownership bound are proved | Complete typing induction in `ResourceSoundness`, with resource semantics independent of capture metadata |
-| `Algorithms` | Scheduled termination, worklist correspondence, solve completeness, principal factorization, generation correspondence/soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, scheme-subsumption soundness/completeness | Full executable solver soundness, local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include worklist simulation/termination, representative-search completeness, rigid entailment and subsumption witness reconstruction |
+| `Algorithms` | Scheduled termination, worklist correspondence, solve completeness, principal factorization, generation soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness, scheme-subsumption soundness/completeness | Full executable solver soundness, generator correspondence, local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include worklist simulation/termination, representative-search completeness, rigid entailment and subsumption witness reconstruction |
 
 Completeness statements require a sufficiently large fuel budget. Rewrite
 expansion requires distinct flexible variables fresh for the complete original

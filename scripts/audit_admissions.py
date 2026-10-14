@@ -764,6 +764,43 @@ constants = [
     'ModalityInference.solveFrom_solution',
     'ModalityInference.solve_solution',
     'ModalityInference.Deferred.solve_sound',
+    'ModalityInference.stepMode_counters',
+    'ModalityInference.stepType_counters',
+    'ModalityInference.solverStep_counters',
+    'ModalityInference.runWorklist_counters',
+    'ModalityInference.runSolver_counters',
+    'ModalityInference.solveFrom_counters',
+    'ModalityInference.Scheme.freshSubstitution_instantiates',
+    'ModalityInference.Scheme.freshSubstitution_flexible',
+    'ModalityInference.Scheme.freshSubstitution_type_bounded',
+    'ModalityInference.Scheme.freshSubstitution_mode_bounded',
+    'ModalityInference.Constraint.Bounded.substitute',
+    'ModalityInference.Bounds.Bounded.substitute',
+    'ModalityInference.Scheme.Bounded.instantiate',
+    'ModalityInference.Scheme.Flexible.instantiate',
+    'ModalityInference.Scheme.Bounded.mono',
+    'ModalityInference.Scheme.Bounded.share',
+    'ModalityInference.Scheme.Bounded.lock',
+    'ModalityInference.Scheme.Flexible.share',
+    'ModalityInference.Scheme.Flexible.lock',
+    'ModalityInference.AlgorithmicContext.bounded_nil',
+    'ModalityInference.AlgorithmicContext.bounded_cons',
+    'ModalityInference.AlgorithmicContext.flexible_nil',
+    'ModalityInference.AlgorithmicContext.flexible_cons',
+    'ModalityInference.AlgorithmicContext.Bounded.mono',
+    'ModalityInference.lookupScheme_bounded',
+    'ModalityInference.lookupScheme_flexible',
+    'ModalityInference.UsageSplit.bounded',
+    'ModalityInference.UsageSplit.flexible',
+    'ModalityInference.generate_counters',
+    'ModalityInference.splitContext_flexible',
+    'ModalityInference.generate_flexible',
+    'ModalityInference.splitContext_bounded',
+    'ModalityInference.generate_bounded',
+    'ModalityInference.generate_closed_solves',
+    'ModalityInference.Solves.perm',
+    'ModalityInference.generate_correspondence',
+    'ModalityInference.Deferred.generator_correspondence',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -825,6 +862,11 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SolverImages\n'
                     'import ModalityInference.Proofs.SolverExtension\n'
                     'import ModalityInference.Proofs.SolverSoundness\n'
+                    'import ModalityInference.Proofs.SolverCounters\n'
+                    'import ModalityInference.Proofs.GenerationInstantiation\n'
+                    'import ModalityInference.Proofs.GenerationContexts\n'
+                    'import ModalityInference.Proofs.GenerationSupplies\n'
+                    'import ModalityInference.Proofs.GenerationCorrespondence\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(
