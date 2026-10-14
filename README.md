@@ -22,7 +22,7 @@ solver correspondence/termination/completeness/principality, generation, elabora
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-800 public or established declarations transitively, including the complete
+819 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -412,6 +412,16 @@ source language are unchanged. Deferred generation soundness and closed-definiti
 generalization now require this scope evidence, and generation completeness must
 produce it. Full declarative generation soundness is still open.
 
+`Proofs/SchemeInstantiation` supplies the syntactic instance-transport step.
+`Instantiates.substitute` constructs an instance of a capture-avoiding substituted
+scheme whose body is exactly the outer substitution of the original instance.
+Its bounds have equivalent entailment under every ambient context; raw constraint
+syntax can differ when an equality becomes an equivalence. The proof covers
+repeated quantified names and arbitrary internal modality images.
+`Typing.var_substitute` derives the variable-typing case using the transported
+instance, with result definedness explicit. Context joins, locks, generalization
+and the full generation-soundness induction remain open.
+
 Evaluator correspondence, determinism, fuel stability, Boolean CNF reduction,
 and all-axis modality projection are also proved independently. Backend modality
 entailment agrees with `ModeModels`; a positive inequality report establishes
@@ -606,6 +616,7 @@ All paths below are relative to `ModalityInference/`.
 | Semantic subtyping | `Proofs/Mode`, `Proofs/Subtyping` | Proved all declarative subtyping rules preserve interpretation, decrease ownership, and preserve definedness under modeled bounds; no admissions |
 | Annotation erasure | `Proofs/Erasure` | Proved for all evaluation rules and capture trimming; no admissions |
 | Recursive annotation transport | `Annotations`, `Proofs/Annotations` | Executable value substitution; proved evaluation, erasure, reference and freshness preservation |
+| Scheme-instance transport | `Proofs/SchemeInstantiation` | Proved transport through capture-avoiding substitution with exact body equality and equivalent bound entailment, including repeated parameters and partial images; proved the substituted variable-typing case with definedness explicit |
 | Simultaneous substitution | `Proofs/Substitution` | Proved composition for types, modalities, constraints and bounds, plus agreement of scheme substitution with its exposed binder action; no admissions |
 | Transport through scheme binders | `Annotations`, `Proofs/Annotations`, `Proofs/ScopedCaptures` | Executable per-capture binder transport and paired scheme/value substitution; proved erasure, reference, liveness and evaluation preservation; nested polymorphic witness |
 | Explicit value instantiation | `Annotations`, `Proofs/Instantiation`, `Proofs/ScopedCaptures` | Ordered arguments transport metadata; proved instantiation, definedness-guard and erasure contracts; optional transport route, not required by resource soundness |

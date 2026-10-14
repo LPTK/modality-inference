@@ -5,7 +5,7 @@ import ModalityInference.Proofs.VariableOccurrences
 /-! Skolemization must avoid ambient bounds as well as both schemes. -/
 namespace ModalityInference
 
-private theorem freshFold_bounds {α : Type} (index : α → Nat) (xs : List α) (start : Nat) :
+theorem freshFold_bounds {α : Type} (index : α → Nat) (xs : List α) (start : Nat) :
     start ≤ xs.foldl (fun n v => max n (index v + 1)) start ∧
       ∀ v ∈ xs, index v < xs.foldl (fun n v => max n (index v + 1)) start := by
   induction xs generalizing start

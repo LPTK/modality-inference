@@ -831,6 +831,25 @@ constants = [
     'ModalityInference.GenerationScope.no_reusable_capture',
     'ModalityInference.GenerationScope.not_typable',
     'ModalityInference.GenerationScope.no_unrestricted_generation_sound',
+    'ModalityInference.Scheme.substitutedInstance',
+    'ModalityInference.Substitution.mode_fresh',
+    'ModalityInference.freshFold_bounds',
+    'ModalityInference.lookup_fresh_none',
+    'ModalityInference.lookup_fresh_some',
+    'ModalityInference.Scheme.substitutedInstance_type_at',
+    'ModalityInference.Scheme.substitutedInstance_mode_at',
+    'ModalityInference.Scheme.freshening_bounded',
+    'ModalityInference.Scheme.substitutedInstance_type_lt',
+    'ModalityInference.Scheme.substitutedInstance_mode_lt',
+    'ModalityInference.Scheme.substitutedInstance_ty_fixed',
+    'ModalityInference.Scheme.substitutedInstance_mode_fixed',
+    'ModalityInference.Substitution.Bounded.type_ge',
+    'ModalityInference.Substitution.Bounded.mode_ge',
+    'ModalityInference.Instantiates.substitutedInstance_type',
+    'ModalityInference.Instantiates.substitutedInstance_mode',
+    'ModalityInference.Substitution.constraint_entails_congr_on',
+    'ModalityInference.Instantiates.substitute',
+    'ModalityInference.Typing.var_substitute',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -899,6 +918,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.GenerationCorrespondence\n'
                     'import ModalityInference.Proofs.GenerationHygiene\n'
                     'import ModalityInference.Proofs.GenerationScope\n'
+                    'import ModalityInference.Proofs.SchemeInstantiation\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

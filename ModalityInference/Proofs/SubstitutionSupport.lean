@@ -31,6 +31,12 @@ theorem Substitution.type_fresh (σ : Substitution) {n}
     bne_iff_ne.mpr (fun h => hn (List.mem_map.mpr ⟨p, hp, h.symm⟩))
   simp [Substitution.type, he]
 
+theorem Substitution.mode_fresh (σ : Substitution) {n}
+    (hn : n ∉ σ.modes.map Prod.fst) : σ.mode (.flex n) = .var (.flex n) := by
+  have he : σ.modes.lookup n = none := List.lookup_eq_none_iff.mpr fun p hp =>
+    bne_iff_ne.mpr (fun h => hn (List.mem_map.mpr ⟨p, hp, h.symm⟩))
+  simp [Substitution.mode, he]
+
 theorem Substitution.ty_fixed (σ : Substitution) (a : Ty) (hm : σ.modes = [])
     (ht : ∀ n ∈ σ.types.map Prod.fst, TypeVar.flex n ∉ a.typeVars) : σ.ty a = a := by
   suffices h : a.subst σ.type σ.mode = a.subst TypeExpr.var ModExpr.var by simpa using h

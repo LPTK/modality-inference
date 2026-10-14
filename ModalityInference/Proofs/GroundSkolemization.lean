@@ -5,14 +5,14 @@ import ModalityInference.Proofs.SubsumptionScope
 identifiers of the source scheme. Repeated parameter names require no new premise. -/
 namespace ModalityInference
 
-private theorem lookup_fresh_none {xs : List Nat} {f : Nat → A} {n : Nat}
+theorem lookup_fresh_none {xs : List Nat} {f : Nat → A} {n : Nat}
     (h : (xs.zipIdx.map (fun (p, i) => (p, f i))).lookup n = none) : n ∉ xs := by
   intro hn
   obtain ⟨i, hi⟩ := List.mem_iff_getElem?.mp hn
   simpa using List.lookup_eq_none_iff.mp h (n, f i)
     (List.mem_map.mpr ⟨(n, i), List.mk_mem_zipIdx_iff_getElem?.mpr hi, rfl⟩)
 
-private theorem lookup_fresh_some {xs : List Nat} {f : Nat → A} {n : Nat} {a : A}
+theorem lookup_fresh_some {xs : List Nat} {f : Nat → A} {n : Nat} {a : A}
     (h : (xs.zipIdx.map (fun (p, i) => (p, f i))).lookup n = some a) :
     ∃ i, xs[i]? = some n ∧ a = f i := by
   obtain ⟨before, after, he, _⟩ := List.lookup_eq_some_iff.mp h
