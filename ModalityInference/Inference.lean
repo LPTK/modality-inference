@@ -1,5 +1,4 @@
 import ModalityInference.Constraints
-import ModalityInference.Annotations
 
 namespace ModalityInference
 
@@ -65,16 +64,10 @@ def splitContext (X Y : Finset Nat) : AlgorithmicContext → AlgorithmicContext 
     (.binding (if 0 ∈ X then shared else none) :: a,
      .binding (if 0 ∈ Y then shared else none) :: b)
 
-/-- Resolve locks symbolically for capture metadata; runtime capture uses syntax FVs. -/
-def captureContext (Γ : AlgorithmicContext) (used : Finset Nat) : Capture :=
-  let n := (Γ.filter fun e => match e with | .binding _ => true | _ => false).length
-  (List.range n).map fun i => if i ∈ used then
-    match lookupScheme Γ i with | .success s => some s | _ => none
-    else none
-
 structure Generated where
   type : Ty
-  term : AnnotatedTerm
+  /-- Source syntax contains no capture schemes. -/
+  term : RawTerm
   state : InferenceState
   deriving Repr
 
@@ -91,10 +84,9 @@ def generate : Nat → AlgorithmicContext → RawTerm → InferenceState → Run
     | .lam _ body => do
       let (a,s) := s.freshType
       let (m,s) := s.freshMode
-      let captured := .lock m :: Γ
-      let r ← generate fuel (.binding (some (.mono a)) :: captured) body s
+      let r ← generate fuel (.binding (some (.mono a)) :: .lock m :: Γ) body s
       return ⟨.modal (.fn a r.type) m,
-        .lam (captureContext captured (body.freeVars 1)) r.term, r.state⟩
+        .lam () r.term, r.state⟩
     | .app f x => do
       let (Γ₁,Γ₂) := splitContext f.freeVars x.freeVars Γ
       let f ← generate fuel Γ₁ f s
@@ -170,11 +162,12 @@ def generate : Nat → AlgorithmicContext → RawTerm → InferenceState → Run
       let scheme := Scheme.generalize solved.bounds (solved.substitution.ty r.type)
       let body ← generate fuel (.binding (some scheme) :: Γ) body
         {s with nextType := solved.nextType, nextMode := solved.nextMode}
-      return ⟨body.type, .defn (r.term.substTypes solved.substitution) body.term, body.state⟩
+      return ⟨body.type, .defn r.term body.term, body.state⟩
 
 structure Inferred where
   scheme : Scheme
-  elaborated : AnnotatedTerm
+  /-- The original source term; solving changes types and bounds only. -/
+  elaborated : RawTerm
   substitution : Substitution
   residual : Bounds
   trace : List RewriteRule
@@ -198,6 +191,6 @@ def infer (fuel : Nat) (Γ : Context) (term : RawTerm) : RunResult Inferred := d
   let s ← solveFrom fuel r.state.nextType r.state.nextMode r.state.constraints
   let context := Γ.map (Option.map (fun t => t.subst s.substitution))
   let scheme := generalizeOver context s.bounds (s.substitution.ty r.type)
-  return ⟨scheme, r.term.substTypes s.substitution, s.substitution, s.bounds, s.trace⟩
+  return ⟨scheme, r.term, s.substitution, s.bounds, s.trace⟩
 
 end ModalityInference

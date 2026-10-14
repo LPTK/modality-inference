@@ -1,7 +1,9 @@
 import ModalityInference.Subsumption
 import ModalityInference.Core.Scoping
 import ModalityInference.Declarative
+import ModalityInference.SourceTyping
 import ModalityInference.Evaluation
+import ModalityInference.Runtime
 import ModalityInference.Semantics
 import ModalityInference.ResourceSemantics
 import ModalityInference.Generation

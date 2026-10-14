@@ -48,7 +48,7 @@ theorem GroundTypingComplete.lam {Δ Γ captured t a b m}
     (hξ.eval (by simp [next, ModExpr.Bounded, ModVar.index])).trans hmode'
   refine ⟨fuel + 1,
     ⟨.modal (.fn (.var (.flex s.nextType)) r.type) (.var (.flex s.nextMode)),
-      .lam (captureContext (.lock (.var (.flex s.nextMode)) :: A) (t.erase.freeVars 1)) r.term,
+      .lam () r.term,
       r.state⟩, ξ, .fn domain ground mode, ?_, hmodel,
     (hξ.mono (by simp [next]) (by simp [next])).trans hagree, ?_, ?_⟩
   · change generate (fuel + 1) A (.lam () t.erase) s = _

@@ -1,6 +1,8 @@
 import ModalityInference.Proofs.TypeVariablePredicates
 
-/-! A focused check of capture metadata when a body shares a binding below a lock. -/
+/-! Historical capture-annotation fixture for a body that shares a binding below
+a lock. Current inference returns the source term unchanged; the explicit
+annotation below records the discarded eager-capture construction. -/
 namespace ModalityInference.SharingLockCapture
 
 def α (n : Nat) : Ty := .var (.flex n)
@@ -8,6 +10,7 @@ def μ (n : Nat) : ModExpr := .var (.flex n)
 def context : Context := [some (.mono (α 0))]
 def term : RawTerm := .lam () (.pair (.var 1) (.var 1))
 def captured : Scheme := (Scheme.mono (α 0)).lock (μ 0)
+/-- The historical eager capture annotation; not an output of current inference. -/
 def elaborated : AnnotatedTerm := .lam [some captured] (.pair (.var 1) (.var 1))
 def aliasCapture : ModExpr := .compose (.const Mode.aliased) (.capture (μ 0))
 def aliasFuture : ModExpr := .compose (.const Mode.aliased) (.future (μ 0))
@@ -19,7 +22,7 @@ def residual : Bounds :=
    .sub (.modal (α 0) .epsilon) (.modal (α 0) (.const Mode.many))]
 
 theorem succeeds : ∃ result, infer 100 context term = .success result ∧
-    result.residual = residual ∧ result.elaborated = elaborated ∧ result.substitution = {} :=
+    result.residual = residual ∧ result.elaborated = term ∧ result.substitution = {} :=
   ⟨_, rfl, rfl, rfl, rfl⟩
 
 def modes : ModVar → Mode
@@ -80,14 +83,9 @@ theorem context_scoped : Context.Scoped {types := {.flex 0}} context := by
     Scheme.freeTypes, Scheme.freeModes, α, TypeExpr.typeVars, TypeExpr.modVars,
     Bounds.typeVars, Bounds.modVars]
 
-def UnsharedCaptureInferenceSoundness : Prop := ∀ {fuel Γ t result scope},
-  Context.Scoped scope Γ → infer fuel Γ t = .success result →
-    result.elaborated.erase = t ∧
-      Typing result.residual (Γ.subst result.substitution) result.elaborated result.scheme.body
-
-theorem no_unshared_capture_inference_soundness : ¬ UnsharedCaptureInferenceSoundness := by
-  intro h
-  obtain ⟨result, hs, hr, he, _⟩ := succeeds
-  exact not_typable (by simpa only [hr, he] using (h context_scoped hs).2)
+/-- No typing derivation validates this historical, unrefined annotation. -/
+theorem no_unshared_capture_typing : ¬ ∃ Γ a, Typing residual Γ elaborated a := by
+  rintro ⟨Γ, a, h⟩
+  exact not_typable h
 
 end ModalityInference.SharingLockCapture

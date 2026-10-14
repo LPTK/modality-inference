@@ -68,7 +68,7 @@ theorem GroundTypingComplete.defn {Δ Γ rhs body a b rhsBounds}
   have hb' := generate_monotone hbody fuel (by simp [fuel])
   have hclosed : rhs.erase.freeVars = ∅ := by simpa [Term.erase] using hrhs.closed
   refine ⟨fuel + 1, ⟨bodyResult.type,
-    .defn (r.term.substTypes solved.substitution) bodyResult.term, bodyResult.state⟩,
+    .defn r.term bodyResult.term, bodyResult.state⟩,
     ζ, bodyGround, ?_, hz, hagree.mono htypes hmodes, hreal, hsub⟩
   change generate (fuel + 1) A (.defn rhs.erase body.erase) s = _
   simp only [initial] at hr'

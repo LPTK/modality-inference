@@ -1,5 +1,6 @@
 import ModalityInference.Examples
 import ModalityInference.Core.Scoping
+import ModalityInference.RuntimeRegression
 
 /-! Executable regression checks. No imports from `Proofs` and no native-decide
 axioms: these commands run examples; they do not assert metatheorems. -/
@@ -96,16 +97,16 @@ def unusedArguments : SchemeValue :=
   (checkInstantiation unusedArguments [.modal .credit (.const m)] [.const m]).isSuccess
 
 -- All constructors, both case alternatives, closed polymorphism and locality.
-def evaluate (t : RawTerm) : RunResult Value := do
+def evaluate (t : RawTerm) : RunResult Runtime.Value := do
   let r ← infer 5000 [] t
-  evalFuel 100 initialSupplies [] r.elaborated
-def isUnit : RunResult Value → Bool
+  Runtime.evalFuel 100 initialSupplies [] r.elaborated
+def isUnit : RunResult Runtime.Value → Bool
   | .success .unit => true
   | _ => false
-def isHeapPair : RunResult Value → Bool
+def isHeapPair : RunResult Runtime.Value → Bool
   | .success (.pair (.heap _) _ _) => true
   | _ => false
-def isStackPair : RunResult Value → Bool
+def isStackPair : RunResult Runtime.Value → Bool
   | .success (.pair (.stack _ _) _ _) => true
   | _ => false
 #guard isUnit (evaluate (.app identity .unit))
@@ -121,9 +122,9 @@ def isStackPair : RunResult Value → Bool
 #guard rejected (infer 4000 [] (.defn stackEscape .unit))
 #guard exhausted (infer 1 [] heapPair)
 #guard (infer 2000 [] heapPair).isSuccess
-#guard exhausted (evalFuel 1 initialSupplies [] (.pair .unit .unit))
-#guard isHeapPair (evalFuel 10 initialSupplies [] (.pair .unit .unit))
-#guard rejected (evalFuel 10 initialSupplies [] (.app .unit .unit))
+#guard exhausted (Runtime.evalFuel 1 initialSupplies [] (.pair .unit .unit))
+#guard isHeapPair (Runtime.evalFuel 10 initialSupplies [] (.pair .unit .unit))
+#guard rejected (Runtime.evalFuel 10 initialSupplies [] (.app .unit .unit))
 
 -- Allocation partitioning: slices exclude the reserved head and do not overlap.
 #guard ((initialSupplies.afterHeap.branch 2 0).heap.at 0) = 1

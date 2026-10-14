@@ -74,6 +74,10 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.Typing.source',
+    'ModalityInference.SourceTyping.to_rawTyping',
+    'ModalityInference.SourceTyping.of_rawTyping',
+    'ModalityInference.sourceTyping_iff_rawTyping',
     'ModalityInference.GroundFactorization.type',
     'ModalityInference.Scheme.generalize_closed',
     'ModalityInference.Scheme.generalize_ground',
@@ -760,8 +764,10 @@ constants = [
     'ModalityInference.stepType_entails',
     'ModalityInference.checkModeConstraint_empty_entails',
     'ModalityInference.stepMode_entails',
+    'ModalityInference.generate_term',
     'ModalityInference.generate_erases',
     'ModalityInference.generate_constraints_prefix',
+    'ModalityInference.infer_term',
     'ModalityInference.infer_erases',
     'ModalityInference.ModeCycle.former_succeeds',
     'ModalityInference.ModeCycle.no_model',
@@ -1331,8 +1337,7 @@ constants = [
     'ModalityInference.SharingLockCapture.capture_not_admissible',
     'ModalityInference.SharingLockCapture.not_typable',
     'ModalityInference.SharingLockCapture.context_scoped',
-    'ModalityInference.SharingLockCapture.UnsharedCaptureInferenceSoundness',
-    'ModalityInference.SharingLockCapture.no_unshared_capture_inference_soundness',
+    'ModalityInference.SharingLockCapture.no_unshared_capture_typing',
     'ModalityInference.Subtype.modal_comm',
     'ModalityInference.SharingLockCapture.refinedSource',
     'ModalityInference.SharingLockCapture.refinedCapture',

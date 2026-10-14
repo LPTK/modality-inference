@@ -1,4 +1,5 @@
 import ModalityInference.Inference
+import ModalityInference.Annotations
 import ModalityInference.Generation
 import ModalityInference.SchemeSubsumption
 import ModalityInference.Semantics
@@ -43,5 +44,17 @@ def exhausted {α : Type} : RunResult α → Bool
 #guard rejected (infer 2000 [] inconsistentUnused)
 #guard rejected (infer 2000 [] nonClosedDef)
 #guard rejected (infer 4000 [] duplicateCredit)
+
+-- Inference preserves source syntax through locks, sharing and closed definitions.
+def preservesSource (Γ : Context) (t : RawTerm) : Bool :=
+  match infer 5000 Γ t with
+  | .success result => decide (result.elaborated = t)
+  | _ => false
+#guard preservesSource [] identity
+#guard preservesSource [some (.mono (.var (.flex 0)))]
+  (.lam () (.pair (.var 1) (.var 1)))
+#guard preservesSource [] (.lam () (.lam () (.var 1)))
+#guard preservesSource [] (.defn (.app identity identity) (.app (.var 0) .unit))
+#guard preservesSource [] polyIdentity
 
 end ModalityInference.Examples

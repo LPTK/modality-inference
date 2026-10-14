@@ -22,7 +22,7 @@ theorem GroundGenerates.infer_complete {t ρ a}
   obtain ⟨solved, hsolved⟩ := hk fuel (by omega)
   have hgenerated := generate_monotone hg fuel (by omega)
   refine ⟨⟨generalizeOver [] solved.bounds (solved.substitution.ty r.type),
-    r.term.substTypes solved.substitution, solved.substitution, solved.bounds, solved.trace⟩, ?_⟩
+    r.term, solved.substitution, solved.bounds, solved.trace⟩, ?_⟩
   simp [infer, hgenerated, hsolved, bind, pure, RunResult.bind]
 
 theorem GroundTypingComplete.infer_complete {t a} (ht : Typing [] [] t a)

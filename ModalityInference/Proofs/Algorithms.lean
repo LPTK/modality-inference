@@ -94,8 +94,8 @@ theorem closed_definition_generalization {rhs a cs residual σ}
 
 /-- Soundness for the paper's unannotated terms, derived without admissions from
 generation soundness and the executable inference derivation.
-`SharingLockCapture` retains the refutation
-of the former, stronger claim about the executable's specific capture metadata. -/
+`SharingLockCapture` retains an untypable historical capture fixture; the
+executable now returns the source term unchanged. -/
 theorem inference_sound {fuel Γ t result scope}
     (_hΓ : Context.Scoped scope Γ) (h : infer fuel Γ t = .success result) :
     result.elaborated.erase = t ∧

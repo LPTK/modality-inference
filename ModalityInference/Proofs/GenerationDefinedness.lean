@@ -59,7 +59,7 @@ def formerVariableInference (fuel : Nat) (Γ : Context) (i : Nat) : RunResult In
   let s ← solveFrom fuel r.nextType r.nextMode r.constraints
   let context := Γ.map (Option.map (fun t => t.subst s.substitution))
   let scheme := generalizeOver context s.bounds (s.substitution.ty t)
-  return ⟨scheme, AnnotatedTerm.substTypes (.var i) s.substitution,
+  return ⟨scheme, .var i,
     s.substitution, s.bounds, s.trace⟩
 
 theorem former_inference_success :
