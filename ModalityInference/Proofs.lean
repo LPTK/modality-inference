@@ -1,5 +1,6 @@
 import ModalityInference.Proofs.Soundness
 import ModalityInference.Proofs.Algorithms
+import ModalityInference.Proofs.Obligations
 import ModalityInference.Proofs.PolymorphicCapture
 import ModalityInference.Proofs.ScopedCaptures
 import ModalityInference.Proofs.Projection
@@ -80,6 +81,7 @@ import ModalityInference.Proofs.ModalRefinement
 import ModalityInference.Proofs.NestedLockRefinement
 import ModalityInference.Proofs.RefinedSharing
 import ModalityInference.Proofs.RefinedContexts
+import ModalityInference.Proofs.RefinedLocks
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

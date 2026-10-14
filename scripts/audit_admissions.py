@@ -72,6 +72,22 @@ for path in paths:
             assert not re.search(r'^import\s+ModalityInference\.Proofs', code, re.M), path
 
 constants = [
+    'ModalityInference.Scheme.generalize_typeParams',
+    'ModalityInference.Scheme.generalize_modParams',
+    'ModalityInference.Instantiates.generalize_type_defined',
+    'ModalityInference.Instantiates.generalize_mode_defined',
+    'ModalityInference.JudgmentMap.of_entails',
+    'ModalityInference.Instantiates.generalize_judgmentMap',
+    'ModalityInference.JudgmentMap.entails_substituted_bounds',
+    'ModalityInference.Solution.generalize_instance',
+    'ModalityInference.Scheme.lockAll_freshForBounds',
+    'ModalityInference.Scheme.lockAll_freshForMode',
+    'ModalityInference.Scheme.withAssumptions_lock',
+    'ModalityInference.AlgorithmicContext.refinedContext_lock',
+    'ModalityInference.Lookup.refinedContext_typing',
+    'ModalityInference.Scheme.subsumes_refineMode_withAssumptions',
+    'ModalityInference.Context.refinedContext_le',
+    'ModalityInference.Typing.lam_refined',
     'Equation.decide_correct', 'RightExpr.iterate_stabilizes',
     'ModalityInference.infer', 'ModalityInference.solve',
     'ModalityInference.checkSubsumption', 'ModalityInference.evalFuel',
@@ -1189,6 +1205,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.Soundness\n'
                     'import ModalityInference.Proofs.GenerationDefinedness\n'
                     'import ModalityInference.Proofs.Algorithms\n'
+                    'import ModalityInference.Proofs.RefinedLocks\n'
                     'import ModalityInference.Proofs.TypeElimination\n'
                     'import ModalityInference.Proofs.SolverEntry\n'
                     'import ModalityInference.Proofs.Normalization\n'

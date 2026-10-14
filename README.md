@@ -23,16 +23,21 @@ and evaluator results transitively, allowing only `propext`, `Classical.choice`
 and `Quot.sound`. CI builds and audits this target independently. The historical
 `Deferred` namespace on the exported corollaries remains only for name compatibility.
 
-**Inference verification is in progress.** Seven admissions remain for solver
-termination/completeness, generation soundness/completeness, closed-definition
-generalization, and elaborated inference soundness/completeness. The unused
-closed-term-substitution, abstract solver-correspondence, principal-factorization,
-and scheme-subsumption checker assertions have been removed. Their established
+**Inference verification is in progress.** Six direct admissions remain for solver
+termination/completeness, generation soundness/completeness, and elaborated
+inference soundness/completeness. Closed-definition generalization is now derived
+from generation soundness; it still transitively depends on that admission.
+`Proofs/Obligations` preserves closed-term substitution, abstract solver
+correspondence, principal factorization, and both scheme-subsumption checker
+contracts as **unproved proposition definitions**, with no admissions. Principality
+remains required for the paper's stronger completeness-and-principality claim;
+eventual inference success alone is insufficient. The other contracts remain
+available as supporting or separate verification tasks. Their established
 prerequisites and counterexamples remain available. Neither the semantic
 entry point nor its dependencies import those worklists. The public library and
 executables also remain independent of them. The original generic solver is
 unchanged. The full-project audit continues to check
-1074 public or established declarations transitively, including the complete
+1090 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -294,8 +299,8 @@ statement. Solving `(α × unit) ≤ (unit × unit)` gives `α` a modal-unit ima
 Under an ambient assumption consisting of that whole-product inequality, the
 identity substitution is a solution, but no `α ≤ unit @ m` follows. The witness
 is flexible and finitely satisfiable; inconsistent assumptions are not the cause.
-The former proposition is archived and its negation proved. The deferred
-former `principal_factorization` worklist required `Residual Δ`, matching the paper's
+The former proposition is archived and its negation proved. The retained
+`Obligations.PrincipalFactorization` statement requires `Residual Δ`, matching the paper's
 grammar of variable-to-variable type bounds. Its equivalence-based conclusion
 and the paper's ground principality claim are unchanged and remain unproved.
 
@@ -561,8 +566,10 @@ join and source weakening for arbitrary interleavings of locks and bindings.
 Its explicit freshness invariant survives both branches of every split.
 `Lookup.refinedContext_instance` retains every defined original lookup instance
 at the same binding index, with entailed bounds and mutual body subtyping.
-Whole-term generation, solution transport, lambda locking and actual emitted
-annotations remain future work. Neither
+`RefinedLocks` now proves lambda locking for these complete contexts, variable
+typing at every retained instance, source-context weakening, and the lambda
+typing step with its exact refined capture annotation. Whole-term generation,
+solution transport, and actual emitted annotations remain future work. Neither
 `refineMode` nor `lockAll` is yet used by `captureContext` or `infer`, so the
 recorded counterexample still describes the current executable.
 
@@ -571,6 +578,14 @@ and all-axis modality projection are also proved independently. Backend modality
 entailment agrees with `ModeModels`; a positive inequality report establishes
 `Submode`. An executable scheme-comparison report is still data pending the
 remaining algorithmic proofs.
+
+`GeneralizationTransport` proves that any defined instance of a fully generalized
+scheme has defined images for every identifier its substitution can replace.
+Its entailed bounds therefore transport all solved consequences through arbitrary
+partial substitutions. `Solution.generalize_instance` composes the original solve
+with that instance. The closed-definition-generalization theorem now follows
+from `generation_sound`; this removes its separate admission, but does not make
+the theorem admission-free until generation soundness is proved.
 
 ## Build and run
 
@@ -860,13 +875,16 @@ They exercise every term constructor and both sum branches.
 
 ## Remaining inference obligations
 
-Each of the seven remaining deferred theorems has a prerequisite comment immediately above it.
+Each of the six remaining directly admitted theorems has a prerequisite comment immediately above it.
 The former annotation-dependent fundamental claim remains separately recorded
 as a refuted proposition. Its corrected resource formulation and corollaries are
-proved for the whole core. The unused closed-term-substitution statement has been
-removed; the semantic proof uses environments. Inference work must validate the
-remaining contracts and
-justify corrections with retained evidence.
+proved for the whole core. Five further contracts are preserved as proposition
+definitions in `Proofs/Obligations`; none supplies a proof or adds an admission.
+Principality remains required for the paper's claim. Solver correspondence may
+support its proof; scheme-checker correctness and closed-term substitution remain
+separate tasks. The semantic proof uses environments and does not need the latter.
+Inference work must validate the remaining contracts and justify corrections with
+retained evidence. Admission counts do not measure these unproved specifications.
 
 `GroundInstantiates` fixes every identifier outside the quantified domain, including
 ones absent from a scheme's body and bounds. This preserves the interpretation of
@@ -935,8 +953,9 @@ definedness obligations.
 | Proof module | Obligations | Prerequisites/dependencies |
 | --- | --- | --- |
 | `Structural` | None; the unused admitted closed-term-substitution statement was removed | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup, instance-indexed context joins and locking are proved |
+| `Obligations` | Unproved proposition definitions for principal factorization, solver correspondence, scheme-checker soundness/completeness, and optional closed-term substitution; no admissions | Preserves the removed contracts and their side conditions. Principality still needs a proof; merely defining its proposition does not establish the paper's claim |
 | `Soundness` | None: corrected fundamental soundness, termination/no-stuck, live results, and ownership bound are proved | Complete typing induction in `ResourceSoundness`; independently built and audited without either deferred worklist |
-| `Algorithms` | Scheduled termination, solve completeness, generation soundness/completeness, closed-definition generalization, elaborated inference soundness and completeness | Full executable solver soundness, generator correspondence and initialized lock hygiene, local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include worklist simulation/termination, representative-search completeness, rigid entailment and subsumption witness reconstruction |
+| `Algorithms` | Scheduled termination, solve completeness, generation soundness/completeness, elaborated inference soundness and completeness; closed-definition generalization is derived but still depends on generation soundness | Full executable solver soundness, generator correspondence and initialized lock hygiene, local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include worklist simulation/termination, representative-search completeness, rigid entailment and subsumption witness reconstruction |
 
 Completeness statements require a sufficiently large fuel budget. Rewrite
 expansion requires distinct flexible variables fresh for the complete original

@@ -9,6 +9,7 @@ import ModalityInference.Proofs.SolverFlexible
 import ModalityInference.Proofs.GenerationExecution
 import ModalityInference.Proofs.SolverSoundness
 import ModalityInference.Proofs.GenerationCorrespondence
+import ModalityInference.Proofs.GeneralizationTransport
 
 namespace ModalityInference.Deferred
 
@@ -85,17 +86,19 @@ theorem generation_complete {Δ Γ t a} (h : RawTyping Δ Γ t a) :
     ∃ b cs σ, ∃ hg : Generates (Γ.map ContextEntry.binding) t b cs,
       hg.Hygienic ∧ Solution cs Δ σ ∧ Subtype Δ (σ.ty b) a := by sorry
 
-/-- DEFERRED. Prerequisites: closed term environment, solve consistency and
-substitution, universal introduction over *all* remaining free variables.
-The RHS derivation obeys the same lock-scope condition as generation soundness.
-The selected instance must be defined, as in variable typing;
+/-- Generalization follows from generation soundness and the admission-free
+transport of solved constraints through every defined generalized instance.
+This result still depends on the deferred generation-soundness theorem.
 `GeneralizationDefinedness` refutes the former unguarded contract. -/
 theorem closed_definition_generalization {rhs a cs residual σ}
-    (hg : Generates [] rhs a cs) (hh : hg.Hygienic) (hc : rhs.freeVars = ∅)
+    (hg : Generates [] rhs a cs) (hh : hg.Hygienic) (_hc : rhs.freeVars = ∅)
     (hs : Solves cs residual σ) :
     ∀ θ, Instantiates (Scheme.generalize residual (σ.ty a)) θ →
       EntailsAll [] (θ.bounds residual) → (θ.ty (σ.ty a)).DefinedUnder [] →
-      RawTyping [] [] rhs (θ.ty (σ.ty a)) := by sorry
+      RawTyping [] [] rhs (θ.ty (σ.ty a)) := by
+  intro θ hi hb hd
+  simpa only [Context.subst, List.map_nil, Substitution.ty_compose] using
+    generation_sound (Γ := []) hg hh (Solution.generalize_instance hs.1 hi hb hd)
 
 /-- DEFERRED typing conjunct; erasure of the actual inferred term is proved.
 The current capture construction is refuted by `SharingLockCapture`; repairing
