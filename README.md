@@ -22,7 +22,7 @@ solver correspondence/termination/completeness/principality, generation, elabora
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-892 public or established declarations transitively, including the complete
+900 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -413,6 +413,18 @@ generalization now require this scope evidence, and generation completeness must
 produce it. Full declarative generation soundness is still open.
 
 `Proofs/SchemeInstantiation` supplies the syntactic instance-transport step.
+`Proofs/GeneralizationDefinedness` validates a separate premise needed by the
+deferred closed-definition generalization contract. The hygienic derivation for
+`λx. ()` has an identity solution with empty residual bounds, but those bounds
+also admit an instance replacing the argument variable by a type with an undefined
+internal modality. `no_unguarded_generalization` refutes the former contract.
+The corrected contract requires the selected result type to be `DefinedUnder []`,
+as variable typing already requires. `defined_instance_typable` proves the entire
+example family for every defined instance, and `partial_instance_undefined`
+rejects the bad one. Ordinary source types already satisfy this guard. This is
+a correction to an open proof obligation; the full generalization theorem is
+still deferred, and no executable or source-language restriction was added.
+
 `Instantiates.substitute` constructs an instance of a capture-avoiding substituted
 scheme whose body is exactly the outer substitution of the original instance.
 Its bounds have equivalent entailment under every ambient context; raw constraint
@@ -653,6 +665,7 @@ All paths below are relative to `ModalityInference/`.
 | Scheme assumptions and symbolic context witnesses | `Proofs/SchemeBounds`, `Proofs/GenerationContextTyping` | Proved instance-preserving explicit assumptions, reflexive prepared contexts, binding-context splits and whole-context locks with freshness premises; substitution and the full generation induction remain open |
 | Fresh schemes and contexts | `Proofs/SchemeFreshening` | Proved freshening beyond arbitrary ambient bounds, exact instance equivalence, source subsumption and context weakening; a fresh context supplies all lock freshness premises |
 | Target assumptions in scheme comparison | `Proofs/SubsumptionAssumptions`, `Proofs/ConstraintModels`, `Proofs/SchemeBounds` | Refuted reflexivity of the raw-target rule on an inhabited equality scheme; corrected comparison is reflexive for every scheme, preserves every former comparison, and retains whole-core resource soundness |
+| Defined generalized instances | `Proofs/GeneralizationDefinedness` | Refuted the former unguarded generalization contract with a hygienic constant function; corrected contract requires instance definedness, and the example is proved typable for every defined instance |
 | Simultaneous substitution | `Proofs/Substitution` | Proved composition for types, modalities, constraints and bounds, plus agreement of scheme substitution with its exposed binder action; no admissions |
 | Transport through scheme binders | `Annotations`, `Proofs/Annotations`, `Proofs/ScopedCaptures` | Executable per-capture binder transport and paired scheme/value substitution; proved erasure, reference, liveness and evaluation preservation; nested polymorphic witness |
 | Explicit value instantiation | `Annotations`, `Proofs/Instantiation`, `Proofs/ScopedCaptures` | Ordered arguments transport metadata; proved instantiation, definedness-guard and erasure contracts; optional transport route, not required by resource soundness |
@@ -724,6 +737,7 @@ corrections. The POPL reviews and response are in the enclosing paper repository
 | Scheme binders are fresh for ambient bounds and symbolic locks | `ContextScoping`: the former sharing premise allows two copies of the same owned credit; alpha-renaming removes the bound/quantifier collision |
 | Scheme-comparison skolems are fresh for ambient bounds | `SubsumptionScope`: under `unit ≤ rigid₁`, the former comparison incorrectly accepted `unit` as `∀α. α`; the corrected comparison chooses `rigid₂` |
 | Target constraints supply usable assumptions | `SubsumptionAssumptions`: `∀α. (α = unit) ⇒ α` has a unit instance but the former raw-target rule cannot compare it with itself; expanding equality directions and written guards restores general reflexivity |
+| Generalized instances retain result definedness | `GeneralizationDefinedness`: empty residual bounds for `λx. ()` cannot justify an undefined internal argument type; the guarded example is proved for all defined instances |
 | Fuel is not rejection | Small-budget inference/evaluation exhaust; larger budgets succeed |
 
 The regression checks also compare small two-mode queries and all concrete mode

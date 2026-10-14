@@ -114,12 +114,15 @@ theorem generation_complete {Δ Γ t a} (h : RawTyping Δ Γ t a) :
 
 /-- DEFERRED. Prerequisites: closed term environment, solve consistency and
 substitution, universal introduction over *all* remaining free variables.
-The RHS derivation obeys the same lock-scope condition as generation soundness. -/
+The RHS derivation obeys the same lock-scope condition as generation soundness.
+The selected instance must be defined, as in variable typing;
+`GeneralizationDefinedness` refutes the former unguarded contract. -/
 theorem closed_definition_generalization {rhs a cs residual σ}
     (hg : Generates [] rhs a cs) (hh : hg.Hygienic) (hc : rhs.freeVars = ∅)
     (hs : Solves cs residual σ) :
     ∀ θ, Instantiates (Scheme.generalize residual (σ.ty a)) θ →
-      EntailsAll [] (θ.bounds residual) → RawTyping [] [] rhs (θ.ty (σ.ty a)) := by sorry
+      EntailsAll [] (θ.bounds residual) → (θ.ty (σ.ty a)).DefinedUnder [] →
+      RawTyping [] [] rhs (θ.ty (σ.ty a)) := by sorry
 
 /-- DEFERRED typing conjunct; erasure of the actual inferred term is proved.
 Typing still needs generation soundness, solver soundness, fresh scheme

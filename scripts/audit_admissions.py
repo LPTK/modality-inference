@@ -923,6 +923,14 @@ constants = [
     'ModalityInference.SubsumptionAssumptions.scheme_unit_instance',
     'ModalityInference.SubsumptionAssumptions.raw_not_reflexive',
     'ModalityInference.SubsumptionAssumptions.corrected_reflexive',
+    'ModalityInference.GeneralizationDefinedness.generated_hygienic',
+    'ModalityInference.GeneralizationDefinedness.identity_solves',
+    'ModalityInference.GeneralizationDefinedness.partial_instance',
+    'ModalityInference.GeneralizationDefinedness.instance_bounds',
+    'ModalityInference.GeneralizationDefinedness.partial_instance_undefined',
+    'ModalityInference.GeneralizationDefinedness.defined_instance_typable',
+    'ModalityInference.GeneralizationDefinedness.UnguardedGeneralization',
+    'ModalityInference.GeneralizationDefinedness.no_unguarded_generalization',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -996,6 +1004,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.GenerationContextTyping\n'
                     'import ModalityInference.Proofs.SchemeFreshening\n'
                     'import ModalityInference.Proofs.SubsumptionAssumptions\n'
+                    'import ModalityInference.Proofs.GeneralizationDefinedness\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

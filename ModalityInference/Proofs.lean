@@ -68,6 +68,7 @@ import ModalityInference.Proofs.SchemeBounds
 import ModalityInference.Proofs.GenerationContextTyping
 import ModalityInference.Proofs.SchemeFreshening
 import ModalityInference.Proofs.SubsumptionAssumptions
+import ModalityInference.Proofs.GeneralizationDefinedness
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
