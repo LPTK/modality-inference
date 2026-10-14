@@ -94,6 +94,7 @@ import ModalityInference.Proofs.GeneralizedSubstitution
 import ModalityInference.Proofs.RefinedReuse
 import ModalityInference.Proofs.GenerationSoundness
 import ModalityInference.Proofs.SolverCompleteness
+import ModalityInference.Proofs.InferenceCompleteness
 import ModalityInference.Proofs.GenerationCompletenessDomain
 import ModalityInference.Proofs.GenerationEventualFuel
 

@@ -23,12 +23,15 @@ and evaluator results transitively, allowing only `propext`, `Classical.choice`
 and `Quot.sound`. CI builds and audits this target independently. The historical
 `Deferred` namespace on the exported corollaries remains only for name compatibility.
 
-**Inference soundness is proved.** Hygienic generation, closed-definition
-generalization, and unannotated executable inference soundness now have no admitted
-dependencies. Initialized constraint solving terminates on every input, accepts
-all satisfiable flexible inputs, and preserves every original ground solution
-through the returned substitution and residual bounds. One direct admission remains
-for closed inference completeness. The unused unrestricted generation-completeness
+**Inference soundness, closed completeness, and ground principality are proved.**
+Hygienic generation, closed-definition generalization, unannotated executable
+inference soundness, and eventual acceptance of every declaratively typable closed
+source term have no admitted dependencies. Every successful inferred scheme covers
+every ground instance of every valid closed result type, up to subtyping.
+Initialized constraint solving terminates on every input, accepts all satisfiable
+flexible inputs, and preserves every original ground solution through its result.
+**No Lean admissions remain.** The default audit rejects any new admission.
+The unused unrestricted generation-completeness
 statement was false; `GenerationCompletenessDomain` preserves its counterexample.
 The inference target matches the paper's unannotated terms, with proof
 annotations hidden existentially by `RawTyping`. The old assertion about the
@@ -38,14 +41,14 @@ correspondence, principal factorization, and both scheme-subsumption checker
 contracts as **unproved proposition definitions**, with no admissions. The paper's
 solver ground-principality claim is proved by `solve_ground_principal`; symbolic
 factorization under arbitrary residual assumptions remains a stronger separate
-contract. Eventual inference success alone is insufficient for inference principality.
-The other contracts remain
-available as supporting or separate verification tasks. Their established
+contract. Inference ground principality is proved separately by
+`inference_ground_principal`; it is stronger than eventual success alone.
+The other contracts remain available as supporting or separate verification tasks. Their established
 prerequisites and counterexamples remain available. Neither the semantic
 entry point nor its dependencies import those worklists. The public library and
 executables also remain independent of them. The original generic solver is
 unchanged. The full-project audit continues to check
-1279 public or established declarations transitively, including the complete
+1366 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -413,8 +416,16 @@ solver, generator and inference results under increasing budgets.
 `GenerationCompletenessDomain` refutes the discarded unrestricted relational
 generation-completeness statement: an ambient subtype assumption can make an
 undefined binding usable through subsumption, but generated definedness guards
-cannot be solved. The remaining closed-input inference target has no such
-ambient assumption; its semantic-to-executable generation bridge remains open.
+cannot be solved. `Typing.ground_complete` supplies the valid replacement:
+every modeled declarative typing guides an actual successful generation whose
+result realizes a subtype of the specified ground type, while preserving all
+previously allocated identifiers. `SchemeCovers` relates all required instances
+of used bindings, including sharing and lazy locks. Fresh instantiation extends
+only fresh identifiers. The constructor induction covers all forms, with fuel
+stability reconciling pointwise witnesses for generalized closed definitions.
+`inference_complete` concludes eventual acceptance of every typable closed term;
+`inference_ground_principal` shows that every successful scheme represents every
+ground instance of every valid result type.
 
 
 `GroundInstantiates` fixes every identifier outside the quantified domain,
@@ -877,6 +888,7 @@ All paths below are relative to `ModalityInference/`.
 | Accumulated image definedness | `Proofs/SolverStepEntailment`, `Proofs/SolverImages` | Proved backward entailment for steps preserving the substitution and image definedness through all steps/runs; every returned type image is defined under the returned residual bounds |
 | Full executable solver soundness | `Proofs/SolverExtension`, `Proofs/SolverSoundness` | Proved preservation of eliminated equations through later substitutions and complete backward reconstruction of original input constraints; all conjuncts of `Deferred.solve_sound` are admission-free |
 | Executable solver completeness and ground principality | `Proofs/SolverGround`, `Proofs/GroundPrincipality`, `Proofs/SolverCompleteness` | Proved eventual acceptance of every satisfiable flexible input and finite residual factorization of every original ground solution through every successful result |
+| Closed source inference completeness and ground principality | `Proofs/GenerationCompleteness`, `Proofs/InferenceCompleteness` | Proved all-constructor ground generation, eventual acceptance of every typable closed source term, and coverage of every valid ground result instance by every successful inferred scheme |
 | Saved-substitution shape checking | `Proofs/ShapeEntry`, `Proofs/SolverEntry` | Proved a cyclic-shape witness with an acyclic saved substitution, rejection at every fuel at least two after applying that substitution, and unchanged empty-substitution behavior; initialized solver termination is now proved |
 | Ambient principality assumptions | `Proofs/PrincipalAmbient` | Refuted unrestricted whole-type assumptions using a finitely satisfiable witness; the deferred theorem now requires the paper's residual-bound grammar |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |
@@ -888,14 +900,14 @@ All paths below are relative to `ModalityInference/`.
 | Annotation erasure | `Proofs/Erasure` | Proved for all evaluation rules and capture trimming; no admissions |
 | Recursive annotation transport | `Annotations`, `Proofs/Annotations` | Executable value substitution; proved evaluation, erasure, reference and freshness preservation |
 | Scheme-instance transport | `Proofs/SchemeInstantiation` | Proved transport through capture-avoiding substitution with exact body equality and equivalent bound entailment, including repeated parameters and partial images; proved the substituted variable-typing case with definedness explicit |
-| Scheme assumptions and symbolic context witnesses | `Proofs/SchemeBounds`, `Proofs/GenerationContextTyping` | Proved instance-preserving explicit assumptions, reflexive prepared contexts, binding-context splits and whole-context locks with freshness premises; substitution and the full generation induction remain open |
+| Scheme assumptions and symbolic context witnesses | `Proofs/SchemeBounds`, `Proofs/GenerationContextTyping` | Proved instance-preserving explicit assumptions, reflexive prepared contexts, binding-context splits and whole-context locks with freshness premises; substitution and full generation soundness/completeness are proved in the later integration modules |
 | Fresh schemes and contexts | `Proofs/SchemeFreshening` | Proved freshening beyond arbitrary ambient bounds, exact instance equivalence, source subsumption and context weakening; a fresh context supplies all lock freshness premises |
 | Target assumptions in scheme comparison | `Proofs/SubsumptionAssumptions`, `Proofs/ConstraintModels`, `Proofs/SchemeBounds` | Refuted reflexivity of the raw-target rule on an inhabited equality scheme; corrected comparison is reflexive for every scheme, preserves every former comparison, and retains whole-core resource soundness |
 | Defined generalized instances | `Proofs/GeneralizationDefinedness` | Refuted a contract missing well-formed instance substitutions; the corrected constant-function example is proved for every substitution satisfying that hypothesis |
 | Syntactic subsumption instances | `Proofs/SkolemSubstitution`, `Proofs/InstanceDefinedness`, `Proofs/SubsumptionInstances` | Proved source-instance reconstruction and subtyping for every defined target instance, retaining arbitrary ambient bounds, repeated parameters and unused partial images |
 | Admissibility of used bindings | `Proofs/TypingAdmissibility` | With defined ambient subtype operands, proved result definedness and admissible syntactic instances for used bindings and lambda capture annotations; solver residuals satisfy the premise |
 | Sharing below capture locks | `Proofs/TypeVariablePredicates`, `Proofs/SharingLockCapture`, `Proofs/CaptureRefinement` | Refuted the current inferred capture annotation and proved a refined annotation at the same inferred type and residual bounds; executable repair and its general proof remain open |
-| Quantified modal refinement | `Inference`, `Proofs/ModalRefinement`, `Proofs/NestedLockRefinement`, `Proofs/RefinedSharing`, `Proofs/RefinedContexts` | Proved nested instance retention, refined shared-branch comparison, complete context splitting and freshness preservation, and lookup-instance recovery; whole-term and executable integration remain open |
+| Quantified modal refinement | `Inference`, `Proofs/ModalRefinement`, `Proofs/NestedLockRefinement`, `Proofs/RefinedSharing`, `Proofs/RefinedContexts` | Proved nested instance retention, refined shared-branch comparison, complete context splitting and freshness preservation, and lookup-instance recovery; whole-term source soundness and closed executable completeness are proved |
 | Simultaneous substitution | `Proofs/Substitution` | Proved composition for types, modalities, constraints and bounds, plus agreement of scheme substitution with its exposed binder action; no admissions |
 | Transport through scheme binders | `Annotations`, `Proofs/Annotations`, `Proofs/ScopedCaptures` | Executable per-capture binder transport and paired scheme/value substitution; proved erasure, reference, liveness and evaluation preservation; nested polymorphic witness |
 | Explicit value instantiation | `Annotations`, `Proofs/Instantiation`, `Proofs/ScopedCaptures` | Ordered arguments transport metadata; proved instantiation, definedness-guard and erasure contracts; optional transport route, not required by resource soundness |
@@ -974,18 +986,21 @@ The regression checks also compare small two-mode queries and all concrete mode
 comparisons against exhaustive valuation checking before accepting backend results.
 They exercise every term constructor and both sum branches.
 
-## Remaining inference obligations
+## Established inference results and separate specifications
 
-The remaining directly admitted inference-completeness theorem has a prerequisite comment immediately above it.
+All direct admissions have been eliminated. The exported source soundness,
+closed completeness, and ground-principality results are checked transitively;
+the default audit rejects any future admission.
 The former annotation-dependent fundamental claim remains separately recorded
 as a refuted proposition. Its corrected resource formulation and corollaries are
 proved for the whole core. Five further contracts are preserved as proposition
 definitions in `Proofs/Obligations`; none supplies a proof or adds an admission.
-Principality remains required for the paper's claim. Solver correspondence may
-support its proof; scheme-checker correctness and closed-term substitution remain
-separate tasks. The semantic proof uses environments and does not need the latter.
-Inference work must validate the remaining contracts and justify corrections with
-retained evidence. Admission counts do not measure these unproved specifications.
+The paper's ground principality claim is proved. The stronger symbolic
+factorization contract, abstract solver correspondence, scheme-checker correctness,
+and closed-term substitution remain separate tasks. The semantic proof uses
+environments and does not need the latter.
+These separate contracts remain unproved specifications. Their status is independent
+of the absence of admissions and of the established source inference results.
 
 `GroundInstantiates` fixes every identifier outside the quantified domain, including
 ones absent from a scheme's body and bounds. This preserves the interpretation of
@@ -1056,7 +1071,7 @@ definedness obligations.
 | `Structural` | None; the unused admitted closed-term-substitution statement was removed | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup, instance-indexed context joins and locking are proved |
 | `Obligations` | Unproved proposition definitions for principal factorization, solver correspondence, scheme-checker soundness/completeness, and optional closed-term substitution; no admissions | Preserves the removed contracts and their side conditions. Symbolic factorization remains open; the paper's ground solver factorization is proved separately in `SolverCompleteness` |
 | `Soundness` | None: corrected fundamental soundness, termination/no-stuck, live results, and ownership bound are proved | Complete typing induction in `ResourceSoundness`; independently built and audited without either deferred worklist |
-| `Algorithms` | Closed inference completeness; solver completeness, generation soundness, closed-definition generalization and unannotated inference soundness are proved | Solver ground factorization, generator correspondence, initialized lock hygiene and fuel stability are proved. The remaining main prerequisite is a ground semantic-to-executable generation construction, including closed definitions |
+| `Algorithms` | None: solver completeness, generation soundness, closed-definition generalization, source inference soundness, closed inference completeness and ground principality are proved | `GenerationCompleteness` guides executable generation from every ground typing instance; `InferenceCompleteness` combines it with complete solving, residual factorization and fuel stability |
 
 Completeness statements require a sufficiently large fuel budget. Rewrite
 expansion requires distinct flexible variables fresh for the complete original

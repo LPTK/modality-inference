@@ -13,6 +13,7 @@ import ModalityInference.Proofs.GeneralizationTransport
 import ModalityInference.Proofs.InferenceDerivation
 import ModalityInference.Proofs.GenerationSoundness
 import ModalityInference.Proofs.SolverCompleteness
+import ModalityInference.Proofs.InferenceCompleteness
 
 namespace ModalityInference.Deferred
 
@@ -102,10 +103,19 @@ theorem inference_sound {fuel Γ t result scope}
   obtain ⟨a, cs, hg, hh, hs, hw, he⟩ := infer_derivation h
   exact ⟨infer_erases h, he.symm ▸ generation_sound hg hh hs hw⟩
 
-/-- DEFERRED. Prerequisites: freshness invariants, solver completeness and generator
-correspondence. Fuel is not part of the declarative typing relation. -/
+/-- Every declaratively typable closed source term is accepted with sufficiently
+large fuel. The ground generation induction covers every constructor, including
+lazy locks, shared contexts, and generalized closed definitions. -/
 theorem inference_complete {t a} (h : RawTyping [] [] t a) :
-    ∃ n, ∀ fuel ≥ n, ∃ result, infer fuel [] t = .success result := by sorry
+    ∃ n, ∀ fuel ≥ n, ∃ result, infer fuel [] t = .success result :=
+  ModalityInference.inference_complete h
+
+/-- Every ground instance of a declaratively valid closed result type is
+represented, up to subtyping, by every successfully inferred scheme. -/
+theorem inference_ground_principal {t a fuel result} (ht : RawTyping [] [] t a)
+    (hi : infer fuel [] t = .success result) (ρ τ : GroundAssignment) :
+    SchemeCovers ρ τ result.scheme (Scheme.generalize [] a) :=
+  ModalityInference.inference_ground_principal ht hi ρ τ
 
 /-- Proved by polarity-aware CNF normalization, clause translation with an explicit
 identifier-to-Fin lookup, and the existing `Equation.decide_correct` theorem.

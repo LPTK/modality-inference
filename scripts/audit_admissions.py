@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check the admission boundary, including transitive Lean axiom dependencies."""
+"""Reject Lean admissions and check transitive axiom dependencies."""
 from pathlib import Path
 import argparse
 import re
@@ -71,7 +71,96 @@ for path in paths:
         if path.name != 'Proofs.lean':
             assert not re.search(r'^import\s+ModalityInference\.Proofs', code, re.M), path
 
+assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
+
 constants = [
+    'ModalityInference.GroundFactorization.type',
+    'ModalityInference.Scheme.generalize_closed',
+    'ModalityInference.Scheme.generalize_ground',
+    'ModalityInference.SchemeCovers.generalize_factorization',
+    'ModalityInference.solveFrom_generalize_covers',
+    'ModalityInference.generate_success_unique',
+    'ModalityInference.generate_generalize_covers',
+    'ModalityInference.Typing.ground_complete',
+    'ModalityInference.InferenceState.freshTypes2_mode_model',
+    'ModalityInference.GroundTypingComplete.var',
+    'ModalityInference.GroundTypingComplete.unit',
+    'ModalityInference.GroundTypingComplete.subs',
+    'ModalityInference.GenerationReady.restate',
+    'ModalityInference.GenerationReady.advance',
+    'ModalityInference.GenerationReady.split',
+    'ModalityInference.GroundGenerates.weaken',
+    'ModalityInference.GroundGenerates.result_eq',
+    'ModalityInference.GroundTypingComplete.binary_models',
+    'ModalityInference.GroundTypingComplete.app',
+    'ModalityInference.GroundTypingComplete.pair_mode',
+    'ModalityInference.GroundTypingComplete.pair',
+    'ModalityInference.GroundTypingComplete.stackPair',
+    'ModalityInference.GenerationReady.mono',
+    'ModalityInference.SchemeCovers.mono',
+    'ModalityInference.AlgorithmicContextCovers.binding',
+    'ModalityInference.Lookup.modParamsBounded',
+    'ModalityInference.AlgorithmicContextCovers.lock',
+    'ModalityInference.AlgorithmicContextCovers.source_agreesBelow',
+    'ModalityInference.GroundTypingComplete.defn',
+    'ModalityInference.InferenceState.freshTypes3_mode_model',
+    'ModalityInference.GroundTypingComplete.case',
+    'ModalityInference.SolverGround.AgreesBelow.mono',
+    'ModalityInference.SolverGround.AgreesBelow.trans',
+    'ModalityInference.InferenceState.freshType_model',
+    'ModalityInference.InferenceState.freshMode_model',
+    'ModalityInference.Scheme.freshAssignment_agreesBelow',
+    'ModalityInference.Scheme.freshAssignment_type_at',
+    'ModalityInference.Scheme.freshAssignment_mode_at',
+    'ModalityInference.GroundInstantiates.freshened_type',
+    'ModalityInference.GroundInstantiates.freshened_mode',
+    'ModalityInference.GroundInstantiates.freshen',
+    'ModalityInference.InferenceState.instantiate_model',
+    'ModalityInference.GroundTypingComplete.lam',
+    'ModalityInference.GroundTypingComplete.reuse',
+    'ModalityInference.GroundTypingComplete.split',
+    'ModalityInference.GroundGenerates.injection',
+    'ModalityInference.GroundTypingComplete.inl',
+    'ModalityInference.GroundTypingComplete.inr',
+    'ModalityInference.GroundGenerates.region',
+    'ModalityInference.GroundTypingComplete.region',
+    'ModalityInference.SchemeCovers.refl',
+    'ModalityInference.SchemeCovers.trans',
+    'ModalityInference.Subsumes.ground_covers',
+    'ModalityInference.SchemeCovers.source_congr',
+    'ModalityInference.SchemeCovers.target_congr',
+    'ModalityInference.ContextCovers.refl',
+    'ModalityInference.ContextCovers.trans',
+    'ModalityInference.ContextLe.ground_covers',
+    'ModalityInference.AlgorithmicContextCovers.restrict',
+    'ModalityInference.AlgorithmicContextCovers.trans',
+    'ModalityInference.AlgorithmicContextCovers.nil',
+    'ModalityInference.Scheme.GroundRefines.refl',
+    'ModalityInference.Scheme.GroundRefines.trans',
+    'ModalityInference.Scheme.GroundRefines.covers',
+    'ModalityInference.Scheme.GroundRefines.lock',
+    'ModalityInference.Scheme.share_lock_refines',
+    'ModalityInference.mem_routed_tail',
+    'ModalityInference.Lookup.split_left',
+    'ModalityInference.splitContext_swap',
+    'ModalityInference.Lookup.split_right',
+    'ModalityInference.SchemeCovers.modal_many',
+    'ModalityInference.ContextJoin.left_scheme',
+    'ModalityInference.ContextJoin.symm',
+    'ModalityInference.AlgorithmicContextCovers.split_left',
+    'ModalityInference.AlgorithmicContextCovers.split',
+    'ModalityInference.GroundOrder.modal_guard_downward',
+    'ModalityInference.SchemeCovers.share',
+    'ModalityInference.SchemeCovers.lock',
+    'ModalityInference.GenerationReady.initial_empty',
+    'ModalityInference.GroundGenerates.infer_complete',
+    'ModalityInference.GroundTypingComplete.infer_complete',
+    'ModalityInference.generalizeOver_nil',
+    'ModalityInference.GroundTypingComplete.infer_covers',
+    'ModalityInference.inference_complete',
+    'ModalityInference.inference_ground_principal',
+    'ModalityInference.Deferred.inference_complete',
+    'ModalityInference.Deferred.inference_ground_principal',
     'ModalityInference.SolverGround.Models.emit',
     'ModalityInference.SolverGround.Models.retain',
     'ModalityInference.SolverGround.mode_guards',
@@ -1423,6 +1512,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ModeWorklist\n'
                     'import ModalityInference.Proofs.SolverTermination\n'
                     'import ModalityInference.Proofs.SolverCompleteness\n'
+                    'import ModalityInference.Proofs.InferenceCompleteness\n'
                     'import ModalityInference.Proofs.GenerationCompletenessDomain\n'
                     'import ModalityInference.Proofs.GenerationEventualFuel\n'
                     'import ModalityInference.Proofs.BoundedSupport\n'
