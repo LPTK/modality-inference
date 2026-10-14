@@ -86,6 +86,8 @@ import ModalityInference.Proofs.RefinedLocks
 import ModalityInference.Proofs.SubstitutedContexts
 import ModalityInference.Proofs.FreshenedContexts
 import ModalityInference.Proofs.GeneralizedSubstitution
+import ModalityInference.Proofs.RefinedReuse
+import ModalityInference.Proofs.GenerationSoundness
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

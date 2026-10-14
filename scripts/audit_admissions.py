@@ -72,6 +72,17 @@ for path in paths:
             assert not re.search(r'^import\s+ModalityInference\.Proofs', code, re.M), path
 
 constants = [
+    'ModalityInference.Scheme.modal_many_subsumes',
+    'ModalityInference.Scheme.refineMode_lockAll_subsumes_shared_plain',
+    'ModalityInference.Scheme.refineMode_lockAll_subsumes_shared_twice',
+    'ModalityInference.ContextJoin.many',
+    'ModalityInference.UsageSplit.declarative_refined_reuse',
+    'ModalityInference.Subtype.fn_modal_forget',
+    'ModalityInference.Generates.Hygienic.typing_refined',
+    'ModalityInference.Generates.sound',
+    'ModalityInference.Deferred.generation_sound',
+    'ModalityInference.Deferred.closed_definition_generalization',
+    'ModalityInference.Deferred.inference_sound',
     'ModalityInference.Scheme.substitutionAction_typeParam',
     'ModalityInference.Scheme.substitutionAction_modParam',
     'ModalityInference.Instantiates.unsubstitute_of_renaming',
@@ -1258,6 +1269,9 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SubstitutedContexts\n'
                     'import ModalityInference.Proofs.FreshenedContexts\n'
                     'import ModalityInference.Proofs.GeneralizedSubstitution\n'
+                    'import ModalityInference.Proofs.RefinedReuse\n'
+                    'import ModalityInference.Proofs.GenerationSoundness\n'
+                    'import ModalityInference.Proofs.Algorithms\n'
                     'import ModalityInference.Proofs.TypeElimination\n'
                     'import ModalityInference.Proofs.SolverEntry\n'
                     'import ModalityInference.Proofs.Normalization\n'

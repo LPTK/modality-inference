@@ -23,11 +23,10 @@ and evaluator results transitively, allowing only `propext`, `Classical.choice`
 and `Quot.sound`. CI builds and audits this target independently. The historical
 `Deferred` namespace on the exported corollaries remains only for name compatibility.
 
-**Inference verification is in progress.** Five direct admissions remain for solver
-termination/completeness, generation soundness/completeness, and inference
-completeness. Closed-definition generalization and unannotated inference soundness
-are derived from generation soundness; both still transitively depend on that
-admission. The inference target matches the paper's unannotated terms, with proof
+**Inference soundness is proved.** Hygienic generation, closed-definition
+generalization, and unannotated executable inference soundness now have no admitted
+dependencies. Four direct admissions remain for solver termination and completeness,
+generation completeness, and inference completeness. The inference target matches the paper's unannotated terms, with proof
 annotations hidden existentially by `RawTyping`. The old assertion about the
 executable's specific capture metadata remains refuted by `SharingLockCapture`.
 `Proofs/Obligations` preserves closed-term substitution, abstract solver
@@ -40,7 +39,7 @@ prerequisites and counterexamples remain available. Neither the semantic
 entry point nor its dependencies import those worklists. The public library and
 executables also remain independent of them. The original generic solver is
 unchanged. The full-project audit continues to check
-1139 public or established declarations transitively, including the complete
+1150 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -398,14 +397,15 @@ and a separate raw substitution with an undefined lambda-domain image. The latte
 violates the substitution hypothesis; it is not a source-calculus counterexample.
 `Generates.definedUnder` proves result definedness for every constructor under
 solution entailment and well-formed substitution images. These proofs use no
-admissions. Full generation and inference soundness remain open.
+admissions. Full generation and unannotated inference soundness are now proved in `GenerationSoundness`.
 
 `Proofs/GenerationExecution` proves that every successful `generate` result
 erases to its original source term and retains the initial constraints as an
 exact prefix, including order and multiplicity. Both inductions cover all term
 constructors, including nested closed definitions. `infer_erases` additionally
 accounts for the final substitution of capture annotations, discharging the
-erasure conjunct of `inference_sound`. Its typing conjunct remains deferred.
+erasure conjunct of `inference_sound`. Its unannotated typing conjunct is now
+proved by `GenerationSoundness`.
 `Proofs/GenerationCorrespondence` now proves the full independent `Generates`
 derivation, with output constraints equal up to permutation to the initial
 constraints followed by those generated. The proof covers every constructor,
@@ -415,7 +415,7 @@ closed definitions. `SolverCounters`, `GenerationInstantiation`,
 bounded identifiers, and flexible support. These establish solution entailment,
 consistency, and well-formed substitution images for each closed RHS solve. The original
 `generator_correspondence` statement is discharged without additional premises;
-declarative generation soundness and the inference typing conjunct remain open.
+declarative generation soundness and the unannotated inference typing conjunct are now proved.
 
 `Proofs/GenerationScope` refutes the former unrestricted generation-soundness
 contract. A lambda lock named `μ₀` can occur below a scheme binding that also
@@ -433,7 +433,7 @@ proves it for every context using the existing inference initializer. Closed
 RHS generalization preserves the supply invariant. The executable algorithm and
 source language are unchanged. Deferred generation soundness and closed-definition
 generalization now require this scope evidence, and generation completeness must
-produce it. Full declarative generation soundness is still open.
+produce it. Full declarative generation soundness is now proved.
 
 `Proofs/SchemeInstantiation` supplies the syntactic instance-transport step.
 `Proofs/GeneralizationDefinedness` records the same missing substitution hypothesis
@@ -527,9 +527,9 @@ The source capture scheme quantifies a fresh modality `p`, assumes `α ≤ α @ 
 and `α @ p ≤ (α @ p) @ future μ`, and captures `(α @ p) @ capture μ`.
 The shared body selects `p = aliased`. Source subsumption, locking, the body join
 and the complete lambda derivation are all proved. The executable still emits the
-old annotation: integrating refinement into complete algorithmic contexts and
-freshening relative to final residual bounds remain necessary before
-`inference_sound` can hold.
+old annotation. `GenerationSoundness` integrates refinement and freshening into
+proof contexts, proving the paper's unannotated `inference_sound` target while
+preserving the counterexample to the emitted-annotation contract.
 No admission has been discharged by this counterexample or its positive witness.
 
 `Scheme.refineMode` now defines the quantified weakening for arbitrary schemes.
@@ -574,8 +574,9 @@ Its explicit freshness invariant survives both branches of every split.
 at the same binding index, with entailed bounds and mutual body subtyping.
 `RefinedLocks` now proves lambda locking for these complete contexts, variable
 typing at every retained instance, source-context weakening, and the lambda
-typing step with its exact refined capture annotation. Whole-term generation,
-solution transport, and actual emitted annotations remain future work. Neither
+typing step with its exact refined capture annotation. Whole-term generation
+soundness and solution transport are now proved; the emitted-annotation contract
+remains separately refuted. Neither
 `refineMode` nor `lockAll` is yet used by `captureContext` or `infer`, so the
 recorded counterexample still describes the current executable.
 
@@ -590,35 +591,41 @@ scheme has defined images for every identifier its substitution can replace.
 Its entailed bounds therefore transport all solved consequences through arbitrary
 partial substitutions. `Solution.generalize_instance` composes the original solve
 with that instance. The closed-definition-generalization theorem now follows
-from `generation_sound`; this removes its separate admission, but does not make
-the theorem admission-free until generation soundness is proved.
+from the admission-free `generation_sound`; both are independently audited.
 
 `InferenceDerivation` proves that every successful inference result has a hygienic
 generation derivation, a well-formed solution of its exact constraints, and the
 returned result type. This closes the executable plumbing for unannotated
-`inference_sound`; proving `generation_sound` remains necessary. The new bridge
+`inference_sound`, now completed by `GenerationSoundness`. The new bridge
 is independently included in the transitive axiom audit.
 
 `SubstitutedContexts` proves that sharing commutes with capture-avoiding
 substitution and usage splits preserve substitution and lock scope. Lookup
 instances retain their exact type and entailed bounds through substituted locks
 when both source and target locks avoid quantified parameters. The corresponding
-variable typing step in refined contexts is proved. Choosing globally fresh
-quantifiers and assembling the full generation induction remain open.
+variable typing step in refined contexts is proved. The complete generation induction now uses these constructions.
 
 `FreshenedContexts` moves substituted binders away from a supplied finite set of
 ambient bounds and locks, preserving exact lookup instances and usage splits.
 It proves that every sufficiently large refinement parameter is fresh, and hence
 obtains variable typing without separate target-freshness assumptions. The avoid
 set must contain the ambient bounds and substituted locks; this is a syntactic
-condition, not an extra entailment hypothesis. Combining these constructions
-uniformly across a generation derivation remains part of the open induction.
+condition, not an extra entailment hypothesis. The generation induction combines these constructions
+by taking finite unions of the children's avoid sets.
 
 `GeneralizedSubstitution` proves that substitution into a fully generalized
 scheme preserves its instances up to binder renaming, including the subsequent
 freshening and modal refinement. The original scheme subsumes the transformed
 scheme needed by the definition body. Ordinary substituted contexts also weaken
-to their freshened, refined versions. The full generation induction remains open.
+to their freshened, refined versions. The complete generation induction uses
+these witnesses for the outer context and the definition body.
+
+`RefinedReuse` proves compatible nested joins for three operands, including
+sharing one binding among all three. `GenerationSoundness` proves the full hygienic
+generation induction under fresh refined contexts, then weakens back to the
+original substituted context. Its result proves `generation_sound`,
+`closed_definition_generalization`, and `inference_sound` without admissions.
+All three exported results are checked by the transitive axiom audit.
 
 ## Build and run
 
@@ -908,7 +915,7 @@ They exercise every term constructor and both sum branches.
 
 ## Remaining inference obligations
 
-Each of the five remaining directly admitted theorems has a prerequisite comment immediately above it.
+Each of the four remaining directly admitted theorems has a prerequisite comment immediately above it.
 The former annotation-dependent fundamental claim remains separately recorded
 as a refuted proposition. Its corrected resource formulation and corollaries are
 proved for the whole core. Five further contracts are preserved as proposition
@@ -988,7 +995,7 @@ definedness obligations.
 | `Structural` | None; the unused admitted closed-term-substitution statement was removed | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup, instance-indexed context joins and locking are proved |
 | `Obligations` | Unproved proposition definitions for principal factorization, solver correspondence, scheme-checker soundness/completeness, and optional closed-term substitution; no admissions | Preserves the removed contracts and their side conditions. Principality still needs a proof; merely defining its proposition does not establish the paper's claim |
 | `Soundness` | None: corrected fundamental soundness, termination/no-stuck, live results, and ownership bound are proved | Complete typing induction in `ResourceSoundness`; independently built and audited without either deferred worklist |
-| `Algorithms` | Scheduled termination, solve completeness, generation soundness/completeness and inference completeness; closed-definition generalization and unannotated inference soundness are derived but still depend on generation soundness | Full executable solver soundness, generator correspondence and initialized lock hygiene, local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include worklist simulation/termination, representative-search completeness, rigid entailment and subsumption witness reconstruction |
+| `Algorithms` | Scheduled termination, solve completeness, generation completeness and inference completeness; generation soundness, closed-definition generalization and unannotated inference soundness are proved | Full executable solver soundness, generator correspondence and initialized lock hygiene, local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include worklist simulation/termination, representative-search completeness, rigid entailment and subsumption witness reconstruction |
 
 Completeness statements require a sufficiently large fuel budget. Rewrite
 expansion requires distinct flexible variables fresh for the complete original

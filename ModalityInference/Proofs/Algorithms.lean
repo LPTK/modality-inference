@@ -11,6 +11,7 @@ import ModalityInference.Proofs.SolverSoundness
 import ModalityInference.Proofs.GenerationCorrespondence
 import ModalityInference.Proofs.GeneralizationTransport
 import ModalityInference.Proofs.InferenceDerivation
+import ModalityInference.Proofs.GenerationSoundness
 
 namespace ModalityInference.Deferred
 
@@ -69,16 +70,15 @@ theorem generator_correspondence {fuel Γ t s r}
     ∃ cs, Generates Γ t r.type cs ∧ r.state.constraints.Perm (s.constraints ++ cs) :=
   generate_correspondence h
 
-/-- DEFERRED. Prerequisites: generation rule induction, context splitting/locking,
-substitution, and generalization under the empty term context. `GenerationScope`
-refutes the unrestricted statement: a lock can be captured by a scheme quantifier.
-Hygiene keeps locks outside those quantifiers; `generate_initial_hygienic` proves
-it for actual generation from every initialized context. Substitution images
-must be well formed under the resulting bounds, as in `Generates.definedUnder`. -/
+/-- Proved for every generation constructor by freshening and refining substituted
+contexts, compatible binary and ternary sharing, hygienic locking, and generalized
+scheme transport for closed definitions. Hygiene and well-formed substitution
+images are essential; `GenerationScope` and `GenerationDefinedness` retain the
+counterexamples to the former unrestricted statements. -/
 theorem generation_sound {Γ : Context} {t a cs Δ σ}
     (h : Generates (Γ.map ContextEntry.binding) t a cs) (hh : h.Hygienic)
     (hs : Solution cs Δ σ) (hσ : σ.WellFormedUnder Δ) :
-    RawTyping Δ (Γ.subst σ) t (σ.ty a) := by sorry
+    RawTyping Δ (Γ.subst σ) t (σ.ty a) := h.sound hh hs hσ
 
 /-- DEFERRED. Prerequisites: declarative inversion, fresh instantiation and
 constraint principality. Completeness must produce a hygienic derivation;
@@ -87,9 +87,8 @@ theorem generation_complete {Δ Γ t a} (h : RawTyping Δ Γ t a) :
     ∃ b cs σ, ∃ hg : Generates (Γ.map ContextEntry.binding) t b cs,
       hg.Hygienic ∧ Solution cs Δ σ ∧ σ.WellFormedUnder Δ ∧ Subtype Δ (σ.ty b) a := by sorry
 
-/-- Generalization follows from generation soundness and the admission-free
-transport of solved constraints through every well-formed generalized instance.
-This result still depends on the deferred generation-soundness theorem.
+/-- Generalization follows from generation soundness and transport of solved
+constraints through every well-formed generalized instance, without admissions.
 `GeneralizationDefinedness` refutes the former unguarded contract. -/
 theorem closed_definition_generalization {rhs a cs residual σ}
     (hg : Generates [] rhs a cs) (hh : hg.Hygienic) (_hc : rhs.freeVars = ∅)
@@ -104,9 +103,9 @@ theorem closed_definition_generalization {rhs a cs residual σ}
         (hθ.judgmentMap hb).entails_substituted_bounds hs.1)
       (hs.2.2.compose_of_entails hθ hb)
 
-/-- Soundness for the paper's unannotated terms, derived from generation soundness
-and the independently proved executable inference derivation. This still depends
-on the generation-soundness admission. `SharingLockCapture` retains the refutation
+/-- Soundness for the paper's unannotated terms, derived without admissions from
+generation soundness and the executable inference derivation.
+`SharingLockCapture` retains the refutation
 of the former, stronger claim about the executable's specific capture metadata. -/
 theorem inference_sound {fuel Γ t result scope}
     (_hΓ : Context.Scoped scope Γ) (h : infer fuel Γ t = .success result) :
