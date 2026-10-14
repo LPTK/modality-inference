@@ -72,6 +72,9 @@ for path in paths:
             assert not re.search(r'^import\s+ModalityInference\.Proofs', code, re.M), path
 
 constants = [
+    'ModalityInference.Scheme.bounded_freshIndices',
+    'ModalityInference.initialInferenceState_bounded',
+    'ModalityInference.infer_derivation',
     'ModalityInference.Scheme.generalize_typeParams',
     'ModalityInference.Scheme.generalize_modParams',
     'ModalityInference.Instantiates.generalize_type_defined',

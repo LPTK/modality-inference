@@ -23,10 +23,13 @@ and evaluator results transitively, allowing only `propext`, `Classical.choice`
 and `Quot.sound`. CI builds and audits this target independently. The historical
 `Deferred` namespace on the exported corollaries remains only for name compatibility.
 
-**Inference verification is in progress.** Six direct admissions remain for solver
-termination/completeness, generation soundness/completeness, and elaborated
-inference soundness/completeness. Closed-definition generalization is now derived
-from generation soundness; it still transitively depends on that admission.
+**Inference verification is in progress.** Five direct admissions remain for solver
+termination/completeness, generation soundness/completeness, and inference
+completeness. Closed-definition generalization and unannotated inference soundness
+are derived from generation soundness; both still transitively depend on that
+admission. The inference target matches the paper's unannotated terms, with proof
+annotations hidden existentially by `RawTyping`. The old assertion about the
+executable's specific capture metadata remains refuted by `SharingLockCapture`.
 `Proofs/Obligations` preserves closed-term substitution, abstract solver
 correspondence, principal factorization, and both scheme-subsumption checker
 contracts as **unproved proposition definitions**, with no admissions. Principality
@@ -37,7 +40,7 @@ prerequisites and counterexamples remain available. Neither the semantic
 entry point nor its dependencies import those worklists. The public library and
 executables also remain independent of them. The original generic solver is
 unchanged. The full-project audit continues to check
-1098 public or established declarations transitively, including the complete
+1101 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -590,6 +593,12 @@ with that instance. The closed-definition-generalization theorem now follows
 from `generation_sound`; this removes its separate admission, but does not make
 the theorem admission-free until generation soundness is proved.
 
+`InferenceDerivation` proves that every successful inference result has a hygienic
+generation derivation, a well-formed solution of its exact constraints, and the
+returned result type. This closes the executable plumbing for unannotated
+`inference_sound`; proving `generation_sound` remains necessary. The new bridge
+is independently included in the transitive axiom audit.
+
 ## Build and run
 
 Build and audit the completed semantic milestone independently:
@@ -878,7 +887,7 @@ They exercise every term constructor and both sum branches.
 
 ## Remaining inference obligations
 
-Each of the six remaining directly admitted theorems has a prerequisite comment immediately above it.
+Each of the five remaining directly admitted theorems has a prerequisite comment immediately above it.
 The former annotation-dependent fundamental claim remains separately recorded
 as a refuted proposition. Its corrected resource formulation and corollaries are
 proved for the whole core. Five further contracts are preserved as proposition
@@ -958,7 +967,7 @@ definedness obligations.
 | `Structural` | None; the unused admitted closed-term-substitution statement was removed | Freshening and alpha-renaming, scheme instantiation and closure capture; substitution composition, subtyping substitution with defined modality images, term scope, weakening, usage splitting, symbolic lookup, instance-indexed context joins and locking are proved |
 | `Obligations` | Unproved proposition definitions for principal factorization, solver correspondence, scheme-checker soundness/completeness, and optional closed-term substitution; no admissions | Preserves the removed contracts and their side conditions. Principality still needs a proof; merely defining its proposition does not establish the paper's claim |
 | `Soundness` | None: corrected fundamental soundness, termination/no-stuck, live results, and ownership bound are proved | Complete typing induction in `ResourceSoundness`; independently built and audited without either deferred worklist |
-| `Algorithms` | Scheduled termination, solve completeness, generation soundness/completeness, elaborated inference soundness and completeness; closed-definition generalization is derived but still depends on generation soundness | Full executable solver soundness, generator correspondence and initialized lock hygiene, local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include worklist simulation/termination, representative-search completeness, rigid entailment and subsumption witness reconstruction |
+| `Algorithms` | Scheduled termination, solve completeness, generation soundness/completeness and inference completeness; closed-definition generalization and unannotated inference soundness are derived but still depend on generation soundness | Full executable solver soundness, generator correspondence and initialized lock hygiene, local rewrite equivalence, configuration solution preservation, substitution output invariants, solver allocation freshness, Boolean projection/CNF correctness, modality-search termination/completeness and finite closed residual consistency are proved; remaining prerequisites include worklist simulation/termination, representative-search completeness, rigid entailment and subsumption witness reconstruction |
 
 Completeness statements require a sufficiently large fuel budget. Rewrite
 expansion requires distinct flexible variables fresh for the complete original

@@ -10,6 +10,7 @@ import ModalityInference.Proofs.GenerationExecution
 import ModalityInference.Proofs.SolverSoundness
 import ModalityInference.Proofs.GenerationCorrespondence
 import ModalityInference.Proofs.GeneralizationTransport
+import ModalityInference.Proofs.InferenceDerivation
 
 namespace ModalityInference.Deferred
 
@@ -103,19 +104,16 @@ theorem closed_definition_generalization {rhs a cs residual σ}
         (hθ.judgmentMap hb).entails_substituted_bounds hs.1)
       (hs.2.2.compose_of_entails hθ hb)
 
-/-- DEFERRED typing conjunct; erasure of the actual inferred term is proved.
-The current capture construction is refuted by `SharingLockCapture`; repairing
-the emitted annotations is necessary before this intended contract can hold.
-`CaptureRefinement` proves a replacement annotation for that exact witness,
-under the same residual bounds and inferred type; the general repair remains.
-Typing still needs generation soundness, solver soundness, fresh scheme
-instantiation and substitution of typed capture annotations. This checks the actual
-elaborated term, not just the existence of some typing annotation. -/
+/-- Soundness for the paper's unannotated terms, derived from generation soundness
+and the independently proved executable inference derivation. This still depends
+on the generation-soundness admission. `SharingLockCapture` retains the refutation
+of the former, stronger claim about the executable's specific capture metadata. -/
 theorem inference_sound {fuel Γ t result scope}
-    (hΓ : Context.Scoped scope Γ) (h : infer fuel Γ t = .success result) :
+    (_hΓ : Context.Scoped scope Γ) (h : infer fuel Γ t = .success result) :
     result.elaborated.erase = t ∧
-      Typing result.residual (Γ.subst result.substitution) result.elaborated result.scheme.body :=
-  ⟨infer_erases h, by sorry⟩
+      RawTyping result.residual (Γ.subst result.substitution) t result.scheme.body := by
+  obtain ⟨a, cs, hg, hh, hs, hw, he⟩ := infer_derivation h
+  exact ⟨infer_erases h, he.symm ▸ generation_sound hg hh hs hw⟩
 
 /-- DEFERRED. Prerequisites: freshness invariants, solver completeness and generator
 correspondence. Fuel is not part of the declarative typing relation. -/
