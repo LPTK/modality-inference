@@ -40,7 +40,7 @@ prerequisites and counterexamples remain available. Neither the semantic
 entry point nor its dependencies import those worklists. The public library and
 executables also remain independent of them. The original generic solver is
 unchanged. The full-project audit continues to check
-1114 public or established declarations transitively, including the complete
+1127 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -605,6 +605,14 @@ instances retain their exact type and entailed bounds through substituted locks
 when both source and target locks avoid quantified parameters. The corresponding
 variable typing step in refined contexts is proved. Choosing globally fresh
 quantifiers and assembling the full generation induction remain open.
+
+`FreshenedContexts` moves substituted binders away from a supplied finite set of
+ambient bounds and locks, preserving exact lookup instances and usage splits.
+It proves that every sufficiently large refinement parameter is fresh, and hence
+obtains variable typing without separate target-freshness assumptions. The avoid
+set must contain the ambient bounds and substituted locks; this is a syntactic
+condition, not an extra entailment hypothesis. Combining these constructions
+uniformly across a generation derivation remains part of the open induction.
 
 ## Build and run
 

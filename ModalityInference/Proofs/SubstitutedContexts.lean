@@ -26,13 +26,18 @@ theorem Scheme.share_subst (s : Scheme) (σ : Substitution) :
   simp [instantiate, freshSubstitution, share, Substitution.ty, TypeExpr.subst,
     Substitution.bounds, Substitution.constraint, Constraint.subst, ModExpr.subst]
 
-def AlgorithmicContext.subst (Γ : AlgorithmicContext) (σ : Substitution) : AlgorithmicContext :=
+def AlgorithmicContext.transform (Γ : AlgorithmicContext) (f : Scheme → Scheme)
+    (σ : Substitution) : AlgorithmicContext :=
   Γ.map fun
-    | .binding s => .binding (s.map (fun s => s.subst σ))
+    | .binding s => .binding (s.map f)
     | .lock m => .lock (m.subst σ.mode)
 
-theorem UsageSplit.substitute {Γ Γ₁ Γ₂ : AlgorithmicContext} (h : UsageSplit Γ Γ₁ Γ₂)
-    (σ : Substitution) : UsageSplit (Γ.subst σ) (Γ₁.subst σ) (Γ₂.subst σ) := by
+def AlgorithmicContext.subst (Γ : AlgorithmicContext) (σ : Substitution) : AlgorithmicContext :=
+  Γ.transform (fun s => s.subst σ) σ
+
+theorem UsageSplit.transform {Γ Γ₁ Γ₂ : AlgorithmicContext} (h : UsageSplit Γ Γ₁ Γ₂)
+    (f : Scheme → Scheme) (σ : Substitution) (hf : ∀ s, f s.share = (f s).share) :
+    UsageSplit (Γ.transform f σ) (Γ₁.transform f σ) (Γ₂.transform f σ) := by
   induction h with
   | nil => exact .nil
   | lock _ ih => exact .lock ih
@@ -41,7 +46,11 @@ theorem UsageSplit.substitute {Γ Γ₁ Γ₂ : AlgorithmicContext} (h : UsageSp
   | right _ ih => exact .right ih
   | share _ he ih =>
     subst_vars
-    exact .share ih (Scheme.share_subst _ _)
+    exact .share ih (hf _)
+
+theorem UsageSplit.substitute {Γ Γ₁ Γ₂ : AlgorithmicContext} (h : UsageSplit Γ Γ₁ Γ₂)
+    (σ : Substitution) : UsageSplit (Γ.subst σ) (Γ₁.subst σ) (Γ₂.subst σ) :=
+  h.transform (fun s => s.subst σ) σ (fun s => s.share_subst σ)
 
 theorem Scheme.lockAll_instance_congr {s t : Scheme} {σ τ : Substitution} {Δ : Bounds}
     (he : σ.ty s.body = τ.ty t.body)
@@ -105,15 +114,19 @@ theorem UsageSplit.locksScoped {Γ Γ₁ Γ₂ : AlgorithmicContext}
       ⟨(hj.freshForMode hf.1).2, (ih hf.2).2⟩⟩
   | drop _ ih | left _ ih | right _ ih | share _ _ ih => exact ih hf
 
-theorem Lookup.substitute_instance {Γ : AlgorithmicContext} {i : Nat} {s : Scheme}
-    {θ σ : Substitution} (h : Lookup Γ i s) (hi : Instantiates s θ)
-    (hΓ : Γ.LocksScoped) (hσ : (Γ.subst σ).LocksScoped) :
-    ∃ t τ, Lookup (Γ.subst σ) i t ∧ Instantiates t τ ∧
+theorem Lookup.transform_instance {Γ : AlgorithmicContext} {i : Nat} {s : Scheme}
+    {θ σ : Substitution} {f : Scheme → Scheme} (h : Lookup Γ i s)
+    (hbind : ∀ s θ, Instantiates s θ → ∃ τ, Instantiates (f s) τ ∧
+      τ.ty (f s).body = σ.ty (θ.ty s.body) ∧
+      ∀ Δ, EntailsAll Δ (τ.bounds (f s).bounds) ↔ EntailsAll Δ (σ.bounds (θ.bounds s.bounds)))
+    (hi : Instantiates s θ)
+    (hΓ : Γ.LocksScoped) (hσ : (Γ.transform f σ).LocksScoped) :
+    ∃ t τ, Lookup (Γ.transform f σ) i t ∧ Instantiates t τ ∧
       τ.ty t.body = σ.ty (θ.ty s.body) ∧
       ∀ Δ, EntailsAll Δ (τ.bounds t.bounds) ↔ EntailsAll Δ (σ.bounds (θ.bounds s.bounds)) := by
   induction h with
   | here =>
-    obtain ⟨τ, hi', he, hb⟩ := hi.substitute σ
+    obtain ⟨τ, hi', he, hb⟩ := hbind _ _ hi
     exact ⟨_, τ, .here, hi', he, hb⟩
   | there _ ih =>
     obtain ⟨t, τ, hl, hi', he, hb⟩ := ih hi hΓ hσ
@@ -132,6 +145,14 @@ theorem Lookup.substitute_instance {Γ : AlgorithmicContext} {i : Nat} {s : Sche
       rw [Substitution.bounds_compose, Scheme.lock_instance_bounds, Scheme.lock_instance_bounds]
       simp only [← Substitution.ty_compose, ← ModExpr.subst_compose, hm, hm', he,
         ← Substitution.bounds_compose, hb Δ]
+
+theorem Lookup.substitute_instance {Γ : AlgorithmicContext} {i : Nat} {s : Scheme}
+    {θ σ : Substitution} (h : Lookup Γ i s) (hi : Instantiates s θ)
+    (hΓ : Γ.LocksScoped) (hσ : (Γ.subst σ).LocksScoped) :
+    ∃ t τ, Lookup (Γ.subst σ) i t ∧ Instantiates t τ ∧
+      τ.ty t.body = σ.ty (θ.ty s.body) ∧
+      ∀ Δ, EntailsAll Δ (τ.bounds t.bounds) ↔ EntailsAll Δ (σ.bounds (θ.bounds s.bounds)) := by
+  exact h.transform_instance (fun _ _ hi => hi.substitute σ) hi hΓ hσ
 
 theorem Lookup.substituted_refined_typing {Γ : AlgorithmicContext} {i : Nat} {s : Scheme}
     {θ σ : Substitution} {Δ : Bounds} {p : Nat} (h : Lookup Γ i s) (hi : Instantiates s θ)
