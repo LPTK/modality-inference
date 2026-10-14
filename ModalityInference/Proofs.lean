@@ -112,6 +112,11 @@ import ModalityInference.Proofs.SchemeReconstructionClosed
 import ModalityInference.Proofs.ComparisonTypes
 import ModalityInference.Proofs.ComparisonInterpolation
 import ModalityInference.Proofs.ComparisonPreparation
+import ModalityInference.Proofs.SymbolicCNF
+import ModalityInference.Proofs.CompactCNF
+import ModalityInference.Proofs.ModalSynthesis
+import ModalityInference.Proofs.SchemeModeSynthesis
+import ModalityInference.Proofs.ComparisonBoundary
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

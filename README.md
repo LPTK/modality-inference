@@ -74,15 +74,24 @@ worklist or normalization steps. The Horn check's `requiredFuel` is a threshold
 based on expression size and the number of atoms; it is not a bound on total
 work. No complete inference time or space bound is proved.
 
-Separate symbolic components support the scheme-checker replacement.
+`ModalSynthesis.synthesize fuel flexibleAtoms formula` performs uniform symbolic
+modality synthesis for arbitrary Boolean formulas, with locality separated from
+affinity and uniqueness. It returns expressions with the required dependencies
+and guaranteed modality reification. The checker uses this path and returns
+actual modality images through `SchemeModeSynthesis.run`; it does not expand
+Boolean assignments. The wrapper proves validity under the assembled modality
+interpretation, exact finite domains, and removal of selected fresh variables.
+
+Additional symbolic components support the structural checker replacement.
 `SymbolicModes.eliminate flexibleAtoms formula` returns an optional symbolic
 witness and residual obligation for its exact accepted Horn grammar;
 `SymbolicModes.Elimination.mode` optionally reifies a witness as a defined
 `ModExpr`, and `SymbolicSchemeModes.assemble` collects the images into a finite
 substitution. `SchemePreparation.prepare ambient source target` returns fresh
 source obligations, a separate body comparison, and expanded target assumptions.
-These APIs do not return a subsumption decision and are not used by
-`checkSubsumption`.
+Preparation and internal interpolation do not return a subsumption decision
+and have not replaced the checker's type search. Modality-image assembly is
+used with the general uniform synthesis procedure.
 
 `CompareTy` is a separate finite witness language with binary joins and meets.
 `CompareSubsumes` uses it for comparison instantiations; public `Ty` and `Scheme`
@@ -204,13 +213,13 @@ point nor public executables depend on those unproved specifications.
 
 ## Remaining work and scope
 
-The executable scheme checker still uses `checkCandidates` to search finite type
-representatives and `BoolExpr.existsAtoms` to expand both Boolean valuations.
-Replacing these mechanisms is [TODO item 1](../TODO.md). The preparation and
-symbolic Horn components are proved independently; the production checker has
-not integrated them. Integration must preserve fixed identifiers, retain original
-rigid type obligations, prove the Horn and reification support conditions, and
-construct legal type and modality images satisfying the original scheme goals.
+The executable scheme checker still uses `checkCandidates` for type
+representatives. Its Boolean assignment expansion is replaced by verified
+uniform symbolic synthesis. Replacing type search is [TODO item 1](../TODO.md).
+Integration must preserve fixed identifiers, retain original rigid type
+obligations, and construct admissible internal type images satisfying the
+original scheme goals. Correct modality synthesis alone does not prove the
+rigid graph or complete checker correct.
 
 `SchemePreparation.reconstruct_sound` proves the final bridge once supplied an
 action that fixes the original identifiers and solves the prepared guarded bounds
@@ -220,8 +229,9 @@ The comparison witness for crossed rigid bounds can use an internal join;
 isolated lower/upper bounds. Global reduction must also handle structural cycles
 and modalized occurrences without assuming constructor or modality distribution
 laws absent from `CompareSubtype`. Returning unresolved constraints is a reduction
-API, not a successful comparison decision. The semantic relationship of extended
-comparison to the core's ordinary scheme instances is also a separate obligation.
+API, not a successful comparison decision. `ComparisonBoundary` proves that
+unrestricted mixed-constructor joins do not preserve the core's ordinary scheme interpretation. A compatibility condition
+or a changed semantic interpretation is required before signature integration.
 
 The current checker can also instantiate unquantified flexible identifiers,
 omits expansion of target assumptions, and requires body definedness beyond

@@ -3,6 +3,7 @@ import ModalityInference.Core.Scoping
 import ModalityInference.RuntimeRegression
 import ModalityInference.HornPropagationRegression
 import ModalityInference.PropagationRegression
+import ModalityInference.ModalSynthesisRegression
 
 /-! Executable regression checks. No imports from `Proofs` and no native-decide
 axioms: these commands run examples; they do not assert metatheorems. -/
@@ -234,6 +235,22 @@ def localSignature : Scheme := {
 #guard rejected (checkSubsumption 20000 (.mono (.modal .credit (.const Mode.aliased)))
   (.mono (.modal .credit .epsilon)))
 #guard exhausted (checkSubsumption 0 polyId polyId)
+
+-- Successful comparisons retain actual symbolic modality images, including
+-- images of unused quantified coordinates, without fresh flexible names.
+def modalSignature : Scheme := {
+  modParams := [0]
+  body := .modal .credit (.var (.flex 0)) }
+#guard match checkSubsumption 20000 modalSignature modalSignature with
+  | .success result => !result.substitution.modes.isEmpty &&
+      result.substitution.modes.all fun (_, m) =>
+        m.freeVariables.all fun v => match v with | .rigid _ => true | .flex _ => false
+  | _ => false
+#guard match checkSubsumption 20000
+    { modParams := [0], body := .unit } (Scheme.mono .unit) with
+  | .success result => !result.substitution.modes.isEmpty &&
+      result.substitution.modes.all fun (_, m) => m.freeVariables.isEmpty
+  | _ => false
 
 -- Compare the verified backend with exhaustive valuations of two complete modes.
 def boolValuation (a b : Mode) (i : Nat) : Bool :=

@@ -1,4 +1,5 @@
 import ModalityInference.Constraints
+import ModalityInference.SchemeModeSynthesis
 
 namespace ModalityInference
 namespace BoolExpr
@@ -23,17 +24,6 @@ def simplify : BoolExpr → BoolExpr
   | .and a b => conj a.simplify b.simplify
   | .or a b => disj a.simplify b.simplify
   | .imp a b => implies a.simplify b.simplify
-def assign (v : Nat) (b : Bool) : BoolExpr → BoolExpr
-  | .const c => .const c
-  | .atom i => if i == v then .const b else .atom i
-  | .and a c => conj (a.assign v b) (c.assign v b)
-  | .or a c => disj (a.assign v b) (c.assign v b)
-  | .imp a c => implies (a.assign v b) (c.assign v b)
-def existsAtoms : Nat → List Nat → BoolExpr → RunResult BoolExpr
-  | 0, _, _ => .exhausted
-  | _ + 1, [], e => .success e
-  | fuel + 1, v :: vs, e =>
-    existsAtoms fuel vs (disj (e.assign v false) (e.assign v true))
 end BoolExpr
 
 abbrev RigidNode := TypeVar × Mode
@@ -98,7 +88,7 @@ def residualFormula (fuel : Nat) (assumptions goals : Bounds) : RunResult BoolEx
   return query
 
 structure SubsumptionEvidence where
-  /-- Freshening and structural instantiation; modal choices remain in the finite query. -/
+  /-- Structural images after applying the reconstructed symbolic modalities. -/
   substitution : Substitution
   assumptions : Bounds
   obligations : Bounds
@@ -138,17 +128,19 @@ def checkCandidates (normalizationFuel firstFlexibleMode : Nat) (assumptions : B
       | .success s =>
         let attempt := do
           let q ← residualFormula normalizationFuel assumptions s.bounds
-          let flex := q.atoms.filter fun i => (i / 3) % 2 == 0 && i / 6 >= firstFlexibleMode
-          let q ← BoolExpr.existsAtoms normalizationFuel flex q
-          let query := BoolExpr.implies (boundsModeFormula assumptions).simplify q
-          let report ← ConcreteBackend.decideFormula normalizationFuel query
+          -- Eliminate all coordinates of fresh parameters, including coordinates
+          -- absent from the query, so reconstructed images contain no fresh names.
+          let modeIds := List.range' firstFlexibleMode (s.nextMode - firstFlexibleMode)
+          let original := BoolExpr.implies (boundsModeFormula assumptions).simplify q
+          let modes ← SchemeModeSynthesis.run normalizationFuel modeIds original
+          let report ← ConcreteBackend.decideFormula normalizationFuel modes.query
           if report.valid then
             return ({
-              substitution := s.substitution
+              substitution := modes.substitution.compose s.substitution
               assumptions := assumptions
-              obligations := s.bounds
-              flexibleAtoms := flex
-              query := query
+              obligations := modes.substitution.bounds s.bounds
+              flexibleAtoms := modes.flexibleAtoms
+              query := modes.query
               backend := report} : SubsumptionEvidence)
           else .rejected "modality or rigid type-bound entailment failed"
         match attempt with

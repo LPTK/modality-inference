@@ -54,9 +54,9 @@ def PrincipalFactorization : Prop :=
         Submode Δ (θ.mode v) ((result.substitution.mode v).subst τ.mode) ∧
         Submode Δ ((result.substitution.mode v).subst τ.mode) (θ.mode v))
 
-/-- Separate signature-checker soundness task, formerly
-`Deferred.scheme_subsumption_sound`. Returned evidence remains data until rigid
-entailment, finite representatives and modal witness reconstruction are verified. -/
+/-- Signature-checker soundness still requires correct fixed-name handling,
+structural instantiation and rigid entailment. The modality synthesis kernel
+has a separate uniform-witness theorem; that theorem does not verify this checker. -/
 def SchemeSubsumptionSound : Prop :=
   ∀ {fuel : Nat} {source target : Scheme} {evidence : SubsumptionEvidence},
     (source.typeParams.Nodup ∧ source.modParams.Nodup) →
@@ -64,9 +64,9 @@ def SchemeSubsumptionSound : Prop :=
     Residual target.bounds → checkSubsumption fuel source target = .success evidence →
     Subsumes [] source target
 
-/-- Separate signature-checker completeness task, formerly
-`Deferred.scheme_subsumption_complete`. Requires complete rigid closure, finite
-representatives, projections, freshening and eventual search success. -/
+/-- Signature-checker completeness requires complete structural reconstruction,
+rigid entailment and scope-preserving preparation. The production type search
+has not yet been replaced by the internal comparison reduction. -/
 def SchemeSubsumptionComplete : Prop :=
   ∀ {source target : Scheme},
     (source.typeParams.Nodup ∧ source.modParams.Nodup) →
