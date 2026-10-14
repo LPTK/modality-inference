@@ -59,6 +59,16 @@ def Entails (Δ : Bounds) : Constraint → Prop
 
 def EntailsAll (Δ cs : Bounds) : Prop := ∀ c ∈ cs, Entails Δ c
 
+/-- A constraint used as an assumption exposes equality directions and every
+written modality's definedness, matching its ground satisfaction conditions. -/
+def Constraint.assumptions : Constraint → Bounds
+  | .sub a b => [.sub a b] ++ a.wellFormedBounds ++ b.wellFormedBounds
+  | .equiv a b => [.sub a b, .sub b a] ++ a.wellFormedBounds ++ b.wellFormedBounds
+  | .equal v t => [.sub (.var v) t, .sub t (.var v)] ++ t.wellFormedBounds
+  | c => [c]
+
+def Bounds.assumptions (cs : Bounds) : Bounds := cs.flatMap Constraint.assumptions
+
 /-- Consistency includes type constraints, not only the modality fragment. -/
 def BoundsSatisfiable (cs : Bounds) : Prop :=
   ∃ σ : Substitution, (σ.bounds cs).typeVariables = [] ∧
@@ -84,12 +94,13 @@ def Scheme.subsumptionIndices (Δ : Bounds) (source target : Scheme) : Nat × Na
    max (max source.freshModeIndex target.freshModeIndex) Δ.freshModeIndex)
 
 /-- The target's universally quantified variables are rigid, including body-only
-variables, and cannot be constrained by an existing ambient assumption. -/
+variables, and cannot be constrained by an existing ambient assumption.
+Its bounds expose their equality directions and written definedness guards. -/
 def Subsumes (Δ : Bounds) (source target : Scheme) : Prop :=
   let (nt, nm) := source.subsumptionIndices Δ target
   let (assumptions, t) := target.instantiate nt nm true
-  ∃ σ, Instantiates source σ ∧ EntailsAll (Δ ++ assumptions) (σ.bounds source.bounds) ∧
-    Subtype (Δ ++ assumptions) (σ.ty source.body) t
+  ∃ σ, Instantiates source σ ∧ EntailsAll (Δ ++ assumptions.assumptions) (σ.bounds source.bounds) ∧
+    Subtype (Δ ++ assumptions.assumptions) (σ.ty source.body) t
 
 inductive ContextLe (Δ : Bounds) : Context → Context → Prop where
   | nil : ContextLe Δ [] []

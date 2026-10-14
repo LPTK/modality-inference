@@ -22,7 +22,7 @@ solver correspondence/termination/completeness/principality, generation, elabora
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-873 public or established declarations transitively, including the complete
+892 public or established declarations transitively, including the complete
 fundamental theorem, all three soundness corollaries, executable solver soundness,
 and executable generator correspondence.
 
@@ -425,9 +425,10 @@ instance, with result definedness explicit.
 explicit in a scheme's bound assumptions. `Substitution.bounds_assumptions_entails`
 proves that this preserves bound entailment under arbitrary substitutions, including
 partial modality images; `Scheme.withAssumptions_instance` preserves precisely
-the original instances. Such schemes admit reflexive subsumption, and the original
-context weakens to the context with explicit assumptions. Fresh skolem renaming
-commutes with the assumption construction.
+the original instances. The original context weakens to the context with explicit
+assumptions. Fresh skolem renaming commutes with the assumption construction.
+The corrected comparison expands target assumptions itself, so `Subsumes.refl`
+and `ContextLe.refl` now hold for every scheme and context.
 
 `Proofs/GenerationContextTyping` builds declarative witnesses for symbolic context
 operations. `UsageSplit.declarative_bindings` handles every split of a context
@@ -651,6 +652,7 @@ All paths below are relative to `ModalityInference/`.
 | Scheme-instance transport | `Proofs/SchemeInstantiation` | Proved transport through capture-avoiding substitution with exact body equality and equivalent bound entailment, including repeated parameters and partial images; proved the substituted variable-typing case with definedness explicit |
 | Scheme assumptions and symbolic context witnesses | `Proofs/SchemeBounds`, `Proofs/GenerationContextTyping` | Proved instance-preserving explicit assumptions, reflexive prepared contexts, binding-context splits and whole-context locks with freshness premises; substitution and the full generation induction remain open |
 | Fresh schemes and contexts | `Proofs/SchemeFreshening` | Proved freshening beyond arbitrary ambient bounds, exact instance equivalence, source subsumption and context weakening; a fresh context supplies all lock freshness premises |
+| Target assumptions in scheme comparison | `Proofs/SubsumptionAssumptions`, `Proofs/ConstraintModels`, `Proofs/SchemeBounds` | Refuted reflexivity of the raw-target rule on an inhabited equality scheme; corrected comparison is reflexive for every scheme, preserves every former comparison, and retains whole-core resource soundness |
 | Simultaneous substitution | `Proofs/Substitution` | Proved composition for types, modalities, constraints and bounds, plus agreement of scheme substitution with its exposed binder action; no admissions |
 | Transport through scheme binders | `Annotations`, `Proofs/Annotations`, `Proofs/ScopedCaptures` | Executable per-capture binder transport and paired scheme/value substitution; proved erasure, reference, liveness and evaluation preservation; nested polymorphic witness |
 | Explicit value instantiation | `Annotations`, `Proofs/Instantiation`, `Proofs/ScopedCaptures` | Ordered arguments transport metadata; proved instantiation, definedness-guard and erasure contracts; optional transport route, not required by resource soundness |
@@ -721,6 +723,7 @@ corrections. The POPL reviews and response are in the enclosing paper repository
 | Instantiation fixes every non-quantified identifier | `AmbientCaptureScope`: a variable absent from the scheme can still occur in capture metadata; changing it is rejected |
 | Scheme binders are fresh for ambient bounds and symbolic locks | `ContextScoping`: the former sharing premise allows two copies of the same owned credit; alpha-renaming removes the bound/quantifier collision |
 | Scheme-comparison skolems are fresh for ambient bounds | `SubsumptionScope`: under `unit ≤ rigid₁`, the former comparison incorrectly accepted `unit` as `∀α. α`; the corrected comparison chooses `rigid₂` |
+| Target constraints supply usable assumptions | `SubsumptionAssumptions`: `∀α. (α = unit) ⇒ α` has a unit instance but the former raw-target rule cannot compare it with itself; expanding equality directions and written guards restores general reflexivity |
 | Fuel is not rejection | Small-budget inference/evaluation exhaust; larger budgets succeed |
 
 The regression checks also compare small two-mode queries and all concrete mode
@@ -754,6 +757,18 @@ it reused `rigid₁` for the target quantifier. The unit value fails the credit
 instance of that scheme. The corrected `Scheme.subsumptionIndices` accounts for
 ambient type and modality identifiers, with general freshness proofs. Closed
 scheme comparison retains its previous indices; the generic solver is unchanged.
+
+The target's instantiated bounds must also expose their equality directions and
+written modality-definedness guards. `SubsumptionAssumptions.raw_not_reflexive`
+refutes the former rule on `∀α. (α = unit) ⇒ α`, whose unit instance is proved.
+The raw skolemized equality was invisible to the subtype bound rule. `Subsumes`
+now uses `Δ ++ assumptions.assumptions`. The existing assumption construction
+lives in `Declarative`, and `Bounds.assumptions_ground_iff` proves that it has
+exactly the same ground models as the original bounds. `RawTargetSubsumes.corrected`
+preserves every former comparison; `Subsumes.refl` and `ContextLe.refl` cover all
+schemes and contexts. Resource subsumption, realizability, freshening, locking,
+sharing and whole-core semantic soundness remain proved. This declarative repair
+does not establish the still-deferred executable scheme-comparison contracts.
 
 The counterexample binds a closure with scheme `∀μ. unit → credit@μ`. Its capture
 metadata assigns the captured heap credit type `credit@μ`. The current scheme

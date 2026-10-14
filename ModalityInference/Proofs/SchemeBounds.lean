@@ -62,6 +62,19 @@ theorem Scheme.freshSubstitution_type_variable (s : Scheme) (nt nm : Nat)
         (f := fun i => (TypeExpr.var (if rigid then .rigid (nt + i) else .flex (nt + i)))) he
       exact ⟨if rigid then .rigid (nt + i) else .flex (nt + i), by simp [Substitution.type, he]⟩
 
+theorem Subsumes.refl (s : Scheme) (Δ : Bounds) : Subsumes Δ s s := by
+  refine ⟨s.freshSubstitution (s.subsumptionIndices Δ s).1
+    (s.subsumptionIndices Δ s).2 true, s.freshSubstitution_instantiates _ _ _, ?_, .refl⟩
+  exact Bounds.assumptions_entails_append _ _
+
+theorem ContextLe.refl (Γ : Context) (Δ : Bounds) : ContextLe Δ Γ Γ := by
+  induction Γ with
+  | nil => exact .nil
+  | cons s Γ ih =>
+    cases s with
+    | none => exact .drop ih
+    | some s => exact .keep ih (Subsumes.refl s Δ)
+
 def Scheme.withAssumptions (s : Scheme) : Scheme :=
   {s with bounds := s.bounds.assumptions}
 
@@ -76,21 +89,15 @@ theorem Scheme.subsumes_addAssumptions (s : Scheme) (cs Δ : Bounds) :
   refine ⟨s.freshSubstitution (s.subsumptionIndices Δ {s with bounds := (s.bounds ++ cs).assumptions}).1
     (s.subsumptionIndices Δ {s with bounds := (s.bounds ++ cs).assumptions}).2 true,
     s.freshSubstitution_instantiates _ _ _, ?_, .refl⟩
-  change EntailsAll (Δ ++ (s.freshSubstitution _ _ true).bounds (s.bounds ++ cs).assumptions) _
-  exact (Solution.append.mp (Substitution.assumptions_renaming_entails _ (s.bounds ++ cs) Δ
-    (s.freshSubstitution_type_variable _ _ _))).1
+  exact (Solution.append.mp (EntailsAll.of_subst_assumptions
+    (Bounds.assumptions_entails_append _ _))).1
 
 theorem Scheme.subsumes_withAssumptions (s : Scheme) (Δ : Bounds) :
     Subsumes Δ s s.withAssumptions := by
   simpa [withAssumptions] using s.subsumes_addAssumptions [] Δ
 
 theorem Scheme.withAssumptions_refl (s : Scheme) (Δ : Bounds) :
-    Subsumes Δ s.withAssumptions s.withAssumptions := by
-  refine ⟨s.freshSubstitution (s.withAssumptions.subsumptionIndices Δ s.withAssumptions).1
-    (s.withAssumptions.subsumptionIndices Δ s.withAssumptions).2 true,
-    s.freshSubstitution_instantiates _ _ _, ?_, .refl⟩
-  exact (Substitution.assumptions_renaming_entails _ s.bounds Δ
-    (s.freshSubstitution_type_variable _ _ _)).subst_assumptions
+    Subsumes Δ s.withAssumptions s.withAssumptions := Subsumes.refl _ _
 
 theorem Scheme.lock_withAssumptions {s : Scheme} {Δ : Bounds} {m : ModExpr}
     (hb : s.FreshForBounds Δ) (hm : s.FreshForMode m) :
@@ -118,7 +125,8 @@ theorem Scheme.subsumes_share_withAssumptions (s : Scheme) (Δ : Bounds) :
   let target := s.share.withAssumptions.modal (.const Mode.many)
   let θ := s.freshSubstitution (s.subsumptionIndices Δ target).1
     (s.subsumptionIndices Δ target).2 true
-  have hs := θ.assumptions_renaming_entails s.share.bounds Δ (s.freshSubstitution_type_variable _ _ _)
+  have hs : EntailsAll (Δ ++ (θ.bounds target.bounds).assumptions) (θ.bounds s.share.bounds) :=
+    (Bounds.assumptions_entails_append _ _).of_subst_assumptions
   refine ⟨θ, s.freshSubstitution_instantiates _ _ _, (Solution.append.mp hs).1, ?_⟩
   exact ((Solution.append.mp hs).2
     (θ.constraint (.sub s.body (.modal s.body (.const Mode.many))))

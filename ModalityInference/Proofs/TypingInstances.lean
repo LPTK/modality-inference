@@ -14,6 +14,7 @@ theorem Subsumes.realizable {ρ Δ s t} (h : Subsumes Δ s t) (hΔ : GroundModel
     (ht : t.Realizable ρ) : s.Realizable ρ := by
   obtain ⟨η, ground, hη, ht⟩ := ht
   obtain ⟨θ, hb, he, hft, hfm⟩ := hη.skolemize (s := s) hΔ
+  have hb := hb.assumptions_right
   obtain ⟨σ, hσ, hcs, hab⟩ := h
   obtain ⟨source, hsource⟩ := Option.isSome_iff_exists.mp
     (show ((σ.ty s.body).realize θ).isSome = true from

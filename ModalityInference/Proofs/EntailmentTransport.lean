@@ -135,12 +135,56 @@ theorem TypeExpr.definedUnder_iff_entails_wellFormed (a : Ty) (Δ : Bounds) :
     exact fun η hη => h η hη (.defined m) hc
   · exact fun h _ hη => h.modeModels hη
 
-/-- The existing per-constraint assumption contexts, combined over a worklist. -/
-def Bounds.assumptions (cs : Bounds) : Bounds := cs.flatMap Constraint.assumptions
-
 theorem Bounds.assumptions_entails (cs : Bounds) : EntailsAll cs.assumptions cs := by
   intro c hc
   exact c.assumptions_entail fun _ hd => List.mem_flatMap.mpr ⟨c, hc, hd⟩
+
+theorem Bounds.assumptions_entails_append (cs Δ : Bounds) :
+    EntailsAll (Δ ++ cs.assumptions) cs := by
+  intro c hc
+  exact c.assumptions_entail fun _ hd =>
+    List.mem_append_right Δ (List.mem_flatMap.mpr ⟨c, hc, hd⟩)
+
+theorem ModeModels.of_assumptions_right {Δ cs η} (h : ModeModels (Δ ++ cs.assumptions) η) :
+    ModeModels (Δ ++ cs) η := by
+  intro c hc
+  rcases List.mem_append.mp hc with hc | hc
+  · exact h c (List.mem_append_left _ hc)
+  · exact (cs.assumptions_entails_append Δ).modeModels h c hc
+
+theorem Subtype.assumptions_right {Δ cs a b} (h : Subtype (Δ ++ cs) a b) :
+    Subtype (Δ ++ cs.assumptions) a b := by
+  induction h
+  case bound a b hc =>
+    rcases List.mem_append.mp hc with hc | hc
+    · exact .bound (List.mem_append_left _ hc)
+    · exact (cs.assumptions_entails_append Δ _ hc).1
+  all_goals first
+    | exact .refl
+    | exact .trans ‹_› ‹_›
+    | exact .identity
+    | exact .identityRev
+    | exact .compose
+    | exact .composeRev
+    | exact .congr ‹_› (.valid fun η hη => Submode.denote ‹_› hη.of_assumptions_right)
+    | exact .prod ‹_› ‹_›
+    | exact .sum ‹_› ‹_›
+    | exact .fn ‹_› ‹_› (.valid fun η hη => Submode.denote ‹_› hη.of_assumptions_right)
+    | exact .credit (.valid fun η hη => Submode.denote ‹_› hη.of_assumptions_right)
+
+theorem Entails.assumptions_right {Δ cs c} (h : Entails (Δ ++ cs) c) :
+    Entails (Δ ++ cs.assumptions) c := by
+  cases c with
+  | sub a b => exact ⟨h.1.assumptions_right,
+      fun η hη => h.2.1 η hη.of_assumptions_right,
+      fun η hη => h.2.2 η hη.of_assumptions_right⟩
+  | equal v a => exact ⟨h.1.assumptions_right, h.2.1.assumptions_right,
+      fun η hη => h.2.2 η hη.of_assumptions_right⟩
+  | equiv a b => exact ⟨h.1.assumptions_right, h.2.1.assumptions_right,
+      fun η hη => h.2.2.1 η hη.of_assumptions_right,
+      fun η hη => h.2.2.2 η hη.of_assumptions_right⟩
+  | mode a b => exact .valid fun η hη => h.denote hη.of_assumptions_right
+  | defined a => exact fun η hη => h η hη.of_assumptions_right
 
 theorem Substitution.wellFormedBounds_fixed {σ : Substitution} (hm : σ.modes = []) (a : Ty) :
     σ.bounds a.wellFormedBounds = a.wellFormedBounds := by

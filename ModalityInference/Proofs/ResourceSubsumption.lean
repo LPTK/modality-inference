@@ -1,5 +1,6 @@
 import ModalityInference.Proofs.ResourceSubtyping
 import ModalityInference.Proofs.GroundSkolemization
+import ModalityInference.Proofs.ConstraintModels
 
 /-! Declarative scheme and context subsumption preserve instance-indexed resources.
 Target skolems are realized without changing source free variables or ambient bounds. -/
@@ -12,6 +13,7 @@ theorem Subsumes.resource_semantic {ρ w Δ s t v reserved}
   refine ⟨hv.1, ?_⟩
   intro η ground hη ht
   obtain ⟨θ, hb, he, hft, hfm⟩ := hη.skolemize (s := s) hΔ
+  have hb := hb.assumptions_right
   obtain ⟨σ, hσ, hcs, hab⟩ := h
   obtain ⟨source, hsource⟩ := Option.isSome_iff_exists.mp
     (show ((σ.ty s.body).realize θ).isSome = true from

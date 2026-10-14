@@ -95,9 +95,10 @@ theorem Scheme.subsumes_subst_identity (s : Scheme) (Δ : Bounds) {σ : Substitu
     (s.subsumptionIndices Δ target).2 true
   obtain ⟨θ', hi, ha, hb⟩ := ((s.subst σ).freshSubstitution_instantiates
     (s.subsumptionIndices Δ target).1 (s.subsumptionIndices Δ target).2 true).unsubstitute_identity ht hm
-  refine ⟨θ', hi, (hb _).mpr (θ.assumptions_renaming_entails (s.subst σ).bounds Δ
-    ((s.subst σ).freshSubstitution_type_variable _ _ _)), ?_⟩
-  simpa only [ha] using (Subtype.refl (Δ := Δ ++ θ.bounds target.bounds) (a := θ.ty target.body))
+  refine ⟨θ', hi, (hb _).mpr (EntailsAll.of_subst_assumptions
+    (Bounds.assumptions_entails_append _ _)), ?_⟩
+  simpa only [ha] using
+    (Subtype.refl (Δ := Δ ++ (θ.bounds target.bounds).assumptions) (a := θ.ty target.body))
 
 theorem Scheme.subst_identity_instances (s : Scheme) {σ : Substitution}
     (ht : σ.type = TypeExpr.var) (hm : σ.mode = ModExpr.var) (Δ : Bounds) (a : Ty) :
