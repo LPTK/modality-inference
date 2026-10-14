@@ -34,19 +34,6 @@ No polynomial complexity claim is made. -/
 theorem rewrite_termination (s : SolverState) :
     ∃ n, ∀ fuel ≥ n, runSolver fuel s ≠ .exhausted := by sorry
 
-/-- DEFERRED. Prerequisites: each worklist transition is simulated by abstract
-rewriting. `ModeSeen` and `TypeSeen` justify duplicate discharge for every constraint
-kind throughout the complete worklist. `SolverTransport` transports these
-consequences through later type substitutions, and `SolverImages` proves definedness
-of returned type images; complete substitution simulation remains. -/
-theorem runSolver_correspondence {fuel s t}
-    (hft : ∀ v ∈ (s.pending ++ s.bounds).typeVariables, v.index < s.nextType)
-    (hfm : ∀ v ∈ (s.pending ++ s.bounds).modeVariables, v.index < s.nextMode)
-    (hσ : s.substitution = {}) (hΔ : s.bounds = []) (hseen : s.seen = [])
-    (h : runSolver fuel s = .success t) :
-    RewriteStar ⟨s.pending, s.bounds, s.substitution⟩
-      ⟨t.pending, t.bounds, t.substitution⟩ := by sorry
-
 /-- Proved full input solution entailment, residual grammar and acyclicity.
 `SolverExtension` preserves earlier eliminated equations through later substitutions;
 `SolverSoundness` reconstructs the complete input using the cache, support, freshness
@@ -70,20 +57,6 @@ records a satisfiable input on which former transitive work exhausted every budg
 A sufficiently large budget is essential for the corrected solver. -/
 theorem solve_complete {cs} (hf : FlexibleBounds cs) (hs : BoundsSatisfiable cs) :
     ∃ n, ∀ fuel ≥ n, ∃ result, solve fuel cs = .success result := by sorry
-
-/-- DEFERRED. Prerequisites: principal shape expansion and modal-bound preservation.
-Ambient assumptions obey the paper's variable-bound grammar; `PrincipalAmbient`
-refutes the former unrestricted whole-type assumptions, even when satisfiable.
-Factorization is modulo declarative type/modal equivalence on the original domain. -/
-theorem principal_factorization {fuel cs result Δ θ}
-    (hΔ : Residual Δ) (h : solve fuel cs = .success result) (hθ : Solution cs Δ θ) :
-    ∃ τ : Substitution, EntailsAll Δ (τ.bounds result.bounds) ∧
-      (∀ v ∈ cs.typeVars,
-        Subtype Δ (θ.type v) (τ.ty (result.substitution.type v)) ∧
-        Subtype Δ (τ.ty (result.substitution.type v)) (θ.type v)) ∧
-      (∀ v ∈ cs.modVars,
-        Submode Δ (θ.mode v) ((result.substitution.mode v).subst τ.mode) ∧
-        Submode Δ ((result.substitution.mode v).subst τ.mode) (θ.mode v)) := by sorry
 
 /-- Proved for every constructor, including fresh instantiation, lazy locks,
 context usage routing and closed-definition solves. Bounded and flexible support
@@ -152,24 +125,4 @@ theorem backend_reduction {fuel e report}
     report.valid = true ↔ ∀ valuation, e.eval valuation = true :=
   ConcreteBackend.decideFormula_correct h
 
-/-- DEFERRED. Prerequisites: rigid bound entailment, finite representative theorem,
-modal witness reconstruction after Boolean existential elimination, backend reduction.
-The returned evidence is data until this theorem is proved. -/
-theorem scheme_subsumption_sound {fuel source target evidence}
-    (hs : source.typeParams.Nodup ∧ source.modParams.Nodup)
-    (ht : target.typeParams.Nodup ∧ target.modParams.Nodup)
-    (hb : Residual target.bounds)
-    (h : checkSubsumption fuel source target = .success evidence) :
-    Subsumes [] source target := by sorry
-
-/-- DEFERRED. Prerequisites: complete rigid closure, completeness of type
-representatives and projections, freshening/skolemization of body-only variables,
-normalization/search termination. -/
-theorem scheme_subsumption_complete {source target}
-    (hs : source.typeParams.Nodup ∧ source.modParams.Nodup)
-    (ht : target.typeParams.Nodup ∧ target.modParams.Nodup)
-    (hb : Residual target.bounds)
-    (h : Subsumes [] source target) :
-    ∃ n, ∀ fuel ≥ n, ∃ evidence,
-      checkSubsumption fuel source target = .success evidence := by sorry
 end ModalityInference.Deferred

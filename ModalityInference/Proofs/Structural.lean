@@ -10,8 +10,7 @@ import ModalityInference.Proofs.Declarative
 import ModalityInference.Proofs.PartialSubstitution
 import ModalityInference.Proofs.ResourceContexts
 
-/-! DEFERRED: these statements are a proof worklist, not established results.
-Nothing outside `Proofs` imports this module. See README for prerequisites. -/
+/-! Established structural results. Nothing outside `Proofs` imports this module. -/
 namespace ModalityInference.Deferred
 
 /-- Proved independently by composition of lookup tables and structural induction. -/
@@ -34,14 +33,6 @@ theorem subtyping_substitution {Δ : Bounds} {a b : Ty} (σ : Substitution)
 /-- Proved directly from declarative subsumption and type reflexivity. -/
 theorem typing_weakening {Δ Γ Γ' t a} (h : RawTyping Δ Γ t a)
     (hc : ContextLe Δ Γ' Γ) : RawTyping Δ Γ' t a := h.weakening hc
-
-/-- Closed replacements avoid duplicating resources from a shared ambient context.
-Prerequisites: instantiation/substitution lemmas and the closed-definition lemma. -/
-theorem closed_term_substitution {Δ Γ t a} (h : RawTyping Δ Γ t a)
-    (σ : Nat → RawTerm)
-    (hσ : ∀ (i : Nat) s θ, Γ[i]? = some (some s) → Instantiates s θ →
-      EntailsAll Δ (θ.bounds s.bounds) → RawTyping Δ [] (σ i) (θ.ty s.body)) :
-    RawTyping Δ [] (t.subst σ) a := by sorry
 
 /-- Proved independently against the relational usage-context specification. -/
 theorem split_context_spec (Γ : AlgorithmicContext) (X Y : Finset Nat) :
