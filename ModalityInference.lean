@@ -1,6 +1,7 @@
 import ModalityInference.Subsumption
 import ModalityInference.HornPropagation
 import ModalityInference.SymbolicModes
+import ModalityInference.SymbolicSchemeModes
 import ModalityInference.Core.Scoping
 import ModalityInference.Declarative
 import ModalityInference.SourceTyping
@@ -14,6 +15,7 @@ import ModalityInference.GenerationHygiene
 import ModalityInference.Rewriting
 import ModalityInference.Inference
 import ModalityInference.SchemeSubsumption
+import ModalityInference.SchemePreparation
 
 /-! Public library: definitions and executables only. Deferred proofs are opt-in
 via `ModalityInference.Proofs`; the original solver remains independently importable. -/

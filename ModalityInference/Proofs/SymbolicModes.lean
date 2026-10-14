@@ -6,6 +6,63 @@ import ModalityInference.Proofs.PartialSubstitution
 every rigid interpretation, yielding one uniform expression witness. -/
 namespace ModalityInference.SymbolicModes
 
+@[simp] theorem smartAnd_eval (a b : BoolExpr) (σ : Nat → Bool) :
+    (smartAnd a b).eval σ = (a.eval σ && b.eval σ) := by
+  unfold smartAnd
+  split <;> simp_all [BoolExpr.eval]
+  split <;> simp_all [BoolExpr.eval]
+
+@[simp] theorem smartOr_eval (a b : BoolExpr) (σ : Nat → Bool) :
+    (smartOr a b).eval σ = (a.eval σ || b.eval σ) := by
+  unfold smartOr
+  split <;> simp_all [BoolExpr.eval]
+  split <;> simp_all [BoolExpr.eval]
+
+@[simp] theorem smartImp_eval (a b : BoolExpr) (σ : Nat → Bool) :
+    (smartImp a b).eval σ = (!a.eval σ || b.eval σ) := by
+  unfold smartImp
+  split <;> simp_all [BoolExpr.eval]
+  split <;> simp_all [BoolExpr.eval]
+
+theorem smartAnd_atoms (a b : BoolExpr) :
+    (smartAnd a b).atoms ⊆ a.atoms ++ b.atoms := by
+  unfold smartAnd
+  split <;> simp_all [BoolExpr.atoms, List.subset_def]
+  split <;> simp_all [BoolExpr.atoms]
+
+theorem smartOr_atoms (a b : BoolExpr) :
+    (smartOr a b).atoms ⊆ a.atoms ++ b.atoms := by
+  unfold smartOr
+  split <;> simp_all [BoolExpr.atoms, List.subset_def]
+  split <;> simp_all [BoolExpr.atoms]
+
+theorem smartImp_atoms (a b : BoolExpr) :
+    (smartImp a b).atoms ⊆ a.atoms ++ b.atoms := by
+  unfold smartImp
+  split <;> simp_all [BoolExpr.atoms, List.subset_def]
+  split <;> simp_all [BoolExpr.atoms]
+
+@[simp] theorem smartAnd_rigid {flex a b}
+    (ha : rigid flex a = true) (hb : rigid flex b = true) :
+    rigid flex (smartAnd a b) = true := by
+  simp only [rigid, List.all_eq_true] at *
+  intro v hv
+  exact (List.mem_append.mp (smartAnd_atoms a b hv)).elim (ha v) (hb v)
+
+@[simp] theorem smartOr_rigid {flex a b}
+    (ha : rigid flex a = true) (hb : rigid flex b = true) :
+    rigid flex (smartOr a b) = true := by
+  simp only [rigid, List.all_eq_true] at *
+  intro v hv
+  exact (List.mem_append.mp (smartOr_atoms a b hv)).elim (ha v) (hb v)
+
+@[simp] theorem smartImp_rigid {flex a b}
+    (ha : rigid flex a = true) (hb : rigid flex b = true) :
+    rigid flex (smartImp a b) = true := by
+  simp only [rigid, List.all_eq_true] at *
+  intro v hv
+  exact (List.mem_append.mp (smartImp_atoms a b hv)).elim (ha v) (hb v)
+
 def interpret (σ : Nat → Bool) (env : Mapping BoolExpr n) : Mapping Bool n :=
   Vector.ofFn fun i => (env.get i).eval σ
 
@@ -27,11 +84,11 @@ def interpretRight (σ : Nat → Bool) : RightExpr BoolExpr n → RightExpr Bool
 
 theorem left_eval (σ : Nat → Bool) (env : Mapping BoolExpr n) (l : LeftExpr BoolExpr n) :
     (left env l).eval σ = LeftExpr.eval (interpret σ env) (interpretLeft σ l) := by
-  induction l <;> simp_all [left, BoolExpr.eval, interpretLeft, LeftExpr.eval]
+  induction l <;> simp_all [left, interpretLeft, LeftExpr.eval]
 
 theorem right_eval (σ : Nat → Bool) (env : Mapping BoolExpr n) (r : RightExpr BoolExpr n) :
     (right env r).eval σ = RightExpr.eval (interpret σ env) (interpretRight σ r) := by
-  induction r <;> simp_all [right, BoolExpr.eval, interpretRight, RightExpr.eval, left_eval]
+  induction r <;> simp_all [right, interpretRight, RightExpr.eval, left_eval]
   cases LeftExpr.eval (interpret σ env) (interpretLeft σ ‹LeftExpr BoolExpr n›) <;>
     cases RightExpr.eval (interpret σ env) (interpretRight σ ‹RightExpr BoolExpr n›) <;> rfl
 
@@ -45,19 +102,18 @@ theorem update_eval (σ : Nat → Bool) (env : Mapping BoolExpr n) (c : BoolExpr
     intro j hj
     by_cases h : (⟨j, hj⟩ : Fin n) = i <;>
       simp [interpret, update, interpretRight, RightExpr.update, Mapping.update, Vector.get,
-        h, BoolExpr.eval]
+        h]
   case const => rfl
   case meet a b iha ihb =>
     simp only [update, interpretRight, RightExpr.update]
     rw [← iha, ← ihb]
     apply Vector.ext
     intro j hj
-    simp [interpret, Vector.get, Max.max, BoolExpr.eval]
-    cases ((update env c a).get ⟨j, hj⟩).eval σ <;>
-      cases ((update env c b).get ⟨j, hj⟩).eval σ <;> rfl
+    simp [interpret, Vector.get, Max.max]
+    exact (by decide : ∀ x y : Bool, (x || y) = x ⊔ y) _ _
   case imply a b ih =>
     simpa [update, interpretRight, RightExpr.update, BoolExpr.eval, left_eval] using
-      ih (.and c (left env a))
+      ih (smartAnd c (left env a))
 
 theorem iterate_eval (σ : Nat → Bool) (r : RightExpr BoolExpr n) (k : Nat) :
     interpret σ (iterate r k) =
@@ -292,15 +348,15 @@ theorem update_rigid {flex : List Nat} {env : Mapping BoolExpr n}
   case var j =>
     intro i
     by_cases hi : i = j
-    · simpa [update, Vector.get, hi, hc] using he j
+    · simpa [update, Vector.get, hi] using smartOr_rigid (he j) hc
     · simpa [update, Vector.get, hi] using he i
   case const => exact he
   case meet a b iha ihb =>
     intro i
     simpa [update, Vector.get] using
-      (rigid_or flex _ _).mpr ⟨iha hc hr.1 i, ihb hc hr.2 i⟩
+      smartOr_rigid (iha hc hr.1 i) (ihb hc hr.2 i)
   case imply a b ih =>
-    exact ih ((rigid_and flex _ _).mpr ⟨hc, left_rigid he hr.1⟩) hr.2
+    exact ih (smartAnd_rigid hc (left_rigid he hr.1)) hr.2
 
 theorem iterate_rigid {flex : List Nat} {r : RightExpr BoolExpr n}
     (hr : RightRigid flex r) (k : Nat) :

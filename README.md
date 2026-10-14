@@ -67,12 +67,22 @@ All public functions below are in namespace `ModalityInference` and return
 | `solve fuel constraints` | Substitution, residual bounds, concrete consistency witness, fresh counters, and trace |
 | `satisfiableModes fuel constraints` | A concrete modality assignment modeling the modality constraints |
 | `Runtime.evalFuel fuel supplies environment term` | A runtime value |
-| `checkSubsumption fuel inferred declared` | Executable scheme-comparison evidence; its complete correctness contracts remain unproved |
+| `checkSubsumption fuel inferred declared` | Executable scheme-comparison evidence; the checker has known mismatches with `Subsumes` and no soundness or completeness theorem |
 
 Exhaustion is not rejection. Increasing fuel permits deeper recursion and more
 worklist or normalization steps. The Horn check's `requiredFuel` is a threshold
 based on expression size and the number of atoms; it is not a bound on total
 work. No complete inference time or space bound is proved.
+
+Separate symbolic components support the scheme-checker replacement.
+`SymbolicModes.eliminate flexibleAtoms formula` returns an optional symbolic
+witness and residual obligation for its exact accepted Horn grammar;
+`SymbolicModes.Elimination.mode` optionally reifies a witness as a defined
+`ModExpr`, and `SymbolicSchemeModes.assemble` collects the images into a finite
+substitution. `SchemePreparation.prepare ambient source target` returns fresh
+source obligations, a separate body comparison, and expanded target assumptions.
+These APIs do not return a subsumption decision and are not used by
+`checkSubsumption`.
 
 ## Constraint solving
 
@@ -169,6 +179,8 @@ of aliased references as well as owned ones.
 | Solver output entails the original constraints after substitution and preserves acyclicity and definedness; flexible inputs have a ground model using the returned witness | `Proofs/SolverSoundness`, `Proofs/SolverImages`, `Proofs/ResidualModels` |
 | Initialized solving terminates on every input; on flexible inputs it eventually accepts every satisfiable input and factors every original ground solution through every successful result | `Proofs/SolverTermination`, `Proofs/SolverCompleteness` |
 | Actual generation and rewriting preserve the direct Horn domain; both consistency paths are sound, complete, terminating, and preserve successful results at larger budgets | `Proofs/PolarizedConstraints`, `Proofs/HornPropagation`, `Proofs/CNFPropagation`, `Proofs/ModeConsistency` |
+| Symbolic Horn elimination has an exact accepted grammar, a uniform expression witness, an equivalent residual query, and no selected flexible atoms; supported modality images reify and assemble with the specified domain and definedness | `Proofs/SymbolicModes`, `Proofs/SymbolicSchemeModes` |
+| Scheme preparation preserves scope and provides fresh source and target ranges; a solution of its prepared goals reconstructs an instantiation with exactly the source quantifier domain | `Proofs/SchemePreparation`, `Proofs/SchemePreparedScope` |
 
 `SourceTyping.resource_semantic` retains the full interpreted open environment
 and every admissible polymorphic instance. `inference_source_semantic` connects
@@ -185,9 +197,29 @@ point nor public executables depend on those unproved specifications.
 
 The executable scheme checker still uses `checkCandidates` to search finite type
 representatives and `BoolExpr.existsAtoms` to expand both Boolean valuations.
-Replacing these mechanisms is [TODO item 1](../TODO.md). Its complete soundness
-and completeness contracts remain unproved; correctness of the generic Boolean
-validity solver does not establish correctness of the whole scheme checker.
+Replacing these mechanisms is [TODO item 1](../TODO.md). The preparation and
+symbolic Horn components are proved independently; the production checker has
+not integrated them. Integration must preserve fixed identifiers, retain original
+rigid type obligations, prove the Horn and reification support conditions, and
+construct legal type and modality images satisfying the original scheme goals.
+
+`SchemePreparation.reconstruct_sound` proves the final bridge once supplied an
+action that fixes the original identifiers and solves the prepared guarded bounds
+and unguarded body comparison. It does not supply the action itself.
+`Proofs/SchemeReconstruction` proves that all crossed rigid consequences and
+projected coordinate witnesses may exist without any type realizing the required
+intermediate bounds. Suspended type constraints would preserve that remaining
+problem, but would not constitute successful subsumption checking.
+
+The current checker can also instantiate unquantified flexible identifiers,
+omits expansion of target assumptions, and requires body definedness beyond
+declarative `Subsumes`. It accepts a fixed free type variable against `unit` and
+rejects reflexivity for an undefined body, contrary to the corresponding proved
+declarative results in `Proofs/SchemeReconstruction`. Both examples satisfy the
+soundness and completeness contracts' duplicate-free-quantifier and residual-target
+premises. Those contracts require implementation repairs, not additional scope
+restrictions. Correctness of the Boolean validity solver alone does not establish
+correctness of the scheme checker.
 
 `Obligations.RunSolverCorrespondence`, relating the complete structural worklist
 to the abstract rewrite relation, and `Obligations.PrincipalFactorization`, the

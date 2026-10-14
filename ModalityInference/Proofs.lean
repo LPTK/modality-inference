@@ -104,6 +104,11 @@ import ModalityInference.Proofs.InferenceCompleteness
 import ModalityInference.Proofs.GenerationCompletenessDomain
 import ModalityInference.Proofs.GenerationEventualFuel
 import ModalityInference.Proofs.SymbolicModes
+import ModalityInference.Proofs.SymbolicSchemeModes
+import ModalityInference.Proofs.SchemePreparation
+import ModalityInference.Proofs.SchemePreparedScope
+import ModalityInference.Proofs.SchemeReconstruction
+import ModalityInference.Proofs.SchemeReconstructionClosed
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

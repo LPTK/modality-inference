@@ -5,27 +5,46 @@ Rigid expressions are constants throughout propagation. The result is a finite
 vector of expressions, not a choice of concrete assignments. -/
 namespace ModalityInference.SymbolicModes
 
+/-- Local simplification prevents unchanged propagation branches from duplicating
+the current symbolic value. These constructors never distribute expressions. -/
+def smartAnd (a b : BoolExpr) : BoolExpr := match a, b with
+  | .const false, _ | _, .const false => .const false
+  | .const true, b => b
+  | a, .const true => a
+  | a, b => if a = b then a else .and a b
+
+def smartOr (a b : BoolExpr) : BoolExpr := match a, b with
+  | .const true, _ | _, .const true => .const true
+  | .const false, b => b
+  | a, .const false => a
+  | a, b => if a = b then a else .or a b
+
+def smartImp (a b : BoolExpr) : BoolExpr := match a, b with
+  | .const false, _ | _, .const true => .const true
+  | .const true, b => b
+  | a, b => if a = b then .const true else .imp a b
+
 def left (env : Mapping BoolExpr n) : LeftExpr BoolExpr n → BoolExpr
   | .var i => env.get i
   | .const c => c
-  | .meet a b => .and (left env a) (left env b)
-  | .join a b => .or (left env a) (left env b)
+  | .meet a b => smartAnd (left env a) (left env b)
+  | .join a b => smartOr (left env a) (left env b)
 
 def right (env : Mapping BoolExpr n) : RightExpr BoolExpr n → BoolExpr
   | .var i => env.get i
   | .const c => c
-  | .meet a b => .and (right env a) (right env b)
-  | .imply a b => .imp (left env a) (right env b)
+  | .meet a b => smartAnd (right env a) (right env b)
+  | .imply a b => smartImp (left env a) (right env b)
 
 def update (env : Mapping BoolExpr n) (c : BoolExpr) :
     RightExpr BoolExpr n → Mapping BoolExpr n
-  | .var i => Vector.ofFn fun j => if j = i then .or (env.get i) c else env.get j
+  | .var i => Vector.ofFn fun j => if j = i then smartOr (env.get i) c else env.get j
   | .const _ => env
   | .meet a b =>
     let x := update env c a
     let y := update env c b
-    Vector.ofFn fun i => .or (x.get i) (y.get i)
-  | .imply a b => update env (.and c (left env a)) b
+    Vector.ofFn fun i => smartOr (x.get i) (y.get i)
+  | .imply a b => update env (smartAnd c (left env a)) b
 
 def iterate (r : RightExpr BoolExpr n) : Nat → Mapping BoolExpr n
   | 0 => Mapping.const BoolExpr n (.const false)
