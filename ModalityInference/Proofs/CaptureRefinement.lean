@@ -4,15 +4,6 @@ import ModalityInference.Proofs.SchemeBounds
 /-! Modal refinement can retain both shared and unshared instances of a capture. -/
 namespace ModalityInference
 
-theorem Subtype.modal_comm {Δ a m n} (hm : Entails Δ (.defined m))
-    (hn : Entails Δ (.defined n)) :
-    Subtype Δ (.modal (.modal a m) n) (.modal (.modal a n) m) := by
-  refine .trans .compose (.trans (.congr .refl (.valid ?_)) .composeRev)
-  intro η hη
-  obtain ⟨⟨x, hx⟩, ⟨y, hy⟩⟩ := And.intro
-    (Option.isSome_iff_exists.mp (hm η hη)) (Option.isSome_iff_exists.mp (hn η hη))
-  simp [ModExpr.Below, ModExpr.eval, hx, hy, Mode.compose_comm]
-
 namespace SharingLockCapture
 
 def refinedSource : Scheme :=

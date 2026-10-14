@@ -67,6 +67,13 @@ theorem Subsumes.refl (s : Scheme) (Δ : Bounds) : Subsumes Δ s s := by
     (s.subsumptionIndices Δ s).2 true, s.freshSubstitution_instantiates _ _ _, ?_, .refl⟩
   exact Bounds.assumptions_entails_append _ _
 
+/-- Uniform syntactic instance preservation supplies the target's fresh skolem instance. -/
+theorem Subsumes.of_instances {source target : Scheme} {Δ : Bounds}
+    (h : ∀ Ξ θ, Instantiates target θ → EntailsAll Ξ (θ.bounds target.bounds) →
+      ∃ σ, Instantiates source σ ∧ EntailsAll Ξ (σ.bounds source.bounds) ∧
+        Subtype Ξ (σ.ty source.body) (θ.ty target.body)) : Subsumes Δ source target :=
+  h _ _ (target.freshSubstitution_instantiates _ _ _) (Bounds.assumptions_entails_append _ _)
+
 theorem ContextLe.refl (Γ : Context) (Δ : Bounds) : ContextLe Δ Γ Γ := by
   induction Γ with
   | nil => exact .nil
@@ -107,6 +114,15 @@ theorem Scheme.lock_withAssumptions {s : Scheme} {Δ : Bounds} {m : ModExpr}
     s.subsumes_addAssumptions [.sub s.body (.modal s.body (.future m))] Δ,
     .keep .nil hb hm ?_⟩
   exact .bound (by simp [Scheme.lock, Bounds.assumptions, Constraint.assumptions])
+
+theorem Subtype.modal_comm {Δ a m n} (hm : Entails Δ (.defined m))
+    (hn : Entails Δ (.defined n)) :
+    Subtype Δ (.modal (.modal a m) n) (.modal (.modal a n) m) := by
+  refine .trans .compose (.trans (.congr .refl (.valid ?_)) .composeRev)
+  intro η hη
+  obtain ⟨⟨x, hx⟩, ⟨y, hy⟩⟩ := And.intro
+    (Option.isSome_iff_exists.mp (hm η hη)) (Option.isSome_iff_exists.mp (hn η hη))
+  simp [ModExpr.Below, ModExpr.eval, hx, hy, Mode.compose_comm]
 
 theorem Subtype.aliased_idempotent (Δ : Bounds) (a : Ty) :
     Subtype Δ (.modal (.modal a (.const Mode.aliased)) (.const Mode.aliased))

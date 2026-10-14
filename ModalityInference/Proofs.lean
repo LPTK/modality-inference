@@ -76,6 +76,7 @@ import ModalityInference.Proofs.TypingAdmissibility
 import ModalityInference.Proofs.TypeVariablePredicates
 import ModalityInference.Proofs.SharingLockCapture
 import ModalityInference.Proofs.CaptureRefinement
+import ModalityInference.Proofs.ModalRefinement
 
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

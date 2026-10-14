@@ -1029,6 +1029,38 @@ constants = [
     'ModalityInference.SharingLockCapture.refined_body',
     'ModalityInference.SharingLockCapture.refined_typable',
     'ModalityInference.SharingLockCapture.inferred_type_with_refined_annotation',
+    'ModalityInference.Scheme.refineMode',
+    'ModalityInference.Subsumes.of_instances',
+    'ModalityInference.Substitution.extendMode',
+    'ModalityInference.Substitution.extendMode_type',
+    'ModalityInference.Substitution.extendMode_mode',
+    'ModalityInference.Substitution.extendMode_at',
+    'ModalityInference.Substitution.extendMode_ty',
+    'ModalityInference.Substitution.extendMode_modExpr',
+    'ModalityInference.Substitution.extendMode_bounds',
+    'ModalityInference.Instantiates.refineMode',
+    'ModalityInference.Scheme.refineMode_freshSubstitution',
+    'ModalityInference.Scheme.refineMode_fresh',
+    'ModalityInference.Instantiates.refineMode_body',
+    'ModalityInference.Instantiates.refineMode_bounds',
+    'ModalityInference.Scheme.subsumes_refineMode',
+    'ModalityInference.Instantiates.refineMode_lock_body',
+    'ModalityInference.Scheme.lock_instance_bounds',
+    'ModalityInference.Instantiates.refineMode_lock_bounds',
+    'ModalityInference.Scheme.refineMode_retains_instance',
+    'ModalityInference.Scheme.refineMode_freshForBounds',
+    'ModalityInference.Scheme.refineMode_freshForMode',
+    'ModalityInference.Scheme.subsumes_refineMode_addAssumptions',
+    'ModalityInference.Scheme.refineMode_lock',
+    'ModalityInference.Scheme.share_instance_bounds',
+    'ModalityInference.Scheme.refineMode_lock_shared_instance',
+    'ModalityInference.Subtype.modal_many',
+    'ModalityInference.Entails.defined_capture_of_future',
+    'ModalityInference.Scheme.refineMode_lock_subsumes_shared',
+    'ModalityInference.Scheme.shared_lock_join',
+    'ModalityInference.Scheme.refineMode_lock_instance',
+    'ModalityInference.Scheme.refineMode_lock_subsumes',
+    'ModalityInference.Scheme.freshened_refineMode_lock',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -1110,6 +1142,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.TypeVariablePredicates\n'
                     'import ModalityInference.Proofs.SharingLockCapture\n'
                     'import ModalityInference.Proofs.CaptureRefinement\n'
+                    'import ModalityInference.Proofs.ModalRefinement\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

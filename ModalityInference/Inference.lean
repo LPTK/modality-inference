@@ -23,6 +23,13 @@ def instantiate (s : InferenceState) (scheme : Scheme) : Ty × InferenceState :=
        constraints := s.constraints ++ cs ++ [.sub t t]})
 end InferenceState
 
+/-- Quantified modal weakening. The caller chooses `p` fresh for the scheme;
+each use can select a different modality satisfying the added subtype bound. -/
+def Scheme.refineMode (s : Scheme) (p : Nat) : Scheme :=
+  {s with modParams := s.modParams ++ [p]
+          bounds := s.bounds ++ [.sub s.body (.modal s.body (.var (.flex p)))]
+          body := .modal s.body (.var (.flex p))}
+
 /-- Restrictions on a polymorphic binding remain under its quantifiers. Each use
 freshens them together with the body, so two uses do not share inference variables. -/
 def Scheme.share (s : Scheme) : Scheme :=
