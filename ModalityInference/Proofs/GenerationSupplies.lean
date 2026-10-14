@@ -51,6 +51,7 @@ theorem generate_flexible {fuel Γ t s r} (h : generate fuel Γ t s = .success r
       Constraint.Flexible, Bounds.flexible_append, Bounds.flexible_cons, Bounds.flexible_nil,
       ModExpr.bottom, Scheme.mono] at *
     all_goals grind only [splitContext_flexible, AlgorithmicContext.flexible_cons,
+      TypeExpr.Flexible.wellFormedBounds,
       ContextEntry.Flexible, Scheme.Flexible, TypeExpr.Flexible, ModExpr.Flexible,
       Constraint.Flexible, Option.mem_def,
       Bounds.flexible_append, Bounds.flexible_cons, Bounds.flexible_nil]
@@ -92,6 +93,7 @@ theorem generate_bounded {fuel Γ t s r} (h : generate fuel Γ t s = .success r)
       InferenceState.emit, InferenceState.instantiate, TypeExpr.Bounded, ModExpr.Bounded,
       Constraint.Bounded, ModExpr.bottom, Scheme.mono, TypeVar.index, ModVar.index] at *
     all_goals grind only [→ generate_counters, splitContext_bounded,
+      TypeExpr.Bounded.wellFormedBounds,
       AlgorithmicContext.bounded_cons, ContextEntry.Bounded, Scheme.Bounded,
       TypeExpr.Bounded, ModExpr.Bounded, Constraint.Bounded, TypeVar.index, ModVar.index,
       Option.mem_def, Bounds.bounded_append, Bounds.bounded_cons, Bounds.bounded_nil,

@@ -59,6 +59,12 @@ def Entails (Δ : Bounds) : Constraint → Prop
 
 def EntailsAll (Δ cs : Bounds) : Prop := ∀ c ∈ cs, Entails Δ c
 
+/-- Inference substitutions have defined type and modality images under their
+resulting bounds. Unmapped variables denote themselves and are always defined. -/
+structure Substitution.WellFormedUnder (σ : Substitution) (Δ : Bounds) : Prop where
+  types : ∀ v, (σ.type v).DefinedUnder Δ
+  modes : ∀ v, Entails Δ (.defined (σ.mode v))
+
 /-- A constraint used as an assumption exposes equality directions and every
 written modality's definedness, matching its ground satisfaction conditions. -/
 def Constraint.assumptions : Constraint → Bounds

@@ -45,8 +45,8 @@ unrestricted statement. Proving this contract, or a suitable ground replacement,
 remains part of establishing the paper's principality claim. -/
 def PrincipalFactorization : Prop :=
   ∀ {fuel : Nat} {cs : Bounds} {result : Solved} {Δ : Bounds} {θ : Substitution},
-    Residual Δ → solve fuel cs = .success result → Solution cs Δ θ →
-    ∃ τ : Substitution, EntailsAll Δ (τ.bounds result.bounds) ∧
+    Residual Δ → solve fuel cs = .success result → Solution cs Δ θ → θ.WellFormedUnder Δ →
+    ∃ τ : Substitution, τ.WellFormedUnder Δ ∧ EntailsAll Δ (τ.bounds result.bounds) ∧
       (∀ v ∈ cs.typeVars,
         Subtype Δ (θ.type v) (τ.ty (result.substitution.type v)) ∧
         Subtype Δ (τ.ty (result.substitution.type v)) (θ.type v)) ∧

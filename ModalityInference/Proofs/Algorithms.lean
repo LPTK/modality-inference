@@ -72,11 +72,11 @@ theorem generator_correspondence {fuel Γ t s r}
 substitution, and generalization under the empty term context. `GenerationScope`
 refutes the unrestricted statement: a lock can be captured by a scheme quantifier.
 Hygiene keeps locks outside those quantifiers; `generate_initial_hygienic` proves
-it for actual generation from every initialized context. Definedness guards and
-`Generates.definedUnder` remain necessary under partial substitutions. -/
+it for actual generation from every initialized context. Substitution images
+must be well formed under the resulting bounds, as in `Generates.definedUnder`. -/
 theorem generation_sound {Γ : Context} {t a cs Δ σ}
     (h : Generates (Γ.map ContextEntry.binding) t a cs) (hh : h.Hygienic)
-    (hs : Solution cs Δ σ) :
+    (hs : Solution cs Δ σ) (hσ : σ.WellFormedUnder Δ) :
     RawTyping Δ (Γ.subst σ) t (σ.ty a) := by sorry
 
 /-- DEFERRED. Prerequisites: declarative inversion, fresh instantiation and
@@ -84,21 +84,24 @@ constraint principality. Completeness must produce a hygienic derivation;
 both generation judgments are independent of the executable functions. -/
 theorem generation_complete {Δ Γ t a} (h : RawTyping Δ Γ t a) :
     ∃ b cs σ, ∃ hg : Generates (Γ.map ContextEntry.binding) t b cs,
-      hg.Hygienic ∧ Solution cs Δ σ ∧ Subtype Δ (σ.ty b) a := by sorry
+      hg.Hygienic ∧ Solution cs Δ σ ∧ σ.WellFormedUnder Δ ∧ Subtype Δ (σ.ty b) a := by sorry
 
 /-- Generalization follows from generation soundness and the admission-free
-transport of solved constraints through every defined generalized instance.
+transport of solved constraints through every well-formed generalized instance.
 This result still depends on the deferred generation-soundness theorem.
 `GeneralizationDefinedness` refutes the former unguarded contract. -/
 theorem closed_definition_generalization {rhs a cs residual σ}
     (hg : Generates [] rhs a cs) (hh : hg.Hygienic) (_hc : rhs.freeVars = ∅)
     (hs : Solves cs residual σ) :
     ∀ θ, Instantiates (Scheme.generalize residual (σ.ty a)) θ →
-      EntailsAll [] (θ.bounds residual) → (θ.ty (σ.ty a)).DefinedUnder [] →
+      EntailsAll [] (θ.bounds residual) → θ.WellFormedUnder [] →
       RawTyping [] [] rhs (θ.ty (σ.ty a)) := by
-  intro θ hi hb hd
+  intro θ _hi hb hθ
   simpa only [Context.subst, List.map_nil, Substitution.ty_compose] using
-    generation_sound (Γ := []) hg hh (Solution.generalize_instance hs.1 hi hb hd)
+    generation_sound (Γ := []) hg hh
+      (by simpa only [Solution, Substitution.bounds_compose] using
+        (hθ.judgmentMap hb).entails_substituted_bounds hs.1)
+      (hs.2.2.compose_of_entails hθ hb)
 
 /-- DEFERRED typing conjunct; erasure of the actual inferred term is proved.
 The current capture construction is refuted by `SharingLockCapture`; repairing

@@ -12,10 +12,9 @@ def elaborated : AnnotatedTerm := .lam [some captured] (.pair (.var 1) (.var 1))
 def aliasCapture : ModExpr := .compose (.const Mode.aliased) (.capture (μ 0))
 def aliasFuture : ModExpr := .compose (.const Mode.aliased) (.future (μ 0))
 def residual : Bounds :=
-  [.defined (μ 0), .sub (.modal (α 1) .epsilon) (.modal (α 1) .epsilon),
-   .sub (.modal (α 0) aliasCapture) (.modal (α 3) (μ 1)), .defined (μ 1),
-   .sub (.modal (α 0) aliasCapture) (.modal (α 2) (μ 1)), .defined aliasCapture,
-   .sub (.modal (α 0) aliasCapture) (.modal (α 0) aliasCapture), .defined aliasFuture,
+  [.sub (.modal (α 0) aliasCapture) (.modal (α 3) (μ 1)), .defined (μ 1),
+   .defined aliasCapture, .sub (.modal (α 0) aliasCapture) (.modal (α 2) (μ 1)),
+   .defined (.capture (μ 0)), .defined aliasFuture,
    .sub (.modal (α 0) (.const Mode.aliased)) (.modal (α 0) aliasFuture),
    .sub (.modal (α 0) .epsilon) (.modal (α 0) (.const Mode.many))]
 
@@ -41,7 +40,7 @@ theorem bounds_preserve (a b : Ty) (hc : Constraint.sub a b ∈ residual) (k : M
     a.variablePredicate predicate modes k → b.variablePredicate predicate modes k := by
   simp only [residual, List.mem_cons, List.not_mem_nil, or_false,
     reduceCtorEq, Constraint.sub.injEq, false_or] at hc
-  rcases hc with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
+  rcases hc with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
   all_goals simp [TypeExpr.variablePredicate, α, μ, predicate, modes, aliasCapture, aliasFuture,
     ModExpr.eval, ModExpr.epsilon, Mode.compose, Mode.global, Mode.aliased,
     Mode.many, Mode.identity, Mode.future, Mode.capture]
@@ -57,7 +56,7 @@ theorem residual_defined : residual.TypeBoundsDefined := by
   intro a b hc
   simp only [residual, List.mem_cons, List.not_mem_nil, or_false,
     reduceCtorEq, Constraint.sub.injEq, false_or] at hc
-  rcases hc with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
+  rcases hc with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
   all_goals simp [TypeExpr.DefinedUnder, TypeExpr.wellFormedBounds, ModeModels,
     ModeSatisfies, ModExpr.WellFormed, ModExpr.eval, α, μ,
     aliasCapture, aliasFuture, ModExpr.epsilon]

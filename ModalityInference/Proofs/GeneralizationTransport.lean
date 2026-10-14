@@ -48,6 +48,13 @@ theorem JudgmentMap.of_entails {Ξ Δ : Bounds} {ts : TypeVar → Ty} {ms : ModV
   exact ⟨ξ, hξ, fun c hc => (ModeSatisfies.subst_functions c ts ms hξ).mp
     (hb.modeModels hη _ (List.mem_map.mpr ⟨c, hc, rfl⟩))⟩
 
+theorem Substitution.WellFormedUnder.judgmentMap {Ξ Δ : Bounds} {θ : Substitution}
+    (hθ : θ.WellFormedUnder Δ) (hb : EntailsAll Δ (θ.bounds Ξ)) :
+    JudgmentMap Ξ Δ θ.type θ.mode := by
+  apply JudgmentMap.of_entails hθ.types hθ.modes
+  exact fun _ h => let ⟨c, hc, he⟩ := List.mem_map.mp h
+    he ▸ (θ.constraint_subst_entails c Δ).mp (hb _ (List.mem_map.mpr ⟨c, hc, rfl⟩))
+
 theorem Instantiates.generalize_judgmentMap {cs : Bounds} {a : Ty} {θ : Substitution} {Δ : Bounds}
     (hi : Instantiates (Scheme.generalize cs a) θ) (hb : EntailsAll Δ (θ.bounds cs))
     (hd : (θ.ty a).DefinedUnder Δ) : JudgmentMap cs Δ θ.type θ.mode := by
@@ -67,5 +74,13 @@ theorem Solution.generalize_instance {cs residual Δ : Bounds} {a : Ty} {σ θ :
     Solution cs Δ (θ.compose σ) := by
   simpa only [Solution, Substitution.bounds_compose] using
     (hi.generalize_judgmentMap hb hd).entails_substituted_bounds hs
+
+theorem Substitution.WellFormedUnder.compose_of_entails {Ξ Δ : Bounds} {σ θ : Substitution}
+    (hσ : σ.WellFormedUnder Ξ) (hθ : θ.WellFormedUnder Δ)
+    (hb : EntailsAll Δ (θ.bounds Ξ)) : (θ.compose σ).WellFormedUnder Δ := by
+  exact ⟨fun v => by simpa only [Substitution.type_compose] using
+    (hθ.judgmentMap hb).type_defined (hσ.types v),
+    fun v => by simpa only [Substitution.mode_compose] using
+      (hθ.judgmentMap hb).defined (hσ.modes v)⟩
 
 end ModalityInference

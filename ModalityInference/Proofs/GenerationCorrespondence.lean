@@ -10,7 +10,9 @@ theorem generate_closed_solves {fuel rhs nt nm r solveFuel result}
     Solves r.state.constraints result.bounds result.substitution :=
   ⟨solveFrom_solution (generate_bounded hg (AlgorithmicContext.bounded_nil _ _)
       (Bounds.bounded_nil _ _)).2 hs,
-    solveFrom_consistency (generate_flexible hg AlgorithmicContext.flexible_nil Bounds.flexible_nil).2 hs⟩
+    solveFrom_consistency (generate_flexible hg AlgorithmicContext.flexible_nil Bounds.flexible_nil).2 hs,
+    solveFrom_substitution_wellFormed (generate_bounded hg (AlgorithmicContext.bounded_nil _ _)
+      (Bounds.bounded_nil _ _)).2 hs⟩
 
 theorem Solves.perm {cs ds residual σ} (h : Solves cs residual σ) (hp : cs.Perm ds) :
     Solves ds residual σ := by
@@ -106,7 +108,7 @@ theorem generate_correspondence_hygienic {fuel Γ t s r} (h : generate fuel Γ t
       cases h
       obtain ⟨cs, hc, hp, hh⟩ := ih ‹generate n _ _ _ = .success _›
       refine ⟨_, .lam hc, ?_, ?_⟩
-      · simpa only [InferenceState.emit, List.append_assoc] using hp.append_right _
+      · exact hp
       · intro hΓ
         refine .lam hΓ.fresh (hh ?_)
         simpa [InferenceState.freshType, InferenceState.freshMode,

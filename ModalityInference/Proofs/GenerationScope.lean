@@ -7,12 +7,11 @@ namespace ModalityInference.GenerationScope
 def μ : ModExpr := .var (.flex 0)
 def scheme : Scheme := {modParams := [0], body := .modal .credit μ}
 def selected : Substitution := {modes := [(0, .epsilon)]}
-def solution : Substitution := {modes := [(0, .const Mode.many)]}
+def solution : Substitution := {types := [(0, .unit)], modes := [(0, .const Mode.many)]}
 def bodyType : Ty := selected.ty (scheme.lock μ).body
-def resultType : Ty := .modal (.fn .unit bodyType) μ
+def resultType : Ty := .modal (.fn (.var (.flex 0)) bodyType) μ
 def constraints : Bounds :=
-  selected.bounds (scheme.lock μ).bounds ++
-    [.sub bodyType bodyType] ++ [.sub .unit .unit, .defined μ]
+  selected.bounds (scheme.lock μ).bounds ++ bodyType.wellFormedBounds
 def term : RawTerm := .lam () (.var 1)
 
 theorem generated : Generates [.binding (some scheme)] term resultType constraints := by
@@ -30,7 +29,7 @@ theorem lock_collision : ¬scheme.FreshForMode μ := by
 theorem not_hygienic : ¬generated.Hygienic := by
   intro h
   obtain ⟨a, b, m, he, hf⟩ := h.lam_fresh
-  change TypeExpr.modal (.fn .unit bodyType) μ = .modal (.fn a b) m at he
+  change TypeExpr.modal (.fn (.var (.flex 0)) bodyType) μ = .modal (.fn a b) m at he
   cases he
   exact lock_collision (hf scheme (by simp))
 
@@ -40,9 +39,19 @@ theorem solved : Solution constraints [] solution := by
     Substitution.ty, TypeExpr.subst, Substitution.mode, ModExpr.subst,
     EntailsAll, Entails, TypeExpr.DefinedUnder, TypeExpr.wellFormedBounds,
     ModeModels, ModeSatisfies, ModExpr.WellFormed, ModExpr.eval, ModExpr.epsilon]
-  refine ⟨Subtype.identityRev.trans (.congr .refl (.valid ?_)), .refl, .refl⟩
+  refine Subtype.identityRev.trans (.congr .refl (.valid ?_))
   intro η hη
   simp [ModExpr.Below, ModExpr.eval, ModExpr.epsilon, Mode.future, Mode.identity, Mode.le]
+
+theorem solution_wellFormed : solution.WellFormedUnder [] := by
+  constructor
+  · exact Substitution.singleType_images_defined (by
+      simp [TypeExpr.DefinedUnder, TypeExpr.wellFormedBounds, ModeModels])
+  · intro v η hη
+    cases v
+    all_goals simp [solution, Substitution.mode, List.lookup_cons,
+      ModExpr.WellFormed, ModExpr.eval]
+    split <;> rfl
 
 def assignment : GroundAssignment := ⟨fun _ => .unit Mode.identity, fun _ => Mode.identity⟩
 def world : World := ⟨{0}⟩
@@ -117,10 +126,11 @@ theorem not_typable :
 /-- Archived unrestricted contract, refuted even with a well-scoped source context. -/
 def UnrestrictedGenerationSoundness : Prop := ∀ {Γ : Context} {t a cs Δ σ},
     Generates (Γ.map ContextEntry.binding) t a cs → Solution cs Δ σ →
+    σ.WellFormedUnder Δ →
     RawTyping Δ (Γ.subst σ) t (σ.ty a)
 
 theorem no_unrestricted_generation_sound : ¬UnrestrictedGenerationSoundness := by
   intro h
-  exact not_typable (h generated solved)
+  exact not_typable (h generated solved solution_wellFormed)
 
 end ModalityInference.GenerationScope
