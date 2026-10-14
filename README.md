@@ -22,7 +22,7 @@ solver correctness/completeness/principality, generation, elaborated
 inference, and scheme subsumption. The public library and executables do not
 import proof-worklist modules. The original generic solver is unchanged and its
 correctness/stabilization results remain admission-independent. The audit checks
-646 public or established declarations transitively, including the complete
+666 public or established declarations transitively, including the complete
 fundamental theorem and all three soundness corollaries.
 
 ## Corrected semantics and proof
@@ -113,8 +113,8 @@ subtyping rules. `Proofs/SolverLocalSoundness` connects this result to executabl
 and retained bounds entails its original input. Outer-modality flattening and
 normalization preserve realization, definedness and mutual subtyping. The proof
 also covers alternative residual orientations, concrete checks and retained
-bounds. Full worklist soundness still requires a visited-constraint invariant and
-substitution transport; these local results do not discharge that admission.
+bounds. Full worklist soundness still requires substitution transport and complete
+simulation; these local results do not discharge that admission.
 
 `Proofs/SolverSubstitution` proves acyclicity for every successful worklist
 transition and run, including updates to all prior substitution images.
@@ -177,8 +177,8 @@ bounds and only strictly smaller normalized pending modality obligations.
 `ModeInvariant.duplicate_entails` therefore justifies removing a duplicate without
 letting it justify itself. On successful completion, `runSolver_seen_entails`
 reconstructs every modality/definedness constraint still in the visited cache
-under any ambient context entailing the returned bounds. Visited type constraints,
-substitution transport and the complete solution-entailment theorem remain open.
+under any ambient context entailing the returned bounds. `TypeSeen` extends cache
+soundness to type constraints below; full input solution entailment remains open.
 
 `Proofs/BoundedSupport` and `Proofs/SolverFresh` prove that allocation counters
 bound every identifier in pending constraints, retained bounds, visited entries,
@@ -189,8 +189,7 @@ the saved substitution's domain. The fresh skeleton is fixed by that substitutio
 its equality cannot match an old cache entry or trigger the occurs check.
 `Fresh.skeleton_eliminated` proves the exact following transition, which eliminates
 that equality and clears the cache before reprocessing the original constraint.
-These facts support combining expansion with equality elimination; the complete
-type-cache invariant and worklist simulation remain open.
+These facts justify the intermediate expansion state in the type-cache invariant.
 
 `Proofs/TypeOrientation` counts nonmodal type constructors and distinguishes
 equality/equivalence from subtyping at the same structural size. Normalization
@@ -205,9 +204,20 @@ substitution. Fresh expansion preserves this property; equality elimination
 removes the new identifier without reintroducing earlier ones. Together with
 the empty modality substitution, this makes all three lists fixed by the saved
 substitution throughout complete runs. `solve_bounds_fixed` proves the same for
-the bounds returned by `solve`. These results supply structural decrease and
-substitution fixed points for the remaining type-cache proof; they do not yet
-establish soundness of type duplicates or full input solution entailment.
+the bounds returned by `solve`.
+
+`Proofs/TypeSeen` proves the complete type-cache invariant using these results.
+A visited type constraint follows from retained bounds and pending constraints of
+strictly smaller structural rank. Modality obligations have rank zero and use the
+existing modality-cache proof. Expansion may temporarily leave this invariant,
+but its next head cannot be skipped and its next successful step clears the cache.
+Every solver transition and complete run preserves this disjunction.
+`TypeReady.duplicate_entails` justifies duplicate discharge for every constraint
+kind. `runSolver_all_seen_entails` reconstructs every constraint still cached after
+a successful run from a fresh state with empty substitution and cache, under any
+context entailing the returned bounds. Constraints erased by equality elimination
+still require substitution transport and complete simulation; full input solution
+entailment, termination and the 14 deferred obligations remain open.
 
 ## Corrections and retained witnesses
 
@@ -507,10 +517,11 @@ All paths below are relative to `ModalityInference/`.
 | Tied residual orientation | `Proofs/ModeCycle` | Proved an unsatisfiable set was formerly accepted without a solution; corrected retention and rejection for every fuel at least 100 |
 | Transitive mode work | `Proofs/ModePropagation` | Proved all-fuel exhaustion of a satisfiable input under the former policy; direct retention preserves exact declarative obligations and ground models, and succeeds on the witness for every fuel at least 100 |
 | Modality orientation | `Proofs/ModeOrientation` | Proved a well-founded rank decreases for every newly emitted modality/definedness obligation, including after normalization; full worklist termination remains open |
-| Visited modality constraints | `Proofs/ModeSeen` | Proved the modality-cache invariant through every solver transition and complete runs, sound duplicate discharge, and entailment of the final visited modality/definedness constraints; type-cache soundness remains open |
+| Visited modality constraints | `Proofs/ModeSeen` | Proved the modality-cache invariant through every solver transition and complete runs, sound duplicate discharge, and entailment of the final visited modality/definedness constraints |
 | Solver identifier freshness | `Proofs/BoundedSupport`, `Proofs/SolverFresh` | Proved allocation bounds through complete runs, executable skeleton freshness for abstract expansion, and exact elimination of the scheduled equality with cache reset; full type-cache soundness remains open |
 | Type-step orientation | `Proofs/TypeOrientation` | Proved normalization preserves structural rank and every type step either adds smaller obligations or enters a state whose next step clears the cache |
 | Eliminated identifiers and substitution fixed points | `Proofs/SolverUnbound` | Proved exclusion of eliminated identifiers from pending, retained, and visited constraints through complete runs; all three lists and returned solver bounds are fixed by the accumulated substitution |
+| Complete constraint cache | `Proofs/TypeSeen` | Proved type-cache preservation with the forced-reset expansion case, duplicate discharge for every constraint kind, and entailment of all constraints still cached after successful runs; full input solution entailment remains open |
 | Saved-substitution shape checking | `Proofs/ShapeEntry`, `Proofs/SolverEntry` | Proved a cyclic-shape witness with an acyclic saved substitution, rejection at every fuel at least two after applying that substitution, and unchanged empty-substitution behavior; full termination remains open |
 | Ambient principality assumptions | `Proofs/PrincipalAmbient` | Refuted unrestricted whole-type assumptions using a finitely satisfiable witness; the deferred theorem now requires the paper's residual-bound grammar |
 | Boolean normalization and solver reduction | `Proofs/Backend` | Proved truth preservation for both polarities, duplicate/tautology elimination, and validity equivalence of successful backend reports; no admissions |

@@ -677,6 +677,26 @@ constants = [
     'ModalityInference.solveFrom_unbound',
     'ModalityInference.solve_unbound',
     'ModalityInference.solve_bounds_fixed',
+    'ModalityInference.stepType_prefix_decreases_or_clears',
+    'ModalityInference.SolverState.skeleton_with_pending',
+    'ModalityInference.stepType_separate_pending',
+    'ModalityInference.stepType_entails_below_or_clears',
+    'ModalityInference.SolverState.TypeInvariant.advance',
+    'ModalityInference.SolverState.TypeInvariant.empty',
+    'ModalityInference.SolverState.TypeInvariant.mono',
+    'ModalityInference.SolverState.TypeInvariant.drop_seen',
+    'ModalityInference.stepType_advance_typeReady',
+    'ModalityInference.stepMode_entails_typeBelow',
+    'ModalityInference.stepMode_advance_typeInvariant',
+    'ModalityInference.solverStep_typeReady',
+    'ModalityInference.runWorklist_typeReady',
+    'ModalityInference.runSolver_typeReady',
+    'ModalityInference.SolverState.ClearsSeen.not_duplicate',
+    'ModalityInference.SolverState.TypeReady.finished_invariant',
+    'ModalityInference.SolverState.TypeReady.duplicate_entails',
+    'ModalityInference.SolverState.TypeInvariant.finished_seen',
+    'ModalityInference.SolverState.TypeReady.finished_seen',
+    'ModalityInference.runSolver_all_seen_entails',
 ]
 with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
@@ -731,6 +751,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SolverFresh\n'
                     'import ModalityInference.Proofs.TypeOrientation\n'
                     'import ModalityInference.Proofs.SolverUnbound\n'
+                    'import ModalityInference.Proofs.TypeSeen\n'
                     'import ModalityInference.Proofs.ResourceSubtyping\n'
                     'import ModalityInference.Proofs.Structural\n'
                     'import ModalityInference.Proofs.PolymorphicCapture\n' + '\n'.join(

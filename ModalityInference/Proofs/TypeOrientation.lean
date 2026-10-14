@@ -63,12 +63,13 @@ theorem SolverState.Fresh.outer_skeleton_clearsSeen {s : SolverState} (hs : s.Fr
     (by simpa only [he, TypeExpr.Bounded, TypeVar.index] using ha.outer.1)
     (fun hk => hf n hk (TypeExpr.outer_var_mem he)) old
 
-theorem stepType_decreases_or_clears {s : SolverState} (hs : s.Fresh)
+theorem stepType_prefix_decreases_or_clears {s : SolverState} (hs : s.Fresh)
     {a b t} (ha : a.Bounded s.nextType s.nextMode) (hb : b.Bounded s.nextType s.nextMode)
     (hf : ∀ k ∈ s.substitution.types.map Prod.fst,
       .flex k ∉ a.typeVars ∧ .flex k ∉ b.typeVars)
     (h : stepType s a b = .success t) :
-    t.ClearsSeen ∨ ∀ c ∈ t.pending, c ∈ s.pending ∨ c.typeRank < (Constraint.sub a b).typeRank := by
+    t.ClearsSeen ∨ ∃ cs, t.pending = cs ++ s.pending ∧
+      ∀ c ∈ cs, c.typeRank < (Constraint.sub a b).typeRank := by
   unfold stepType at h
   repeat' split at h
   all_goals simp only [bind, pure, RunResult.bind, reduceCtorEq] at h
@@ -85,9 +86,21 @@ theorem stepType_decreases_or_clears {s : SolverState} (hs : s.Fresh)
           (fun k hk => (hf k hk).2) (by simp_all)
           (.sub (.modal a.outer.1 a.outer.2.normalize) (.modal b.outer.1 b.outer.2.normalize))
   all_goals right
-  all_goals simp [SolverState.emit, SolverState.retain, Constraint.typeRank,
+  all_goals refine ⟨_, rfl, ?_⟩
+  all_goals simp [Constraint.typeRank,
     ← a.outer_shapeSize, ← b.outer_shapeSize, *, TypeExpr.shapeSize, or_imp, forall_and]
   all_goals grind
+
+theorem stepType_decreases_or_clears {s : SolverState} (hs : s.Fresh)
+    {a b t} (ha : a.Bounded s.nextType s.nextMode) (hb : b.Bounded s.nextType s.nextMode)
+    (hf : ∀ k ∈ s.substitution.types.map Prod.fst,
+      .flex k ∉ a.typeVars ∧ .flex k ∉ b.typeVars)
+    (h : stepType s a b = .success t) :
+    t.ClearsSeen ∨ ∀ c ∈ t.pending, c ∈ s.pending ∨ c.typeRank < (Constraint.sub a b).typeRank := by
+  rcases stepType_prefix_decreases_or_clears hs ha hb hf h with ht | ⟨cs, hp, hr⟩
+  · exact Or.inl ht
+  · exact Or.inr fun c hc => (List.mem_append.mp (hp ▸ hc)).elim
+      (fun hc => Or.inr (hr c hc)) Or.inl
 
 theorem solverStep_sub_decreases_or_clears {s : SolverState} (hs : s.Fresh)
     (hσ : s.substitution.Acyclic) {c rest a b t} (hp : s.pending = c :: rest)
