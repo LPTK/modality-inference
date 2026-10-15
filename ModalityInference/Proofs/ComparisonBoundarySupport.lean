@@ -7,7 +7,7 @@ namespace ModalityInference.ComparisonBoundarySupport
 open ComparisonPropagation ComparisonSelectorPropagation ComparisonBoundaryPropagation
 open ComparisonJointSummary ComparisonJointClauses
 
-private theorem supported_iff (domain : List Nat) (cs : CNF) :
+theorem supported_iff (domain : List Nat) (cs : CNF) :
     Supported domain cs ↔ ∀c∈cs, ∀literal∈c, literal.1 ∈ domain := by
   constructor
   · intro h c hc literal hl
@@ -16,13 +16,13 @@ private theorem supported_iff (domain : List Nat) (cs : CNF) :
     obtain ⟨c, hc, p, hp⟩ := CNFPropagation.mem_atoms.mp hv
     exact h c hc (v, p) hp
 
-private theorem append_supported {domain : List Nat} {a b : CNF}
+theorem append_supported {domain : List Nat} {a b : CNF}
     (ha : Supported domain a) (hb : Supported domain b) : Supported domain (a ++ b) := by
   rw [supported_iff] at ha hb ⊢
   intro c hc
   exact (List.mem_append.mp hc).elim (ha c) (hb c)
 
-private theorem meet_supported {domain : List Nat} {a b : CNF}
+theorem meet_supported {domain : List Nat} {a b : CNF}
     (ha : Supported domain a) (hb : Supported domain b) : Supported domain (meet a b) :=
   fun v hv => append_supported ha hb v (CompactCNF.clean_atoms hv)
 
@@ -35,7 +35,7 @@ private theorem negateClause_supported {domain : List Nat} {c : Clause}
   cases hl
   exact h (i, p) hi
 
-private theorem negate_supported {domain : List Nat} {cs : CNF}
+theorem negate_supported {domain : List Nat} {cs : CNF}
     (h : Supported domain cs) : Supported domain (negate cs) := by
   rw [supported_iff] at h
   induction cs with
@@ -48,7 +48,7 @@ private theorem implies_supported {domain : List Nat} {a b : CNF}
     (ha : Supported domain a) (hb : Supported domain b) : Supported domain (implies a b) :=
   join_supported (negate_supported ha) hb
 
-private theorem rename_supported {domain target : List Nat} {cs : CNF} {f : Nat → Nat}
+theorem rename_supported {domain target : List Nat} {cs : CNF} {f : Nat → Nat}
     (h : Supported domain cs) (hf : ∀i∈domain, f i ∈ target) : Supported target (rename f cs) := by
   rw [supported_iff] at h ⊢
   intro c hc literal hl

@@ -5,7 +5,7 @@ namespace ModalityInference.ComparisonJointClauses
 
 open ComparisonPropagation ComparisonSelectorPropagation
 
-private theorem sliceValid_iff (heads parameters : Nat) (choice : Nat → Bool)
+theorem sliceValid_iff (heads parameters : Nat) (choice : Nat → Bool)
     (program : Program count) (store : Store count) :
     SliceValid heads parameters choice program store ↔
       (∀ world, Slice heads parameters choice world → ∀ v : Fin count,
@@ -20,7 +20,7 @@ private theorem sliceValid_iff (heads parameters : Nat) (choice : Nat → Bool)
         CNFHolds world store[v] → CNFHolds world program.upper[v] := by
   simp only [SliceValid, SliceClosed, forall_and, and_assoc]
 
-private theorem lower_update (heads parameters : Nat) (choice : Nat → Bool)
+theorem lower_update (heads parameters : Nat) (choice : Nat → Bool)
     (condition : CNF) (lower store : Store count) (target : Fin count) :
     (∀ world, Slice heads parameters choice world → ∀ v : Fin count,
       CNFHolds world (Vector.ofFn fun w : Fin count =>
@@ -50,7 +50,7 @@ private theorem lower_update (heads parameters : Nat) (choice : Nat → Bool)
     · simp only [he, ↓reduceIte] at hw
       exact hl world hs v hw
 
-private theorem upper_update (heads parameters : Nat) (choice : Nat → Bool)
+theorem upper_update (heads parameters : Nat) (choice : Nat → Bool)
     (condition : CNF) (upper store : Store count) (source : Fin count) :
     (∀ world, Slice heads parameters choice world → ∀ v : Fin count,
       CNFHolds world store[v] →
@@ -113,7 +113,7 @@ theorem addHead_sliceValid (heads parameters index : Nat) (choice : Nat → Bool
       forall_and, HeadClause.SliceHolds]
     tauto
 
-private theorem empty_sliceValid (heads parameters : Nat) (choice : Nat → Bool)
+theorem empty_sliceValid (heads parameters : Nat) (choice : Nat → Bool)
     (store : Store count) : SliceValid heads parameters choice (Program.empty count) store := by
   simp [sliceValid_iff, Program.empty, CNFHolds, ClauseHolds]
 

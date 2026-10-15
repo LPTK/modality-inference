@@ -338,5 +338,15 @@ import ModalityInference.Proofs.ComparisonJointSummary
 import ModalityInference.Proofs.ComparisonTupleCNF
 import ModalityInference.Proofs.ComparisonTupleWitness
 import ModalityInference.Proofs.ComparisonBoundarySupport
+import ModalityInference.Proofs.ComparisonDefinedPrepasses
+import ModalityInference.Proofs.ComparisonDefinedSetup
+import ModalityInference.Proofs.ComparisonDefinedPropagationWitness
+import ModalityInference.Proofs.ComparisonJointAxes
+import ModalityInference.Proofs.ComparisonJointAxesSupport
+import ModalityInference.Proofs.ComparisonJointGroup
+import ModalityInference.Proofs.ComparisonJointGroupInvariance
+import ModalityInference.Proofs.ComparisonJointGroupSupport
+import ModalityInference.Proofs.ComparisonJointProgram
+import ModalityInference.Proofs.ComparisonJointProgramSupport
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

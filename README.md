@@ -247,7 +247,11 @@ type constructors have proved exact meanings. Earlier constant selectors stay
 fixed across all scalar inputs. Annotation classification covers source bounds
 as well as both bodies, so guarded residuals appearing only inside a bound are
 retained through structural reduction. Connecting these components to the actual
-group query and public checker completeness remains unfinished. Non-residual
+group query now includes exact four-coordinate group compilation, finite atom
+provenance, uniform scalar-component separation, and supported propagation-program
+compilation under fixed parameter assignments. Defined witnesses also survive
+the actual ordinary checker setup with their original shared mode images.
+Boundary-summary assembly and public checker completeness remain unfinished. Non-residual
 declared bounds also lack a complete general procedure.
 See [TODO.md](../TODO.md) and [LEAN_PROOF_HANDOFF.md](../LEAN_PROOF_HANDOFF.md).
 

@@ -74,6 +74,35 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.SchemePreparation.prepare_binderGuards',
+    'ModalityInference.ComparisonChecker.prepared_ordinary_template_under',
+    'ModalityInference.ComparisonChecker.algebra_ordinary_template_complete',
+    'ModalityInference.AlgebraSubsumesUnder.requireDefinedInstances',
+    'ModalityInference.ComparisonJointAxes.selectors_complete',
+    'ModalityInference.ComparisonJointAxes.selectors_sound',
+    'ModalityInference.ComparisonJointAxes.uniform_iff',
+    'ModalityInference.ComparisonJointAxes.ownClauses_linear',
+    'ModalityInference.ComparisonJointAxes.ownClauses_supported',
+    'ModalityInference.ComparisonJointAxes.otherClauses_supported',
+    'ModalityInference.ComparisonJointAxes.otherClauses_side',
+    'ModalityInference.ComparisonJointGroup.coordinate_correct',
+    'ModalityInference.ComparisonJointGroup.prepare_correct',
+    'ModalityInference.ComparisonJointGroup.prepare_complete',
+    'ModalityInference.ComparisonJointGroup.prepare_linear',
+    'ModalityInference.ComparisonJointGroup.prepare_nominal_congr',
+    'ModalityInference.ComparisonJointGroup.prepare_locality_congr',
+    'ModalityInference.ComparisonJointGroup.prepare_other_congr',
+    'ModalityInference.ComparisonJointGroup.coordinate_supported',
+    'ModalityInference.ComparisonJointGroup.prepare_supported',
+    'ModalityInference.ComparisonJointGroup.atomDomain_bound',
+    'ModalityInference.ComparisonJointGroup.coordinate_atoms',
+    'ModalityInference.ComparisonJointProgram.compile_valid',
+    'ModalityInference.ComparisonJointProgram.compile_sliceValid',
+    'ModalityInference.ComparisonJointProgram.axis_valuation',
+    'ModalityInference.ComparisonJointProgram.ownClauses_axisLinear',
+    'ModalityInference.ComparisonJointProgram.axisProgram_own_supported',
+    'ModalityInference.ComparisonJointProgram.axisProgram_valid',
+    'ModalityInference.ComparisonJointProgram.axisProgram_sliceValid',
     'ModalityInference.ComparisonBoundarySupport.pathRelation_supported',
     'ModalityInference.ComparisonBoundarySupport.guardedPath_supported',
     'ModalityInference.ComparisonBoundarySupport.summarize_supported',
@@ -3220,6 +3249,16 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonTupleCNF\n'
                     'import ModalityInference.Proofs.ComparisonTupleWitness\n'
                     'import ModalityInference.Proofs.ComparisonBoundarySupport\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedPrepasses\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedSetup\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedPropagationWitness\n'
+                    'import ModalityInference.Proofs.ComparisonJointAxes\n'
+                    'import ModalityInference.Proofs.ComparisonJointAxesSupport\n'
+                    'import ModalityInference.Proofs.ComparisonJointGroup\n'
+                    'import ModalityInference.Proofs.ComparisonJointGroupInvariance\n'
+                    'import ModalityInference.Proofs.ComparisonJointGroupSupport\n'
+                    'import ModalityInference.Proofs.ComparisonJointProgram\n'
+                    'import ModalityInference.Proofs.ComparisonJointProgramSupport\n'
                     'import ModalityInference.Proofs.Evaluation\n'
                     'import ModalityInference.Proofs.Interpretation\n'
                     'import ModalityInference.Proofs.Erasure\n'
