@@ -35,6 +35,15 @@ def eliminate (cs : CNF) (v : Nat) : CNF :=
   cleanCNF (unaffected cs v ++
     (lower cs v).flatMap (fun l => (upper cs v).map (l ++ ·)))
 
+/-- Partition the upper bounds once before forming the resolvents. -/
+def eliminateCached (cs : CNF) (v : Nat) : CNF :=
+  let upperBounds := upper cs v
+  cleanCNF (unaffected cs v ++
+    (lower cs v).flatMap (fun l => upperBounds.map (l ++ ·)))
+
+@[csimp] theorem eliminate_eq_eliminateCached : eliminate = eliminateCached := by
+  rfl
+
 def crossSize (cs : CNF) (v : Nat) : Nat := (lower cs v).length * (upper cs v).length
 
 def clauseValue (σ : Nat → Bool) (c : Clause) : Bool :=

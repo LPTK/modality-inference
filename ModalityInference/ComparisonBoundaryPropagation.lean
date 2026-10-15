@@ -1,4 +1,5 @@
 import ModalityInference.ComparisonParametricPropagation
+import ModalityInference.ComparisonSliceCNF
 
 /-! Eliminate internal coordinate states while retaining nominal boundary states.
 Source observations are frozen as signed parameters, so each propagated path
@@ -65,10 +66,14 @@ def summarize (heads parameters : Nat) (program : Program count)
   edges := (List.finRange retained).flatMap fun source => (List.finRange retained).map fun target =>
     ⟨source, target, guardedPath heads parameters program boundary[source] boundary[target]⟩
   upper := Vector.ofFn fun source => allClauses ((List.finRange count).map fun target =>
-    allTargets (implies (guardedPath heads parameters program boundary[source] target)
-      (rename (fun v => 2 * v + 1) program.upper[target])))
+    allTargets (implies
+      (ComparisonSliceCNF.relation heads parameters (pathRelation heads parameters program boundary[source] target))
+      (ComparisonSliceCNF.relation heads parameters
+        (rename (fun v => 2 * v + 1) program.upper[target]))))
   checks := meet program.checks (allClauses ((List.finRange count).map fun v =>
-    implies (ComparisonParametricPropagation.closure heads parameters program)[v] program.upper[v]))
+    implies (ComparisonSliceCNF.point heads parameters
+      (ComparisonParametricPropagation.closure heads parameters program)[v])
+      (ComparisonSliceCNF.point heads parameters program.upper[v])))
 
 def reconstruct (heads parameters : Nat) (program : Program count)
     (boundary : Vector (Fin count) retained) (store : Store retained) : Store count :=
@@ -79,5 +84,44 @@ def reconstruct (heads parameters : Nat) (program : Program count)
 def witness (heads parameters : Nat) (choice : Nat → Bool) (program : Program count)
     (boundary : Vector (Fin count) retained) (store : Store retained) : Store count :=
   specializeStore heads choice (reconstruct heads parameters program boundary store)
+
+/-- Materialize each closure once and share it across every summarized field. -/
+def summarizeCached (heads parameters : Nat) (program : Program count)
+    (boundary : Vector (Fin count) retained) : Program retained :=
+  let lower := ComparisonParametricPropagation.closure heads parameters program
+  let paths := Vector.ofFn fun source : Fin retained =>
+    pathClosure heads parameters program boundary[source]
+  { lower := Vector.ofFn fun v => lower[boundary[v]]
+    edges := (List.finRange retained).flatMap fun source => (List.finRange retained).map fun target =>
+      ⟨source, target, guardRelation heads parameters
+        (decodeRelation heads parameters paths[source][boundary[target]])⟩
+    upper := Vector.ofFn fun source => allClauses ((List.finRange count).map fun target =>
+      allTargets (implies
+        (ComparisonSliceCNF.relation heads parameters (decodeRelation heads parameters paths[source][target]))
+        (ComparisonSliceCNF.relation heads parameters
+          (rename (fun v => 2 * v + 1) program.upper[target]))))
+    checks := meet program.checks (allClauses ((List.finRange count).map fun v =>
+      implies (ComparisonSliceCNF.point heads parameters lower[v])
+        (ComparisonSliceCNF.point heads parameters program.upper[v]))) }
+
+@[csimp] theorem summarize_eq_cached : @summarize = @summarizeCached := by
+  funext count retained heads parameters program boundary
+  simp only [summarize, summarizeCached, guardedPath, pathRelation,
+    Fin.getElem_fin, Vector.getElem_ofFn]
+
+/-- Reuse the shared lower and source-path closures during reconstruction. -/
+def reconstructCached (heads parameters : Nat) (program : Program count)
+    (boundary : Vector (Fin count) retained) (store : Store retained) : Store count :=
+  let lower := ComparisonParametricPropagation.closure heads parameters program
+  let paths := Vector.ofFn fun source : Fin retained =>
+    pathClosure heads parameters program boundary[source]
+  Vector.ofFn fun target => join lower[target]
+    (anyClauses ((List.finRange retained).map fun source => image (heads + 2 * parameters)
+      (guardRelation heads parameters (decodeRelation heads parameters paths[source][target])) store[source]))
+
+@[csimp] theorem reconstruct_eq_cached : @reconstruct = @reconstructCached := by
+  funext count retained heads parameters program boundary store
+  simp only [reconstruct, reconstructCached, guardedPath, pathRelation,
+    Fin.getElem_fin, Vector.getElem_ofFn]
 
 end ModalityInference.ComparisonBoundaryPropagation

@@ -1,6 +1,7 @@
 import ModalityInference.ComparisonInterpolation
 import ModalityInference.SymbolicCNF
 import ModalityInference.CompactCNF
+import ModalityInference.ComparisonResolution
 
 /-! Symbolic propagation over a finite lattice basis. A positive CNF denotes a
 finite meet of finite joins of basis types. Ordered resolution computes upward
@@ -23,12 +24,14 @@ def upwardSystem (domain : List Nat) (clauses : CNF) : CNF :=
 def upwardPivots (domain : List Nat) (clauses : CNF) : List Nat :=
   (CNFPropagation.pivots (upwardSystem domain clauses)).filter (fun v => v % 2 == 0)
 
-/-- Ordered projection needs only the residual clauses. Subsumption minimization
-between pivots prevents redundant resolvents from accumulating. -/
-def project : List Nat → CNF → CNF
-  | [], clauses => CompactCNF.clean clauses
-  | v :: rest, clauses =>
-      project rest (CNFPropagation.eliminate (CompactCNF.clean clauses) v)
+/-- Resolve new clauses into the retained canonical clause collection. -/
+def projectLoop : List Nat → CNF → CNF
+  | [], clauses => clauses
+  | v :: rest, clauses => projectLoop rest (ComparisonResolution.eliminate clauses v)
+
+/-- Normalize once, then preserve unaffected clauses between pivots. -/
+def project (pivots : List Nat) (clauses : CNF) : CNF :=
+  projectLoop pivots (CompactCNF.clean clauses)
 
 /-- Existential image on `domain`, closed upward in every retained coordinate.
 The result contains only positive literals from `domain`. -/
@@ -36,8 +39,12 @@ def upward (domain : List Nat) (clauses : CNF) : CNF :=
   rename (· / 2)
     (project (upwardPivots domain clauses) (upwardSystem domain clauses))
 
+/-- Factor shared conjuncts before distributing a disjunction. -/
 def join (left right : CNF) : CNF :=
-  CompactCNF.clean (left.flatMap fun a => right.map (a ++ ·))
+  let common := left.filter right.contains
+  let leftOnly := left.filter fun clause => !right.contains clause
+  let rightOnly := right.filter fun clause => !left.contains clause
+  CompactCNF.clean (common ++ leftOnly.flatMap fun a => rightOnly.map (a ++ ·))
 
 def meet (left right : CNF) : CNF := CompactCNF.clean (left ++ right)
 
@@ -65,8 +72,12 @@ structure Edge (count : Nat) where
 
 abbrev Store (count : Nat) := Vector CNF count
 
+/-- Upward closure is positive. Its only failure to contain the all-true point
+is an empty clause, so adjoining the seed needs no distributive expansion. -/
 def initial (basisSize : Nat) (lower : Store count) : Store count :=
-  Vector.ofFn fun v => join (seed basisSize) (upward (List.range basisSize) lower[v])
+  Vector.ofFn fun v =>
+    let upper := upward (List.range basisSize) lower[v]
+    if upper.any List.isEmpty then seed basisSize else upper
 
 def step (basisSize : Nat) (edges : List (Edge count))
     (store : Store count) : Store count :=

@@ -1,6 +1,7 @@
 import ModalityInference.ComparisonPropagation
 import ModalityInference.Proofs.SymbolicCNF
 import ModalityInference.Proofs.CompactCNF
+import ModalityInference.Proofs.ComparisonResolution
 import ModalityInference.Proofs.ComparisonInterpolation
 import Mathlib.Data.Fintype.Card
 import Mathlib.Data.Fintype.Pi
@@ -30,71 +31,78 @@ theorem rename_correct (f : Nat → Nat) (clauses : CNF) (σ : Nat → Bool) :
     obtain ⟨v, b, hv, hb⟩ := h d hd
     exact ⟨f v, b, List.mem_map.mpr ⟨(v, b), hv, rfl⟩, hb⟩
 
-private theorem clean_literal {cs : CNF} {c : Clause} {l : Literal}
-    (hc : c ∈ cleanCNF cs) (hl : l ∈ c) : ∃ d ∈ cs, l ∈ d := by
-  simp only [cleanCNF, List.mem_dedup, List.mem_filter, List.mem_map] at hc
-  obtain ⟨d, hd, rfl⟩ := hc.1
-  exact ⟨d, hd, List.mem_dedup.mp hl⟩
-
-private theorem eliminate_literal {cs : CNF} {v : Nat} {c : Clause} {l : Literal}
-    (hc : c ∈ CNFPropagation.eliminate cs v) (hl : l ∈ c) :
+private theorem projectLoop_literal {vs : List Nat} {cs : CNF} {c : Clause} {l : Literal}
+    (hc : c ∈ projectLoop vs cs) (hl : l ∈ c) :
     ∃ d ∈ cs, l ∈ d := by
-  obtain ⟨d, hd, hl⟩ := clean_literal hc hl
-  rcases List.mem_append.mp hd with hd | hd
-  · exact ⟨d, (List.mem_filter.mp hd).1, hl⟩
-  · obtain ⟨a, ha, hd⟩ := List.mem_flatMap.mp hd
-    obtain ⟨b, hb, rfl⟩ := List.mem_map.mp hd
-    rcases List.mem_append.mp hl with hl | hl
-    · obtain ⟨e, he, rfl⟩ := List.mem_map.mp ha
-      exact ⟨e, (List.mem_filter.mp he).1, (List.mem_filter.mp hl).1⟩
-    · obtain ⟨e, he, rfl⟩ := List.mem_map.mp hb
-      exact ⟨e, (List.mem_filter.mp he).1, (List.mem_filter.mp hl).1⟩
+  induction vs generalizing cs c with
+  | nil => exact ⟨c, hc, hl⟩
+  | cons v vs ih =>
+    obtain ⟨d, hd, hl⟩ := ih hc hl
+    exact ComparisonResolution.eliminate_literal hd hl
 
 private theorem project_literal {vs : List Nat} {cs : CNF} {c : Clause} {l : Literal}
     (hc : c ∈ project vs cs) (hl : l ∈ c) :
     ∃ d ∈ cs, l ∈ d := by
-  induction vs generalizing cs c with
-  | nil => exact CompactCNF.clean_literal hc hl
-  | cons v vs ih =>
-    obtain ⟨d, hd, hl⟩ := ih hc hl
-    obtain ⟨e, he, hl⟩ := eliminate_literal hd hl
-    exact CompactCNF.clean_literal he hl
+  obtain ⟨d, hd, hl⟩ := projectLoop_literal hc hl
+  exact CompactCNF.clean_literal hd hl
+
+private theorem projectLoop_atoms {vs : List Nat} {cs : CNF} {v : Nat}
+    (hv : v ∈ CNFPropagation.atoms (projectLoop vs cs)) :
+    v ∈ CNFPropagation.atoms cs ∧ v ∉ vs := by
+  induction vs generalizing cs with
+  | nil => exact ⟨hv, by simp⟩
+  | cons w ws ih =>
+    obtain ⟨ha, hn⟩ := ih hv
+    obtain ⟨ha, hne⟩ := ComparisonResolution.eliminate_atoms ha
+    exact ⟨ha, by simp [hne, hn]⟩
 
 theorem project_atoms {vs : List Nat} {cs : CNF} {v : Nat}
     (hv : v ∈ CNFPropagation.atoms (project vs cs)) :
     v ∈ CNFPropagation.atoms cs ∧ v ∉ vs := by
+  obtain ⟨ha, hn⟩ := projectLoop_atoms hv
+  exact ⟨CompactCNF.clean_atoms ha, hn⟩
+
+private theorem projectLoop_preserves (vs : List Nat) {cs : CNF} {σ : Nat → Bool}
+    (h : CNFHolds σ cs) : CNFHolds σ (projectLoop vs cs) := by
   induction vs generalizing cs with
-  | nil => exact ⟨CompactCNF.clean_atoms hv, by simp⟩
-  | cons w ws ih =>
-    obtain ⟨ha, hn⟩ := ih hv
-    obtain ⟨ha, hne⟩ := CNFPropagation.eliminate_atoms ha
-    exact ⟨CompactCNF.clean_atoms ha, by simp [hne, hn]⟩
+  | nil => exact h
+  | cons v vs ih =>
+    exact ih ((ComparisonResolution.eliminate_correct cs v σ).mpr
+      (CNFPropagation.eliminate_preserves v h))
 
 theorem project_preserves (vs : List Nat) {cs : CNF} {σ : Nat → Bool}
-    (h : CNFHolds σ cs) : CNFHolds σ (project vs cs) := by
-  induction vs generalizing cs with
-  | nil => exact (CompactCNF.clean_correct _ _).mpr h
-  | cons v vs ih =>
-    exact ih (CNFPropagation.eliminate_preserves v ((CompactCNF.clean_correct _ _).mpr h))
+    (h : CNFHolds σ cs) : CNFHolds σ (project vs cs) :=
+  projectLoop_preserves vs ((CompactCNF.clean_correct σ cs).mpr h)
 
-theorem project_complete (vs : List Nat) (cs : CNF) (σ : Nat → Bool) :
-    CNFHolds σ (project vs cs) ↔
+private theorem projectLoop_complete (vs : List Nat) (cs : CNF) (σ : Nat → Bool) :
+    CNFHolds σ (projectLoop vs cs) ↔
       ∃ τ, (∀ v ∉ vs, τ v = σ v) ∧ CNFHolds τ cs := by
   constructor
   · induction vs generalizing cs σ with
-    | nil => intro h; exact ⟨σ, fun _ _ => rfl, (CompactCNF.clean_correct _ _).mp h⟩
+    | nil => intro h; exact ⟨σ, fun _ _ => rfl, h⟩
     | cons v vs ih =>
       intro h
       obtain ⟨τ, he, ht⟩ := ih _ _ h
+      have ht := (ComparisonResolution.eliminate_correct cs v τ).mp ht
       obtain ⟨b, hb⟩ := (CNFPropagation.eliminate_iff _ _ _).mp ht
-      refine ⟨Function.update τ v b, ?_, (CompactCNF.clean_correct _ _).mp hb⟩
+      refine ⟨Function.update τ v b, ?_, hb⟩
       intro w hw
       have hwv : w ≠ v := fun h => hw (by simp [h])
       rw [Function.update_of_ne hwv]
       exact he w (fun h => hw (by simp [h]))
   · rintro ⟨τ, he, ht⟩
     exact (CNFPropagation.holds_congr
-      (fun v hv => he v (project_atoms hv).2)).mp (project_preserves vs ht)
+      (fun v hv => he v (projectLoop_atoms hv).2)).mp (projectLoop_preserves vs ht)
+
+theorem project_complete (vs : List Nat) (cs : CNF) (σ : Nat → Bool) :
+    CNFHolds σ (project vs cs) ↔
+      ∃ τ, (∀ v ∉ vs, τ v = σ v) ∧ CNFHolds τ cs := by
+  rw [project, projectLoop_complete]
+  constructor
+  · rintro ⟨τ, he, ht⟩
+    exact ⟨τ, he, (CompactCNF.clean_correct τ cs).mp ht⟩
+  · rintro ⟨τ, he, ht⟩
+    exact ⟨τ, he, (CompactCNF.clean_correct τ cs).mpr ht⟩
 
 private theorem system_odd {domain : List Nat} {cs : CNF} {c : Clause} {l : Literal}
     (hc : c ∈ upwardSystem domain cs) (hl : l ∈ c) (ho : l.1 % 2 ≠ 0) :
@@ -203,8 +211,28 @@ theorem upward_least (domain : List Nat) (cs : CNF) (P : (Nat → Bool) → Prop
 
 theorem join_correct (left right : CNF) (σ : Nat → Bool) :
     CNFHolds σ (join left right) ↔ CNFHolds σ left ∨ CNFHolds σ right := by
-  exact CompactCNF.cnfOr_correct (limit := left.length * right.length)
-    (by simp [CompactCNF.cnfOr, join]) σ
+  have cross (a b : CNF) : CNFHolds σ (a.flatMap fun c => b.map (c ++ ·)) ↔
+      CNFHolds σ a ∨ CNFHolds σ b :=
+    (CompactCNF.clean_correct σ _).symm.trans
+      (CompactCNF.cnfOr_correct (limit := a.length * b.length)
+        (by simp [CompactCNF.cnfOr]) σ)
+  rw [join, CompactCNF.clean_correct, cnfHolds_append, cross]
+  simp only [CNFHolds, List.mem_filter, List.contains_iff_mem] at *
+  constructor
+  · rintro ⟨hc, ha | hb⟩
+    · left
+      intro c hl
+      by_cases hr : c ∈ right
+      · exact hc c ⟨hl, hr⟩
+      · exact ha c ⟨hl, by simpa using hr⟩
+    · right
+      intro c hr
+      by_cases hl : c ∈ left
+      · exact hc c ⟨hl, hr⟩
+      · exact hb c ⟨hr, by simpa using hl⟩
+  · rintro (hl | hr)
+    · exact ⟨fun c hc => hl c hc.1, Or.inl (fun c hc => hl c hc.1)⟩
+    · exact ⟨fun c hc => hr c hc.2, Or.inr (fun c hc => hr c hc.1)⟩
 
 theorem meet_correct (left right : CNF) (σ : Nat → Bool) :
     CNFHolds σ (meet left right) ↔ CNFHolds σ left ∧ CNFHolds σ right := by
@@ -337,26 +365,33 @@ theorem Positive.monotone_supported {cs : CNF} {domain : List Nat}
   cases hp'
   exact ⟨v, true, hv, hle v hv' he⟩
 
+private theorem join_literal {left right : CNF} {c : Clause} {l : Literal}
+    (hc : c ∈ join left right) (hl : l ∈ c) :
+    (∃d∈left,l∈d) ∨ (∃d∈right,l∈d) := by
+  obtain ⟨d, hd, hl⟩ := CompactCNF.clean_literal hc hl
+  rcases List.mem_append.mp hd with hd | hd
+  · exact Or.inl ⟨d, (List.mem_filter.mp hd).1, hl⟩
+  · obtain ⟨a, ha, hd⟩ := List.mem_flatMap.mp hd
+    obtain ⟨b, hb, rfl⟩ := List.mem_map.mp hd
+    rcases List.mem_append.mp hl with hl | hl
+    · exact Or.inl ⟨a, (List.mem_filter.mp ha).1, hl⟩
+    · exact Or.inr ⟨b, (List.mem_filter.mp hb).1, hl⟩
+
 theorem join_positive {left right : CNF} (hl : Positive left) (hr : Positive right) :
     Positive (join left right) := by
   intro c hc l hm
-  obtain ⟨d, hd, hm⟩ := CompactCNF.clean_literal hc hm
-  obtain ⟨a, ha, hd⟩ := List.mem_flatMap.mp hd
-  obtain ⟨b, hb, rfl⟩ := List.mem_map.mp hd
-  rcases List.mem_append.mp hm with hm | hm
-  · exact hl a ha l hm
-  · exact hr b hb l hm
+  rcases join_literal hc hm with ⟨d,hd,hm⟩ | ⟨d,hd,hm⟩
+  · exact hl d hd l hm
+  · exact hr d hd l hm
 
 theorem join_supported {domain : List Nat} {left right : CNF}
     (hl : Supported domain left) (hr : Supported domain right) :
     Supported domain (join left right) := by
   intro v hv
-  obtain ⟨c, hc, p, hp⟩ := CNFPropagation.mem_atoms.mp (CompactCNF.clean_atoms hv)
-  obtain ⟨a, ha, hc⟩ := List.mem_flatMap.mp hc
-  obtain ⟨b, hb, rfl⟩ := List.mem_map.mp hc
-  rcases List.mem_append.mp hp with hp | hp
-  · exact hl v (CNFPropagation.mem_atoms.mpr ⟨a, ha, p, hp⟩)
-  · exact hr v (CNFPropagation.mem_atoms.mpr ⟨b, hb, p, hp⟩)
+  obtain ⟨c, hc, p, hp⟩ := CNFPropagation.mem_atoms.mp hv
+  rcases join_literal hc hp with ⟨d,hd,hp⟩ | ⟨d,hd,hp⟩
+  · exact hl v (CNFPropagation.mem_atoms.mpr ⟨d,hd,p,hp⟩)
+  · exact hr v (CNFPropagation.mem_atoms.mpr ⟨d,hd,p,hp⟩)
 
 theorem seed_positive (size : Nat) : Positive (seed size) := by
   intro c hc l hl
@@ -371,12 +406,47 @@ theorem seed_supported (size : Nat) : Supported (List.range size) (seed size) :=
   have he : v = w := by simpa using congrArg Prod.fst (List.mem_singleton.mp hp)
   exact he ▸ hw
 
+private theorem seed_implies_positive {size : Nat} {clauses : CNF}
+    (hp : Positive clauses) (hs : Supported (List.range size) clauses)
+    (hn : clauses.any List.isEmpty = false) (σ : Nat → Bool)
+    (hseed : CNFHolds σ (seed size)) : CNFHolds σ clauses := by
+  intro c hc
+  have hne : c ≠ [] := by
+    intro he
+    have ht : clauses.any List.isEmpty = true :=
+      List.any_eq_true.mpr ⟨c, hc, by simp [he]⟩
+    rw [hn] at ht
+    contradiction
+  obtain ⟨l, hl⟩ := List.exists_mem_of_ne_nil c hne
+  have hp' := hp c hc l hl
+  have hs' := hs l.1 (CNFPropagation.mem_atoms.mpr ⟨c, hc, l.2, hl⟩)
+  refine ⟨l.1, l.2, hl, ?_⟩
+  rw [hp']
+  exact (seed_correct size σ).mp hseed l.1 (List.mem_range.mp hs')
+
+private theorem seed_choice_correct {size : Nat} {clauses : CNF}
+    (hp : Positive clauses) (hs : Supported (List.range size) clauses) (σ : Nat → Bool) :
+    CNFHolds σ (if clauses.any List.isEmpty then seed size else clauses) ↔
+      CNFHolds σ (seed size) ∨ CNFHolds σ clauses := by
+  cases he : clauses.any List.isEmpty
+  · simp only [Bool.false_eq_true, ↓reduceIte]
+    exact ⟨Or.inr, fun h => h.elim (seed_implies_positive hp hs he σ) id⟩
+  · simp only [↓reduceIte]
+    have hn : ¬ CNFHolds σ clauses := by
+      obtain ⟨c, hc, he⟩ := List.any_eq_true.mp he
+      have hc0 : c = [] := List.isEmpty_iff.mp he
+      intro hh
+      simpa [hc0, ClauseHolds] using hh c hc
+    exact ⟨Or.inl, fun h => h.elim id (fun hh => (hn hh).elim)⟩
+
 theorem initial_correct (size : Nat) (lower : Store count) (v : Fin count) (σ : Nat → Bool) :
     CNFHolds σ (initial size lower)[v] ↔
       (∀ i < size, σ i = true) ∨
         ∃ τ, CNFHolds τ lower[v] ∧ ∀ i < size, τ i = true → σ i = true := by
-  simp only [initial, Fin.getElem_fin, Vector.getElem_ofFn, join_correct, seed_correct, upward_correct,
-    List.mem_range]
+  simp only [initial, Fin.getElem_fin, Vector.getElem_ofFn]
+  rw [seed_choice_correct (upward_positive _ _) (upward_supported _ _), seed_correct,
+    upward_correct]
+  simp only [List.mem_range]
 
 theorem step_correct (size : Nat) (edges : List (Edge count))
     (store : Store count) (v : Fin count) (σ : Nat → Bool) :
@@ -421,13 +491,17 @@ theorem Store.Equiv.trans {a b c : Store count} (h : a.Equiv b) (h' : b.Equiv c)
 
 theorem initial_positive (size : Nat) (lower : Store count) : (initial size lower).Positive := by
   intro v
-  simpa only [initial, Fin.getElem_fin, Vector.getElem_ofFn] using
-    join_positive (seed_positive size) (upward_positive (List.range size) lower[v])
+  simp only [initial, Fin.getElem_fin, Vector.getElem_ofFn]
+  split
+  · exact seed_positive size
+  · exact upward_positive (List.range size) lower[v]
 
 theorem initial_supported (size : Nat) (lower : Store count) : (initial size lower).Supported size := by
   intro v
-  simpa only [initial, Fin.getElem_fin, Vector.getElem_ofFn] using
-    join_supported (seed_supported size) (upward_supported (List.range size) lower[v])
+  simp only [initial, Fin.getElem_fin, Vector.getElem_ofFn]
+  split
+  · exact seed_supported size
+  · exact upward_supported (List.range size) lower[v]
 
 theorem step_positive {size : Nat} {edges : List (Edge count)} {store : Store count}
     (h : store.Positive) : (step size edges store).Positive := by

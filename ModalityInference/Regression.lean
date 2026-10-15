@@ -14,6 +14,8 @@ import ModalityInference.ComparisonCompoundSpineRegression
 import ModalityInference.ComparisonModePrepassRegression
 import ModalityInference.ComparisonGuardedContextRegression
 import ModalityInference.ComparisonDefinedInstanceRegression
+import ModalityInference.ComparisonCNFRegression
+import ModalityInference.ComparisonJointBatchRegression
 
 /-! Executable regression checks. No imports from `Proofs` and no native-decide
 axioms: these commands run examples; they do not assert metatheorems. -/

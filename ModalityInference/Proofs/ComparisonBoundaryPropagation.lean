@@ -1,5 +1,6 @@
 import ModalityInference.ComparisonBoundaryPropagation
 import ModalityInference.Proofs.ComparisonParametricPropagation
+import ModalityInference.Proofs.ComparisonSliceCNF
 
 namespace ModalityInference.ComparisonBoundaryPropagation
 
@@ -349,6 +350,20 @@ structure BoundaryValid (heads parameters : Nat) (choice : Nat → Bool)
     CNFHolds (pairWorld source target) (pathRelation heads parameters program boundary[j] v) →
       CNFHolds target program.upper[v]
 
+theorem normalizedUpper_correct {heads parameters : Nat} {choice source : Nat → Bool}
+    (hs : Slice heads parameters choice source) (relation upper : CNF) :
+    CNFHolds source (allTargets (implies (ComparisonSliceCNF.relation heads parameters relation)
+      (ComparisonSliceCNF.relation heads parameters (rename (fun v => 2*v+1) upper)))) ↔
+    ∀target, Slice heads parameters choice target →
+      CNFHolds (pairWorld source target) relation → CNFHolds target upper := by
+  rw [allTargets_correct]
+  have he : ComparisonSliceCNF.pair = pairWorld := by
+    funext a b i
+    simp [ComparisonSliceCNF.pair, pairWorld]
+  simp only [←he]
+  rw [ComparisonSliceCNF.relation_implication_correct hs]
+  simp only [rename_correct, Function.comp_def, ComparisonSliceCNF.pair_odd]
+
 theorem summarize_valid_iff (heads parameters : Nat) (choice : Nat → Bool)
     (program : Program count) (boundary : Vector (Fin count) retained) (store : Store retained) :
     SliceValid heads parameters choice (summarize heads parameters program boundary) store ↔
@@ -368,15 +383,13 @@ theorem summarize_valid_iff (heads parameters : Nat) (choice : Nat → Bool)
     · intro world hw
       have hc := (h.2 world hw).1
       simp only [summarize, meet_correct, allClauses_correct, List.forall_mem_map,
-        List.mem_finRange, forall_const, implies_correct] at hc
+        List.mem_finRange, forall_const, implies_correct, ComparisonSliceCNF.point_correct hw] at hc
       exact hc
     · intro j v source target hs ht hv hp
       have hu := (h.2 source hs).2 j hv
       simp only [summarize, Fin.getElem_fin, Vector.getElem_ofFn, allClauses_correct,
-        List.forall_mem_map, List.mem_finRange, forall_const, allTargets_correct,
-        implies_correct, rename_correct] at hu
-      have hh := hu v target (guardedPath_of_path hs ht hp)
-      simpa only [Function.comp_def, pairWorld_odd] using hh
+        List.forall_mem_map, List.mem_finRange, forall_const, normalizedUpper_correct hs] at hu
+      exact hu v target ht hp
   · intro h
     refine ⟨⟨?_, ?_⟩, ?_⟩
     · simpa only [summarize, Fin.getElem_fin, Vector.getElem_ofFn] using h.lower
@@ -389,14 +402,12 @@ theorem summarize_valid_iff (heads parameters : Nat) (choice : Nat → Bool)
     · intro world hw
       refine ⟨?_, ?_⟩
       · simpa only [summarize, meet_correct, allClauses_correct, List.forall_mem_map,
-          List.mem_finRange, forall_const, implies_correct] using h.checks world hw
+          List.mem_finRange, forall_const, implies_correct, ComparisonSliceCNF.point_correct hw]
+          using h.checks world hw
       · intro j hv
         simp only [summarize, Fin.getElem_fin, Vector.getElem_ofFn, allClauses_correct,
-          List.forall_mem_map, List.mem_finRange, forall_const, allTargets_correct,
-          implies_correct, rename_correct]
-        intro v target hp
-        obtain ⟨ht, hp⟩ := guardedPath_target hw hp
-        simpa only [Function.comp_def, pairWorld_odd] using h.upper j v world target hw ht hv hp
+          List.forall_mem_map, List.mem_finRange, forall_const, normalizedUpper_correct hw]
+        exact fun v target ht hp => h.upper j v world target hw ht hv hp
 
 theorem anyClauses_positive {clauses : List CNF}
     (h : ∀ c ∈ clauses, Positive c) : Positive (anyClauses clauses) := by

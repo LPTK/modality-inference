@@ -2,7 +2,7 @@ import ModalityInference.Proofs.ComparisonReductionTermination
 import ModalityInference.Proofs.ComparisonInstance
 import ModalityInference.Proofs.CompactCNF
 import ModalityInference.Proofs.SchemeModeSynthesis
-import ModalityInference.SchemeSubsumption
+import ModalityInference.ComparisonChecker
 
 /-! Fuel stability and eventual completion of the full scheme checker.
 Every executed phase reaches a fixed completed result for arbitrary public
@@ -732,19 +732,5 @@ theorem run_monotone {small large : Nat} {source target : Scheme} {result : Evid
     run large source target = .success result := run_stable h (by simp) hle
 
 end ComparisonChecker
-
-theorem checkSubsumption_terminates (source target : Scheme) :
-    ∃ n result, result ≠ .exhausted ∧ ∀ fuel ≥ n, checkSubsumption fuel source target = result :=
-  ComparisonChecker.run_terminates source.requireDefinedInstances target
-
-theorem checkSubsumption_stable {small large : Nat} {source target : Scheme}
-    {result : RunResult SubsumptionEvidence} (h : checkSubsumption small source target = result)
-    (hr : result ≠ .exhausted) (hle : small ≤ large) :
-    checkSubsumption large source target = result := ComparisonChecker.run_stable h hr hle
-
-theorem checkSubsumption_monotone {small large : Nat} {source target : Scheme}
-    {result : SubsumptionEvidence} (h : checkSubsumption small source target = .success result)
-    (hle : small ≤ large) : checkSubsumption large source target = .success result :=
-  ComparisonChecker.run_monotone h hle
 
 end ModalityInference

@@ -1,5 +1,6 @@
 import ModalityInference.ComparisonPropagation
 import ModalityInference.SymbolicCNF
+import ModalityInference.ComparisonSliceCNF
 
 /-! Joint constant-selector and positive-polynomial synthesis by propagation.
 Selectors are encoded by complementary positive coordinates. Relational closure
@@ -66,6 +67,18 @@ def closure (heads selectors : Nat) (program : Program count) : Store count :=
   let p := prepared heads selectors program
   propagate (heads + 2 * selectors) p.edges p.lower
 
+/-- Closure depends only on lower bounds and edges. Construct them directly so
+unused upper/check implications are not evaluated during witness extraction. -/
+def closureDirect (heads selectors : Nat) (program : Program count) : Store count :=
+  propagate (heads + 2 * selectors)
+    (program.edges.map fun e => { e with relation := guardRelation heads selectors e.relation })
+    (Vector.ofFn fun v => meet (theory heads selectors) (join (seed heads) program.lower[v]))
+
+@[csimp] theorem closure_eq_closureDirect : @closure = @closureDirect := by
+  funext count heads selectors program
+  simp only [closure, closureDirect, prepared, prepareProgram, normalize, Fin.getElem_fin,
+    Vector.getElem_ofFn]
+
 def residualQuery (heads selectors : Nat) (program : Program count) : CNF :=
   residual (prepared heads selectors program) (closure heads selectors program)
 
@@ -79,9 +92,11 @@ def selectorChoice (heads : Nat) (parameters : Nat → Bool) (i : Nat) : Bool :=
 def keepSelectors (heads selectors : Nat) (v : Nat) : Bool :=
   decide (heads ≤ v ∧ v < heads + 2 * selectors)
 
+/-- The outer selector theory is fixed throughout abstraction, so upper/check
+obligations need no duplicate implication from that theory. -/
 def query (heads selectors : Nat) (program : Program count) : CNF :=
   theory heads selectors ++ SymbolicCNF.abstract (keepSelectors heads selectors)
-    (residualQuery heads selectors program)
+    (ComparisonSliceCNF.residual heads selectors (normalize heads program) (closure heads selectors program))
 
 
 structure Result (count : Nat) where

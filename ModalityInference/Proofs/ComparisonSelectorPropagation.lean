@@ -1,6 +1,7 @@
 import ModalityInference.ComparisonSelectorPropagation
 import ModalityInference.Proofs.ComparisonPropagation
 import ModalityInference.Proofs.SymbolicCNF
+import ModalityInference.Proofs.ComparisonSliceCNFCore
 
 namespace ModalityInference.ComparisonSelectorPropagation
 
@@ -490,6 +491,17 @@ theorem Slice.of_agree {heads selectors : Nat} {choice left right : Nat → Bool
     h (heads + 2 * i + 1) (by simp [keepSelectors]; omega)]
   exact hr i hi
 
+/-- On a selector slice, guarding each residual obligation by the selector
+theory changes neither its models nor the common polynomial witness. -/
+theorem residual_unguarded_of_theory {heads selectors : Nat} {program : Program count}
+    {store : Store count} {parameters : Nat → Bool}
+    (ht : CNFHolds parameters (theory heads selectors)) :
+    CNFHolds parameters (residual (prepared heads selectors program) store) ↔
+      CNFHolds parameters (ComparisonSliceCNF.residual heads selectors (normalize heads program) store) := by
+  rw [ComparisonSliceCNF.residual_correct_of_complement ((theory_correct _ _ _).mp ht)]
+  simp only [residual_correct, prepared, prepareProgram, Fin.getElem_fin, Vector.getElem_ofFn,
+    implies_correct, ht, true_implies]
+
 theorem query_correct (heads selectors : Nat) (program : Program count) (parameters : Nat → Bool) :
     CNFHolds parameters (query heads selectors program) ↔
       CNFHolds parameters (theory heads selectors) ∧
@@ -498,9 +510,13 @@ theorem query_correct (heads selectors : Nat) (program : Program count) (paramet
   rw [query, cnfHolds_append, SymbolicCNF.abstract_correct]
   constructor
   · rintro ⟨ht, h⟩
-    exact ⟨ht, fun τ hs => h τ (fun _ hv => hs.agree (choice_slice ht) hv)⟩
+    refine ⟨ht, fun τ hs => ?_⟩
+    exact (residual_unguarded_of_theory hs.theory).mpr
+      (h τ (fun _ hv => hs.agree (choice_slice ht) hv))
   · rintro ⟨ht, h⟩
-    exact ⟨ht, fun τ he => h τ ((choice_slice ht).of_agree he)⟩
+    refine ⟨ht, fun τ he => ?_⟩
+    have hs := (choice_slice ht).of_agree he
+    exact (residual_unguarded_of_theory hs.theory).mp (h τ hs)
 
 theorem selectorChoice_select (heads : Nat) (choice parameters : Nat → Bool) :
     selectorChoice heads (select heads choice parameters) = choice := by

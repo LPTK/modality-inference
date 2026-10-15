@@ -1,6 +1,7 @@
 import ModalityInference.ComparisonJointSummary
 import ModalityInference.Proofs.ComparisonJointClauses
 import ModalityInference.Proofs.ComparisonJointGuarded
+import ModalityInference.Proofs.ComparisonSliceCNF
 
 namespace ModalityInference.ComparisonJointSummary
 
@@ -87,6 +88,18 @@ theorem forall_clause_or (world : Nat → Bool) (clauses : CNF) (P : Prop) :
   classical
   by_cases h : P <;> simp [CNFHolds, h]
 
+theorem relation_selected_correct (heads parameters : Nat) (choice world : Nat → Bool)
+    (clauses : CNF) :
+    CNFHolds (selectRelation heads choice world) (ComparisonSliceCNF.relation heads parameters clauses) ↔
+      CNFHolds (selectRelation heads choice world) clauses := by
+  have he : ComparisonSliceCNF.pair = pairWorld := by
+    funext a b i
+    simp [ComparisonSliceCNF.pair, pairWorld]
+  simp only [selectRelation, ←he]
+  rw [ComparisonSliceCNF.relation_correct (select_slice heads parameters choice _),
+    ComparisonSliceCNF.sync_of_slice (select_slice heads parameters choice _)
+      (select_slice heads parameters choice _)]
+
 theorem lower_correct (heads : Nat) (choice world : Nat → Bool) (store : Store count)
     (v : Fin count) (condition : CNF) :
     (∀ clause ∈ lower heads v condition,
@@ -101,7 +114,8 @@ theorem lower_correct (heads : Nat) (choice world : Nat → Bool) (store : Store
     rw [clause_split]
     tauto
   simp_rw [he]
-  rw [forall_clause_or, negate_correct]
+  rw [forall_clause_or, negate_correct,
+    ComparisonSliceCNF.point_correct (select_slice heads _ choice world)]
   tauto
 
 theorem edge_correct (heads : Nat) (choice world : Nat → Bool) (store : Store count)
@@ -124,7 +138,7 @@ theorem edge_correct (heads : Nat) (choice world : Nat → Bool) (store : Store 
     rw [edge_clause_split]
     tauto
   simp_rw [he]
-  rw [forall_clause_or, negate_correct]
+  rw [forall_clause_or, negate_correct, relation_selected_correct]
   tauto
 
 theorem upper_correct (heads : Nat) (choice world : Nat → Bool) (store : Store count)

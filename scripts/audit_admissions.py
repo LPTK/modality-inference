@@ -74,6 +74,37 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonResolution.eliminate_correct',
+    'ModalityInference.ComparisonResolution.eliminate_literal',
+    'ModalityInference.ComparisonResolution.eliminate_atoms',
+    'ModalityInference.ComparisonResolution.eliminate_iff',
+    'ModalityInference.ComparisonJointHorn.resolution_linear',
+    'ModalityInference.ComparisonSliceCNF.point_correct_of_complement',
+    'ModalityInference.ComparisonSliceCNF.residual_correct_of_complement',
+    'ModalityInference.ComparisonSliceCNF.point_correct',
+    'ModalityInference.ComparisonSliceCNF.relation_correct',
+    'ModalityInference.ComparisonSliceCNF.relation_implication_correct',
+    'ModalityInference.ComparisonSliceCNF.point_supported',
+    'ModalityInference.ComparisonSliceCNF.relation_supported',
+    'ModalityInference.ComparisonJointFallbackWitness.negLocal_defined',
+    'ModalityInference.ComparisonJointFallbackWitness.target_residual',
+    'ModalityInference.ComparisonJointFallbackWitness.witness_instance',
+    'ModalityInference.ComparisonJointFallbackWitness.algebra_subsumes',
+    'ModalityInference.CompactCNF.clean_eq_cleanTail',
+    'ModalityInference.CNFPropagation.eliminate_eq_eliminateCached',
+    'ModalityInference.ComparisonSelectorPropagation.closure_eq_closureDirect',
+    'ModalityInference.ComparisonParametricPropagation.closure_eq_closureDirect',
+    'ModalityInference.ComparisonBoundaryPropagation.summarize_eq_cached',
+    'ModalityInference.ComparisonBoundaryPropagation.reconstruct_eq_cached',
+    'ModalityInference.checkSubsumption_success_cases',
+    'ModalityInference.checkSubsumption_of_certificate',
+    'ModalityInference.checkSubsumption_evidence_result',
+    'ModalityInference.checkSubsumption_query_valid',
+    'ModalityInference.checkSubsumption_settles',
+    'ModalityInference.checkSubsumption_complete',
+    'ModalityInference.scheme_subsumption_complete',
+    'ModalityInference.checkSubsumption_rejected',
+    'ModalityInference.checkSubsumption_decides',
     'ModalityInference.ComparisonGroups.collect_all_leaves_nodup',
     'ModalityInference.ComparisonJointBatchReification.assemble_leaf',
     'ModalityInference.ComparisonJointBatchReification.assemble_origin',
@@ -3452,6 +3483,10 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonJointCheckerCompleteness\n'
                     'import ModalityInference.Proofs.ComparisonJointCheckerTermination\n'
                     'import ModalityInference.Proofs.ComparisonJointCheckerSoundness\n'
+                    'import ModalityInference.Proofs.ComparisonSubsumptionCompleteness\n'
+                    'import ModalityInference.Proofs.ComparisonSubsumptionDecision\n'
+                    'import ModalityInference.Proofs.ComparisonSliceCNFSupport\n'
+                    'import ModalityInference.Proofs.ComparisonJointFallbackWitness\n'
                     'import ModalityInference.Proofs.Evaluation\n'
                     'import ModalityInference.Proofs.Interpretation\n'
                     'import ModalityInference.Proofs.Erasure\n'
@@ -3475,6 +3510,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonShapes\n'
                     'import ModalityInference.Proofs.ComparisonShapeSolver\n'
                     'import ModalityInference.Proofs.ComparisonPropagation\n'
+                    'import ModalityInference.Proofs.ComparisonResolution\n'
                     'import ModalityInference.Proofs.ComparisonControls\n'
                     'import ModalityInference.Proofs.ComparisonLattice\n'
                     'import ModalityInference.Proofs.ComparisonAlgebra\n'

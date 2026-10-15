@@ -26,6 +26,17 @@ def clean : CNF → CNF
   | [] => []
   | clause :: clauses => insert (canonical clause) (clean clauses)
 
+/-- Process the same clauses in the same order using the tail-safe list fold. -/
+def cleanTail (clauses : CNF) : CNF :=
+  clauses.foldr (fun clause rest => insert (canonical clause) rest) []
+
+@[csimp] theorem clean_eq_cleanTail : clean = cleanTail := by
+  funext clauses
+  induction clauses with
+  | nil => rfl
+  | cons clause clauses ih =>
+    simpa only [clean, cleanTail, List.foldr_cons] using congrArg (insert (canonical clause)) ih
+
 def cnfOr (limit : Nat) (a b : CNF) : RunResult CNF :=
   if a.length * b.length > limit then .exhausted
   else .success (clean (a.flatMap fun x => b.map (x ++ ·)))

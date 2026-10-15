@@ -65,6 +65,40 @@ theorem eliminate_linear {state : Nat → Prop} {cs : CNF} {pivot : Nat}
     obtain ⟨b, ⟨hb, hbn, _⟩, rfl⟩ := hu
     exact resolve_linear (h a ha) (h b hb) hp hap hbn
 
+private theorem insert_linear {state : Nat → Prop} {clause : Clause} {cs : CNF}
+    (hc : LinearClause state clause) (hcs : Linear state cs) :
+    Linear state (CompactCNF.insert (CompactCNF.canonical clause) cs) := by
+  intro d hd
+  rcases CompactCNF.mem_insert hd with rfl | hd
+  · exact hc.subset fun _ hm => (CompactCNF.mem_canonical _ _).mp hm
+  · exact hcs d hd
+
+private theorem fold_linear {α : Type} {state : Nat → Prop} {items : List α}
+    {f : α → CNF → CNF} {rest : CNF}
+    (hf : ∀a∈items, ∀cs, Linear state cs → Linear state (f a cs))
+    (hr : Linear state rest) : Linear state (items.foldr f rest) := by
+  induction items with
+  | nil => exact hr
+  | cons a as ih =>
+    exact hf a (.head _) _ (ih (fun b hb => hf b (.tail _ hb)))
+
+theorem resolution_linear {state : Nat → Prop} {cs : CNF} {pivot : Nat}
+    (h : Linear state cs) (hp : state pivot) :
+    Linear state (ComparisonResolution.eliminate cs pivot) := by
+  unfold ComparisonResolution.eliminate
+  apply fold_linear
+  · intro l hl rest hr
+    apply fold_linear
+    · intro u hu rest hr
+      apply insert_linear
+      · simp [CNFPropagation.lower, CNFPropagation.upper] at hl hu
+        obtain ⟨a, ⟨ha, hap, _⟩, rfl⟩ := hl
+        obtain ⟨b, ⟨hb, hbn, _⟩, rfl⟩ := hu
+        exact resolve_linear (h a ha) (h b hb) hp hap hbn
+      · exact hr
+    · exact hr
+  · exact fun c hc => h c (List.mem_filter.mp hc).1
+
 theorem LinearClause.restrict {state retained : Nat → Prop} {c : Clause}
     (h : LinearClause state c) (hr : ∀ v, retained v → state v) :
     LinearClause retained c := by
@@ -72,14 +106,20 @@ theorem LinearClause.restrict {state retained : Nat → Prop} {c : Clause}
   exact h hv hw (hr v hsv) (hr w hsw)
 
 /-- Coordinate-state elimination does not create multi-state lower or upper clauses. -/
+private theorem projectLoop_linear {state : Nat → Prop} {cs : CNF} {pivots : List Nat}
+    (h : Linear state cs) (hp : ∀ v ∈ pivots, state v) :
+    Linear state (ComparisonPropagation.projectLoop pivots cs) := by
+  induction pivots generalizing cs with
+  | nil => exact h
+  | cons v vs ih =>
+    exact ih (resolution_linear h (hp v (.head _)))
+      (fun w hw => hp w (.tail _ hw))
+
+/-- Coordinate-state elimination does not create multi-state lower or upper clauses. -/
 theorem project_linear {state : Nat → Prop} {cs : CNF} {pivots : List Nat}
     (h : Linear state cs) (hp : ∀ v ∈ pivots, state v) :
-    Linear state (ComparisonPropagation.project pivots cs) := by
-  induction pivots generalizing cs with
-  | nil => exact compact_linear h
-  | cons v vs ih =>
-    exact ih (eliminate_linear (compact_linear h) (hp v (.head _)))
-      (fun w hw => hp w (.tail _ hw))
+    Linear state (ComparisonPropagation.project pivots cs) :=
+  projectLoop_linear (compact_linear h) hp
 
 /-- After coordinate elimination, only nominal state atoms remain; guards are unrestricted. -/
 theorem coordinate_residual {nominal : Nat → Prop} {cs : CNF} {coordinates : List Nat}

@@ -1,4 +1,4 @@
-import ModalityInference.Proofs.ComparisonPropagationSoundness
+import ModalityInference.Proofs.ComparisonDefinedEvidence
 import ModalityInference.Proofs.ComparisonAlgebraInstances
 import ModalityInference.Proofs.Obligations
 import ModalityInference.Proofs.ComparisonDefinedSemantics
@@ -9,9 +9,9 @@ namespace ModalityInference
 
 theorem checkSubsumption_defined_subsumes {fuel source target evidence}
     (h : checkSubsumption fuel source target = .success evidence) :
-    AlgebraSubsumesUnder [] source target :=
-  (algebraSubsumes_requireDefinedInstances_iff [] source target).mp
-    (ComparisonChecker.run_algebra_subsumes h)
+    AlgebraSubsumesUnder [] source target := by
+  obtain ⟨hi, hs, hb, ht⟩ := checkSubsumption_evidence_result h
+  exact ⟨evidence.substitution, hi.domain, hs, hi.images, hi.body, hb, ht⟩
 
 theorem checkSubsumption_algebra_subsumes {fuel source target evidence}
     (h : checkSubsumption fuel source target = .success evidence) :

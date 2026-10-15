@@ -1,4 +1,5 @@
 import ModalityInference.ComparisonJointGuarded
+import ModalityInference.ComparisonSliceCNF
 
 /-! Translate a parameterized boundary program into joint nominal/scalar clauses.
 Head observations occupy a finite prefix. Each scalar parameter occupies a
@@ -24,11 +25,12 @@ def edgeModeLiterals (heads : Nat) (clause : Clause) : Clause :=
     scalarLiteral heads (literal.1 / 2, literal.2)
 
 def lower (heads : Nat) (target : Fin count) (condition : CNF) : List (JointClause heads count) :=
-  (negate condition).map fun clause =>
+  (negate (ComparisonSliceCNF.point heads (ComparisonSliceCNF.budget condition) condition)).map fun clause =>
     ⟨.lower target (headLiterals heads clause), modeLiterals heads clause⟩
 
 def edge (heads : Nat) (transition : Edge count) : List (JointClause heads count) :=
-  (negate transition.relation).map fun clause =>
+  (negate (ComparisonSliceCNF.relation heads (ComparisonSliceCNF.budget transition.relation)
+    transition.relation)).map fun clause =>
     ⟨.edge transition.source transition.target (headLiterals (2 * heads) clause),
       edgeModeLiterals heads clause⟩
 

@@ -67,7 +67,7 @@ All public functions below are in namespace `ModalityInference` and return
 | `solve fuel constraints` | Substitution, residual bounds, concrete consistency witness, fresh counters, and trace |
 | `satisfiableModes fuel constraints` | A concrete modality assignment modeling the modality constraints |
 | `Runtime.evalFuel fuel supplies environment term` | A runtime value |
-| `checkSubsumption fuel inferred declared` | Internal comparison substitution and residual validity evidence; soundness and termination proved, general completeness unfinished |
+| `checkSubsumption fuel inferred declared` | Internal comparison substitution and residual validity evidence; soundness, termination, and completeness under residual declared bounds |
 
 Exhaustion is not rejection. Increasing fuel permits deeper recursion and more
 worklist or normalization steps. The Horn check's `requiredFuel` is a threshold
@@ -86,8 +86,8 @@ The structural checker uses scope-preserving preparation and compatible internal
 witnesses. `checkSubsumption` requires the instantiated body and every quantified
 image to be defined under the ambient and declared bounds. Symbolic residual
 expressions remain allowed when those bounds entail their guards. It appends
-body/image guards to source obligations before calling `ComparisonChecker.run`;
-the declared assumptions and fresh skolem indices remain unchanged. Exact
+body/image guards to source obligations; the declared assumptions and fresh
+skolem indices remain unchanged. Exact
 witness equivalence with `AlgebraSubsumesUnder` is proved, so this transformation
 preserves every witness in the intended domain.
 
@@ -103,8 +103,10 @@ clause projection and relational propagation. Upper and constant obligations
 remain symbolic residuals. Compilation, finite stabilization, least solutions,
 reification, and exactness for the supplied finite basis are proved. Signed
 controls supply positive basis representations for supported modality actions.
-Shared type and modality choices still require the joint assembly described
-under remaining work below.
+`ComparisonJointChecker` combines all opaque groups with one shared modality
+assignment, reconstructs compatible finite type images, and restores the complete
+source obligations and body. The public interface preserves successful direct
+certificates and invokes this joint driver when they reject.
 
 ## Constraint solving
 
@@ -233,38 +235,20 @@ use identity. All constructors are covered without a global well-formedness
 premise on the input context. Independent semantic soundness, closed completeness,
 and ground principality are proved for this guarded source judgment.
 
-`Obligations.SchemeSubsumptionComplete` remains unproved. Its premise is
-`AlgebraSubsumesUnder`, retaining duplicate-free binders and residual target
-bounds, without closedness, consistency, global totality, or a residual syntax
-restriction. Preparation, shape solving, and structural normalization preserve
-defined witnesses through the actual allocated templates, retaining their shared
-mode assignment. The joint clause solver has proved soundness, completeness,
-termination, and fuel stability: one selector solution produces compatible
-nominal head polynomials and scalar strategies with the required dependencies,
-including actual finite mode substitutions. Boundary summaries and coordinate
-tuple reconstruction preserve shared choices, and their concrete clause and
-type constructors have proved exact meanings. Earlier constant selectors stay
-fixed across all scalar inputs. Annotation classification covers source bounds
-as well as both bodies, so guarded residuals appearing only inside a bound are
-retained through structural reduction. Connecting these components to the actual
-group query now includes exact four-coordinate group compilation, finite atom
-provenance, uniform scalar-component separation, and supported propagation-program
-compilation under fixed parameter assignments. Defined witnesses also survive
-the actual ordinary checker setup and both structural reduction passes with
-their original shared mode images. The assembled single-group solver now proves
-all original coordinate obligations, scalar guards, and compatibility conditions
-on success. Its actual reconstructed leaf types have the supplied shape,
-definedness, and identifier support; all observations use the same projected
-scalar valuation. Eventual success of this assembly, shared modality synthesis
-across groups, and public checker completeness remain unfinished. Non-residual
-declared bounds also lack a complete general procedure.
-Actual collection is proved to cover rigid endpoints and retain a fixed head in
-every group. Annotation classification eventually returns a successful result.
-Witness normalization preserves body/image definedness while restricting image
-annotations to fixed input names, and the assembly accepts a finite parameter
-budget covering those names. Finite modality reconstruction and guard transport
-use the same projected strategy as the reconstructed types; reindexing preserves
-the local nominal guarantees of a shared solve.
+`scheme_subsumption_complete` proves `Obligations.SchemeSubsumptionComplete`:
+every `AlgebraSubsumesUnder [] source target` witness is eventually accepted
+when the binders are duplicate-free and target bounds are residual. There is
+no additional closedness, consistency, or global-totality premise. Symbolic
+residual expressions remain allowed under their original definedness guards.
+Preparation, shape solving, reduction, and collection retain one defined
+witness through the actual templates. Boundary summaries and selector
+propagation solve all groups with the same modality strategy. Compatible
+coordinates reconstruct one finite type per leaf with proved shape, definedness,
+and identifier support; restoration establishes the complete original body and
+source bounds. The returned substitution has exactly the quantified domain.
+Annotation classification includes source-bound operands, so guarded residuals
+appearing only inside a bound remain covered. Non-residual declared bounds are
+outside this completeness theorem and remain separate work.
 See [TODO.md](../TODO.md) and [LEAN_PROOF_HANDOFF.md](../LEAN_PROOF_HANDOFF.md).
 
 `Obligations.RunSolverCorrespondence`, relating the complete structural worklist

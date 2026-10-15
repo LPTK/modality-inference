@@ -1,4 +1,5 @@
 import ModalityInference.Proofs.ComparisonJointSummary
+import ModalityInference.Proofs.ComparisonSliceCNFSupport
 
 /-! The concrete boundary summary introduces no scalar or head observations
 outside the finite namespace of its input program. -/
@@ -149,15 +150,20 @@ theorem summarize_supported {heads parameters : Nat} {program : Program count}
     intro c hc
     obtain ⟨target, _, rfl⟩ := List.mem_map.mp hc
     apply allTargets_supported
-    apply implies_supported (guardedPath_supported heads parameters program boundary[source] target)
+    apply implies_supported
+      (ComparisonSliceCNF.relation_supported
+        (pathRelation_supported heads parameters program boundary[source] target))
+    apply ComparisonSliceCNF.relation_supported
     exact rename_supported (h.upper target) (by
       intro i hi; simp only [List.mem_range] at hi ⊢; omega)
   · apply meet_supported h.checks
     apply allClauses_supported
     intro c hc
     obtain ⟨v, _, rfl⟩ := List.mem_map.mp hc
-    exact implies_supported (ComparisonParametricPropagation.closure_supported heads parameters program v)
-      (h.upper v)
+    exact implies_supported
+      (ComparisonSliceCNF.point_supported
+        (ComparisonParametricPropagation.closure_supported heads parameters program v))
+      (ComparisonSliceCNF.point_supported (h.upper v))
 
 /-- Summary compilation needs only the original program's finite support. -/
 theorem compile_summary_correct {heads parameters : Nat} (hparameters : 0 < parameters)
