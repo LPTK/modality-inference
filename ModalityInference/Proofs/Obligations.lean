@@ -2,17 +2,17 @@ import ModalityInference.Rewriting
 import ModalityInference.SchemeSubsumption
 import ModalityInference.ComparisonAlgebra
 
-/-! Unproved specifications retained without admissions.
+/-! Proof contracts retained as named propositions.
 
-These definitions name propositions; they do not supply proofs of those propositions.
-They preserve the contracts of the removed admitted declarations, including their
-side conditions. A future proof must establish the named proposition itself.
+These definitions preserve the stated contracts and their side conditions.
+A theorem proving a contract establishes the named proposition itself.
 
 Principality remains required for the paper's completeness-and-principality claim;
 successful inference on every typable term alone does not establish it. The symbolic
 factorization statement below is one proposed route to that claim. Solver
-correspondence is a possible supporting lemma. Scheme-checker correctness is a
-separate verification task, and closed-term substitution is optional metatheory.
+correspondence is a possible supporting lemma. Scheme-checker soundness is proved
+in `ComparisonSoundness`; checker completeness remains a separate verification
+task, and closed-term substitution is optional metatheory.
 -/
 namespace ModalityInference.Obligations
 
@@ -55,9 +55,9 @@ def PrincipalFactorization : Prop :=
         Submode Δ (θ.mode v) ((result.substitution.mode v).subst τ.mode) ∧
         Submode Δ ((result.substitution.mode v).subst τ.mode) (θ.mode v))
 
-/-- Signature-checker soundness requires structural reconstruction and rigid
-entailment in the compatible-shape comparison algebra. The verified finite-basis
-and modality kernels do not by themselves verify the assembled checker. -/
+/-- Successful signature checking supplies a witness in the compatible-shape
+comparison algebra. `scheme_subsumption_sound` proves this contract through the
+assembled executable checker, including structural reconstruction and guards. -/
 def SchemeSubsumptionSound : Prop :=
   ∀ {fuel : Nat} {source target : Scheme} {evidence : SubsumptionEvidence},
     (source.typeParams.Nodup ∧ source.modParams.Nodup) →

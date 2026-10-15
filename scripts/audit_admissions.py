@@ -74,6 +74,19 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonChecker.propagate_solution',
+    'ModalityInference.ComparisonChecker.run_solution',
+    'ModalityInference.ComparisonChecker.run_algebra_subsumes',
+    'ModalityInference.ComparisonChecker.Setup.core_sound',
+    'ModalityInference.ComparisonChecker.Setup.semantic_sound',
+    'ModalityInference.ComparisonChecker.PropagationTrace.solution_of_semantic',
+    'ModalityInference.ComparisonChecker.PropagationTrace.action_domains',
+    'ModalityInference.ComparisonChecker.propagate_trace',
+    'ModalityInference.scheme_subsumption_sound',
+    'ModalityInference.checkSubsumption_algebra_subsumes',
+    'ModalityInference.inference_checked_ground_covers',
+    'ModalityInference.inference_checked_resource_semantic',
+    'ModalityInference.inference_checked_source_semantic',
     'ModalityInference.ComparisonReduction.step_modeSupport',
     'ModalityInference.ComparisonReduction.run_modeSupport',
     'ModalityInference.ComparisonReduction.prepare_modeSupport',
@@ -2365,6 +2378,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonAlgebra\n'
                     'import ModalityInference.Proofs.ComparisonAlgebraSoundness\n'
                     'import ModalityInference.Proofs.ComparisonAlgebraInstances\n'
+                    'import ModalityInference.Proofs.ComparisonSoundness\n'
                     'import ModalityInference.Proofs.ComparisonAlgebraPreparation\n'
                     'import ModalityInference.Proofs.ComparisonAlgebraOrder\n'
                     'import ModalityInference.Proofs.ComparisonControlSeparation\n'

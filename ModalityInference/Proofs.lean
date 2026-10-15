@@ -164,5 +164,20 @@ import ModalityInference.Proofs.ComparisonPreparedBounds
 import ModalityInference.Proofs.ComparisonCheckerSolution
 import ModalityInference.Proofs.ComparisonCheckerSoundness
 import ModalityInference.Proofs.ComparisonReductionSupport
+import ModalityInference.Proofs.ComparisonReductionClosure
+import ModalityInference.Proofs.ComparisonPropagationSetup
+import ModalityInference.Proofs.ComparisonPropagationComposition
+import ModalityInference.Proofs.ComparisonPropagationImages
+import ModalityInference.Proofs.ComparisonPropagationModes
+import ModalityInference.Proofs.ComparisonPropagationAgreement
+import ModalityInference.Proofs.ComparisonPropagationTotal
+import ModalityInference.Proofs.ComparisonPropagationTrace
+import ModalityInference.Proofs.ComparisonPropagationDefinedness
+import ModalityInference.Proofs.ComparisonPropagationCore
+import ModalityInference.Proofs.ComparisonPropagationSemantic
+import ModalityInference.Proofs.ComparisonPropagationRuntimeShapes
+import ModalityInference.Proofs.ComparisonPropagationResult
+import ModalityInference.Proofs.ComparisonPropagationSoundness
+import ModalityInference.Proofs.ComparisonSoundness
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

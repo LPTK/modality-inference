@@ -131,7 +131,7 @@ private theorem bare_domain_lower {p : SchemePreparation.Prepared}
   all_goals simp only [List.mem_range'] at hn
   all_goals omega
 
-private theorem absorption_domain_lower {p : SchemePreparation.Prepared}
+theorem absorption_domain_lower {p : SchemePreparation.Prepared}
     {total : ModExpr → Bool} {entry : Nat × ModExpr}
     (h : entry ∈ (ComparisonAbsorption.plan p total).action.modes) :
     p.firstMode ≤ entry.1 := by
@@ -143,7 +143,7 @@ private theorem absorption_domain_lower {p : SchemePreparation.Prepared}
   exact ((ComparisonAbsorption.scopeCheck_spec _ _).mp
     (ComparisonAbsorption.plan_spec p total).1 pair hp).2.1.1
 
-private theorem annotations_domain_lower {p : SchemePreparation.Prepared}
+theorem annotations_domain_lower {p : SchemePreparation.Prepared}
     {total : ModExpr → Bool} {entry : Nat × ModExpr}
     (h : entry ∈ (ComparisonAnnotations.prepare p total).images) :
     p.firstMode ≤ entry.1 := by
