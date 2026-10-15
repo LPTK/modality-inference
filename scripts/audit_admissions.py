@@ -74,6 +74,19 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonModePrepass.projectQuery_correct',
+    'ModalityInference.ComparisonModePrepass.boundsQuery_correct',
+    'ModalityInference.ComparisonModePrepass.attempt_scoped',
+    'ModalityInference.ComparisonModePrepass.attempt_bounded',
+    'ModalityInference.ComparisonModePrepass.attempt_settles',
+    'ModalityInference.ComparisonChecker.refineModes_domains',
+    'ModalityInference.ComparisonChecker.refineModes_solution_of_propagate',
+    'ModalityInference.ComparisonChecker.refineModes_settles',
+    'ModalityInference.ComparisonPartialStructuredCapsule.peel_frozen_stem',
+    'ModalityInference.ComparisonInstance.matchType_peel_frozen_complete',
+    'ModalityInference.ComparisonCapsuleContext.operandRequests_frozen_cover',
+    'ModalityInference.ComparisonCapsuleContext.body_frozen_assignments',
+    'ModalityInference.ComparisonCapsuleContext.body_replacement_semantic',
     'ModalityInference.ComparisonGuardedTotal.prepared_scalarBounds_iff',
     'ModalityInference.ComparisonCapsuleContext.mixed_name_normal_form',
     'ModalityInference.ComparisonGuardedTotal.scalarBounds_models',
@@ -3093,6 +3106,9 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonCapsuleLocalSelection\n'
                     'import ModalityInference.Proofs.ComparisonCapsuleFrozenSelection\n'
                     'import ModalityInference.Proofs.ComparisonOpaqueSlice\n'
+                    'import ModalityInference.Proofs.ComparisonModePrepass\n'
+                    'import ModalityInference.Proofs.ComparisonFrozenPeeling\n'
+                    'import ModalityInference.Proofs.ComparisonCapsuleFrozenBody\n'
                     'import ModalityInference.Proofs.ComparisonCarrierBodyPlan\n'
                     'import ModalityInference.Proofs.ComparisonCarrierBodyReduction\n'
                     'import ModalityInference.Proofs.ComparisonPreparedCarrierPlan\n'

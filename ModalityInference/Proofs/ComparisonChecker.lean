@@ -41,11 +41,18 @@ theorem refineContexts_evidence {fuel p shapes before e}
     simp only [bind, RunResult.bind] at h
     repeat' first | contradiction | exact variants_evidence h | split at h
 
+theorem refineModes_evidence {fuel p shapes e}
+    (h : refineModes fuel p shapes = .success e) : PreparedEvidence p e := by
+  simp only [refineModes, bind, RunResult.bind] at h
+  split at h
+  · exact refineContexts_evidence h
+  all_goals contradiction
+
 theorem core_evidence {fuel source target e}
     (h : core fuel source target = .success e) :
     PreparedEvidence (SchemePreparation.prepare [] source target) e := by
   simp only [core, bind, pure, RunResult.bind] at h
-  repeat' first | contradiction | exact refineContexts_evidence h | split at h
+  repeat' first | contradiction | exact refineContexts_evidence h | exact refineModes_evidence h | split at h
   cases h
   refine ⟨_, rfl, rfl, rfl, rfl, ?_⟩
   rename_i result hi

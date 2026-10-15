@@ -6,6 +6,7 @@ import ModalityInference.Proofs.SchemeModeSynthesis
 import ModalityInference.Proofs.ComparisonContext
 import ModalityInference.Proofs.ComparisonCapsuleContext
 import ModalityInference.Proofs.ComparisonFrozenContext
+import ModalityInference.Proofs.ComparisonModePrepass
 
 /-! Fresh-domain invariants for the assembled comparison witness. -/
 namespace ModalityInference
@@ -230,6 +231,18 @@ theorem refineContexts_domains {fuel p shapes before e}
     · exact (ComparisonExactContext.prepare_scoped hselected).domainsAbove
     · exact (ComparisonContext.prepare_scoped hselected).domainsAbove
 
+theorem refineModes_domains {fuel p shapes e}
+    (h : refineModes fuel p shapes = .success e) :
+    ∃ action, e.substitution = ComparisonPreparation.reconstruct p action ∧
+      e.obligations = action.bounds p.sourceBounds ∧
+      e.body = (action.ty p.sourceType, CompareTy.ofTy p.targetType) ∧
+      action.DomainsAbove p.firstType p.firstMode := by
+  simp only [refineModes, bind, RunResult.bind] at h
+  split at h
+  · exact refineContexts_domains
+      (ComparisonModePrepass.attempt_scoped (by assumption)).domainsAbove h
+  all_goals contradiction
+
 theorem core_domains {fuel source target e}
     (h : core fuel source target = .success e) :
     let p := SchemePreparation.prepare [] source target
@@ -240,6 +253,7 @@ theorem core_domains {fuel source target e}
   simp only [core, bind, pure, RunResult.bind] at h
   repeat' first
     | contradiction
+    | exact refineModes_domains h
     | (refine refineContexts_domains ?_ h
        first
        | exact (ComparisonExactContext.neutral_scoped _).domainsAbove

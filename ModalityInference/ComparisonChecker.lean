@@ -9,6 +9,7 @@ import ModalityInference.ComparisonPartialPropagation
 import ModalityInference.ComparisonCapsuleContext
 import ModalityInference.ComparisonFrozenContext
 import ModalityInference.ComparisonGuardedTotal
+import ModalityInference.ComparisonModePrepass
 
 namespace ModalityInference.ComparisonChecker
 
@@ -121,6 +122,13 @@ def refineContexts (fuel : Nat) (p : SchemePreparation.Prepared)
       | result => result
   | result => result
 
+/-- Scalar feasibility preserves shared type-coordinate choices while selecting
+modalities; complete propagation checks the resulting specialization. -/
+def refineModes (fuel : Nat) (p : SchemePreparation.Prepared)
+    (shapes : ComparisonShapeSolver.Solved) : RunResult Evidence := do
+  let before ← ComparisonModePrepass.attempt fuel p shapes
+  refineContexts fuel p shapes before
+
 def core (fuel : Nat) (source target : Scheme) : RunResult Evidence := do
   let p := SchemePreparation.prepare [] source target
   if let some result ← ComparisonInstance.attempt fuel p then
@@ -141,8 +149,13 @@ def core (fuel : Nat) (source target : Scheme) : RunResult Evidence := do
     match refineContexts fuel p shapes with
     | .rejected reason =>
         let before := ComparisonExactContext.neutral p
-        if before.modes.isEmpty then .rejected reason
-        else refineContexts fuel p shapes before
+        let neutral := if before.modes.isEmpty then .rejected reason
+          else refineContexts fuel p shapes before
+        match neutral with
+        | .rejected _ => match refineModes fuel p shapes with
+          | .rejected _ => .rejected reason
+          | result => result
+        | result => result
     | result => result
 
 def partialEvidence (p : SchemePreparation.Prepared)

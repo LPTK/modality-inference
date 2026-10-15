@@ -54,6 +54,17 @@ theorem refineContexts_solution_of_propagate {fuel p shapes before e}
       have hbound := ComparisonContext.prepare_bounded hselected (by exact ht)
       exact variants_solution_of_propagate hprop (hs.compose hscope.exact) (hb.compose hbound) h
 
+theorem refineModes_solution_of_propagate {fuel p shapes e}
+    (hprop : PropagationSound fuel p shapes)
+    (ht : p.targetType.Bounded p.nextType p.nextMode)
+    (h : refineModes fuel p shapes = .success e) : PreparedSolution p e := by
+  simp only [refineModes, bind, RunResult.bind] at h
+  split at h
+  · exact refineContexts_solution_of_propagate hprop ht
+      (ComparisonModePrepass.attempt_scoped (by assumption)).exact
+      (ComparisonModePrepass.attempt_bounded (by assumption)) h
+  all_goals contradiction
+
 theorem core_solution_of_propagate {fuel source target e}
     (ht : (SchemePreparation.prepare [] source target).targetType.Bounded
       (SchemePreparation.prepare [] source target).nextType
@@ -65,6 +76,7 @@ theorem core_solution_of_propagate {fuel source target e}
   simp only [core, bind, pure, RunResult.bind] at h
   repeat' first
     | contradiction
+    | exact refineModes_solution_of_propagate (hprop _ (by assumption)) ht h
     | (apply refineContexts_solution_of_propagate (hprop _ (by assumption)) ht ?_ ?_ h
        · first
          | exact ComparisonExactContext.neutral_scoped _

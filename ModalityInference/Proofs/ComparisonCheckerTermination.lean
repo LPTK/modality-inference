@@ -340,6 +340,70 @@ theorem run_stable {small large : Nat} {p : SchemePreparation.Prepared}
   (run_settles p shapes templates reduced).1 hle h hr
 
 end ComparisonElimination
+namespace ComparisonModePrepass
+open ComparisonPartialPropagation.Fuel ComparisonElimination
+
+theorem group_settles (assumptions required : Bounds) (g : ComparisonGroups.Group) :
+    Settles (fun fuel => group fuel assumptions required g) := by
+  cases he : g.heads with
+  | nil => simpa only [group, he] using Settles.rejected "comparison class has no fixed generator"
+  | cons first rest =>
+    simp only [group, he, bind, pure, RunResult.bind]
+    apply Settles.bind
+    · apply Settles.forIn
+      intro label actions
+      apply Settles.bind (ComparisonControls.low_settles _ _)
+      intro lower
+      apply Settles.bind (ComparisonControls.high_settles _ _)
+      intro upper
+      exact Settles.pure _
+    · intro actions
+      apply Settles.bind (controlsTheory_settles _)
+      intro initialTheory
+      apply Settles.bind (compact_settles _ _)
+      intro guards
+      apply Settles.bind
+      · apply Settles.forIn
+        intro pair theory
+        apply Settles.bind (endpoint_settles _ _ _)
+        intro a
+        apply Settles.bind (endpoint_settles _ _ _)
+        intro b
+        cases ha : a.leaf with
+        | flex i => exact Fin.elim0 i
+        | fixed x =>
+          cases hb : b.leaf with
+          | flex i => exact Fin.elim0 i
+          | fixed y =>
+            exact Settles.pure _
+      · intro theory
+        apply Settles.bind (Settles.mapM _ _ (fun pair => bound_settles _ _ pair))
+        intro bounds
+        exact Settles.pure _
+
+theorem query_settles (p : SchemePreparation.Prepared)
+    (shapes : ComparisonShapeSolver.Solved) (templates : ComparisonSkeleton.Templates)
+    (reduced : ComparisonReduction.State) :
+    Settles (fun fuel => query fuel p shapes templates reduced) := by
+  unfold query
+  apply Settles.bind (ComparisonGroups.collect_settles _ _ _ _)
+  exact fun groups => Settles.bind (Settles.mapM groups _ (fun g => group_settles _ _ g))
+    (fun _ => Settles.pure _)
+
+theorem attempt_settles (p : SchemePreparation.Prepared)
+    (shapes : ComparisonShapeSolver.Solved) :
+    Settles (fun fuel => attempt fuel p shapes) := by
+  simp only [attempt, bind, pure, RunResult.bind]
+  split
+  · exact Settles.rejected _
+  · apply Settles.bind ⟨ComparisonReduction.prepare_fuel_stable _ _ _ _ _,
+      ComparisonReduction.prepare_fuel_terminates _ _ _ _ _⟩
+    exact fun reduced => Settles.bind (query_settles _ _ _ _)
+      (fun formula => Settles.bind (modes_settles _ _) (fun modes =>
+        Settles.const _ (by split <;> simp)))
+
+end ComparisonModePrepass
+
 namespace ComparisonChecker
 open ComparisonPartialPropagation.Fuel
 
@@ -477,6 +541,11 @@ theorem refineContexts_settles (p : SchemePreparation.Prepared)
     dsimp only [refineContexts, continuation, input]
     cases variants fuel p shapes before <;> rfl
 
+theorem refineModes_settles (p : SchemePreparation.Prepared)
+    (shapes : ComparisonShapeSolver.Solved) : Settles (fun fuel => refineModes fuel p shapes) :=
+  Settles.bind (ComparisonModePrepass.attempt_settles p shapes)
+    (fun before => refineContexts_settles p shapes before)
+
 theorem core_settles (source target : Scheme) :
     Settles (fun fuel => core fuel source target) := by
   simp only [core, bind, pure, RunResult.bind]
@@ -495,17 +564,37 @@ theorem core_settles (source target : Scheme) :
       refine Settles.congr (Settles.recover (g := fun fuel reason =>
         let p := SchemePreparation.prepare [] source target
         let before := ComparisonExactContext.neutral p
-        if before.modes.isEmpty then .rejected reason
-        else refineContexts fuel p shapes before)
+        let neutral := if before.modes.isEmpty then .rejected reason
+          else refineContexts fuel p shapes before
+        match neutral with
+        | .rejected _ => match refineModes fuel p shapes with
+          | .rejected _ => .rejected reason
+          | result => result
+        | result => result)
         (refineContexts_settles (SchemePreparation.prepare [] source target) shapes {}) ?_) ?_
       · intro reason
         dsimp only
         split
-        · exact Settles.rejected _
-        · exact refineContexts_settles _ _ _
+        · refine Settles.congr (Settles.recover
+            (refineModes_settles (SchemePreparation.prepare [] source target) shapes)
+            (fun _ => Settles.rejected reason)) ?_
+          intro fuel
+          cases refineModes fuel (SchemePreparation.prepare [] source target) shapes <;> rfl
+        · refine Settles.congr (Settles.recover
+            (refineContexts_settles (SchemePreparation.prepare [] source target) shapes
+              (ComparisonExactContext.neutral (SchemePreparation.prepare [] source target)))
+            (fun _ => Settles.recover
+              (refineModes_settles (SchemePreparation.prepare [] source target) shapes)
+              (fun _ => Settles.rejected reason))) ?_
+          intro fuel
+          dsimp only
+          cases refineContexts fuel (SchemePreparation.prepare [] source target) shapes
+            (ComparisonExactContext.neutral (SchemePreparation.prepare [] source target)) <;>
+            cases refineModes fuel (SchemePreparation.prepare [] source target) shapes <;> rfl
       · intro fuel
         dsimp only
         cases refineContexts fuel (SchemePreparation.prepare [] source target) shapes {} <;> rfl
+
 
 theorem capsuleCore_settles (source target : Scheme) :
     Settles (fun fuel => capsuleCore fuel source target) := by

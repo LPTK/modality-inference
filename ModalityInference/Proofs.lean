@@ -285,5 +285,8 @@ import ModalityInference.Proofs.ComparisonCapsuleLocalSelection
 import ModalityInference.Proofs.ComparisonCapsuleFrozenSelection
 import ModalityInference.Proofs.ComparisonCapsuleNameNormalForm
 import ModalityInference.Proofs.ComparisonGuardedTotalCompleteness
+import ModalityInference.Proofs.ComparisonModePrepass
+import ModalityInference.Proofs.ComparisonFrozenPeeling
+import ModalityInference.Proofs.ComparisonCapsuleFrozenBody
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
