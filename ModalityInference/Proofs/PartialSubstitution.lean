@@ -75,7 +75,6 @@ theorem Subtype.substitute {Δ a b} (h : Subtype Δ a b) (σ : Substitution)
   case prod _ _ iha ihb => exact .prod iha ihb
   case sum _ _ iha ihb => exact .sum iha ihb
   case fn _ _ hm iha ihb => exact .fn iha ihb (hm.substitute σ hσ)
-  case credit hm => exact .credit (hm.substitute σ hσ)
 
 theorem Subtype.substitute_ordinary {Δ a b} (h : Subtype Δ a b) (σ : Substitution)
     (hσ : ∀ v, ∃ m : Modality, σ.mode v = m.toExpr) :

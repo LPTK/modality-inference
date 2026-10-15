@@ -40,7 +40,7 @@ def shape : Profile → ComparisonShape
 
 def clip (m : Mode) : Profile → Profile
   | .unit n => .unit (n.compose m)
-  | .credit n => .credit ((n.compose m).compose Mode.many)
+  | .credit n => .credit (n.compose m)
   | .prod a b n => .prod (a.clip m) (b.clip m) (n.compose m)
   | .sum a b n => .sum (a.clip m) (b.clip m) (n.compose m)
   | .fn a b n => .fn a b ((n.compose m).compose Mode.top)
@@ -50,7 +50,7 @@ def clip (m : Mode) : Profile → Profile
 
 theorem clip_compose (a : Profile) (m n : Mode) :
     (a.clip m).clip n = a.clip (m.compose n) := by
-  induction a <;> simp_all [clip, Mode.compose, Mode.many, Mode.top, Bool.and_assoc]
+  induction a <;> simp_all [clip, Mode.compose, Mode.top, Bool.and_assoc]
 
 @[simp] theorem clip_idem (a : Profile) (m : Mode) : (a.clip m).clip m = a.clip m := by
   rw [clip_compose, Mode.compose_self]
@@ -64,7 +64,7 @@ def realize : Profile → GroundTy
 
 def Valid : Profile → Prop
   | .unit _ => True
-  | .credit m => m.once = false
+  | .credit _ => True
   | .fn a b m => a.Valid ∧ b.Valid ∧ m.unique = false
   | .prod a b m | .sum a b m =>
     a.Valid ∧ b.Valid ∧ a.clip m = a ∧ b.clip m = b
@@ -75,7 +75,7 @@ theorem clip_fixed {a : Profile} {m : Mode} (h : a.clip m = a) (n : Mode) :
 
 theorem Valid.clip {a : Profile} (h : a.Valid) (m : Mode) : (a.clip m).Valid := by
   induction a generalizing m
-  all_goals simp_all only [Profile.clip, Valid, Mode.compose, Mode.many, Mode.top,
+  all_goals simp_all only [Profile.clip, Valid, Mode.compose, Mode.top,
     Bool.and_false, and_true, true_and]
   all_goals exact ⟨clip_fixed h.2.2.1 m, clip_fixed h.2.2.2 m⟩
 
@@ -242,7 +242,7 @@ theorem blend_fixed {p : Bool} {a b c : Profile} {m n : Mode}
     cases b <;> simp only [blend, reduceCtorEq, Option.some.injEq] at h
     subst c
     simp only [clip, Profile.unit.injEq, Profile.credit.injEq] at ha hb ⊢
-    first | exact blendMode_fixed ha hb p | exact blendMode_fixed_normalized ha hb p
+    exact blendMode_fixed ha hb p
 
 theorem blend_valid {p : Bool} {a b c : Profile}
     (ha : a.Valid) (hb : b.Valid) (h : blend p a b = some c) : c.Valid := by
@@ -263,33 +263,33 @@ theorem blend_valid {p : Bool} {a b c : Profile}
   | unit k | credit k =>
     cases b <;> simp only [blend, reduceCtorEq, Option.some.injEq] at h
     subst c
-    cases p <;> simp_all [Valid, blendMode, Mode.join, Mode.meet]
+    trivial
 
 end Profile
 
 def observe : GroundTy → Profile
   | .unit m => .unit m
-  | .credit m => .credit (m.compose Mode.many)
+  | .credit m => .credit m
   | .prod a b m => .prod ((observe a).clip m) ((observe b).clip m) m
   | .sum a b m => .sum ((observe a).clip m) ((observe b).clip m) m
   | .fn a b m => .fn (observe a) (observe b) (m.compose Mode.top)
 
 theorem observe_modal (a : GroundTy) (m : Mode) : observe (a.modal m) = (observe a).clip m := by
   cases a <;> simp [GroundTy.modal, observe, Profile.clip, Profile.clip_compose,
-    Mode.compose, Mode.many, Mode.top]
+    Mode.compose, Mode.top]
 
 theorem observe_valid (a : GroundTy) : (observe a).Valid := by
   induction a <;> simp_all only [observe, Profile.Valid]
-  all_goals simp_all [Profile.Valid.clip, Mode.compose, Mode.many, Mode.top]
+  all_goals simp_all [Profile.Valid.clip, Mode.compose, Mode.top]
 
 theorem observe_realize {a : Profile} (ha : a.Valid) : observe a.realize = a := by
   induction a <;> simp_all only [Profile.Valid, Profile.realize, observe]
-  all_goals (congr 1; cases ‹Mode›; simp_all [Mode.compose, Mode.many, Mode.top])
+  all_goals (congr 1; cases ‹Mode›; simp_all [Mode.compose, Mode.top])
 
 theorem observe_le_of_groundOrder {a b : GroundTy} (h : GroundOrder a b) :
     (observe a).Le (observe b) := by
   induction h <;> simp_all [observe, Profile.Le, observe_modal,
-    Mode.le_iff, Mode.compose, Mode.many, Mode.top]
+    Mode.le_iff, Mode.compose, Mode.top]
 
 theorem groundOrder_of_observe_le {a b : GroundTy} (h : (observe a).Le (observe b)) :
     GroundOrder a b := by
@@ -308,7 +308,7 @@ theorem groundOrder_of_observe_le {a b : GroundTy} (h : (observe a).Le (observe 
       (by simpa [Mode.compose, Mode.top] using ((Mode.le_iff _ _).mp h.1).2.1)
   all_goals first
     | exact .unit h
-    | exact .credit (by simpa [Mode.le_iff, Mode.compose, Mode.many] using h)
+    | exact .credit h
 termination_by a.nodes + b.nodes
 decreasing_by all_goals simp_all [GroundTy.nodes]; omega
 
@@ -437,9 +437,6 @@ private theorem mix_clamp {b a t : Profile} (hba : b.Le a) (hat : a.Le t) (m : M
       mix_absorb_left false _ _ hba.2.1, mix_absorb_left true _ _ hat.2.1,
       mix_absorb_left true _ _ hba.2.2, mix_absorb_left false _ _ hat.2.2,
       Mode.compose_assoc, mode_clamp hba.1 hat.1]
-  case credit.credit.credit =>
-    simpa only [Mode.compose_assoc] using
-      congrArg Profile.credit (mode_clamp hba hat (m.compose Mode.many))
   all_goals congr 1
   all_goals first
     | exact mode_clamp hba hat m

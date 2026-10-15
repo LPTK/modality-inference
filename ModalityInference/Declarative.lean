@@ -41,9 +41,6 @@ inductive Subtype (Δ : Bounds) : Ty → Ty → Prop where
   | fn {a b c d m n} : Subtype Δ c a → Subtype Δ b d →
       Submode Δ m (.compose n .top) →
       Subtype Δ (.modal (.fn a b) m) (.modal (.fn c d) n)
-  /-- Credits carry locality and uniqueness; the affinity of the old payload is irrelevant. -/
-  | credit {m n} : Submode Δ (.compose m (.const Mode.many)) n →
-      Subtype Δ (.modal .credit m) (.modal .credit n)
 
 /-- Internal type constraints are meaningful only when every modality occurring
 in them is defined under the ambient modality assumptions. -/

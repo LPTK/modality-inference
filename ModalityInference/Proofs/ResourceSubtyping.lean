@@ -174,11 +174,6 @@ private theorem Subtype.optResourceLe_of_bounds {ρ Δ a b} (h : Subtype Δ a b)
     cases ha : a.realize ρ <;> cases hb : b.realize ρ <;>
       simp_all [OptResourceLe, TypeExpr.realize]
     exact ResourceLe.modal ih huv
-  case credit m n hmode =>
-    have hmn := hmode.denote hmodes
-    cases hm : m.eval (some ∘ ρ.modes) <;> cases hn : n.eval (some ∘ ρ.modes) <;>
-      simp [ModExpr.Below, ModExpr.eval, hm, hn, Mode.le_iff, Mode.compose, Mode.many] at hmn
-    simpa [TypeExpr.realize, hm, hn, GroundTy.modal, OptResourceLe] using ResourceLe.credit hmn.1 hmn.2
   all_goals try simp only [TypeExpr.realize_identity, TypeExpr.realize_compose]
   all_goals solve_by_elim [OptResourceLe.refl, OptResourceLe.trans]
 

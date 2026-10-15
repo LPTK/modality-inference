@@ -1,8 +1,7 @@
 import ModalityInference.Proofs.GroundSubtyping
 
 /-! A structural presentation of subtyping between ground types. It retains the
-whole field types, with inherited modes, and the special future-only function
-and affinity-insensitive credit comparisons. -/
+whole field types, with inherited modes, and future-only function comparisons. -/
 namespace ModalityInference
 
 @[simp] theorem Mode.compose_self (m : Mode) : m.compose m = m := by
@@ -25,7 +24,7 @@ theorem Mode.compose_comm (m n : Mode) : m.compose n = n.compose m := by
 
 inductive GroundOrder : GroundTy → GroundTy → Prop where
   | unit {m n} : m.le n = true → GroundOrder (.unit m) (.unit n)
-  | credit {m n} : (m.compose Mode.many).le n = true → GroundOrder (.credit m) (.credit n)
+  | credit {m n} : m.le n = true → GroundOrder (.credit m) (.credit n)
   | prod {a b c d m n} : m.le n = true →
       GroundOrder (a.modal m) (c.modal n) → GroundOrder (b.modal m) (d.modal n) →
       GroundOrder (.prod a b m) (.prod c d n)
@@ -44,9 +43,7 @@ theorem GroundOrder.modal {a b} (h : GroundOrder a b) {p q} (hpq : p.le q = true
     GroundOrder (a.modal p) (b.modal q) := by
   induction h generalizing p q
   case unit hmn => exact .unit (Mode.compose_le hmn hpq)
-  case credit m n hmn =>
-    apply GroundOrder.credit
-    simpa only [Mode.compose_assoc, Mode.compose_comm Mode.many p] using Mode.compose_le hmn hpq
+  case credit hmn => exact .credit (Mode.compose_le hmn hpq)
   case prod a b c d m n hmn ha hb iha ihb =>
     exact .prod (Mode.compose_le hmn hpq)
       (by simpa only [GroundTy.modal_compose] using iha hpq)
@@ -66,7 +63,7 @@ theorem GroundOrder.modal {a b} (h : GroundOrder a b) {p q} (hpq : p.le q = true
 theorem GroundOrder.refl (a : GroundTy) : GroundOrder a a := by
   induction a
   case unit m => exact .unit (Mode.le_refl m)
-  case credit m => exact .credit (by simp [Mode.le_iff, Mode.compose, Mode.many])
+  case credit m => exact .credit (Mode.le_refl m)
   case prod a b m iha ihb => exact .prod (Mode.le_refl m) (iha.modal (Mode.le_refl m)) (ihb.modal (Mode.le_refl m))
   case sum a b m iha ihb => exact .sum (Mode.le_refl m) (iha.modal (Mode.le_refl m)) (ihb.modal (Mode.le_refl m))
   case fn a b m iha ihb => exact .fn iha ihb id id
@@ -85,10 +82,7 @@ theorem GroundOrder.trans {a b c} (hab : GroundOrder a b) (hbc : GroundOrder b c
     | unit hnp => exact .unit (Mode.le_trans hmn hnp)
   case credit m n hmn =>
     cases hbc with
-    | credit hnp =>
-      apply GroundOrder.credit
-      exact Mode.le_trans (by
-        simpa only [Mode.compose_assoc, Mode.compose_self] using Mode.compose_le_right Mode.many hmn) hnp
+    | credit hnp => exact .credit (Mode.le_trans hmn hnp)
   case prod a b c d m n hmn hac hbd =>
     cases hbc with
     | prod hnp hce hdf => exact .prod (Mode.le_trans hmn hnp) (hac.trans hce) (hbd.trans hdf)
@@ -114,7 +108,7 @@ Different product/sum modes are mediated by their composed mode. -/
 theorem GroundOrder.to_subtype {a b} (h : GroundOrder a b) : Subtype [] a.reify b.reify := by
   induction h
   case unit m n hmn => exact .congr .refl (.valid fun _ _ => ⟨m, n, rfl, rfl, hmn⟩)
-  case credit m n hmn => exact .credit (.valid fun _ _ => ⟨_, _, rfl, rfl, hmn⟩)
+  case credit m n hmn => exact .congr .refl (.valid fun _ _ => ⟨m, n, rfl, rfl, hmn⟩)
   case fn a b c d m n hca hbd hlocal honce iha ihb =>
     exact .fn iha ihb (.valid fun _ _ => ⟨m, n.compose Mode.top, rfl, rfl, by
       simpa [Mode.le_iff, Mode.compose, Mode.top] using And.intro hlocal honce⟩)
@@ -172,11 +166,6 @@ private theorem Subtype.optGroundOrder {ρ Δ a b} (h : Subtype Δ a b)
     cases ha : a.realize ρ <;> cases hb : b.realize ρ <;>
       simp_all [OptGroundOrder, TypeExpr.realize]
     exact ih.modal huv
-  case credit m n hmode =>
-    have hmn := hmode.denote hmodes
-    cases hm : m.eval (some ∘ ρ.modes) <;> cases hn : n.eval (some ∘ ρ.modes) <;>
-      simp [ModExpr.Below, ModExpr.eval, hm, hn] at hmn
-    simpa [TypeExpr.realize, hm, hn, GroundTy.modal, OptGroundOrder] using GroundOrder.credit hmn
   case bound a b hc => exact hbounds a b hc
   all_goals try simp only [TypeExpr.realize_identity, TypeExpr.realize_compose]
   all_goals solve_by_elim [OptGroundOrder.refl, OptGroundOrder.trans]
@@ -222,7 +211,7 @@ theorem GroundOrder.iff_subtype {a b : GroundTy} :
   · exact GroundOrder.unit
 
 @[simp] theorem GroundOrder.credit_iff {m n} :
-    GroundOrder (.credit m) (.credit n) ↔ (m.compose Mode.many).le n = true := by
+    GroundOrder (.credit m) (.credit n) ↔ m.le n = true := by
   constructor
   · intro h; cases h; assumption
   · exact GroundOrder.credit

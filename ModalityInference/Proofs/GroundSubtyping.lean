@@ -63,12 +63,6 @@ private theorem Subtype.optGround {ρ Δ a b} (h : Subtype Δ a b)
     cases ha : a.realize ρ <;> cases hb : b.realize ρ <;>
       simp_all [OptSubtype, TypeExpr.realize]
     exact ih.ground_modal huv
-  case credit m n hmode =>
-    have hmn := hmode.denote hΔ.modeModels
-    cases hm : m.eval (some ∘ ρ.modes) <;> cases hn : n.eval (some ∘ ρ.modes) <;>
-      simp [ModExpr.Below, ModExpr.eval, hm, hn] at hmn
-    simpa [TypeExpr.realize, hm, hn, GroundTy.modal, OptSubtype, GroundTy.reify] using
-      (Subtype.credit (.valid fun _ _ => ⟨_, _, rfl, rfl, hmn⟩))
   case bound a b hc =>
     obtain ⟨x, y, hx, hy, hs⟩ := hΔ (.sub a b) hc
     simpa only [hx, hy] using hs

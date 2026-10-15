@@ -163,7 +163,7 @@ def stepType (s : SolverState) (left right : Ty) : RunResult SolverState := do
     let (t, s) := s.skeleton a
     return s.emit .expand [.equal (.flex n) t, original]
   | .unit, .unit => return s.emit .unit [.mode l r]
-  | .credit, .credit => return s.emit .credit [.mode (.compose l (.const Mode.many)) r]
+  | .credit, .credit => return s.emit .credit [.mode l r]
   | .prod a₁ a₂, .prod b₁ b₂ =>
     return s.emit .prod [.sub (.modal a₁ l) (.modal b₁ r), .sub (.modal a₂ l) (.modal b₂ r), .mode l r]
   | .sum a₁ a₂, .sum b₁ b₂ =>
@@ -287,8 +287,7 @@ inductive ConstraintReduction : Bounds → Bounds → Prop where
       [.sub (.modal (.fn a b) l) (.modal (.fn c d) r)]
       [.sub c a, .sub b d, .mode l (.compose r .top)]
   | unit {l r} : ConstraintReduction [.sub (.modal .unit l) (.modal .unit r)] [.mode l r]
-  | credit {l r} : ConstraintReduction [.sub (.modal .credit l) (.modal .credit r)]
-      [.mode (.compose l (.const Mode.many)) r]
+  | credit {l r} : ConstraintReduction [.sub (.modal .credit l) (.modal .credit r)] [.mode l r]
   | join {a b c} : ConstraintReduction [.mode (.join a b) c] [.mode a c, .mode b c]
   | meet {a b c} : ConstraintReduction [.mode a (.meet b c)] [.mode a b, .mode a c]
   | sub {a b c} : ConstraintReduction [.mode (.leftResidual a b) c]

@@ -23,7 +23,6 @@ theorem JudgmentMap.submode {Δ Γ ts ms} (h : JudgmentMap Δ Γ ts ms)
 theorem JudgmentMap.subtype {Δ Γ ts ms} (h : JudgmentMap Δ Γ ts ms)
     {a b} (ht : Subtype Δ a b) : Subtype Γ (a.subst ts ms) (b.subst ts ms) := by
   induction ht <;> dsimp only [TypeExpr.subst, ModExpr.subst]
-  case credit m n hm => exact .credit (h.submode hm)
   all_goals first
     | exact .refl
     | exact .trans ‹_› ‹_›

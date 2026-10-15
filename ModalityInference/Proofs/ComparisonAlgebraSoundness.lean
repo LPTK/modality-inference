@@ -136,9 +136,6 @@ theorem ShapedSubtype.complete {Δ : Bounds} {ρ : GroundAssignment} {a b : Comp
         ((Mode.le_iff _ _).mp hh).1)
       (by simpa [ModExpr.complete, ModExpr.top, Mode.compose, Mode.top] using
         ((Mode.le_iff _ _).mp hh).2.1)
-  case credit m n hmn =>
-    simpa only [CompareTy.complete, ModExpr.complete, GroundTy.modal,
-      Mode.identity_compose] using GroundOrder.credit (hmn.complete hΔ)
   all_goals try simp only [CompareTy.complete, ModExpr.complete, ModExpr.epsilon,
     GroundTy.modal_identity, GroundTy.modal_compose]
   all_goals solve_by_elim [GroundOrder.refl, GroundOrder.trans]

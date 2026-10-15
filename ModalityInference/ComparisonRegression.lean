@@ -87,6 +87,14 @@ def unsupportedOpaqueState : ComparisonReduction.State :=
 
 def compare (source target : Scheme) := ComparisonChecker.run 20000 source target
 
+-- Credit signatures require the ordinary ordering of their complete modalities.
+#guard rejected (compare (.mono (.modal .credit .epsilon))
+  (.mono (.modal .credit (.const Mode.many))))
+#guard (compare (.mono (.modal .credit (.const Mode.many)))
+  (.mono (.modal .credit .epsilon))).isSuccess
+#guard (compare (.mono (.modal .credit .epsilon))
+  (.mono (.modal .credit (.const Mode.aliased)))).isSuccess
+
 -- Internal joins witness the rigid interval, without selecting one rigid head.
 #guard (compare interval { bounds := crossed, body := .unit }).isSuccess
 #guard rejected (compare interval { bounds := crossed.drop 1, body := .unit })

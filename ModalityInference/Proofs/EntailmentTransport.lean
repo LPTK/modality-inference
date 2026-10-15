@@ -25,7 +25,6 @@ theorem Subtype.of_entails {Δ Γ a b} (h : Subtype Δ a b) (hΔ : EntailsAll Γ
     | exact .prod ‹_› ‹_›
     | exact .sum ‹_› ‹_›
     | exact .fn ‹_› ‹_› (Submode.of_entails ‹_› hΔ)
-    | exact .credit (Submode.of_entails ‹_› hΔ)
 
 theorem TypeExpr.DefinedUnder.of_entails {Δ Γ} {a : Ty} (h : a.DefinedUnder Δ)
     (hΔ : EntailsAll Γ Δ) : a.DefinedUnder Γ := fun _ hη => h _ (hΔ.modeModels hη)
@@ -170,7 +169,6 @@ theorem Subtype.assumptions_right {Δ cs a b} (h : Subtype (Δ ++ cs) a b) :
     | exact .prod ‹_› ‹_›
     | exact .sum ‹_› ‹_›
     | exact .fn ‹_› ‹_› (.valid fun η hη => Submode.denote ‹_› hη.of_assumptions_right)
-    | exact .credit (.valid fun η hη => Submode.denote ‹_› hη.of_assumptions_right)
 
 theorem Entails.assumptions_right {Δ cs c} (h : Entails (Δ ++ cs) c) :
     Entails (Δ ++ cs.assumptions) c := by

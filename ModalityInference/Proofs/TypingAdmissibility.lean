@@ -27,10 +27,6 @@ theorem Subtype.definedUnder_iff {Δ a b} (h : Subtype Δ a b)
     have hn := (Entails.defined_compose_iff.mp hm.defined.2).1
     simpa only [TypeExpr.definedUnder_modal, TypeExpr.definedUnder_fn] using
       and_congr (and_congr ihca.symm ihbd) (iff_of_true hm.defined.1 hn)
-  case credit m n hm =>
-    have hmn := (Entails.defined_compose_iff.mp hm.defined.1).1
-    simpa only [TypeExpr.definedUnder_modal] using
-      and_congr (Iff.rfl (a := TypeExpr.credit.DefinedUnder Δ)) (iff_of_true hmn hm.defined.2)
   case prod | sum =>
     simp_all only [TypeExpr.definedUnder_modal, TypeExpr.definedUnder_prod, TypeExpr.definedUnder_sum]
     tauto

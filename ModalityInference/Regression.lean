@@ -213,6 +213,14 @@ def singleModeModelsAgree (cs : Bounds) : Bool :=
 #guard exhausted (solve 0 [])
 #guard (solve 100 []).isSuccess
 
+-- Credit coercions preserve the full modality ordering, including multiplicity.
+#guard rejected (solve 500 [.sub (.modal .credit .epsilon)
+  (.modal .credit (.const Mode.many))])
+#guard (solve 500 [.sub (.modal .credit (.const Mode.many))
+  (.modal .credit .epsilon)]).isSuccess
+#guard (solve 500 [.sub (.modal .credit .epsilon)
+  (.modal .credit (.const Mode.aliased))]).isSuccess
+
 -- Schemes: body-only quantifiers, signature assumptions, functions' irrelevant past.
 def polyId : Scheme := .generalize [] (.fn (.var (.flex 0)) (.var (.flex 0)))
 def bounded : Scheme := {
@@ -228,7 +236,8 @@ def localSignature : Scheme := {
   modParams := [0]
   bounds := [.mode (.const Mode.localLower) x]
   body := .modal .credit x}
-#guard (checkSubsumption 20000 (.mono (.modal .credit .epsilon)) localSignature).isSuccess
+#guard rejected (checkSubsumption 20000 (.mono (.modal .credit .epsilon)) localSignature)
+#guard (checkSubsumption 20000 (.mono (.modal .credit (.const Mode.many))) localSignature).isSuccess
 #guard rejected (checkSubsumption 20000 (.mono (.modal .credit .epsilon))
   {localSignature with bounds := []})
 #guard (checkSubsumption 20000 (.mono (.modal (.fn .unit .unit) (.const Mode.aliased)))

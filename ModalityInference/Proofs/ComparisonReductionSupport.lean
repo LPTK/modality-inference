@@ -180,7 +180,7 @@ theorem step_modeSupport {Q : ModVar → Prop} {s next : State}
                 exact ⟨fun v hv => (Finset.mem_union.mp hv).elim (hlm v) (hrm v), hs.2.2.1⟩
               · apply modeSupport_iff.mpr
                 refine ⟨hs.1.2, hs.2.1, ?_, hs.2.2.2⟩
-                simp only [List.forall_mem_cons, Constraint.modVars, ModExpr.vars, Finset.union_empty]
+                simp only [List.forall_mem_cons, Constraint.modVars]
                 exact ⟨fun v hv => (Finset.mem_union.mp hv).elim (hlm v) (hrm v), hs.2.2.1⟩
               · apply modeSupport_iff.mpr
                 refine ⟨?_, hs.2.1, ?_, hs.2.2.2⟩

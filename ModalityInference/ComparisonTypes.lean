@@ -125,8 +125,6 @@ inductive CompareSubtype (Δ : Bounds) : CompareTy → CompareTy → Prop where
   | fn {a b c d m n} : CompareSubtype Δ c a → CompareSubtype Δ b d →
       Submode Δ m (.compose n .top) →
       CompareSubtype Δ (.modal (.fn a b) m) (.modal (.fn c d) n)
-  | credit {m n} : Submode Δ (.compose m (.const Mode.many)) n →
-      CompareSubtype Δ (.modal .credit m) (.modal .credit n)
   | joinLeft {a b} : CompareSubtype Δ a (.join a b)
   | joinRight {a b} : CompareSubtype Δ b (.join a b)
   | joinLeast {a b c} : CompareSubtype Δ a c → CompareSubtype Δ b c →

@@ -33,7 +33,7 @@ theorem ConstraintReduction.groundModels {cs ds ρ} (h : ConstraintReduction cs 
         ← GroundOrder.iff_subtype, and_left_comm, and_comm]
   case unit l r | credit l r =>
     cases hl : l.eval (some ∘ ρ.modes) <;> cases hr : r.eval (some ∘ ρ.modes) <;>
-      simp [GroundModels, GroundSatisfies, TypeExpr.realize, ModExpr.Below, ModExpr.eval,
+      simp [GroundModels, GroundSatisfies, TypeExpr.realize, ModExpr.Below,
         hl, hr, GroundTy.modal, ← GroundOrder.iff_subtype]
   case sub a b c =>
     cases ha : a.eval (some ∘ ρ.modes) <;> cases hb : b.eval (some ∘ ρ.modes) <;>

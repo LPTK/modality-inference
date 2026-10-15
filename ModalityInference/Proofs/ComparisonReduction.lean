@@ -136,10 +136,10 @@ theorem step_sound {Δ : Bounds} {σ : CompareSubstitution} {s next : State}
                 exact outer_reconstruct hσ ‹left.outer.1 = .unit› ‹right.outer.1 = .unit›
                   hm.defined.1 hm.defined.2 (.congr (.refl trivial) hm)
               · refine ⟨⟨?_, hnext.1⟩, hnext.2.1, hnext.2.2.1.2, hnext.2.2.2⟩
-                have hm : Submode Δ (.compose (left.outer.2.subst σ.mode) (.const Mode.many))
-                    (right.outer.2.subst σ.mode) := hnext.2.2.1.1
+                have hm : Submode Δ (left.outer.2.subst σ.mode) (right.outer.2.subst σ.mode) :=
+                  hnext.2.2.1.1
                 exact outer_reconstruct hσ ‹left.outer.1 = .credit› ‹right.outer.1 = .credit›
-                  (Entails.defined_compose_iff.mp hm.defined.1).1 hm.defined.2 (.shaped (.credit hm))
+                  hm.defined.1 hm.defined.2 (.congr (.refl trivial) hm)
               · refine ⟨⟨?_, hnext.1.2.2⟩, hnext.2.1, hnext.2.2.1.2, hnext.2.2.2⟩
                 have hm : Submode Δ (left.outer.2.subst σ.mode) (right.outer.2.subst σ.mode) :=
                   hnext.2.2.1.1

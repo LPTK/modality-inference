@@ -70,8 +70,7 @@ def step (s : State) : RunResult State :=
         { s with inequalities := (left, right) :: s.inequalities
                  modes := .defined l :: .defined r :: s.modes }
     | .unit, .unit => .success { s with modes := .mode l r :: s.modes }
-    | .credit, .credit => .success
-        { s with modes := .mode (.compose l (.const Mode.many)) r :: s.modes }
+    | .credit, .credit => .success { s with modes := .mode l r :: s.modes }
     | .prod a b, .prod c d | .sum a b, .sum c d => .success
         { s with
           pending := (.modal a l, .modal c r) :: (.modal b l, .modal d r) :: rest

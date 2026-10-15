@@ -45,9 +45,6 @@ theorem Subtype.variablePredicate {Δ a b} (h : Subtype Δ a b)
     obtain ⟨r, hr⟩ := Option.isSome_iff_exists.mp
       ((Entails.defined_compose_iff.mp hm.defined.2).1 η hη)
     exact fun _ _ => ⟨r, hr, trivial⟩
-  case credit m n hm =>
-    exact fun _ _ => let ⟨r, hr⟩ := Option.isSome_iff_exists.mp (hm.defined.2 η hη)
-      ⟨r, hr, trivial⟩
   case prod | sum => exact fun _ ⟨r, hr, _⟩ => ⟨r, hr, trivial⟩
   case refl => exact fun _ => id
   case trans _ _ ihab ihbc => exact fun k ha => ihbc k (ihab k ha)

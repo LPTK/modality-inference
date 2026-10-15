@@ -28,7 +28,6 @@ theorem ShapedSubtype.to_compare {Δ a b} (h : ShapedSubtype Δ a b) :
     | exact .prod ‹_› ‹_›
     | exact .sum ‹_› ‹_›
     | exact .fn ‹_› ‹_› ‹_›
-    | exact .credit ‹_›
     | exact .joinLeft
     | exact .joinRight
     | exact .joinLeast ‹_› ‹_›
@@ -69,7 +68,6 @@ theorem Subtype.to_shaped {Δ a b} (h : Subtype Δ a b) :
     | exact .prod ‹_› ‹_›
     | exact .sum ‹_› ‹_›
     | exact .fn ‹_› ‹_› ‹_›
-    | exact .credit ‹_›
 
 theorem Entails.to_shaped {Δ c} (h : Entails Δ c) :
     ShapedEntails Δ (CompareConstraint.ofConstraint c) := by

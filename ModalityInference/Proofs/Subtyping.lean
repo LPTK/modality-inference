@@ -246,11 +246,6 @@ private theorem Subtype.optLe_of_bounds {ρ Δ a b} (h : Subtype Δ a b)
     cases ha : a.realize ρ <;> cases hb : b.realize ρ <;>
       simp_all [OptLe, TypeExpr.realize]
     exact SemLe.modal ih huv
-  case credit m n hmode =>
-    have hmn := hmode.denote hmodes
-    cases hm : m.eval (some ∘ ρ.modes) <;> cases hn : n.eval (some ∘ ρ.modes) <;>
-      simp [ModExpr.Below, ModExpr.eval, hm, hn, Mode.le_iff, Mode.compose, Mode.many] at hmn
-    simpa [TypeExpr.realize, hm, hn, GroundTy.modal, OptLe] using SemLe.credit hmn.1 hmn.2
   case refl a => exact OptLe.refl ρ (a.realize ρ)
   case trans _ _ iha ihb => exact OptLe.trans iha ihb
   case bound a b h => exact hbounds a b h

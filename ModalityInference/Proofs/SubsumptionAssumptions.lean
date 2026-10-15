@@ -19,7 +19,6 @@ theorem Subtype.of_trivial_bounds {Δ a b} (h : Subtype Δ a b)
     | exact .prod ‹_› ‹_›
     | exact .sum ‹_› ‹_›
     | exact .fn ‹_› ‹_› (.valid fun η _ => Submode.denote ‹_› (hm η))
-    | exact .credit (.valid fun η _ => Submode.denote ‹_› (hm η))
 
 namespace SubsumptionAssumptions
 

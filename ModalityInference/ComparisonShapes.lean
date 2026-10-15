@@ -103,8 +103,6 @@ inductive ShapedSubtype (Δ : Bounds) : CompareTy → CompareTy → Prop where
   | fn {a b c d m n} : ShapedSubtype Δ c a → ShapedSubtype Δ b d →
       Submode Δ m (.compose n .top) →
       ShapedSubtype Δ (.modal (.fn a b) m) (.modal (.fn c d) n)
-  | credit {m n} : Submode Δ (.compose m (.const Mode.many)) n →
-      ShapedSubtype Δ (.modal .credit m) (.modal .credit n)
   | joinLeft {a b} : (CompareTy.join a b).WellShaped Δ → ShapedSubtype Δ a (.join a b)
   | joinRight {a b} : (CompareTy.join a b).WellShaped Δ → ShapedSubtype Δ b (.join a b)
   | joinLeast {a b c} : ShapedSubtype Δ a c → ShapedSubtype Δ b c →

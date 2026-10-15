@@ -19,7 +19,7 @@ theorem GroundOrder.modal_guard_downward {a b : GroundTy} {m : Mode}
     cases hbb with
     | credit hq =>
       apply GroundOrder.credit
-      simp only [Mode.le_iff, Mode.compose, Mode.many] at hpq hq ⊢
+      simp only [Mode.le_iff, Mode.compose] at hpq hq ⊢
       grind
   case prod a b c d p q hpq hac hbd iha ihb =>
     cases hbb with

@@ -23,7 +23,6 @@ theorem Subtype.to_compare {Δ a b} (h : Subtype Δ a b) :
     | exact .prod ‹_› ‹_›
     | exact .sum ‹_› ‹_›
     | exact .fn ‹_› ‹_› ‹_›
-    | exact .credit ‹_›
 
 @[simp] theorem CompareTy.definedUnder_ofTy (a : Ty) (Δ : Bounds) :
     (ofTy a).DefinedUnder Δ ↔ a.DefinedUnder Δ := by

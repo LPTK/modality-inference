@@ -94,10 +94,7 @@ theorem ConstraintReduction.entails_backward {cs ds Δ} (h : ConstraintReduction
   case unit l r | credit l r =>
     simp [EntailsAll, Entails, TypeExpr.DefinedUnder,
       TypeExpr.wellFormedBounds, ModeModels, ModeSatisfies] at hs ⊢
-    first
-    | exact ⟨.congr .refl hs, hs.defined⟩
-    | exact ⟨.credit hs, fun η hη => Option.isSome_of_isSome_bind (hs.defined.1 η hη),
-        hs.defined.2⟩
+    exact ⟨.congr .refl hs, hs.defined⟩
   case context xs ys before after h ih =>
     simp only [EntailsAll, List.mem_append, or_imp, forall_and] at hs ⊢
     exact ⟨⟨hs.1.1, ih hs.1.2 (fun _ => h.modeModels_backward)⟩, hs.2⟩
