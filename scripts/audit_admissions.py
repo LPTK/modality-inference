@@ -74,6 +74,13 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonModePrepassRegression.ordinary_witness',
+    'ModalityInference.ComparisonModePrepassRegression.algebra_witness',
+    'ModalityInference.ComparisonPartialStructuredCapsule.peel_partial_action_equivalent',
+    'ModalityInference.ComparisonCapsuleContext.requests_action_total_unfrozen',
+    'ModalityInference.ComparisonCapsuleContext.family_replacement_semantic',
+    'ModalityInference.ComparisonCapsuleContext.semantic_family_normal_form',
+    'ModalityInference.ComparisonCapsuleContext.semantic_parameterized_subsumes',
     'ModalityInference.ComparisonModePrepass.projectQuery_correct',
     'ModalityInference.ComparisonModePrepass.boundsQuery_correct',
     'ModalityInference.ComparisonModePrepass.attempt_scoped',
@@ -3109,6 +3116,9 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonModePrepass\n'
                     'import ModalityInference.Proofs.ComparisonFrozenPeeling\n'
                     'import ModalityInference.Proofs.ComparisonCapsuleFrozenBody\n'
+                    'import ModalityInference.Proofs.ComparisonModePrepassWitness\n'
+                    'import ModalityInference.Proofs.ComparisonFrozenActionReification\n'
+                    'import ModalityInference.Proofs.ComparisonCapsuleSemanticParameterization\n'
                     'import ModalityInference.Proofs.ComparisonCarrierBodyPlan\n'
                     'import ModalityInference.Proofs.ComparisonCarrierBodyReduction\n'
                     'import ModalityInference.Proofs.ComparisonPreparedCarrierPlan\n'

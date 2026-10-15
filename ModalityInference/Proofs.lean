@@ -288,5 +288,8 @@ import ModalityInference.Proofs.ComparisonGuardedTotalCompleteness
 import ModalityInference.Proofs.ComparisonModePrepass
 import ModalityInference.Proofs.ComparisonFrozenPeeling
 import ModalityInference.Proofs.ComparisonCapsuleFrozenBody
+import ModalityInference.Proofs.ComparisonModePrepassWitness
+import ModalityInference.Proofs.ComparisonFrozenActionReification
+import ModalityInference.Proofs.ComparisonCapsuleSemanticParameterization
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
