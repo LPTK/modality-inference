@@ -74,6 +74,33 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonChecker.prepared_batch_complete',
+    'ModalityInference.ComparisonChecker.algebra_joint_batch_complete',
+    'ModalityInference.ComparisonJointBatchReification.local_correct',
+    'ModalityInference.ComparisonJointBatchReification.local_group_sound',
+    'ModalityInference.ComparisonJointBatchReification.leaf_complete',
+    'ModalityInference.ComparisonJointBatchReification.assemble_some',
+    'ModalityInference.ComparisonJointBatchReification.groupImages_domain',
+    'ModalityInference.ComparisonJointBatchReification.groupImages_origin',
+    'ModalityInference.ComparisonJointBatchReification.groupImages_covers',
+    'ModalityInference.ComparisonJointBatchReification.typeImages_domain',
+    'ModalityInference.ComparisonJointBatchReification.typeImages_origin',
+    'ModalityInference.ComparisonJointBatchReification.typeImages_covers',
+    'ModalityInference.ComparisonJointBatchReification.assemble_spec',
+    'ModalityInference.ComparisonJointBatchReification.assemble_domains',
+    'ModalityInference.ComparisonJointElimination.run_trace',
+    'ModalityInference.ComparisonJointElimination.Trace.scalar_guards',
+    'ModalityInference.ComparisonJointElimination.Trace.scalar_entails',
+    'ModalityInference.ComparisonJointChecker.knownTotal_scalar_subst',
+    'ModalityInference.ComparisonJointChecker.restore_sound',
+    'ModalityInference.ComparisonJointChecker.run_complete',
+    'ModalityInference.ComparisonJointElimination.run_terminates',
+    'ModalityInference.ComparisonJointElimination.run_stable',
+    'ModalityInference.ComparisonJointChecker.propagate_terminates',
+    'ModalityInference.ComparisonJointChecker.propagate_stable',
+    'ModalityInference.ComparisonJointChecker.run_terminates',
+    'ModalityInference.ComparisonJointChecker.run_stable',
+    'ModalityInference.ComparisonJointChecker.run_monotone',
     'ModalityInference.ComparisonFixedModeWitness.prepared_template_fixed_scoped',
     'ModalityInference.ComparisonChecker.prepared_fixed_group_witness',
     'ModalityInference.ComparisonChecker.algebra_ordinary_group_witness',
@@ -3387,6 +3414,12 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonJointBatchCompleteness\n'
                     'import ModalityInference.Proofs.ComparisonTupleReflection\n'
                     'import ModalityInference.Proofs.ComparisonJointGroupReflection\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedBatchWitness\n'
+                    'import ModalityInference.Proofs.ComparisonJointBatchReification\n'
+                    'import ModalityInference.Proofs.ComparisonJointElimination\n'
+                    'import ModalityInference.Proofs.ComparisonJointRestoration\n'
+                    'import ModalityInference.Proofs.ComparisonJointCheckerCompleteness\n'
+                    'import ModalityInference.Proofs.ComparisonJointCheckerTermination\n'
                     'import ModalityInference.Proofs.Evaluation\n'
                     'import ModalityInference.Proofs.Interpretation\n'
                     'import ModalityInference.Proofs.Erasure\n'

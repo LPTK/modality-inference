@@ -376,5 +376,11 @@ import ModalityInference.Proofs.ComparisonJointBatch
 import ModalityInference.Proofs.ComparisonJointBatchCompleteness
 import ModalityInference.Proofs.ComparisonTupleReflection
 import ModalityInference.Proofs.ComparisonJointGroupReflection
+import ModalityInference.Proofs.ComparisonDefinedBatchWitness
+import ModalityInference.Proofs.ComparisonJointBatchReification
+import ModalityInference.Proofs.ComparisonJointElimination
+import ModalityInference.Proofs.ComparisonJointRestoration
+import ModalityInference.Proofs.ComparisonJointCheckerCompleteness
+import ModalityInference.Proofs.ComparisonJointCheckerTermination
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
