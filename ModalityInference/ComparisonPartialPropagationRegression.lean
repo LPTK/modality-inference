@@ -28,6 +28,15 @@ def freeSource : Scheme :=
 def freeTarget : Scheme := .mono (.prod (.modal a bad) (.var (.rigid 2)))
 def changedFreeTarget : Scheme := .mono (.prod (.modal a bad) (.var (.rigid 3)))
 
+def lowerSource : Scheme := { typeParams := [0], body := .fn x .unit }
+def lowerTarget : Scheme := .mono (.fn (.modal a bad) .unit)
+def independentSource : Scheme :=
+  { typeParams := [0, 1], body := .prod x (.fn (.var (.flex 1)) .unit) }
+def independentTarget : Scheme :=
+  .mono (.prod (.modal a bad) (.fn (.modal b bad) .unit))
+def mixedSource : Scheme := { typeParams := [0], body := .prod x (.fn x .unit) }
+def mixedTarget : Scheme := .mono (.prod (.modal a bad) (.fn (.modal a bad) .unit))
+
 def accepted (source target : Scheme) : Bool :=
   match ComparisonPartialPropagation.attempt 20000 (SchemePreparation.prepare [] source target) with
   | .success (some _) => true
@@ -47,7 +56,8 @@ set_option maxRecDepth 100000 in
 set_option maxHeartbeats 16000000 in
 #guard [(compensatedSource, compensatedTarget), (declaredSource, declaredTarget),
     (compensatedSource, symbolicCompensatedTarget),
-    (freeSource, freeTarget), ({ typeParams := [0], body := x }, Scheme.mono .unit)].all
+    (freeSource, freeTarget), ({ typeParams := [0], body := x }, Scheme.mono .unit),
+    (lowerSource, lowerTarget), (independentSource, independentTarget)].all
   (fun (source, target) => accepted source target)
 
 set_option maxRecDepth 100000 in
@@ -61,7 +71,6 @@ set_option maxHeartbeats 16000000 in
 #guard unsupported { modParams := [0], body := .unit } (Scheme.mono .unit)
 #guard unsupported { typeParams := [0], bounds := [.defined .epsilon], body := x }
   (Scheme.mono (.modal a bad))
-#guard unsupported { typeParams := [0], body := .fn x .unit }
-  (Scheme.mono (.fn (.modal a bad) .unit))
+#guard unsupported mixedSource mixedTarget
 
 end ModalityInference.ComparisonPartialPropagationRegression

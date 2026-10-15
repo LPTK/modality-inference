@@ -272,5 +272,9 @@ def global (t : Ty) : Ty := .modal t (.const Mode.global)
   ComparisonPartialPropagationRegression.symbolicCompensatedTarget).isSuccess
 #guard (compare ComparisonPartialPropagationRegression.declaredSource
   ComparisonPartialPropagationRegression.declaredTarget).isSuccess
+#guard (compare ComparisonPartialPropagationRegression.lowerSource
+  ComparisonPartialPropagationRegression.lowerTarget).isSuccess
+#guard (compare ComparisonPartialPropagationRegression.independentSource
+  ComparisonPartialPropagationRegression.independentTarget).isSuccess
 
 end ModalityInference.ComparisonRegression

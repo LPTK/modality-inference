@@ -53,6 +53,8 @@ theorem Certificate.check_sound {Δ : Bounds} {shape : CompareTy → Bool}
     cases reverse
     · exact .compose (hshape a h)
     · exact .composeRev (hshape a h)
+  | joinLeft a b => exact .shaped (.joinLeft (hshape (.join a b) h))
+  | joinRight a b => exact .shaped (.joinRight (hshape (.join a b) h))
   | meetLeft a b => exact .shaped (.meetLeft (hshape (.meet a b) h))
   | meetRight a b => exact .shaped (.meetRight (hshape (.meet a b) h))
   | prod a b c d m n ac bd ihac ihbd =>
@@ -77,8 +79,9 @@ theorem Certificate.check_sound {Δ : Bounds} {shape : CompareTy → Bool}
 structure AttemptSpec (fuel : Nat) (p : SchemePreparation.Prepared) (r : Result) : Prop where
   sourceBounds : p.sourceBounds = []
   modeRange : p.firstMode = p.nextMode
-  positive : ComparisonPartialPropagation.positive
-    (fun n => p.firstType ≤ n && n < p.nextType) true p.sourceType = true
+  polarized : ∀ n ∈ List.range' p.firstType (p.nextType - p.firstType),
+    positive (fun k => k == n) true p.sourceType = true ∨
+      positive (fun k => k == n) false p.sourceType = true
   shapes : ComparisonShapeSolver.prepare fuel p = .success (.solved r.shapes)
   action_eq : r.action = ComparisonPartialPropagation.action p r.shapes
   imageShapes : ∀ entry ∈ r.action.types, wellShaped r.shapes.fixedShapes entry.2 = true
@@ -144,7 +147,13 @@ theorem attempt_spec {fuel : Nat} {p : SchemePreparation.Prepared} {r : Result}
                         exact
                           { sourceBounds := hgate.1
                             modeRange := hgate.2
-                            positive := hpositive
+                            polarized := by
+                              intro n hn
+                              have hrange : p.firstType ≤ n ∧ n < p.firstType + (p.nextType - p.firstType) := by
+                                simpa using hn
+                              cases hp : positive (fun k => k == n) true p.sourceType
+                              · exact .inr (hpositive n hrange.1 hrange.2 hp)
+                              · exact .inl rfl
                             shapes := hs
                             action_eq := rfl
                             imageShapes := fun entry hm => himages entry.1 entry.2 hm

@@ -2,8 +2,8 @@ import ModalityInference.ComparisonShapeSolver
 import ModalityInference.ComparisonInterpolation
 import ModalityInference.ModeBackend
 
-/-! Finite propagation for upper envelopes of partial body parameters. The
-envelope retains its meet below the outer action. Every accepted comparison
+/-! Finite propagation for partial body parameters with a fixed variance. Each
+envelope retains its lattice operation below the outer action. Every accepted comparison
 carries a checked structural derivation; no distributive law for partial types
 is used. -/
 namespace ModalityInference.ComparisonPartialPropagation
@@ -22,6 +22,8 @@ inductive Certificate where
   | congr (ab : Certificate) (m n : ModExpr)
   | identity (a : CompareTy) (reverse : Bool)
   | compose (a : CompareTy) (m n : ModExpr) (reverse : Bool)
+  | joinLeft (a b : CompareTy)
+  | joinRight (a b : CompareTy)
   | meetLeft (a b : CompareTy)
   | meetRight (a b : CompareTy)
   | prod (a b c d : CompareTy) (m n : ModExpr) (ac bd : Certificate)
@@ -37,6 +39,8 @@ def Certificate.left : Certificate → CompareTy
   | .identity a reverse => if reverse then a else .modal a .epsilon
   | .compose a m n reverse =>
       if reverse then .modal a (.compose m n) else .modal (.modal a m) n
+  | .joinLeft a _ => a
+  | .joinRight _ b => b
   | .meetLeft a b | .meetRight a b => .meet a b
   | .prod a b _ _ m _ _ _ => .modal (.prod a b) m
   | .sum a b _ _ m _ _ _ => .modal (.sum a b) m
@@ -50,6 +54,7 @@ def Certificate.right : Certificate → CompareTy
   | .identity a reverse => if reverse then .modal a .epsilon else a
   | .compose a m n reverse =>
       if reverse then .modal (.modal a m) n else .modal a (.compose m n)
+  | .joinLeft a b | .joinRight a b => .join a b
   | .meetLeft a _ => a
   | .meetRight _ b => b
   | .prod _ _ c d _ n _ _ => .modal (.prod c d) n
@@ -64,6 +69,7 @@ def Certificate.check (shape : CompareTy → Bool) (mode : ModExpr → ModExpr �
       (ab.right == bc.left)
   | .congr ab m n => ab.check shape mode assumptions && mode m n
   | .identity a _ | .compose a _ _ _ => shape a
+  | .joinLeft a b | .joinRight a b => shape (.join a b)
   | .meetLeft a b | .meetRight a b => shape (.meet a b)
   | .prod a b c d m n ac bd | .sum a b c d m n ac bd =>
       ac.check shape mode assumptions && bd.check shape mode assumptions && mode m n &&
@@ -93,8 +99,12 @@ def envelope : List Ty → CompareTy
   | [] => .unit
   | a :: rest => .modal (ComparisonInterpolation.meet (.ofTy a) (rest.map .ofTy)) .bottom
 
-/-- The fresh source variables are covariant, including under modalities.
-Contravariant occurrences remain the responsibility of the general pipeline. -/
+def ceiling : List Ty → CompareTy
+  | [] => .unit
+  | a :: rest => .modal (ComparisonInterpolation.join (.ofTy a) (rest.map .ofTy)) .top
+
+/-- Check that every selected variable occurrence has the given variance.
+An absent variable satisfies either polarity. -/
 def positive (allowed : Nat → Bool) (polarity : Bool) : Ty → Bool
   | .var (.flex n) => !allowed n || polarity
   | .var (.rigid _) | .unit | .credit => true
@@ -105,8 +115,9 @@ def positive (allowed : Nat → Bool) (polarity : Bool) : Ty → Bool
 def action (p : SchemePreparation.Prepared) (shapes : ComparisonShapeSolver.Solved) :
     CompareSubstitution :=
   { types := (List.range' p.firstType (p.nextType - p.firstType)).map fun n =>
-      (n, envelope ((anchors p).filter fun a =>
-        (ComparisonShape.ofTy a).subst shapes.fixedShapes == shapes.resolveAll (.flex n))) }
+      (n, (if positive (fun k => k == n) true p.sourceType then envelope else ceiling)
+        ((anchors p).filter fun a =>
+          (ComparisonShape.ofTy a).subst shapes.fixedShapes == shapes.resolveAll (.flex n))) }
 
 /-- Expose a finite set of structural premises under the written action path.
 No equation is asserted by this operation: every edge is separately certified. -/
@@ -164,6 +175,7 @@ def Graph.count (g : Graph) : Nat := g.edges.foldl (fun n c => if c.isSome then 
 
 def axioms (a : CompareTy) : List Certificate :=
   [.refl a, .identity a false, .identity a true] ++ match a with
+  | .join b c => [.joinLeft b c, .joinRight b c]
   | .meet b c => [.meetLeft b c, .meetRight b c]
   | .modal (.modal b m) n => [.compose b m n false, .compose b m n true]
   | .modal b (.compose m n) => [.compose b m n false, .compose b m n true]
@@ -237,12 +249,14 @@ structure Result where
   backend : ConcreteBackend.Report
   deriving Repr
 
-/-- The current envelope path applies to covariant body parameters with no
-written source bounds or quantified source modes. Unsupported inputs remain
-available to the other comparison phases. -/
+/-- Each body parameter has one variance and receives its corresponding floor
+or ceiling. Inputs with written source bounds, quantified source modes, or a
+parameter of mixed variance remain available to the other comparison phases. -/
 def attempt (fuel : Nat) (p : SchemePreparation.Prepared) : RunResult (Option Result) := do
   if !p.sourceBounds.isEmpty || p.firstMode != p.nextMode then return none
-  if !positive (fun n => p.firstType ≤ n && n < p.nextType) true p.sourceType then return none
+  if !(List.range' p.firstType (p.nextType - p.firstType)).all (fun n =>
+      positive (fun k => k == n) true p.sourceType ||
+      positive (fun k => k == n) false p.sourceType) then return none
   let solved ← ComparisonShapeSolver.prepare fuel p
   let .solved shapes := solved | return none
   let σ := action p shapes

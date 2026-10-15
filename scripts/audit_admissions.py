@@ -74,6 +74,23 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonPartialPropagation.occupancy_le',
+    'ModalityInference.ComparisonPartialPropagation.fold_count',
+    'ModalityInference.ComparisonPartialPropagation.count_eq',
+    'ModalityInference.ComparisonPartialPropagation.occupancy_set',
+    'ModalityInference.ComparisonPartialPropagation.Progress.refl',
+    'ModalityInference.ComparisonPartialPropagation.Progress.trans',
+    'ModalityInference.ComparisonPartialPropagation.progress_set',
+    'ModalityInference.ComparisonPartialPropagation.add_progress',
+    'ModalityInference.ComparisonPartialPropagation.fold_progress',
+    'ModalityInference.ComparisonPartialPropagation.forIn_progress',
+    'ModalityInference.ComparisonPartialPropagation.closeTransitive_progress',
+    'ModalityInference.ComparisonPartialPropagation.step_progress',
+    'ModalityInference.ComparisonPartialPropagation.count_le',
+    'ModalityInference.ComparisonPartialPropagation.saturate_finite',
+    'ModalityInference.ComparisonPartialPropagation.saturate_finite_bound',
+    'ModalityInference.ComparisonPartialPropagation.initialGraph_size',
+    'ModalityInference.ComparisonPartialPropagation.saturate_initial_finite',
     'ModalityInference.ComparisonPartialPropagation.wellShaped_sound',
     'ModalityInference.ComparisonPartialPropagation.wellShaped_prepared',
     'ModalityInference.ComparisonPartialPropagation.Certificate.check_sound',
