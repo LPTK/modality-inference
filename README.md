@@ -98,7 +98,9 @@ shared-prefix mode requests preserve partial syntax without adding a body guard.
 Exact partial-context matching is a positive prepass; its substitution is applied
 to the complete source bounds as well as the body. Shared partial type intervals
 also introduce one total inner suffix and solve it jointly with source modalities,
-the complete original bounds, and the substituted body. General coupled partial contexts remain a
+the complete original bounds, and the substituted body. Structural parameterization
+exposes fresh opaque leaves and root modalities to this joint comparison, allowing
+partial leaf images while retaining all source guards. General coupled partial contexts remain a
 completeness obligation.
 
 `CompareTy` is a separate finite witness language with binary joins and meets.
@@ -256,7 +258,9 @@ Defined internal witnesses have a proved structural retraction preserving full
 algebraic comparisons and total modality actions, with public-type fixation.
 Arbitrary witness shapes factor through the actual shape solver; the allocated
 template forest admits one simultaneous realization. Structural rebasing preserves
-shared guarded source bounds and defined body comparisons. Remaining comparison
+shared guarded source bounds and defined body comparisons. Every algebraic witness
+under residual assumptions also gives eventual successful shape preparation.
+Remaining comparison
 work includes assembling these results with finite-basis elimination, arbitrary
 coupled partial type/modality contexts, and complete witness reconstruction in
 the finite input grammar.

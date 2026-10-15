@@ -484,6 +484,30 @@ theorem capsuleCore_settles (source target : Scheme) :
   · exact Settles.rejected _
   · exact Settles.bind (core_settles _ _) (fun _ => Settles.pure _)
 
+theorem templateCore_settles (source target : Scheme) :
+    Settles (fun fuel => templateCore fuel source target) := by
+  simp only [templateCore, bind, pure, RunResult.bind]
+  apply Settles.bind ⟨shapePrepare_stable _, ComparisonShapeSolver.prepare_eventually _⟩
+  intro shapeResult
+  cases shapeResult with
+  | infeasibleAssumptions => exact Settles.rejected _
+  | solved shapes =>
+    let p := SchemePreparation.prepare [] source target
+    let templates := ComparisonSkeleton.prepare p shapes
+    let derived := ComparisonParameterization.templateSource p templates
+    let declared := ComparisonParameterization.target p target
+    have hinner := Settles.recover (core_settles derived declared)
+      (fun _ => capsuleCore_settles derived declared)
+    refine Settles.congr (Settles.bind
+      (g := fun _ result => .success (parameterizedEvidence p templates.substitution result))
+      hinner (fun _ => Settles.pure _)) ?_
+    intro fuel
+    dsimp only [p, templates, derived, declared]
+    cases core fuel (ComparisonParameterization.templateSource
+      (SchemePreparation.prepare [] source target)
+      (ComparisonSkeleton.prepare (SchemePreparation.prepare [] source target) shapes))
+      (ComparisonParameterization.target (SchemePreparation.prepare [] source target) target) <;> rfl
+
 theorem run_settles (source target : Scheme) :
     Settles (fun fuel => run fuel source target) := by
   refine Settles.congr (Settles.recover (g := fun fuel reason => do
@@ -491,7 +515,9 @@ theorem run_settles (source target : Scheme) :
     match ← ComparisonPartialPropagation.attempt fuel p with
     | some result => return partialEvidence p result
     | none => match capsuleCore fuel source target with
-      | .rejected _ => .rejected reason
+      | .rejected _ => match templateCore fuel source target with
+        | .rejected _ => .rejected reason
+        | result => result
       | result => result) (core_settles source target) ?_) ?_
   · intro reason
     apply Settles.bind
@@ -502,10 +528,18 @@ theorem run_settles (source target : Scheme) :
     | some result => exact Settles.pure _
     | none =>
       dsimp only
-      refine Settles.congr (Settles.recover (g := fun _ _ => .rejected reason)
-        (capsuleCore_settles source target) (fun _ => Settles.rejected reason)) ?_
-      intro fuel
-      cases capsuleCore fuel source target <;> rfl
+      refine Settles.congr (Settles.recover (g := fun fuel _ =>
+        match templateCore fuel source target with
+        | .rejected _ => .rejected reason
+        | result => result) (capsuleCore_settles source target) ?_) ?_
+      · intro _
+        refine Settles.congr (Settles.recover (templateCore_settles source target)
+          (fun _ => Settles.rejected reason)) ?_
+        intro fuel
+        dsimp only
+        cases templateCore fuel source target <;> rfl
+      · intro fuel
+        cases capsuleCore fuel source target <;> rfl
   · intro fuel
     unfold run
     cases core fuel source target <;> rfl

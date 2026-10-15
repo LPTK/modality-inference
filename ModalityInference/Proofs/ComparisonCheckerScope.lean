@@ -320,6 +320,51 @@ theorem capsuleCore_domains {fuel source target e}
   exact ⟨_, rfl, rfl, rfl, capsuleAction_domains (by simp [SchemePreparation.prepare])
     (by assumption)⟩
 
+theorem templateAction_domains {p : SchemePreparation.Prepared}
+    {shapes : ComparisonShapeSolver.Solved} {result : Evidence}
+    (h : CompareInstantiates
+      (ComparisonParameterization.templateSource p (ComparisonSkeleton.prepare p shapes))
+      result.substitution) :
+    (ComparisonExactContext.finish (ComparisonSkeleton.prepare p shapes).substitution
+      result.substitution).DomainsAbove p.firstType p.firstMode := by
+  apply ComparisonExactContext.finish_domainsAbove
+  · constructor
+    · intro entry he
+      obtain ⟨old, ho, rfl⟩ := List.mem_map.mp he
+      have hn := List.mem_map_of_mem (f := Prod.fst) ho
+      rw [ComparisonSkeleton.prepare, ComparisonSkeleton.allocate_domain] at hn
+      simp only [List.mem_range'] at hn
+      change p.firstType ≤ old.1
+      omega
+    · have hempty : (ComparisonSkeleton.prepare p shapes).substitution.modes = [] := by
+        unfold ComparisonSkeleton.prepare
+        generalize List.range' p.firstType (p.nextType - p.firstType) = names
+        cases names <;> rfl
+      simp [CompareSubstitution.ofSubstitution, hempty]
+  · constructor <;> intro entry he
+    · have hn := h.1.mem_iff.mp (List.mem_map.mpr ⟨entry, he, rfl⟩)
+      simp only [ComparisonParameterization.templateSource, List.mem_range'] at hn
+      omega
+    · have hn := h.2.mem_iff.mp (List.mem_map.mpr ⟨entry, he, rfl⟩)
+      simp only [ComparisonParameterization.templateSource, List.mem_range'] at hn
+      omega
+
+theorem templateCore_domains {fuel source target e}
+    (h : templateCore fuel source target = .success e) :
+    let p := SchemePreparation.prepare [] source target
+    ∃ action, e.substitution = ComparisonPreparation.reconstruct p action ∧
+      e.obligations = action.bounds p.sourceBounds ∧
+      e.body = (action.ty p.sourceType, CompareTy.ofTy p.targetType) ∧
+      action.DomainsAbove p.firstType p.firstMode := by
+  simp only [templateCore, bind, pure, RunResult.bind] at h
+  repeat' first | contradiction | cases h | split at h
+  all_goals refine ⟨_, rfl, rfl, rfl, templateAction_domains ?_⟩
+  all_goals rename_i result hinner
+  all_goals first
+    | exact core_instantiates hinner
+    | (obtain ⟨a, ha, _⟩ := capsuleCore_evidence hinner
+       exact ha ▸ ComparisonPreparation.reconstruct_instantiates [] _ _ a)
+
 theorem run_domains {fuel source target e}
     (h : run fuel source target = .success e) :
     let p := SchemePreparation.prepare [] source target
@@ -339,7 +384,11 @@ theorem run_domains {fuel source target e}
       | none =>
         cases hs : capsuleCore fuel source target <;> simp only [hs] at h
         case success => cases h; exact capsuleCore_domains hs
-        all_goals contradiction
+        case exhausted => contradiction
+        case rejected =>
+          cases ht : templateCore fuel source target <;> simp only [ht] at h
+          case success => cases h; exact templateCore_domains ht
+          all_goals contradiction
       | some result => cases h; exact ⟨result.action, rfl, rfl, rfl, partial_action_domains hp⟩
     all_goals contradiction
 

@@ -131,6 +131,20 @@ constants = [
     'ModalityInference.ComparisonPartialStructuredCapsule.internal_operandGrammar_complete',
     'ModalityInference.ComparisonPartialStructuredCapsule.operandGrammar_public',
     'ModalityInference.ComparisonPartialCapsuleScalar.mixed_carrier_replacement',
+    'ModalityInference.ComparisonPartialStructuredCapsule.structured_assignments',
+    'ModalityInference.ComparisonSkeleton.prepared_template_factor',
+    'ModalityInference.ComparisonSkeleton.preparedForest_leaf',
+    'ModalityInference.ComparisonSkeleton.preparedForest_domains',
+    'ModalityInference.ComparisonSkeleton.prepared_witness_shape_complete_residual',
+    'ModalityInference.ComparisonPartialCarrier.body_replacement',
+    'ModalityInference.ComparisonPartialCarrier.bounds_replacement',
+    'ModalityInference.ComparisonCapsuleContext.mixed_binding_replacement',
+    'ModalityInference.ComparisonCapsuleContext.family_replacement',
+    'ModalityInference.ComparisonCapsuleContext.unfrozen_family_replacement',
+    'ModalityInference.ComparisonStructuredCapsuleWitness.algebra_witness',
+    'ModalityInference.ComparisonParameterization.template_result_sound',
+    'ModalityInference.ComparisonChecker.templateCore_solution_of_propagate',
+    'ModalityInference.ComparisonChecker.templateCore_settles',
     'ModalityInference.ComparisonChecker.capsuleCore_solution_of_propagate',
     'ModalityInference.ComparisonChecker.capsuleCore_settles',
     'ModalityInference.ComparisonPartialCapsuleScalar.project_spec',
@@ -3032,6 +3046,12 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonSkeletonWitness\n'
                     'import ModalityInference.Proofs.ComparisonPartialOperandGrammar\n'
                     'import ModalityInference.Proofs.ComparisonCapsuleCarrierReplacement\n'
+                    'import ModalityInference.Proofs.ComparisonPartialStructuredImages\n'
+                    'import ModalityInference.Proofs.ComparisonSkeletonFactor\n'
+                    'import ModalityInference.Proofs.ComparisonSkeletonLeafCoordinates\n'
+                    'import ModalityInference.Proofs.ComparisonShapeWitness\n'
+                    'import ModalityInference.Proofs.ComparisonCapsuleFamilyReplacement\n'
+                    'import ModalityInference.Proofs.ComparisonStructuredCapsuleWitness\n'
                     'import ModalityInference.Proofs.ComparisonCarrierBodyPlan\n'
                     'import ModalityInference.Proofs.ComparisonCarrierBodyReduction\n'
                     'import ModalityInference.Proofs.ComparisonPreparedCarrierPlan\n'

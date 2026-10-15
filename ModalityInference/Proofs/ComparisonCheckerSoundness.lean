@@ -102,6 +102,26 @@ theorem capsuleCore_solution_of_propagate {fuel source target e}
   exact ⟨_, rfl, rfl, rfl,
     capsuleAction_domains (by simp [SchemePreparation.prepare]) hcore, hc⟩
 
+theorem templateCore_solution_of_propagate {fuel source target e}
+    (hprop : ∀ source target shapes,
+      ComparisonShapeSolver.prepare fuel (SchemePreparation.prepare [] source target) =
+        .success (.solved shapes) → PropagationSound fuel (SchemePreparation.prepare [] source target) shapes)
+    (h : templateCore fuel source target = .success e) :
+    PreparedSolution (SchemePreparation.prepare [] source target) e := by
+  simp only [templateCore, bind, pure, RunResult.bind] at h
+  repeat' first | contradiction | cases h | split at h
+  all_goals rename_i result hinner
+  all_goals first
+    | (have hs := core_solution_of_propagate
+          (SchemePreparation.prepare_targetType_bounded [] _ _) (hprop _ _) hinner
+       have hr := ComparisonParameterization.template_result_sound source target _ hs
+       exact ⟨_, rfl, rfl, rfl, templateAction_domains (core_instantiates hinner), hr⟩)
+    | (have hs := capsuleCore_solution_of_propagate hprop hinner
+       have hr := ComparisonParameterization.template_result_sound source target _ hs
+       refine ⟨_, rfl, rfl, rfl, templateAction_domains ?_, hr⟩
+       obtain ⟨a, ha, _⟩ := capsuleCore_evidence hinner
+       exact ha ▸ ComparisonPreparation.reconstruct_instantiates [] _ _ a)
+
 theorem run_solution_of_propagate {fuel source target e}
     (ht : (SchemePreparation.prepare [] source target).targetType.Bounded
       (SchemePreparation.prepare [] source target).nextType
@@ -123,7 +143,11 @@ theorem run_solution_of_propagate {fuel source target e}
       | none =>
         cases hs : capsuleCore fuel source target <;> simp only [hs] at h
         case success => cases h; exact capsuleCore_solution_of_propagate hprop hs
-        all_goals contradiction
+        case exhausted => contradiction
+        case rejected =>
+          cases ht : templateCore fuel source target <;> simp only [ht] at h
+          case success => cases h; exact templateCore_solution_of_propagate hprop ht
+          all_goals contradiction
       | some result => cases h; exact partial_solution hp
     all_goals contradiction
 

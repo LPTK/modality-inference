@@ -169,6 +169,23 @@ def capsuleCore (fuel : Nat) (source target : Scheme) : RunResult Evidence := do
     (ComparisonParameterization.target p target)
   return parameterizedEvidence p before result
 
+/-- Expose structural coordinates before collecting partial leaf intervals.
+Fresh leaf types and root modalities are solved together in the derived scheme. -/
+def templateCore (fuel : Nat) (source target : Scheme) : RunResult Evidence := do
+  let p := SchemePreparation.prepare [] source target
+  let shapes ← ComparisonShapeSolver.prepare fuel p
+  match shapes with
+  | .infeasibleAssumptions =>
+      .rejected "declared shape equations are infeasible; outside residual-target comparison"
+  | .solved shapes => do
+      let templates := ComparisonSkeleton.prepare p shapes
+      let derived := ComparisonParameterization.templateSource p templates
+      let declared := ComparisonParameterization.target p target
+      let result ← match core fuel derived declared with
+        | .rejected _ => capsuleCore fuel derived declared
+        | result => result
+      return parameterizedEvidence p templates.substitution result
+
 /-- Additional partial-context phases preserve successful and exhausted core
 runs. Every success retains a certificate for the complete original input. -/
 def run (fuel : Nat) (source target : Scheme) : RunResult Evidence :=
@@ -178,7 +195,9 @@ def run (fuel : Nat) (source target : Scheme) : RunResult Evidence :=
       match ← ComparisonPartialPropagation.attempt fuel p with
       | some result => return partialEvidence p result
       | none => match capsuleCore fuel source target with
-        | .rejected _ => .rejected reason
+        | .rejected _ => match templateCore fuel source target with
+          | .rejected _ => .rejected reason
+          | result => result
         | result => result
   | result => result
 

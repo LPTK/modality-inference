@@ -71,6 +71,17 @@ theorem capsuleCore_evidence {fuel source target e}
   rename_i _ result hcore
   exact ⟨_, rfl, rfl, rfl, rfl, (core_evidence hcore).choose_spec.2.2.2.2⟩
 
+theorem templateCore_evidence {fuel source target e}
+    (h : templateCore fuel source target = .success e) :
+    PreparedEvidence (SchemePreparation.prepare [] source target) e := by
+  simp only [templateCore, bind, pure, RunResult.bind] at h
+  repeat' first | contradiction | cases h | split at h
+  all_goals refine ⟨_, rfl, rfl, rfl, rfl, ?_⟩
+  all_goals rename_i result hinner
+  all_goals first
+    | exact (core_evidence hinner).choose_spec.2.2.2.2
+    | exact (capsuleCore_evidence hinner).choose_spec.2.2.2.2
+
 theorem run_evidence {fuel source target e}
     (h : run fuel source target = .success e) :
     PreparedEvidence (SchemePreparation.prepare [] source target) e := by
@@ -86,7 +97,11 @@ theorem run_evidence {fuel source target e}
       | none =>
         cases hs : capsuleCore fuel source target <;> simp only [hs] at h
         case success => cases h; exact capsuleCore_evidence hs
-        all_goals contradiction
+        case exhausted => contradiction
+        case rejected =>
+          cases ht : templateCore fuel source target <;> simp only [ht] at h
+          case success => cases h; exact templateCore_evidence ht
+          all_goals contradiction
       | some result => cases h; exact partial_evidence hp
     all_goals contradiction
 
