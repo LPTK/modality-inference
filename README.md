@@ -97,6 +97,11 @@ used with the general uniform synthesis procedure.
 `ShapedSubsumes` restricts its instantiations and intermediate subtype derivations
 to compatible shapes under the declared assumptions; public `Ty` and `Scheme`
 remain join-free. The original subtype and scheme relations embed into it.
+`ComparisonShapeSolver.prepare` first unifies declared shape equations, freezes
+their remaining parameters, and solves only fresh source shape variables. Its
+unifier is sound, most-general, terminating, and stable as fuel grows; the
+prepared comparison preserves original fixed identifiers. Infeasible declared
+assumptions are reported separately from a failed source shape comparison.
 `ComparisonInterpolation.witness` reconstructs an isolated variable
 from its lower or upper endpoints, with an exact crossed-bound criterion and
 preservation of written guards in the unrestricted comparison relation. Its

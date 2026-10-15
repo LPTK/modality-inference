@@ -74,6 +74,33 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonShapeSolver.unify_sound',
+    'ModalityInference.ComparisonShapeSolver.unify_factor',
+    'ModalityInference.ComparisonShapeSolver.unify_equivalent',
+    'ModalityInference.ComparisonShapeSolver.unify_fixes',
+    'ModalityInference.ComparisonShapeSolver.unify_not_rejected',
+    'ModalityInference.ComparisonShapeSolver.unify_eventually',
+    'ModalityInference.ComparisonShapeSolver.unify_complete',
+    'ModalityInference.ComparisonShapeSolver.unify_rejected',
+    'ModalityInference.ComparisonShapeSolver.unify_monotone',
+    'ModalityInference.ComparisonShapeSolver.unify_support',
+    'ModalityInference.ComparisonShapeSolver.prepare_solved_iff',
+    'ModalityInference.ComparisonShapeSolver.prepare_infeasible_iff',
+    'ModalityInference.ComparisonShapeSolver.prepare_infeasible',
+    'ModalityInference.ComparisonShapeSolver.prepare_fixed_equivalent',
+    'ModalityInference.ComparisonShapeSolver.prepare_source_fixes',
+    'ModalityInference.ComparisonShapeSolver.prepare_sound',
+    'ModalityInference.ComparisonShapeSolver.prepare_solved_monotone',
+    'ModalityInference.ComparisonShapeSolver.prepare_eventually',
+    'ModalityInference.ComparisonShapeSolver.prepare_residual_complete',
+    'ModalityInference.ComparisonShapeSolver.sourceAllowed_iff',
+    'ModalityInference.ComparisonShapeSolver.prepare_resolve_fixed',
+    'ModalityInference.ComparisonShapeSolver.prepare_resolve_source',
+    'ModalityInference.ComparisonShapeSolver.prepared_original_fixed',
+    'ModalityInference.ComparisonShapeSolver.prepared_assumptions_fixed',
+    'ModalityInference.ComparisonShapeSolver.prepared_resolve_fixed',
+    'ModalityInference.ComparisonShapeSolver.prepared_resolve_source',
+    'ModalityInference.ComparisonShapeSolver.prepared_original_resolved',
     'ModalityInference.GroundFactorization.type',
     'ModalityInference.Scheme.generalize_closed',
     'ModalityInference.Scheme.generalize_ground',
@@ -1995,6 +2022,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SchemeReconstructionClosed\n'
                     'import ModalityInference.Proofs.ComparisonTypes\n'
                     'import ModalityInference.Proofs.ComparisonShapes\n'
+                    'import ModalityInference.Proofs.ComparisonShapeSolver\n'
                     'import ModalityInference.Proofs.ComparisonInterpolation\n'
                     'import ModalityInference.Proofs.ComparisonPreparation\n'
                     'import ModalityInference.Proofs.SymbolicCNF\n'
