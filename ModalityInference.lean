@@ -20,6 +20,8 @@ import ModalityInference.ComparisonTypes
 import ModalityInference.ComparisonShapes
 import ModalityInference.ComparisonShapeSolver
 import ModalityInference.ComparisonPropagation
+import ModalityInference.ComparisonControls
+import ModalityInference.ComparisonPartial
 import ModalityInference.ComparisonInterpolation
 import ModalityInference.ComparisonPreparation
 

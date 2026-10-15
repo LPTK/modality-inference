@@ -113,8 +113,15 @@ clause projection and least-fixed-point propagation. It compiles modalized leaf
 bounds using explicit lower/upper clamping actions, reconstructs finite joins
 and meets, and retains the upper and constant checks as a symbolic residual.
 Compilation, finite stabilization, least solutions, reification, and exactness
-relative to the supplied basis are proved. Connecting every prepared comparison
-and admissible modality image to such a basis remains a separate obligation.
+relative to the supplied basis are proved. `ComparisonControls` supplies total
+signed modality controls and proves that all expressions generated from its
+heads by joins, meets, and supported modalities have finite positive basis
+representations and actual type reifications. Ground types of a common shape
+have proved join/meet, distributivity, modal-action, and interval-clamping laws.
+`ComparisonPartial` reconstructs bare body-only type intervals without adding
+definedness guards, and proves that their images leave the full source bounds
+unchanged. Connecting every prepared comparison to these components remains a
+separate obligation.
 
 ## Constraint solving
 
