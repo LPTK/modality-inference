@@ -237,11 +237,14 @@ and ground principality are proved for this guarded source judgment.
 `AlgebraSubsumesUnder`, retaining duplicate-free binders and residual target
 bounds, without closedness, consistency, global totality, or a residual syntax
 restriction. Preparation, shape solving, and structural normalization preserve
-defined witnesses. Selector-parametric propagation and coordinate tuple
-reification are proved components. Their assembly into uniform shared type and
-modality reconstruction, and its connection to actual checker success, remain
-unfinished. Pointwise coordinate feasibility does not establish one common type
-witness. Non-residual declared bounds also lack a complete general procedure.
+defined witnesses through the actual allocated templates, retaining their shared
+mode assignment. The joint clause solver has proved soundness, completeness,
+termination, and fuel stability: one selector solution produces compatible
+nominal head polynomials and scalar strategies with the required dependencies,
+including actual finite mode substitutions. Boundary summaries and coordinate
+tuple reification are proved components. Connecting these components to one
+common type witness and actual checker success remains unfinished. Non-residual
+declared bounds also lack a complete general procedure.
 See [TODO.md](../TODO.md) and [LEAN_PROOF_HANDOFF.md](../LEAN_PROOF_HANDOFF.md).
 
 `Obligations.RunSolverCorrespondence`, relating the complete structural worklist

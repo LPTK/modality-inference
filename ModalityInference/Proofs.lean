@@ -324,5 +324,12 @@ import ModalityInference.Proofs.GuardedRefinedContexts
 import ModalityInference.Proofs.GuardedRefinedReuse
 import ModalityInference.Proofs.GuardedGenerationSoundness
 import ModalityInference.Proofs.GuardedSourceInference
+import ModalityInference.Proofs.ComparisonJointModes
+import ModalityInference.Proofs.ComparisonJointModeWitness
+import ModalityInference.Proofs.ComparisonJointClauses
+import ModalityInference.Proofs.ComparisonJointNominal
+import ModalityInference.Proofs.ComparisonJointSolver
+import ModalityInference.Proofs.ComparisonDefinedTemplateWitness
+import ModalityInference.Proofs.ComparisonDefinedStructuralBoundary
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

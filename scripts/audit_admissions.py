@@ -74,6 +74,35 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonJointModes.query_iff',
+    'ModalityInference.ComparisonJointModes.witness_sound',
+    'ModalityInference.ComparisonJointModes.witness_reifies',
+    'ModalityInference.ComparisonJointModes.witness_assembles',
+    'ModalityInference.ComparisonJointModes.query_finite_witness',
+    'ModalityInference.ComparisonJointModes.assemble_actual',
+    'ModalityInference.ComparisonJointModes.assemble_domain',
+    'ModalityInference.ComparisonJointModes.assemble_excludes',
+    'ModalityInference.ComparisonJointModes.image_atoms_origin',
+    'ModalityInference.ComparisonJointClauses.HeadClause.sliceHolds_iff',
+    'ModalityInference.ComparisonJointClauses.nominalProgram_valid_iff',
+    'ModalityInference.ComparisonJointSolver.query_iff',
+    'ModalityInference.ComparisonJointSolver.query_sound',
+    'ModalityInference.ComparisonJointSolver.query_complete',
+    'ModalityInference.ComparisonJointSolver.run_sound',
+    'ModalityInference.ComparisonJointSolver.run_complete',
+    'ModalityInference.ComparisonJointSolver.run_stable',
+    'ModalityInference.ComparisonJointSolver.run_terminates',
+    'ModalityInference.ComparisonJointSolver.run_reifies',
+    'ModalityInference.ComparisonJointSolver.run_modes_reify',
+    'ModalityInference.ComparisonJointSolver.run_modes_assemble',
+    'ModalityInference.ComparisonJointSolver.run_actual',
+    'ModalityInference.SchemePreparation.prepare_assumptions_residual',
+    'ModalityInference.ComparisonSkeleton.forestExtension_wellFormedUnder',
+    'ModalityInference.ComparisonSkeleton.prepared_template_under',
+    'ModalityInference.ComparisonSkeleton.algebra_defined_template_complete',
+    'ModalityInference.ComparisonDefinedStructuralBoundary.admissible',
+    'ModalityInference.ComparisonDefinedStructuralBoundary.algebra_admissible',
+    'ModalityInference.ComparisonDefinedStructuralBoundary.target_not_residual',
     'ModalityInference.Generates.Hygienic.guarded_typing_refined',
     'ModalityInference.Generates.guarded_raw_sound',
     'ModalityInference.Generates.guarded_source_sound',
@@ -3142,6 +3171,13 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.GuardedRefinedReuse\n'
                     'import ModalityInference.Proofs.GuardedGenerationSoundness\n'
                     'import ModalityInference.Proofs.GuardedSourceInference\n'
+                    'import ModalityInference.Proofs.ComparisonJointModes\n'
+                    'import ModalityInference.Proofs.ComparisonJointModeWitness\n'
+                    'import ModalityInference.Proofs.ComparisonJointClauses\n'
+                    'import ModalityInference.Proofs.ComparisonJointNominal\n'
+                    'import ModalityInference.Proofs.ComparisonJointSolver\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedTemplateWitness\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedStructuralBoundary\n'
                     'import ModalityInference.Proofs.Evaluation\n'
                     'import ModalityInference.Proofs.Interpretation\n'
                     'import ModalityInference.Proofs.Erasure\n'
