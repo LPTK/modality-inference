@@ -74,6 +74,39 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonFixedModeWitness.prepared_template_fixed_scoped',
+    'ModalityInference.ComparisonChecker.prepared_fixed_group_witness',
+    'ModalityInference.ComparisonChecker.algebra_ordinary_group_witness',
+    'ModalityInference.ComparisonChecker.OrdinaryGroupWitness.strategy_uniform',
+    'ModalityInference.ComparisonChecker.prepared_scalar_witness',
+    'ModalityInference.ComparisonChecker.prepared_group_leaf_support',
+    'ModalityInference.ComparisonChecker.prepared_group_input',
+    'ModalityInference.ComparisonChecker.prepared_groups_complete',
+    'ModalityInference.ComparisonChecker.algebra_joint_group_input',
+    'ModalityInference.ComparisonJointCoordinateWitness.formula_strategy',
+    'ModalityInference.ComparisonJointCoordinateWitness.store_supported',
+    'ModalityInference.ComparisonJointCoordinateWitness.store_strategy',
+    'ModalityInference.ComparisonJointCoordinateWitness.store_sliceValid',
+    'ModalityInference.ComparisonJointCoordinateWitness.axis_compile_complete',
+    'ModalityInference.ComparisonJointAssembly.compile_complete',
+    'ModalityInference.ComparisonJointAssembly.strategy_uniform_of_modeDomain',
+    'ModalityInference.ComparisonJointAssembly.run_complete',
+    'ModalityInference.ComparisonJointBatch.run_solution',
+    'ModalityInference.ComparisonJointBatch.run_sound',
+    'ModalityInference.ComparisonJointBatch.local_solution_correct',
+    'ModalityInference.ComparisonJointBatch.run_local_correct',
+    'ModalityInference.ComparisonJointBatch.run_scalar',
+    'ModalityInference.ComparisonJointBatch.run_mode_atoms',
+    'ModalityInference.ComparisonJointBatch.run_complete',
+    'ModalityInference.ComparisonJointBatch.run_stable',
+    'ModalityInference.ComparisonJointBatch.run_terminates',
+    'ModalityInference.ComparisonJointBatch.assembleStore_polynomial',
+    'ModalityInference.ComparisonJointBatch.compile_holds',
+    'ModalityInference.ComparisonJointBatch.run_complete_local',
+    'ModalityInference.ComparisonJointBatch.run_complete_families',
+    'ModalityInference.ComparisonTupleReflection.observer_family',
+    'ModalityInference.ComparisonTupleReflection.subtype_of_coordinates',
+    'ModalityInference.ComparisonJointGroup.generated_sound',
     'ModalityInference.toCNF_literal',
     'ModalityInference.ConcreteBackend.equationFrom_complete',
     'ModalityInference.ConcreteBackend.decideClauses_complete',
@@ -3345,6 +3378,15 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonFixedModeWitness\n'
                     'import ModalityInference.Proofs.ComparisonJointAssemblyModes\n'
                     'import ModalityInference.Proofs.ComparisonJointReindex\n'
+                    'import ModalityInference.Proofs.ComparisonFixedModeScope\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedGroupWitness\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedGroupInput\n'
+                    'import ModalityInference.Proofs.ComparisonJointCoordinateWitness\n'
+                    'import ModalityInference.Proofs.ComparisonJointAssemblyCompleteness\n'
+                    'import ModalityInference.Proofs.ComparisonJointBatch\n'
+                    'import ModalityInference.Proofs.ComparisonJointBatchCompleteness\n'
+                    'import ModalityInference.Proofs.ComparisonTupleReflection\n'
+                    'import ModalityInference.Proofs.ComparisonJointGroupReflection\n'
                     'import ModalityInference.Proofs.Evaluation\n'
                     'import ModalityInference.Proofs.Interpretation\n'
                     'import ModalityInference.Proofs.Erasure\n'
