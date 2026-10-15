@@ -501,7 +501,8 @@ theorem collect_leaf_coverage {p : SchemePreparation.Prepared} {shapes : Compari
   · cases h
     intro leaf hl
     refine ⟨_, List.mem_map.mpr ⟨leaf.shapeClass, ?_, rfl⟩, ?_⟩
-    · exact List.mem_dedup.mpr (List.mem_append_left _ (List.mem_map.mpr ⟨leaf, hl, rfl⟩))
+    · exact List.mem_dedup.mpr (List.mem_append_left _
+        (List.mem_append_left _ (List.mem_map.mpr ⟨leaf, hl, rfl⟩)))
     · exact List.mem_filterMap.mpr ⟨leaf, hl, by simp⟩
   · have hnone := RunResult.forIn_preserves
       (fun r : MProd (Option (List Group)) PUnit => r.fst = none) (by assumption) rfl (by

@@ -70,6 +70,21 @@ def intervalGroups : RunResult (List ComparisonGroups.Group) := do
       group.assumptions.length == 4 && group.goals.length == 4
   | _ => false
 
+-- Every opaque obligation reaches a group, including a class with no generator.
+def unsupportedOpaqueInput := SchemePreparation.prepare [] (.mono .unit) (.mono .unit)
+def unsupportedOpaqueShapes : ComparisonShapeSolver.Solved :=
+  { fixed := [(.rigid 1, .var (.rigid 0))], source := [] }
+def unsupportedOpaqueTemplates : ComparisonSkeleton.Templates := ⟨{}, [], 0, 0⟩
+def unsupportedOpaqueState : ComparisonReduction.State :=
+  { inequalities := [(head 0, head 1)] }
+
+#guard match ComparisonGroups.collect unsupportedOpaqueInput unsupportedOpaqueShapes
+    unsupportedOpaqueTemplates unsupportedOpaqueState with
+  | .success [group] => group.heads.isEmpty && group.goals.length == 1
+  | _ => false
+#guard rejected (ComparisonElimination.run 100 unsupportedOpaqueInput unsupportedOpaqueShapes
+  unsupportedOpaqueTemplates unsupportedOpaqueState)
+
 def compare (source target : Scheme) := ComparisonChecker.run 20000 source target
 
 -- Internal joins witness the rigid interval, without selecting one rigid head.

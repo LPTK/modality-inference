@@ -48,13 +48,14 @@ def collect (p : SchemePreparation.Prepared) (shapes : ComparisonShapeSolver.Sol
   let fixed := (p.assumptions.typeVariables ++ p.targetType.typeVariables ++
     p.sourceType.typeVariables ++ p.sourceBounds.typeVariables).dedup.filter
       (fun v => !ComparisonShapeSolver.sourceAllowed p v)
-  let classes := (templates.leaves.map (·.shapeClass) ++
-    fixed.filterMap (shapeClass shapes templates)).dedup
   for (a, b) in goals do
     match shapeClass shapes templates a.head, shapeClass shapes templates b.head with
     | some x, some y => if x != y then
         return ← .rejected "opaque endpoints have distinct fixed shapes"
     | _, _ => return ← .rejected "opaque endpoint has a structural fixed shape"
+  let classes := (templates.leaves.map (·.shapeClass) ++
+    fixed.filterMap (shapeClass shapes templates) ++
+    goals.filterMap (fun pair => shapeClass shapes templates pair.1.head)).dedup
   return classes.map fun c =>
     { shapeClass := c
       heads := fixed.filter fun v => shapeClass shapes templates v == some c

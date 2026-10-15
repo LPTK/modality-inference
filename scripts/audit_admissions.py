@@ -74,6 +74,43 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonReduction.step_modeSupport',
+    'ModalityInference.ComparisonReduction.run_modeSupport',
+    'ModalityInference.ComparisonReduction.prepare_modeSupport',
+    'ModalityInference.ComparisonControls.Basis.observer_model',
+    'ModalityInference.ComparisonControls.Basis.carrier_interval',
+    'ModalityInference.ComparisonElimination.endpoint_holds_coordinate',
+    'ModalityInference.ComparisonElimination.reduce_observer_at',
+    'ModalityInference.ComparisonElimination.GroupTrace.sound',
+    'ModalityInference.ComparisonElimination.run_group_image',
+    'ModalityInference.ComparisonElimination.run_algebra_sound_images',
+    'ModalityInference.ComparisonElimination.run_algebra_sound',
+    'ModalityInference.ComparisonElimination.run_mode_support',
+    'ModalityInference.ComparisonElimination.run_mode_subst_eq',
+    'ModalityInference.ComparisonGroups.collect_goal_coverage',
+    'ModalityInference.ComparisonGroups.collect_goal_origin',
+    'ModalityInference.ComparisonGroups.collect_group_eq_of_shape',
+    'ModalityInference.ComparisonGroups.collect_leaves_nodup',
+    'ModalityInference.ComparisonGroups.collect_reconstruct',
+    'ModalityInference.ComparisonReduction.prepare_opaqueGuards',
+    'ModalityInference.ComparisonReduction.prepare_partialTypes_wellShaped_of_fits',
+    'ModalityInference.ComparisonChecker.partial_images_wellShaped',
+    'ModalityInference.ComparisonSkeleton.allocate_leaf_names_nodup',
+    'ModalityInference.ComparisonContext.prepare_bounded',
+    'ModalityInference.ComparisonExactContext.prepare_bounded',
+    'ModalityInference.ComparisonExactContext.neutral_bounded',
+    'ModalityInference.SchemePreparation.prepare_sourceType_bounded',
+    'ModalityInference.SchemePreparation.prepare_sourceBounds_bounded',
+    'ModalityInference.SchemePreparation.prepare_targetType_bounded_first',
+    'ModalityInference.SchemePreparation.prepare_assumptions_bounded_first',
+    'ModalityInference.SchemePreparation.prepare_targetType_bounded',
+    'ModalityInference.SchemePreparation.prepare_assumptions_bounded',
+    'ModalityInference.ComparisonChecker.PreparedSolution.subsumes',
+    'ModalityInference.ComparisonChecker.exact_solution',
+    'ModalityInference.ComparisonChecker.variants_solution_of_propagate',
+    'ModalityInference.ComparisonChecker.refineContexts_solution_of_propagate',
+    'ModalityInference.ComparisonChecker.run_solution_of_propagate',
+    'ModalityInference.ComparisonChecker.run_algebra_subsumes_of_propagate',
     'ModalityInference.ComparisonAlgebra.observer_modal_realizable',
     'ModalityInference.ComparisonAlgebra.reify_observer',
     'ModalityInference.ComparisonAlgebra.reify_order',
@@ -2346,6 +2383,21 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonModalSeparation\n'
                     'import ModalityInference.Proofs.ComparisonAlgebraReification\n'
                     'import ModalityInference.Proofs.ComparisonObserverTheory\n'
+                    'import ModalityInference.Proofs.ComparisonReductionSupport\n'
+                    'import ModalityInference.Proofs.ComparisonAlgebraIntervals\n'
+                    'import ModalityInference.Proofs.ComparisonBasisReflection\n'
+                    'import ModalityInference.Proofs.ComparisonEndpointReflection\n'
+                    'import ModalityInference.Proofs.ComparisonGroupExtraction\n'
+                    'import ModalityInference.Proofs.ComparisonGroupSoundness\n'
+                    'import ModalityInference.Proofs.ComparisonEliminationLookup\n'
+                    'import ModalityInference.Proofs.ComparisonEliminationSoundness\n'
+                    'import ModalityInference.Proofs.ComparisonEliminationSupport\n'
+                    'import ModalityInference.Proofs.ComparisonBareShapes\n'
+                    'import ModalityInference.Proofs.ComparisonSkeletonNames\n'
+                    'import ModalityInference.Proofs.ComparisonContextSupport\n'
+                    'import ModalityInference.Proofs.ComparisonPreparedBounds\n'
+                    'import ModalityInference.Proofs.ComparisonCheckerSolution\n'
+                    'import ModalityInference.Proofs.ComparisonCheckerSoundness\n'
                     'import ModalityInference.Proofs.ComparisonWitnessShapes\n'
                     'import ModalityInference.Proofs.ComparisonCheckerScope\n'
                     'import ModalityInference.Proofs.ComparisonPropagationPointwise\n'
