@@ -11,6 +11,22 @@ def expressions : Ty → List ModExpr
   | .prod a b | .sum a b | .fn a b => expressions a ++ expressions b
   | .modal a m => m :: expressions a
 
+/-- All written modality operands of a constraint, including annotations nested
+inside its type endpoints. -/
+def constraintExpressions : Constraint → List ModExpr
+  | .sub a b | .equiv a b => expressions a ++ expressions b
+  | .equal _ a => expressions a
+  | .mode a b => [a, b]
+  | .defined m => [m]
+
+def boundsExpressions (bounds : Bounds) : List ModExpr :=
+  bounds.flatMap constraintExpressions
+
+/-- Totality classification covers every expression later traversed by
+structural reduction, including expressions occurring only in source bounds. -/
+def obligationExpressions (p : SchemePreparation.Prepared) : List ModExpr :=
+  expressions p.sourceType ++ expressions p.targetType ++ boundsExpressions p.sourceBounds
+
 def hasPartial (total : ModExpr → Bool) (t : Ty) : Bool :=
   (expressions t).any (fun m => !total m)
 

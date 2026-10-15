@@ -242,8 +242,12 @@ mode assignment. The joint clause solver has proved soundness, completeness,
 termination, and fuel stability: one selector solution produces compatible
 nominal head polynomials and scalar strategies with the required dependencies,
 including actual finite mode substitutions. Boundary summaries and coordinate
-tuple reification are proved components. Connecting these components to one
-common type witness and actual checker success remains unfinished. Non-residual
+tuple reconstruction preserve shared choices, and their concrete clause and
+type constructors have proved exact meanings. Earlier constant selectors stay
+fixed across all scalar inputs. Annotation classification covers source bounds
+as well as both bodies, so guarded residuals appearing only inside a bound are
+retained through structural reduction. Connecting these components to the actual
+group query and public checker completeness remains unfinished. Non-residual
 declared bounds also lack a complete general procedure.
 See [TODO.md](../TODO.md) and [LEAN_PROOF_HANDOFF.md](../LEAN_PROOF_HANDOFF.md).
 

@@ -74,6 +74,41 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonBoundarySupport.pathRelation_supported',
+    'ModalityInference.ComparisonBoundarySupport.guardedPath_supported',
+    'ModalityInference.ComparisonBoundarySupport.summarize_supported',
+    'ModalityInference.ComparisonBoundarySupport.compile_summary_correct',
+    'ModalityInference.ComparisonDefinedBoundSuffix.admissible',
+    'ModalityInference.ComparisonDefinedBoundSuffix.residual',
+    'ModalityInference.ComparisonDefinedBoundSuffix.algebra_admissible',
+    'ModalityInference.ComparisonAnnotations.constraintExpressions_defined',
+    'ModalityInference.ComparisonAnnotations.boundsExpressions_defined',
+    'ModalityInference.ComparisonAnnotations.obligationExpressions_defined',
+    'ModalityInference.ComparisonAnnotations.known_obligationExpressions_total',
+    'ModalityInference.SchemePreparation.prepare_defined_body_guards',
+    'ModalityInference.ComparisonPreparation.PreparedWitnessUnder.target_defined',
+    'ModalityInference.ComparisonPreparation.PreparedWitnessUnder.known_annotations',
+    'ModalityInference.ComparisonJointGuarded.query_iff',
+    'ModalityInference.ComparisonJointGuarded.run_sound',
+    'ModalityInference.ComparisonJointGuarded.run_complete',
+    'ModalityInference.ComparisonJointGuarded.run_stable',
+    'ModalityInference.ComparisonJointGuarded.run_terminates',
+    'ModalityInference.ComparisonJointGuarded.run_reifies',
+    'ModalityInference.ComparisonJointGuarded.run_modes_reify',
+    'ModalityInference.ComparisonJointGuarded.run_modes_assemble',
+    'ModalityInference.ComparisonJointGuarded.run_actual',
+    'ModalityInference.ComparisonJointSummary.compile_correct',
+    'ModalityInference.ComparisonJointSummary.compile_slice_correct',
+    'ModalityInference.ComparisonJointSummary.strategy_summary_iff',
+    'ModalityInference.ComparisonJointSummary.compile_summary_correct',
+    'ModalityInference.ComparisonJointSummary.parameters_correct',
+    'ModalityInference.ComparisonJointSummary.compileGuarded_correct',
+    'ModalityInference.ComparisonTupleCNF.cnf_correct',
+    'ModalityInference.ComparisonTupleCNF.cnf_supported',
+    'ModalityInference.ComparisonTupleCNF.nominal_correct',
+    'ModalityInference.ComparisonTupleCNF.nominal_normalized',
+    'ModalityInference.ComparisonTupleWitness.reconstructWith_complete',
+    'ModalityInference.ComparisonTupleWitness.reconstructWith_properties',
     'ModalityInference.ComparisonJointModes.query_iff',
     'ModalityInference.ComparisonJointModes.witness_sound',
     'ModalityInference.ComparisonJointModes.witness_reifies',
@@ -3178,6 +3213,13 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonJointSolver\n'
                     'import ModalityInference.Proofs.ComparisonDefinedTemplateWitness\n'
                     'import ModalityInference.Proofs.ComparisonDefinedStructuralBoundary\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedBoundSuffix\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedTotality\n'
+                    'import ModalityInference.Proofs.ComparisonJointGuarded\n'
+                    'import ModalityInference.Proofs.ComparisonJointSummary\n'
+                    'import ModalityInference.Proofs.ComparisonTupleCNF\n'
+                    'import ModalityInference.Proofs.ComparisonTupleWitness\n'
+                    'import ModalityInference.Proofs.ComparisonBoundarySupport\n'
                     'import ModalityInference.Proofs.Evaluation\n'
                     'import ModalityInference.Proofs.Interpretation\n'
                     'import ModalityInference.Proofs.Erasure\n'

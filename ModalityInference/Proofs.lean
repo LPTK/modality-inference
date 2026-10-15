@@ -331,5 +331,12 @@ import ModalityInference.Proofs.ComparisonJointNominal
 import ModalityInference.Proofs.ComparisonJointSolver
 import ModalityInference.Proofs.ComparisonDefinedTemplateWitness
 import ModalityInference.Proofs.ComparisonDefinedStructuralBoundary
+import ModalityInference.Proofs.ComparisonDefinedBoundSuffix
+import ModalityInference.Proofs.ComparisonDefinedTotality
+import ModalityInference.Proofs.ComparisonJointGuarded
+import ModalityInference.Proofs.ComparisonJointSummary
+import ModalityInference.Proofs.ComparisonTupleCNF
+import ModalityInference.Proofs.ComparisonTupleWitness
+import ModalityInference.Proofs.ComparisonBoundarySupport
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

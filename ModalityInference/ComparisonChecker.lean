@@ -31,8 +31,7 @@ def propagate (fuel : Nat) (p : SchemePreparation.Prepared)
     (before : Substitution := {}) : RunResult Evidence := do
   let input := ComparisonExactContext.rewrite p before
   let known ← ComparisonBody.knownTotal fuel (input.assumptions ++ input.sourceBounds.assumptions)
-    (ComparisonAnnotations.expressions input.sourceType ++
-      ComparisonAnnotations.expressions input.targetType)
+    (ComparisonAnnotations.obligationExpressions input)
   let absorption := ComparisonAbsorption.plan input (ComparisonBody.isTotal known)
   let absorbed := { input with sourceType := absorption.body }
   let annotations := ComparisonAnnotations.prepare absorbed (ComparisonBody.isTotal known)
