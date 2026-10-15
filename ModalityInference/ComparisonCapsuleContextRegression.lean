@@ -1,7 +1,7 @@
 import ModalityInference.SchemeSubsumption
 
-/-! Shared partial images must compensate different positive and negative
-occurrence actions with one uniformly synthesized suffix. -/
+/-! An undefined capsule remains undefined under total outer actions. Public
+comparison must discharge its guard even when suffix constraints are solvable. -/
 namespace ModalityInference.ComparisonCapsuleContextRegression
 
 def bad : ModExpr := .leftResidual .epsilon .bottom
@@ -38,27 +38,25 @@ set_option maxRecDepth 100000
 set_option maxHeartbeats 16000000
 
 #guard match checkSubsumption 20000 mixedSource mixedTarget with
-  | .success result => result.substitution.types.map Prod.fst == [0] &&
-      result.substitution.modes.isEmpty
+  | .rejected _ => true
   | _ => false
-#guard (checkSubsumption 20000 symbolicSource symbolicTarget).isSuccess
+#guard rejected (checkSubsumption 20000 symbolicSource symbolicTarget)
 
--- The shared suffix and the original modality satisfy written bounds together.
+-- Fixing the original modality still leaves the target capsule undefined.
 #guard match checkSubsumption 20000 constrainedModeSource mixedTarget with
-  | .success result => result.substitution.types.map Prod.fst == [0] &&
-      result.substitution.modes.map Prod.fst == [0]
+  | .rejected _ => true
   | _ => false
 
--- Written source guards still exclude a partial parameter image.
+-- An explicit image guard agrees with the implicit quantified-image obligation.
 #guard rejected (checkSubsumption 20000
   { mixedSource with bounds := [.sub (.var (.flex 0)) (.var (.flex 0))] } mixedTarget)
 
--- A common frozen base does not discharge an inconsistent scalar interval.
+-- Crossed suffix constraints do not supply the missing capsule guard.
 #guard rejected (checkSubsumption 20000
   { typeParams := [0], body := .prod (.var (.flex 0)) (.fn (.var (.flex 0)) .unit) }
   (.mono (.prod (.modal capsule .bottom) (.fn (.modal capsule .top) .unit))))
 
--- Literal operands below partial annotations retain their fixed identities.
+-- Changing a literal head also leaves the capsule guard unavailable.
 #guard rejected (checkSubsumption 20000 mixedSource
   (.mono (.prod (.modal capsule shared)
     (.fn (.modal (.modal (.var (.rigid 1)) bad) shared) .unit))))

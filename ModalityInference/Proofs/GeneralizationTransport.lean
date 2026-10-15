@@ -1,4 +1,5 @@
 import ModalityInference.Proofs.InstanceDefinedness
+import ModalityInference.Proofs.SkolemSubstitution
 
 /-! Defined generalized instances transport every solved consequence, including
 through partial modality substitutions. -/

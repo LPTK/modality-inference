@@ -304,5 +304,18 @@ import ModalityInference.Proofs.ComparisonCompoundSpineSelection
 import ModalityInference.Proofs.ComparisonCompoundSpineWitness
 import ModalityInference.Proofs.ComparisonFrozenSpecialization
 import ModalityInference.Proofs.ComparisonJointHorn
+import ModalityInference.Proofs.SchemeInstance
+import ModalityInference.Proofs.DefinedInstantiation
+import ModalityInference.Proofs.DefinedContextTransport
+import ModalityInference.Proofs.ComparisonDefinedSubstitution
+import ModalityInference.Proofs.ComparisonDefinedInstances
+import ModalityInference.Proofs.ComparisonDefinedSemantics
+import ModalityInference.Proofs.ComparisonDefinedPreparation
+import ModalityInference.Proofs.ComparisonDefinedEvidence
+import ModalityInference.Proofs.ComparisonJointEncoding
+import ModalityInference.Proofs.ComparisonSelectorPropagation
+import ModalityInference.Proofs.ComparisonParametricPropagation
+import ModalityInference.Proofs.ComparisonBoundaryPropagation
+import ModalityInference.Proofs.ComparisonTupleReification
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

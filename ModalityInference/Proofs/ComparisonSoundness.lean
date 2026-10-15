@@ -1,19 +1,33 @@
 import ModalityInference.Proofs.ComparisonPropagationSoundness
 import ModalityInference.Proofs.ComparisonAlgebraInstances
 import ModalityInference.Proofs.Obligations
+import ModalityInference.Proofs.ComparisonDefinedSemantics
 
 /-! Executable inference and signature checking preserve the interpretation of
 public schemes, including each instance's ownership and evaluation guarantees. -/
 namespace ModalityInference
 
+theorem checkSubsumption_defined_subsumes {fuel source target evidence}
+    (h : checkSubsumption fuel source target = .success evidence) :
+    AlgebraSubsumesUnder [] source target :=
+  (algebraSubsumes_requireDefinedInstances_iff [] source target).mp
+    (ComparisonChecker.run_algebra_subsumes h)
+
 theorem checkSubsumption_algebra_subsumes {fuel source target evidence}
     (h : checkSubsumption fuel source target = .success evidence) :
     AlgebraSubsumes [] source target :=
-  ComparisonChecker.run_algebra_subsumes h
+  (checkSubsumption_defined_subsumes h).to_algebra
 
 theorem scheme_subsumption_sound : Obligations.SchemeSubsumptionSound := by
   intro fuel source target evidence _ _ _ h
-  exact checkSubsumption_algebra_subsumes h
+  exact checkSubsumption_defined_subsumes h
+
+/-- Successful signature checking preserves every admissible public ground
+instance, including for source schemes without a typing derivation. -/
+theorem checkSubsumption_ground_covers {fuel source target evidence ρ}
+    (h : checkSubsumption fuel source target = .success evidence) :
+    SchemeCovers ρ ρ source target :=
+  (checkSubsumption_defined_subsumes h).ground_covers (by simp [GroundModels])
 
 theorem inference_checked_ground_covers
     {inferenceFuel comparisonFuel Γ t result target evidence ρ}

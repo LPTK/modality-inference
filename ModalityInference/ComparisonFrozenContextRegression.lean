@@ -1,6 +1,7 @@
 import ModalityInference.SchemeSubsumption
 
-/-! Total outer annotations must expose shared literal partial contexts. -/
+/-! Literal matching and total outer suffixes do not discharge the guards of
+undefined inner annotations in public signature comparison. -/
 namespace ModalityInference.ComparisonFrozenContextRegression
 
 def bad : ModExpr := .leftResidual .epsilon .bottom
@@ -17,13 +18,11 @@ set_option maxRecDepth 100000
 set_option maxHeartbeats 16000000
 
 #guard match checkSubsumption 20000 typeSource typeTarget with
-  | .success result => result.substitution.types.map Prod.fst == [0] &&
-      result.substitution.modes.isEmpty
+  | .rejected _ => true
   | _ => false
 
 #guard match checkSubsumption 20000 sharedSource sharedTarget with
-  | .success result => result.substitution.types.isEmpty &&
-      result.substitution.modes.map Prod.fst == [0]
+  | .rejected _ => true
   | _ => false
 
 -- Literal matching does not discharge a source definedness guard.

@@ -1,4 +1,5 @@
 import ModalityInference.Proofs.InstanceDefinedness
+import ModalityInference.Proofs.SkolemSubstitution
 
 /-! Syntactic instantiation of declarative scheme comparisons. -/
 namespace ModalityInference

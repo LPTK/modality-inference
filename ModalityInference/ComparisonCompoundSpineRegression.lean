@@ -1,8 +1,8 @@
 import ModalityInference.SchemeSubsumption
 import ModalityInference.ComparisonCompoundSpine
 
-/-! A compound action shares its literal modality images with direct occurrences.
-Every direct occurrence and written guard remains in the final comparison. -/
+/-! Splitting a modal spine across quantified parameters does not discharge
+the residual guards required of its images and instantiated body. -/
 namespace ModalityInference.ComparisonCompoundSpineRegression
 
 def bad : ModExpr := .leftResidual .epsilon .bottom
@@ -22,13 +22,11 @@ set_option maxRecDepth 100000
 set_option maxHeartbeats 16000000
 
 #guard match checkSubsumption 20000 source target with
-  | .success result => result.substitution.types.isEmpty &&
-      result.substitution.modes.map Prod.fst == [0, 1]
+  | .rejected _ => true
   | _ => false
 
 #guard match checkSubsumption 20000 mixedSource mixedTarget with
-  | .success result => result.substitution.types.isEmpty &&
-      result.substitution.modes.map Prod.fst == [0, 1]
+  | .rejected _ => true
   | _ => false
 
 #guard match checkSubsumption 20000 { source with bounds := [.defined nu] } target with

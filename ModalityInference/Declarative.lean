@@ -81,6 +81,14 @@ def BoundsSatisfiable (cs : Bounds) : Prop :=
 def Instantiates (s : Scheme) (σ : Substitution) : Prop :=
   List.Perm (σ.types.map Prod.fst) s.typeParams ∧ List.Perm (σ.modes.map Prod.fst) s.modParams
 
+/-- A scheme instance has exactly the quantified domain, defined substitution
+images, and a defined resulting body under the relevant assumptions. Scheme
+bounds are discharged separately; these guards are obligations, not assumptions. -/
+structure InstantiatesUnder (Δ : Bounds) (s : Scheme) (σ : Substitution) : Prop where
+  domain : Instantiates s σ
+  images : σ.WellFormedUnder Δ
+  body : (σ.ty s.body).DefinedUnder Δ
+
 def Scheme.freshTypeIndex (s : Scheme) : Nat :=
   (s.typeParams.map TypeVar.flex ++ s.body.typeVariables ++ s.bounds.typeVariables).foldl (fun n v => max n (v.index + 1)) 0
 def Scheme.freshModeIndex (s : Scheme) : Nat :=
@@ -104,6 +112,15 @@ def Subsumes (Δ : Bounds) (source target : Scheme) : Prop :=
   let (assumptions, t) := target.instantiate nt nm true
   ∃ σ, Instantiates source σ ∧ EntailsAll (Δ ++ assumptions.assumptions) (σ.bounds source.bounds) ∧
     Subtype (Δ ++ assumptions.assumptions) (σ.ty source.body) t
+
+/-- Scheme subsumption uses a defined instance of the source under the target's
+fresh rigid assumptions and proves its declared bounds in that same context. -/
+def SubsumesUnder (Δ : Bounds) (source target : Scheme) : Prop :=
+  let (nt, nm) := source.subsumptionIndices Δ target
+  let (assumptions, t) := target.instantiate nt nm true
+  let declared := Δ ++ assumptions.assumptions
+  ∃ σ, InstantiatesUnder declared source σ ∧
+    EntailsAll declared (σ.bounds source.bounds) ∧ Subtype declared (σ.ty source.body) t
 
 inductive ContextLe (Δ : Bounds) : Context → Context → Prop where
   | nil : ContextLe Δ [] []

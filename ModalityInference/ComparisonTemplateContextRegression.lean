@@ -1,7 +1,7 @@
 import ModalityInference.SchemeSubsumption
 
-/-! A shared structured image has independent partial leaf intervals and one
-root action. Template exposure must keep all these choices jointly quantified. -/
+/-! Structural shape exposure preserves the definedness obligations of every
+component in a public comparison witness. -/
 namespace ModalityInference.ComparisonTemplateContextRegression
 
 def partialA : Ty := .modal (.var (.rigid 0)) (.leftResidual .epsilon .bottom)
@@ -19,8 +19,7 @@ set_option maxRecDepth 100000
 set_option maxHeartbeats 16000000
 
 #guard match checkSubsumption 20000 source target with
-  | .success result => result.substitution.types.map Prod.fst == [0] &&
-      result.substitution.modes.isEmpty
+  | .rejected _ => true
   | _ => false
 
 -- Every written guard remains an obligation after structural parameterization.

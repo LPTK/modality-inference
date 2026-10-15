@@ -55,24 +55,24 @@ def PrincipalFactorization : Prop :=
         Submode Δ (θ.mode v) ((result.substitution.mode v).subst τ.mode) ∧
         Submode Δ ((result.substitution.mode v).subst τ.mode) (θ.mode v))
 
-/-- Successful signature checking supplies a witness in the compatible-shape
-comparison algebra. `scheme_subsumption_sound` proves this contract through the
-assembled executable checker, including structural reconstruction and guards. -/
+/-- Successful signature checking supplies a compatible-shape comparison
+witness whose quantified images and instantiated body are defined under the
+ambient and target bounds. -/
 def SchemeSubsumptionSound : Prop :=
   ∀ {fuel : Nat} {source target : Scheme} {evidence : SubsumptionEvidence},
     (source.typeParams.Nodup ∧ source.modParams.Nodup) →
     (target.typeParams.Nodup ∧ target.modParams.Nodup) →
     Residual target.bounds → checkSubsumption fuel source target = .success evidence →
-    AlgebraSubsumes [] source target
+    AlgebraSubsumesUnder [] source target
 
-/-- Completeness covers compatible internal witnesses, including ordinary
-instantiations. Partial body images remain in scope; no body-definedness or
-satisfiable-target premise is imposed. -/
+/-- Completeness covers every compatible internal witness with defined images
+and instantiated body. Residual expressions remain symbolic and are admitted
+when the relevant bounds establish their definedness guards. -/
 def SchemeSubsumptionComplete : Prop :=
   ∀ {source target : Scheme},
     (source.typeParams.Nodup ∧ source.modParams.Nodup) →
     (target.typeParams.Nodup ∧ target.modParams.Nodup) →
-    Residual target.bounds → AlgebraSubsumes [] source target →
+    Residual target.bounds → AlgebraSubsumesUnder [] source target →
     ∃ n, ∀ fuel ≥ n, ∃ evidence,
       checkSubsumption fuel source target = .success evidence
 

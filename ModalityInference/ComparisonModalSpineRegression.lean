@@ -1,7 +1,7 @@
 import ModalityInference.SchemeSubsumption
 
-/-! A shared modality can include total annotations below a partial factor.
-Those annotations belong to its literal prefix, before its synthesized suffix. -/
+/-! A modal spine containing an undefined residual cannot be an admissible
+public comparison image, even when its other annotations are total. -/
 namespace ModalityInference.ComparisonModalSpineRegression
 
 def bad : ModExpr := .leftResidual .epsilon .bottom
@@ -18,13 +18,11 @@ set_option maxRecDepth 100000
 set_option maxHeartbeats 16000000
 
 #guard match checkSubsumption 20000 source target with
-  | .success result => result.substitution.types.isEmpty &&
-      result.substitution.modes.map Prod.fst == [0]
+  | .rejected _ => true
   | _ => false
 
 #guard match checkSubsumption 20000 mixedSource mixedTarget with
-  | .success result => result.substitution.types.isEmpty &&
-      result.substitution.modes.map Prod.fst == [0]
+  | .rejected _ => true
   | _ => false
 
 -- The partial image cannot satisfy a written definedness requirement.

@@ -1,4 +1,4 @@
-import ModalityInference.SourceTyping
+import ModalityInference.Proofs.SourceTyping
 import ModalityInference.RuntimeSemantics
 import ModalityInference.Proofs.Runtime
 import ModalityInference.Proofs.Soundness

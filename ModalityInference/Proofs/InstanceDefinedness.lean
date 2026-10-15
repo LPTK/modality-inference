@@ -1,7 +1,9 @@
-import ModalityInference.Proofs.SkolemSubstitution
+import ModalityInference.Proofs.ConstraintSubstitution
+import ModalityInference.Proofs.SubstitutionWellFormed
 
 /-! A defined instantiated type or constraint supplies defined images for every
-variable it actually mentions. Unused quantified parameters require no guard. -/
+variable it actually mentions. Definedness of unused quantified images is a
+separate requirement of admissible instantiation. -/
 namespace ModalityInference
 
 theorem ModExpr.eval_vars_defined (m : ModExpr) {η : ModVar → Option Mode} {n : Mode}
@@ -43,8 +45,14 @@ theorem Entails.subst_modes_defined {c : Constraint} {ts : TypeVar → Ty}
   case equal => exact h.2.2.2.subst_modes
   case equiv => exact ⟨h.2.2.1.subst_modes, h.2.2.2.subst_modes⟩
   case defined => exact fun v hv η hη => (h η hη).subst_var hv
-  case mode => exact ⟨fun v hv η hη => (h.defined.1 η hη).subst_var hv,
-    fun v hv η hη => (h.defined.2 η hη).subst_var hv⟩
+  case mode =>
+    constructor
+    · intro v hv η hη
+      obtain ⟨x, _, hx, _, _⟩ := h.denote hη
+      exact (ModExpr.WellFormed.subst_var (Option.isSome_iff_exists.mpr ⟨x, hx⟩) hv)
+    · intro v hv η hη
+      obtain ⟨_, y, _, hy, _⟩ := h.denote hη
+      exact (ModExpr.WellFormed.subst_var (Option.isSome_iff_exists.mpr ⟨y, hy⟩) hv)
 
 theorem Scheme.instance_support_defined {s : Scheme} {θ : Substitution} {Δ}
     (hb : EntailsAll Δ (θ.bounds s.bounds)) (hd : (θ.ty s.body).DefinedUnder Δ) :

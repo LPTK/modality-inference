@@ -1,7 +1,7 @@
 import ModalityInference.SchemeSubsumption
 
-/-! Original source guards can make a compound action total while its type
-operand remains partial. The guards stay in the final symbolic obligation. -/
+/-! Defining a compound source annotation does not define a partial type image.
+Source constraints remain obligations under the declared assumptions. -/
 namespace ModalityInference.ComparisonGuardedContextRegression
 
 def bad : ModExpr := .leftResidual .epsilon .bottom
@@ -17,18 +17,17 @@ set_option maxRecDepth 100000
 set_option maxHeartbeats 16000000
 
 #guard match checkSubsumption 20000 source target with
-  | .success result => result.substitution.types.map Prod.fst == [0] &&
-      result.substitution.modes.map Prod.fst == [0]
+  | .rejected _ => true
   | _ => false
 
--- The original type guard still requires the otherwise partial image defined.
+-- The explicit type guard agrees with the required definedness of every image.
 #guard match checkSubsumption 20000
     { source with bounds := source.bounds ++ [.sub (.var (.flex 0)) (.var (.flex 0))] }
     target with
   | .rejected _ => true
   | _ => false
 
--- A conflicting mode guard cannot be erased by the totality classification.
+-- Contradictory source constraints do not become target assumptions.
 #guard match checkSubsumption 20000
     { source with bounds := source.bounds ++ [.mode .epsilon mu] } target with
   | .rejected _ => true

@@ -735,7 +735,7 @@ end ComparisonChecker
 
 theorem checkSubsumption_terminates (source target : Scheme) :
     ∃ n result, result ≠ .exhausted ∧ ∀ fuel ≥ n, checkSubsumption fuel source target = result :=
-  ComparisonChecker.run_terminates source target
+  ComparisonChecker.run_terminates source.requireDefinedInstances target
 
 theorem checkSubsumption_stable {small large : Nat} {source target : Scheme}
     {result : RunResult SubsumptionEvidence} (h : checkSubsumption small source target = result)

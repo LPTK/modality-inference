@@ -1,4 +1,4 @@
-import ModalityInference.SourceTyping
+import ModalityInference.Proofs.SourceTyping
 import ModalityInference.Proofs.InferenceDerivation
 import ModalityInference.Proofs.GenerationSoundness
 import ModalityInference.Proofs.InferenceCompleteness
@@ -12,6 +12,15 @@ theorem Generates.source_sound {Γ : Context} {t a cs Δ σ}
     (hs : Solution cs Δ σ) (hσ : σ.WellFormedUnder Δ) :
     SourceTyping Δ (Γ.subst σ) t (σ.ty a) :=
   SourceTyping.of_rawTyping (h.sound hh hs hσ)
+
+/-- Successful inference proves the definedness of every returned substitution
+image and of its result type from the returned residual bounds. -/
+theorem inference_source_defined {fuel Γ t result}
+    (h : infer fuel Γ t = .success result) :
+    result.substitution.WellFormedUnder result.residual ∧
+      result.scheme.body.DefinedUnder result.residual := by
+  obtain ⟨a, cs, hg, _, hs, hw, he⟩ := infer_derivation h
+  exact ⟨hw, he ▸ hg.definedUnder hs hw⟩
 
 /-- Successful inference returns the input itself, with a direct source typing
 derivation at the inferred type under the returned bounds and substitution. -/

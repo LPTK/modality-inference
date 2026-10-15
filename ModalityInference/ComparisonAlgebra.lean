@@ -91,4 +91,16 @@ def AlgebraSubsumes (Δ : Bounds) (source target : Scheme) : Prop :=
     AlgebraEntailsAll declared (σ.bounds source.bounds) ∧
     AlgebraSubtype declared (σ.ty source.body) (CompareTy.ofTy t)
 
+/-- An admissible comparison witness has defined quantified images and a defined
+instantiated source body under the ambient and skolemized target bounds. Symbolic
+residual expressions are admitted when those bounds establish their guards. -/
+def AlgebraSubsumesUnder (Δ : Bounds) (source target : Scheme) : Prop :=
+  let (nt, nm) := source.subsumptionIndices Δ target
+  let (assumptions, t) := target.instantiate nt nm true
+  let declared := Δ ++ assumptions.assumptions
+  ∃ σ, CompareInstantiates source σ ∧ σ.WellShaped declared ∧
+    σ.WellFormedUnder declared ∧ (σ.ty source.body).DefinedUnder declared ∧
+    AlgebraEntailsAll declared (σ.bounds source.bounds) ∧
+    AlgebraSubtype declared (σ.ty source.body) (CompareTy.ofTy t)
+
 end ModalityInference

@@ -97,12 +97,28 @@ def bounds (s : CompareSubstitution) (cs : Bounds) : CompareBounds :=
 
 def ofSubstitution (s : Substitution) : CompareSubstitution :=
   { types := s.types.map fun (n, t) => (n, CompareTy.ofTy t), modes := s.modes }
+
+/-- Comparison substitutions denote defined type and modality images under the
+relevant bounds. Residual syntax is allowed when those bounds justify it. -/
+structure WellFormedUnder (s : CompareSubstitution) (Δ : Bounds) : Prop where
+  types : ∀ v, (s.type v).DefinedUnder Δ
+  modes : ∀ v, Entails Δ (.defined (s.mode v))
 end CompareSubstitution
 
 /-- Exact domains keep all free identifiers and rigid target names fixed. -/
 def CompareInstantiates (s : Scheme) (σ : CompareSubstitution) : Prop :=
   List.Perm (σ.types.map Prod.fst) s.typeParams ∧
     List.Perm (σ.modes.map Prod.fst) s.modParams
+
+/-- The quantified domain condition, independently of image admissibility. -/
+abbrev CompareInstanceDomain := CompareInstantiates
+
+/-- A comparison instance replaces exactly the quantified names with defined
+images and has a defined instantiated body under the ambient bounds. -/
+structure CompareInstantiatesUnder (Δ : Bounds) (s : Scheme) (σ : CompareSubstitution) : Prop where
+  domain : CompareInstanceDomain s σ
+  images : σ.WellFormedUnder Δ
+  body : (σ.ty s.body).DefinedUnder Δ
 
 /-- Structural subtyping over finite comparison witnesses, with the same
 modality theory and public assumptions as the original syntactic relation. -/

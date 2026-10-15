@@ -74,6 +74,67 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonBoundaryPropagation.summarize_uniform_iff',
+    'ModalityInference.ComparisonBoundaryPropagation.summarize_iff',
+    'ModalityInference.ComparisonBoundaryPropagation.summarize_sound',
+    'ModalityInference.ComparisonBoundaryPropagation.reconstruct_positive',
+    'ModalityInference.ComparisonBoundaryPropagation.reconstruct_supported',
+    'ModalityInference.ComparisonBoundaryPropagation.summarize_valid_iff',
+    'ModalityInference.Subsumes.instantiate_under',
+    'ModalityInference.ContextLe.instantiate_under',
+    'ModalityInference.inference_residual_typeBoundsDefined',
+    'ModalityInference.inference_context_instance_transport',
+    'ModalityInference.checkSubsumption_defined_subsumes',
+    'ModalityInference.checkSubsumption_evidence_instantiatesUnder',
+    'ModalityInference.checkSubsumption_evidence_defined',
+    'ModalityInference.checkSubsumption_ground_covers',
+    'ModalityInference.inference_source_defined',
+    'ModalityInference.AlgebraSubsumesUnder.to_algebra',
+    'ModalityInference.AlgebraSubsumesUnder.ground_covers',
+    'ModalityInference.AlgebraSubsumesUnder.resource_semantic',
+    'ModalityInference.SubsumesUnder.to_algebra',
+    'ModalityInference.algebraSubsumes_requireDefinedInstances_iff',
+    'ModalityInference.CompareSubstitution.wellFormedUnder_iff_quantified',
+    'ModalityInference.CompareSubstitution.instance_guards_iff',
+    'ModalityInference.InstantiatesUnder.to_compare',
+    'ModalityInference.Scheme.requireDefinedInstances_subsumptionIndices',
+    'ModalityInference.Scheme.definedInstance_type_keys',
+    'ModalityInference.Scheme.definedInstance_mode_keys',
+    'ModalityInference.Scheme.definedInstance_type',
+    'ModalityInference.Scheme.definedInstance_mode',
+    'ModalityInference.Scheme.definedInstance_body',
+    'ModalityInference.Scheme.definedInstance_bounds',
+    'ModalityInference.Scheme.definedInstance_wellFormed',
+    'ModalityInference.Instantiates.definedInstance',
+    'ModalityInference.Instantiates.exists_wellFormed',
+    'ModalityInference.Instantiates.definedInstance_under',
+    'ModalityInference.Instantiates.exists_under',
+    'ModalityInference.ComparisonPreparation.prepare_algebra_under_complete',
+    'ModalityInference.ComparisonPreparation.PreparedWitnessUnder.subsumes',
+    'ModalityInference.ComparisonPreparation.prepare_algebra_under_iff',
+    'ModalityInference.ComparisonJointEncoding.encode_correct',
+    'ModalityInference.ComparisonJointEncoding.encodeAll_correct',
+    'ModalityInference.ComparisonJointEncoding.encode_linear',
+    'ModalityInference.ComparisonJointEncoding.encodeAll_linear',
+    'ModalityInference.ComparisonJointEncoding.compileBound_correct',
+    'ModalityInference.ComparisonJointEncoding.project_linear',
+    'ModalityInference.ComparisonSelectorPropagation.residualQuery_iff',
+    'ModalityInference.ComparisonSelectorPropagation.query_satisfiable_iff',
+    'ModalityInference.ComparisonSelectorPropagation.run_sound',
+    'ModalityInference.ComparisonSelectorPropagation.run_complete',
+    'ModalityInference.ComparisonSelectorPropagation.run_reifies',
+    'ModalityInference.ComparisonSelectorPropagation.run_stable',
+    'ModalityInference.ComparisonSelectorPropagation.run_terminates',
+    'ModalityInference.ComparisonParametricPropagation.slice_least',
+    'ModalityInference.ComparisonParametricPropagation.residual_sound',
+    'ModalityInference.ComparisonParametricPropagation.residual_complete',
+    'ModalityInference.ComparisonParametricPropagation.residual_iff',
+    'ModalityInference.ComparisonTupleReification.reify_tuple',
+    'ModalityInference.ComparisonTupleReification.observe_formula',
+    'ModalityInference.ComparisonTupleReification.Total.definedUnder',
+    'ModalityInference.ComparisonTupleReification.supports',
+    'ModalityInference.ComparisonTupleReification.shaped',
+    'ModalityInference.ComparisonTupleReification.reify_tuple_polynomial',
     'ModalityInference.ComparisonCompoundSpine.prepare_scoped',
     'ModalityInference.ComparisonCompoundSpine.prepare_bounded',
     'ModalityInference.ComparisonCompoundSpine.prepare_success',
@@ -3160,6 +3221,19 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonCompoundSpineWitness\n'
                     'import ModalityInference.Proofs.ComparisonFrozenSpecialization\n'
                     'import ModalityInference.Proofs.ComparisonJointHorn\n'
+                    'import ModalityInference.Proofs.SchemeInstance\n'
+                    'import ModalityInference.Proofs.DefinedInstantiation\n'
+                    'import ModalityInference.Proofs.DefinedContextTransport\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedSubstitution\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedInstances\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedSemantics\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedPreparation\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedEvidence\n'
+                    'import ModalityInference.Proofs.ComparisonJointEncoding\n'
+                    'import ModalityInference.Proofs.ComparisonSelectorPropagation\n'
+                    'import ModalityInference.Proofs.ComparisonParametricPropagation\n'
+                    'import ModalityInference.Proofs.ComparisonBoundaryPropagation\n'
+                    'import ModalityInference.Proofs.ComparisonTupleReification\n'
                     'import ModalityInference.Proofs.ComparisonFrozenActionReification\n'
                     'import ModalityInference.Proofs.ComparisonCapsuleSemanticParameterization\n'
                     'import ModalityInference.Proofs.ComparisonCarrierBodyPlan\n'
