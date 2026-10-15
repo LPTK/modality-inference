@@ -74,6 +74,33 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonPreparation.liftWitness_domainsAbove',
+    'ModalityInference.ComparisonPreparation.liftWitness_type_at',
+    'ModalityInference.ComparisonPreparation.liftWitness_mode_at',
+    'ModalityInference.ComparisonPreparation.liftWitness_wellShaped',
+    'ModalityInference.ComparisonPreparation.liftWitness_type',
+    'ModalityInference.ComparisonPreparation.liftWitness_mode',
+    'ModalityInference.ComparisonPreparation.liftWitness_reconstruct_type',
+    'ModalityInference.ComparisonPreparation.liftWitness_reconstruct_mode',
+    'ModalityInference.ComparisonPreparation.liftWitness_ty',
+    'ModalityInference.ComparisonPreparation.liftWitness_bounds',
+    'ModalityInference.ComparisonPreparation.prepare_algebra_complete',
+    'ModalityInference.ComparisonPreparation.PreparedWitness.subsumes',
+    'ModalityInference.ComparisonPreparation.prepare_algebra_iff',
+    'ModalityInference.ComparisonPartialCovers.join_cover',
+    'ModalityInference.ComparisonPartialCovers.lower_join',
+    'ModalityInference.ComparisonPartialCovers.upper_meet',
+    'ModalityInference.ComparisonPartialCovers.lower_join_preserves_upper',
+    'ModalityInference.ComparisonPartialCovers.meet_cover',
+    'ModalityInference.ComparisonPartialCovers.upper_meet_preserves_lower',
+    'ModalityInference.ComparisonPartialCovers.floor_le_self',
+    'ModalityInference.ComparisonPartialCovers.self_le_ceiling',
+    'ModalityInference.ComparisonPartialCovers.floor_le_act',
+    'ModalityInference.ComparisonPartialCovers.act_le_ceiling',
+    'ModalityInference.ComparisonPartialCovers.floor_le_generated',
+    'ModalityInference.ComparisonPartialCovers.meet_floor_le_generated',
+    'ModalityInference.ComparisonPartialCovers.generated_le_ceiling',
+    'ModalityInference.ComparisonPartialCovers.generated_le_join_ceiling',
     'ModalityInference.CompareTy.defined_ofTy_subst_types',
     'ModalityInference.CompareTy.defined_ofTy_subst_modes',
     'ModalityInference.AlgebraEntails.constraint_types_defined',
@@ -2384,6 +2411,8 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonAlgebraSoundness\n'
                     'import ModalityInference.Proofs.ComparisonAlgebraInstances\n'
                     'import ModalityInference.Proofs.ComparisonSoundness\n'
+                    'import ModalityInference.Proofs.ComparisonPreparationComplete\n'
+                    'import ModalityInference.Proofs.ComparisonPartialCovers\n'
                     'import ModalityInference.Proofs.ComparisonBoundDefinedness\n'
                     'import ModalityInference.Proofs.ComparisonAlgebraPreparation\n'
                     'import ModalityInference.Proofs.ComparisonAlgebraOrder\n'
