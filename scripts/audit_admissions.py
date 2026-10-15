@@ -74,6 +74,69 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonCapsuleIntervals.carrier_interval_defined_iff',
+    'ModalityInference.ComparisonCapsuleIntervals.mixed_requests_dichotomy',
+    'ModalityInference.ComparisonCapsuleIntervals.mixed_requests_totality_dichotomy',
+    'ModalityInference.ComparisonCapsuleIntervals.plan_complete_known_supported',
+    'ModalityInference.ComparisonPartialCapsuleScalar.project_support',
+    'ModalityInference.ComparisonPartialCapsuleScalar.mixed_normal_scalar_reconstruction_supported',
+    'ModalityInference.ComparisonAnnotations.hasPartial_known_false_iff',
+    'ModalityInference.ComparisonAnnotations.hasPartial_known_true_iff',
+    'ModalityInference.ComparisonPartialStructuredCapsule.frozen_modes_below',
+    'ModalityInference.ComparisonPartialStructuredCapsule.frozen_modes_above',
+    'ModalityInference.ComparisonPartialStructuredCapsule.frozenModeBindings_keys',
+    'ModalityInference.ComparisonPartialStructuredCapsule.frozenModeBindings_lookup',
+    'ModalityInference.ComparisonPartialStructuredCapsule.frozen_mode_bindings_below',
+    'ModalityInference.ComparisonPartialStructuredCapsule.frozen_mode_bindings_above',
+    'ModalityInference.ComparisonStructuralProjection.algebra_rootType',
+    'ModalityInference.ComparisonSkeleton.build_defaultShape',
+    'ModalityInference.ComparisonSkeleton.coordinateTypes_keys',
+    'ModalityInference.ComparisonSkeleton.coordinateModes_keys',
+    'ModalityInference.ComparisonSkeleton.coordinateAction_realizes',
+    'ModalityInference.ComparisonSkeleton.build_factor',
+    'ModalityInference.SchemeModeSynthesis.strategy_uniform',
+    'ModalityInference.SchemeModeSynthesis.run_complete_witness',
+    'ModalityInference.SchemeModeSynthesis.run_complete_substituted',
+    'ModalityInference.SchemeModeSynthesis.run_substituted_models',
+    'ModalityInference.ComparisonCapsuleContext.bounded_iff',
+    'ModalityInference.ComparisonCapsuleContext.prepare_scoped',
+    'ModalityInference.ComparisonChecker.capsuleCore_solution_of_propagate',
+    'ModalityInference.ComparisonChecker.capsuleCore_settles',
+    'ModalityInference.ComparisonPartialCapsuleScalar.project_spec',
+    'ModalityInference.ComparisonPartialCapsuleScalar.project_present',
+    'ModalityInference.ComparisonPartialCapsuleScalar.project_total',
+    'ModalityInference.ComparisonPartialCapsuleScalar.project_lower',
+    'ModalityInference.ComparisonPartialCapsuleScalar.project_upper',
+    'ModalityInference.ComparisonPartialCapsuleScalar.simultaneous_capsule_reconstruction',
+    'ModalityInference.ComparisonPartialCapsuleScalar.mixed_normal_scalar_reconstruction',
+    'ModalityInference.ComparisonCapsuleIntervals.peel_normal',
+    'ModalityInference.ComparisonCapsuleIntervals.plan_complete_of_normals',
+    'ModalityInference.ComparisonCapsuleIntervals.plan_complete_mixed',
+    'ModalityInference.ComparisonCapsuleIntervals.plan_public_solution',
+    'ModalityInference.ComparisonCapsuleIntervals.mixed_requests_iff_scalar',
+    'ModalityInference.ComparisonCapsuleIntervals.peel_normal_known',
+    'ModalityInference.ComparisonCapsuleIntervals.mixed_requests_iff_known',
+    'ModalityInference.ComparisonBody.knownTotal_isTotal_complete',
+    'ModalityInference.ComparisonBody.peel_stopped_complete',
+    'ModalityInference.ComparisonPartialStructuredCapsule.partial_context_public_below',
+    'ModalityInference.ComparisonPartialStructuredCapsule.partial_context_public_above',
+    'ModalityInference.ComparisonPartialStructuredCapsule.frozen_fragment_below',
+    'ModalityInference.ComparisonPartialStructuredCapsule.frozen_fragment_above',
+    'ModalityInference.ComparisonPartialStructuredCapsule.frozen_images_below',
+    'ModalityInference.ComparisonPartialStructuredCapsule.frozen_images_above',
+    'ModalityInference.ComparisonPartialStructuredCapsule.frozenBindings_keys',
+    'ModalityInference.ComparisonPartialStructuredCapsule.frozenBindings_lookup',
+    'ModalityInference.ComparisonPartialStructuredCapsule.frozen_bindings_below',
+    'ModalityInference.ComparisonPartialStructuredCapsule.frozen_bindings_above',
+    'ModalityInference.ComparisonStructuralProjection.algebra_pairChild',
+    'ModalityInference.ComparisonStructuralProjection.product_inversion',
+    'ModalityInference.ComparisonStructuralProjection.sum_inversion',
+    'ModalityInference.ComparisonStructuralProjection.algebra_rootValue',
+    'ModalityInference.ComparisonStructuralProjection.rootGuarded_le',
+    'ModalityInference.ComparisonStructuralProjection.rootGuarded_futureLe',
+    'ModalityInference.ComparisonSkeletonCoordinates.normalize_le',
+    'ModalityInference.ComparisonSkeletonCoordinates.normalize_modal',
+    'ModalityInference.ComparisonSkeletonCoordinates.normalize_public_correct',
     'ModalityInference.ComparisonPartialCarrier.body_plans_bounded',
     'ModalityInference.ComparisonPartialCarrier.body_plan_bounded_of_subtype',
     'ModalityInference.ComparisonPartialCarrier.prepared_bounded_normalized_witness',
@@ -2912,6 +2975,23 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonPartialStructuredProvenance\n'
                     'import ModalityInference.Proofs.ComparisonStructuralProjection\n'
                     'import ModalityInference.Proofs.ComparisonCapsuleIntervals\n'
+                    'import ModalityInference.Proofs.ComparisonPartialCapsuleProjection\n'
+                    'import ModalityInference.Proofs.ComparisonCapsulePeeling\n'
+                    'import ModalityInference.Proofs.ComparisonCapsuleCompleteness\n'
+                    'import ModalityInference.Proofs.ComparisonCapsuleTotality\n'
+                    'import ModalityInference.Proofs.ComparisonPartialPublicContext\n'
+                    'import ModalityInference.Proofs.ComparisonPartialFrozenFragments\n'
+                    'import ModalityInference.Proofs.ComparisonPartialFrozenImages\n'
+                    'import ModalityInference.Proofs.ComparisonProductProjection\n'
+                    'import ModalityInference.Proofs.ComparisonRootProjection\n'
+                    'import ModalityInference.Proofs.ComparisonSkeletonNormalization\n'
+                    'import ModalityInference.Proofs.SchemeModeWitness\n'
+                    'import ModalityInference.Proofs.ComparisonCapsuleContext\n'
+                    'import ModalityInference.Proofs.ComparisonCapsuleDichotomy\n'
+                    'import ModalityInference.Proofs.ComparisonCapsuleSupport\n'
+                    'import ModalityInference.Proofs.ComparisonPartialFrozenModes\n'
+                    'import ModalityInference.Proofs.ComparisonPartialRootProjection\n'
+                    'import ModalityInference.Proofs.ComparisonSkeletonRealization\n'
                     'import ModalityInference.Proofs.ComparisonCarrierBodyPlan\n'
                     'import ModalityInference.Proofs.ComparisonCarrierBodyReduction\n'
                     'import ModalityInference.Proofs.ComparisonPreparedCarrierPlan\n'

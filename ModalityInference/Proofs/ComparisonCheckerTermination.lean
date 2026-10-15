@@ -125,6 +125,16 @@ theorem checkTotal_settles (assumptions : Bounds) (expressions : List ModExpr) :
     intro rest
     exact Settles.pure _
 
+theorem capsulePrepare_settles (p : SchemePreparation.Prepared) (total : ModExpr → Bool) :
+    Settles (fun fuel => ComparisonCapsuleContext.prepare fuel p total) := by
+  unfold ComparisonCapsuleContext.prepare
+  dsimp only
+  split
+  · exact Settles.pure _
+  · apply Settles.bind (modes_settles _ _)
+    intro modes
+    split <;> exact Settles.pure _
+
 theorem knownTotal_settles (assumptions : Bounds) (expressions : List ModExpr) :
     Settles (fun fuel => ComparisonBody.knownTotal fuel assumptions expressions) :=
   checkTotal_settles _ _
@@ -475,13 +485,31 @@ theorem core_settles (source target : Scheme) :
         dsimp only
         cases refineContexts fuel (SchemePreparation.prepare [] source target) shapes {} <;> rfl
 
+theorem capsuleCore_settles (source target : Scheme) :
+    Settles (fun fuel => capsuleCore fuel source target) := by
+  simp only [capsuleCore, bind, RunResult.bind]
+  apply Settles.bind ⟨shapePrepare_stable _, ComparisonShapeSolver.prepare_eventually _⟩
+  intro shapeResult
+  cases shapeResult with
+  | infeasibleAssumptions => exact Settles.rejected _
+  | solved shapes =>
+    apply Settles.bind (knownTotal_settles _ _)
+    intro known
+    apply Settles.bind (capsulePrepare_settles _ _)
+    intro candidate
+    cases candidate with
+    | none => exact Settles.rejected _
+    | some before => exact variants_settles _ _ _
+
 theorem run_settles (source target : Scheme) :
     Settles (fun fuel => run fuel source target) := by
   refine Settles.congr (Settles.recover (g := fun fuel reason => do
     let p := SchemePreparation.prepare [] source target
     match ← ComparisonPartialPropagation.attempt fuel p with
     | some result => return partialEvidence p result
-    | none => .rejected reason) (core_settles source target) ?_) ?_
+    | none => match capsuleCore fuel source target with
+      | .rejected _ => .rejected reason
+      | result => result) (core_settles source target) ?_) ?_
   · intro reason
     apply Settles.bind
       ⟨fun hle h hr => ComparisonPartialPropagation.attempt_stable h hr hle,
@@ -489,7 +517,12 @@ theorem run_settles (source target : Scheme) :
     intro partialResult
     cases partialResult with
     | some result => exact Settles.pure _
-    | none => exact Settles.rejected _
+    | none =>
+      dsimp only
+      refine Settles.congr (Settles.recover (g := fun _ _ => .rejected reason)
+        (capsuleCore_settles source target) (fun _ => Settles.rejected reason)) ?_
+      intro fuel
+      cases capsuleCore fuel source target <;> rfl
   · intro fuel
     unfold run
     cases core fuel source target <;> rfl

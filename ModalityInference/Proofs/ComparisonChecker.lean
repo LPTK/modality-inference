@@ -58,6 +58,12 @@ theorem partial_evidence {fuel p result}
     PreparedEvidence p (partialEvidence p result) :=
   ⟨result.action, rfl, rfl, rfl, rfl, ComparisonPartialPropagation.attempt_query_valid h⟩
 
+theorem capsuleCore_evidence {fuel source target e}
+    (h : capsuleCore fuel source target = .success e) :
+    PreparedEvidence (SchemePreparation.prepare [] source target) e := by
+  simp only [capsuleCore, bind, RunResult.bind] at h
+  repeat' first | contradiction | exact variants_evidence h | split at h
+
 theorem run_evidence {fuel source target e}
     (h : run fuel source target = .success e) :
     PreparedEvidence (SchemePreparation.prepare [] source target) e := by
@@ -70,7 +76,10 @@ theorem run_evidence {fuel source target e}
       simp only [hp, bind, pure, RunResult.bind] at h
     case success result =>
       cases result with
-      | none => contradiction
+      | none =>
+        cases hs : capsuleCore fuel source target <;> simp only [hs] at h
+        case success => cases h; exact capsuleCore_evidence hs
+        all_goals contradiction
       | some result => cases h; exact partial_evidence hp
     all_goals contradiction
 

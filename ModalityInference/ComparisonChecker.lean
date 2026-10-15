@@ -6,6 +6,7 @@ import ModalityInference.ComparisonAbsorption
 import ModalityInference.ComparisonContext
 import ModalityInference.ComparisonExactContext
 import ModalityInference.ComparisonPartialPropagation
+import ModalityInference.ComparisonCapsuleContext
 
 namespace ModalityInference.ComparisonChecker
 
@@ -142,15 +143,30 @@ def partialEvidence (p : SchemePreparation.Prepared)
     query := result.query
     backend := result.backend }
 
-/-- Partial-envelope propagation preserves successful and exhausted core runs.
-Every additional success carries a checked derivation for the original body. -/
+/-- Joint suffix synthesis supplies a candidate for shared partial images.
+Ordinary propagation then checks all original body and source-bound obligations. -/
+def capsuleCore (fuel : Nat) (source target : Scheme) : RunResult Evidence := do
+  let p := SchemePreparation.prepare [] source target
+  let .solved shapes ← ComparisonShapeSolver.prepare fuel p |
+    .rejected "declared shape equations are infeasible; outside residual-target comparison"
+  let known ← ComparisonBody.knownTotal fuel p.assumptions
+    (ComparisonAnnotations.expressions p.sourceType ++
+      ComparisonAnnotations.expressions p.targetType)
+  let some before ← ComparisonCapsuleContext.prepare fuel p (ComparisonBody.isTotal known) |
+    .rejected "no shared partial interval candidate"
+  variants fuel p shapes before
+
+/-- Additional partial-context phases preserve successful and exhausted core
+runs. Every success retains a certificate for the complete original input. -/
 def run (fuel : Nat) (source target : Scheme) : RunResult Evidence :=
   match core fuel source target with
   | .rejected reason => do
       let p := SchemePreparation.prepare [] source target
       match ← ComparisonPartialPropagation.attempt fuel p with
       | some result => return partialEvidence p result
-      | none => .rejected reason
+      | none => match capsuleCore fuel source target with
+        | .rejected _ => .rejected reason
+        | result => result
   | result => result
 
 end ModalityInference.ComparisonChecker

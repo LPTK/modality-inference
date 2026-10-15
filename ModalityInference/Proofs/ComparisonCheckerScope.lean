@@ -4,6 +4,7 @@ import ModalityInference.Proofs.ComparisonSkeleton
 import ModalityInference.Proofs.ComparisonReduction
 import ModalityInference.Proofs.SchemeModeSynthesis
 import ModalityInference.Proofs.ComparisonContext
+import ModalityInference.Proofs.ComparisonCapsuleContext
 
 /-! Fresh-domain invariants for the assembled comparison witness. -/
 namespace ModalityInference
@@ -261,6 +262,18 @@ theorem partial_action_domains {fuel p result}
     simp
   · simp [ComparisonPartialPropagation.action]
 
+theorem capsuleCore_domains {fuel source target e}
+    (h : capsuleCore fuel source target = .success e) :
+    let p := SchemePreparation.prepare [] source target
+    ∃ action, e.substitution = ComparisonPreparation.reconstruct p action ∧
+      e.obligations = action.bounds p.sourceBounds ∧
+      e.body = (action.ty p.sourceType, CompareTy.ofTy p.targetType) ∧
+      action.DomainsAbove p.firstType p.firstMode := by
+  simp only [capsuleCore, bind, RunResult.bind] at h
+  repeat' first | contradiction | split at h
+  exact variants_domains
+    (ComparisonCapsuleContext.prepare_scoped (by assumption)).1.domainsAbove h
+
 theorem run_domains {fuel source target e}
     (h : run fuel source target = .success e) :
     let p := SchemePreparation.prepare [] source target
@@ -277,7 +290,10 @@ theorem run_domains {fuel source target e}
       simp only [hp, bind, pure, RunResult.bind] at h
     case success result =>
       cases result with
-      | none => contradiction
+      | none =>
+        cases hs : capsuleCore fuel source target <;> simp only [hs] at h
+        case success => cases h; exact capsuleCore_domains hs
+        all_goals contradiction
       | some result => cases h; exact ⟨result.action, rfl, rfl, rfl, partial_action_domains hp⟩
     all_goals contradiction
 

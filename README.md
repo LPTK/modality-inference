@@ -67,7 +67,7 @@ All public functions below are in namespace `ModalityInference` and return
 | `solve fuel constraints` | Substitution, residual bounds, concrete consistency witness, fresh counters, and trace |
 | `satisfiableModes fuel constraints` | A concrete modality assignment modeling the modality constraints |
 | `Runtime.evalFuel fuel supplies environment term` | A runtime value |
-| `checkSubsumption fuel inferred declared` | Internal comparison substitution and residual validity evidence; whole-checker soundness/completeness remain unproved |
+| `checkSubsumption fuel inferred declared` | Internal comparison substitution and residual validity evidence; soundness and termination proved, general completeness unfinished |
 
 Exhaustion is not rejection. Increasing fuel permits deeper recursion and more
 worklist or normalization steps. The Horn check's `requiredFuel` is a threshold
@@ -96,8 +96,10 @@ including partial type and mode images. Bare type intervals, sufficient
 shared-wrapper reductions, uniform body-only modality absorption, and direct
 shared-prefix mode requests preserve partial syntax without adding a body guard.
 Exact partial-context matching is a positive prepass; its substitution is applied
-to the complete source bounds as well as the body. General coupled partial contexts
-remain a completeness obligation.
+to the complete source bounds as well as the body. Shared partial type intervals
+also synthesize one total inner suffix jointly with source modalities, then
+recheck every original obligation. General coupled partial contexts remain a
+completeness obligation.
 
 `CompareTy` is a separate finite witness language with binary joins and meets.
 `ShapedSubsumes` restricts instantiations and intermediate types to compatible
@@ -250,9 +252,11 @@ are stable under increasing fuel. `Obligations.SchemeSubsumptionComplete`
 remains unproved, with its original duplicate-free-binder and residual-target
 premises and no body-definedness or consistency premise.
 
-Remaining comparison work includes structural normalization into the generated
-finite-basis grammar, arbitrary coupled partial type/modality contexts, and
-complete witness reconstruction.
+Defined internal witnesses have a proved structural retraction preserving full
+algebraic comparisons and total modality actions, with public-type fixation.
+Remaining comparison work includes factoring this retraction through generated
+templates, arbitrary coupled partial type/modality contexts, and complete
+witness reconstruction in the finite input grammar.
 Exact-instance matching and shared-prefix adapters are positive certificate
 paths; they do not prove complete coverage of partial syntax. Non-residual
 declared type bounds also lack a complete general decision procedure.

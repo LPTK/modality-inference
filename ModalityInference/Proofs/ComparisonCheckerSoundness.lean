@@ -1,5 +1,6 @@
 import ModalityInference.Proofs.ComparisonCheckerSolution
 import ModalityInference.Proofs.ComparisonContextSupport
+import ModalityInference.Proofs.ComparisonCapsuleContext
 
 /-! Semantic composition of the successful comparison branches. -/
 namespace ModalityInference
@@ -84,6 +85,18 @@ theorem partial_solution {fuel source target result}
   obtain ⟨hs, hb, ht⟩ := ComparisonPartialPropagation.attempt_sound h
   exact ⟨result.action, rfl, rfl, rfl, partial_action_domains h, hs, hb, ht⟩
 
+theorem capsuleCore_solution_of_propagate {fuel source target e}
+    (hprop : ∀ shapes, ComparisonShapeSolver.prepare fuel (SchemePreparation.prepare [] source target) =
+      .success (.solved shapes) → PropagationSound fuel (SchemePreparation.prepare [] source target) shapes)
+    (h : capsuleCore fuel source target = .success e) :
+    PreparedSolution (SchemePreparation.prepare [] source target) e := by
+  simp only [capsuleCore, bind, RunResult.bind] at h
+  repeat' first | contradiction | split at h
+  all_goals
+    exact variants_solution_of_propagate (hprop _ (by assumption))
+      (ComparisonCapsuleContext.prepare_scoped (by assumption)).1
+      (ComparisonCapsuleContext.prepare_scoped (by assumption)).2 h
+
 theorem run_solution_of_propagate {fuel source target e}
     (ht : (SchemePreparation.prepare [] source target).targetType.Bounded
       (SchemePreparation.prepare [] source target).nextType
@@ -101,7 +114,10 @@ theorem run_solution_of_propagate {fuel source target e}
       simp only [hp, bind, pure, RunResult.bind] at h
     case success result =>
       cases result with
-      | none => contradiction
+      | none =>
+        cases hs : capsuleCore fuel source target <;> simp only [hs] at h
+        case success => cases h; exact capsuleCore_solution_of_propagate hprop hs
+        all_goals contradiction
       | some result => cases h; exact partial_solution hp
     all_goals contradiction
 
