@@ -258,6 +258,13 @@ definedness, and identifier support; all observations use the same projected
 scalar valuation. Eventual success of this assembly, shared modality synthesis
 across groups, and public checker completeness remain unfinished. Non-residual
 declared bounds also lack a complete general procedure.
+Actual collection is proved to cover rigid endpoints and retain a fixed head in
+every group. Annotation classification eventually returns a successful result.
+Witness normalization preserves body/image definedness while restricting image
+annotations to fixed input names, and the assembly accepts a finite parameter
+budget covering those names. Finite modality reconstruction and guard transport
+use the same projected strategy as the reconstructed types; reindexing preserves
+the local nominal guarantees of a shared solve.
 See [TODO.md](../TODO.md) and [LEAN_PROOF_HANDOFF.md](../LEAN_PROOF_HANDOFF.md).
 
 `Obligations.RunSolverCorrespondence`, relating the complete structural worklist

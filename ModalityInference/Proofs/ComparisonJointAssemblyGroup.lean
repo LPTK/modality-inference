@@ -79,18 +79,21 @@ noncomputable def Result.state (result : Result input count flex) (heads : Nat) 
   simp [Result.state, ComparisonJointGroup.state, coordinateNumber,
     show ¬3 * count + i.val < count by omega, show ¬3 * count + i.val < 2 * count by omega]
 
-theorem run_group_input {prepareFuel fuel : Nat} {assumptions required : Bounds}
+theorem reconstruct_group_input {prepareFuel minimumModes : Nat} {assumptions required : Bounds}
     {g : ComparisonGroups.Group} {input : Input} {side : Nat → Bool} {flex : List Nat}
-    {result : Result input g.leaves.length flex}
+    {solution : ComparisonJointGuarded.Result g.leaves.length (constantCount input) flex}
     (hp : prepare prepareFuel assumptions required g = .success input)
-    (hr : run fuel side flex g.leaves.length g.heads.length input = .success result) :
+    (hsolution : SolutionCorrect side g.leaves.length g.heads.length input minimumModes solution) :
+    let result := reconstruct side g.leaves.length g.heads.length input solution minimumModes
     ∀ headWorld inputWorld,
       input.Holds g.heads.length (parameters g.heads.length headWorld (result.strategy inputWorld))
         (result.state g.heads.length headWorld inputWorld) := by
+  dsimp only
+  let result := reconstruct side g.leaves.length g.heads.length input solution minimumModes
   have hlinear := prepare_linear hp
-  have hcompiled := run_compiled hr
-  have hcoordinates := run_coordinates hlinear.2.1 hlinear.2.2 hr
-  have hclauses := run_coordinate_clauses hlinear.2.1 hlinear.2.2 hr
+  have hcompiled := hsolution
+  have hcoordinates := reconstruct_coordinates hlinear.2.1 hlinear.2.2 hsolution
+  have hclauses := reconstruct_coordinate_clauses hlinear.2.1 hlinear.2.2 hsolution
   have hparts := hcompiled.2.2
   simp only [compile, holds_append, and_assoc] at hparts
   intro headWorld inputWorld
@@ -106,7 +109,7 @@ theorem run_group_input {prepareFuel fuel : Nat} {assumptions required : Bounds}
       simpa only [Result.localityState, Result.strategy, Result.choice, boundary,
         Fin.getElem_fin, Vector.getElem_ofFn] using
         ComparisonJointAxisSummary.coordinateState_boundary
-          (selectors := input.locality.length + 1) (modes := modeBound input)
+          (selectors := input.locality.length + 1) (modes := modeBound input minimumModes)
           (embedding := localityEmbedding input) (choice := result.choice)
           (strategy := result.strategy) (input := inputWorld) hcompiled.1.2.1
           (hcoordinates.1.2.2.2 inputWorld).2 headWorld i
@@ -122,7 +125,7 @@ theorem run_group_input {prepareFuel fuel : Nat} {assumptions required : Bounds}
       simpa only [Result.otherState, Result.strategy, Result.choice, boundary,
         Fin.getElem_fin, Vector.getElem_ofFn] using
         ComparisonJointAxisSummary.coordinateState_boundary
-          (selectors := input.other.length + 1) (modes := modeBound input)
+          (selectors := input.other.length + 1) (modes := modeBound input minimumModes)
           (embedding := otherEmbedding input) (choice := result.choice)
           (strategy := result.strategy) (input := inputWorld) hcompiled.1.2.1
           (hcoordinates.2.2.2.2 inputWorld).2 headWorld i
@@ -134,24 +137,48 @@ theorem run_group_input {prepareFuel fuel : Nat} {assumptions required : Bounds}
   · rw [modes_parameters]
     exact (scalarClauses_correct _ _ _ _).mp hparts.2.2.2.2.2 inputWorld
 
-/-- Every successful assembled solve satisfies all four original group
-observations, their compatibility inequalities, and the original scalar guards. -/
-theorem run_group_sound {prepareFuel fuel : Nat} {assumptions required : Bounds}
+theorem run_group_input {prepareFuel fuel minimumModes : Nat} {assumptions required : Bounds}
     {g : ComparisonGroups.Group} {input : Input} {side : Nat → Bool} {flex : List Nat}
     {result : Result input g.leaves.length flex}
     (hp : prepare prepareFuel assumptions required g = .success input)
-    (hr : run fuel side flex g.leaves.length g.heads.length input = .success result) :
+    (hr : run fuel side flex g.leaves.length g.heads.length input minimumModes = .success result) :
+    ∀ headWorld inputWorld,
+      input.Holds g.heads.length (parameters g.heads.length headWorld (result.strategy inputWorld))
+        (result.state g.heads.length headWorld inputWorld) := by
+  obtain ⟨solution, hs, rfl⟩ := run_solution hr
+  exact reconstruct_group_input hp (ComparisonJointGuarded.run_sound hs)
+
+theorem reconstruct_group_sound {prepareFuel minimumModes : Nat} {assumptions required : Bounds}
+    {g : ComparisonGroups.Group} {input : Input} {side : Nat → Bool} {flex : List Nat}
+    {solution : ComparisonJointGuarded.Result g.leaves.length (constantCount input) flex}
+    (hp : prepare prepareFuel assumptions required g = .success input)
+    (hsolution : SolutionCorrect side g.leaves.length g.heads.length input minimumModes solution) :
+    let result := reconstruct side g.leaves.length g.heads.length input solution minimumModes
+    ∀ headWorld inputWorld,
+      GroupHolds assumptions required g
+        (parameters g.heads.length headWorld (result.strategy inputWorld))
+        (result.state g.heads.length headWorld inputWorld) :=
+  fun headWorld inputWorld => (prepare_correct hp _ _).mp
+    (reconstruct_group_input hp hsolution headWorld inputWorld)
+
+/-- Every successful assembled solve satisfies all four original group
+observations, their compatibility inequalities, and the original scalar guards. -/
+theorem run_group_sound {prepareFuel fuel minimumModes : Nat} {assumptions required : Bounds}
+    {g : ComparisonGroups.Group} {input : Input} {side : Nat → Bool} {flex : List Nat}
+    {result : Result input g.leaves.length flex}
+    (hp : prepare prepareFuel assumptions required g = .success input)
+    (hr : run fuel side flex g.leaves.length g.heads.length input minimumModes = .success result) :
     ∀ headWorld inputWorld,
       GroupHolds assumptions required g
         (parameters g.heads.length headWorld (result.strategy inputWorld))
         (result.state g.heads.length headWorld inputWorld) :=
   fun headWorld inputWorld => (prepare_correct hp _ _).mp (run_group_input hp hr headWorld inputWorld)
 
-theorem run_compatible {prepareFuel fuel : Nat} {assumptions required : Bounds}
+theorem run_compatible {prepareFuel fuel minimumModes : Nat} {assumptions required : Bounds}
     {g : ComparisonGroups.Group} {input : Input} {side : Nat → Bool} {flex : List Nat}
     {result : Result input g.leaves.length flex}
     (hp : prepare prepareFuel assumptions required g = .success input)
-    (hr : run fuel side flex g.leaves.length g.heads.length input = .success result)
+    (hr : run fuel side flex g.leaves.length g.heads.length input minimumModes = .success result)
     (headWorld inputWorld : Nat → Bool) :
     Compatible (result.state g.heads.length headWorld inputWorld) :=
   (run_group_sound hp hr headWorld inputWorld).2.1

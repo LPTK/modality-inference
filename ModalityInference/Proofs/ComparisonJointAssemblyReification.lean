@@ -28,21 +28,30 @@ theorem projectExpression_atoms {allowed : List ModVar} {e : BoolExpr} {v : Nat}
     exact ⟨hw, by simpa using ‹allowed.contains (atomVariable w) = true›⟩
   · simp [BoolExpr.atoms] at hv
 
-theorem run_modes_atoms {fuel : Nat} {side : Nat → Bool} {flex : List Nat}
-    {count heads : Nat} {input : ComparisonJointGroup.Input} {result : Result input count flex}
-    (h : ComparisonJointAssembly.run fuel side flex count heads input = .success result)
-    {v w : Nat} (hw : w ∈ (result.solution.modes.substitute v).atoms) :
+theorem guarded_run_modes_atoms {fuel : Nat} {side : Nat → Bool} {flex : List Nat}
+    {count heads constants : Nat}
+    {clauses : List (ComparisonJointGuarded.GuardedClause heads count constants)}
+    {result : ComparisonJointGuarded.Result count constants flex}
+    (h : ComparisonJointGuarded.run fuel side flex clauses = .success result)
+    {v w : Nat} (hw : w ∈ (result.modes.substitute v).atoms) :
     side w = side v ∧ (v ∈ flex → w ∉ flex) := by
-  obtain ⟨solution, hs, rfl⟩ := run_solution h
-  unfold ComparisonJointGuarded.run at hs
-  cases hr : CNFPropagation.solve fuel (ComparisonJointGuarded.query side flex (compile side count heads input)) with
-  | exhausted | rejected => simp [hr, bind, RunResult.bind] at hs
+  unfold ComparisonJointGuarded.run at h
+  cases hr : CNFPropagation.solve fuel (ComparisonJointGuarded.query side flex clauses) with
+  | exhausted | rejected => simp [hr, bind, RunResult.bind] at h
   | success assignment =>
-    simp only [hr, bind, RunResult.bind, pure, RunResult.success.injEq] at hs
-    cases hs
+    simp only [hr, bind, RunResult.bind, pure, RunResult.success.injEq] at h
+    cases h
     exact ComparisonJointModes.witness_atoms
       (ComparisonJointGuarded.modeClauses_supported side true _)
       (ComparisonJointGuarded.modeClauses_supported side false _) hw
+
+theorem run_modes_atoms {fuel minimumModes : Nat} {side : Nat → Bool} {flex : List Nat}
+    {count heads : Nat} {input : ComparisonJointGroup.Input} {result : Result input count flex}
+    (h : ComparisonJointAssembly.run fuel side flex count heads input minimumModes = .success result)
+    {v w : Nat} (hw : w ∈ (result.solution.modes.substitute v).atoms) :
+    side w = side v ∧ (v ∈ flex → w ∉ flex) := by
+  obtain ⟨solution, hs, rfl⟩ := run_solution h
+  exact guarded_run_modes_atoms hs hw
 
 theorem rebase_positive {heads : Nat} {embedding : Fin selectors → Fin constants}
     {clauses : CNF} (h : Positive clauses) : Positive (rebase heads embedding clauses) := by
@@ -80,9 +89,10 @@ theorem scalars_rebase {b : Basis} (result : Result input count flex)
     show (2 * parameter embedding ((i - b.heads.length) / 2) + (i - b.heads.length) % 2) / 2 =
       parameter embedding ((i - b.heads.length) / 2) by omega]
 
-theorem rebase_coordinate_supported {fuel : Nat} {flex : List Nat} {b : Basis}
+theorem rebase_coordinate_supported_of_axes {flex : List Nat} {b : Basis}
     {input : ComparisonJointGroup.Input} {result : Result input count flex}
-    (h : ComparisonJointAssembly.run fuel ModalSynthesis.locality flex count b.heads.length input = .success result)
+    (haxes : ∀ v w, w ∈ (result.solution.modes.substitute v).atoms →
+      ModalSynthesis.locality w = ModalSynthesis.locality v)
     {component : Bool} {axis : Axis}
     (haxis : ∀ v, ModalSynthesis.locality v = component → axis.Supports v)
     (embedding : Fin selectors → Fin (constantCount input)) {clauses : CNF}
@@ -108,10 +118,22 @@ theorem rebase_coordinate_supported {fuel : Nat} {flex : List Nat} {b : Basis}
         simpa [ComparisonJointAxisSummary.keep, Nat.not_lt.mpr hih, hn] using hkeep i hi
       intro w hw
       obtain ⟨hw, hm⟩ := projectExpression_atoms hw
-      exact ⟨haxis w ((run_modes_atoms h hw).1.trans hk), hm⟩
+      exact ⟨haxis w ((haxes _ _ hw).trans hk), hm⟩
   split
   · exact hvalue
   · simpa [ComparisonTupleReification.Supported, BoolExpr.atoms] using hvalue
+
+theorem rebase_coordinate_supported {fuel minimumModes : Nat} {flex : List Nat} {b : Basis}
+    {input : ComparisonJointGroup.Input} {result : Result input count flex}
+    (h : ComparisonJointAssembly.run fuel ModalSynthesis.locality flex count b.heads.length input minimumModes = .success result)
+    {component : Bool} {axis : Axis}
+    (haxis : ∀ v, ModalSynthesis.locality v = component → axis.Supports v)
+    (embedding : Fin selectors → Fin (constantCount input)) {clauses : CNF}
+    (hkeep : ∀ i ∈ CNFPropagation.atoms clauses,
+      ComparisonJointAxisSummary.keep ModalSynthesis.locality component b.heads.length selectors i = true) :
+    ComparisonTupleWitness.CoordinateSupported b axis (scalars b result)
+      (rebase b.heads.length embedding clauses) :=
+  rebase_coordinate_supported_of_axes (fun _ _ hw => (run_modes_atoms h hw).1) haxis embedding hkeep
 
 theorem world_rebase (b : Basis) (result : Result input count flex)
     (embedding : Fin selectors → Fin (constantCount input))
@@ -156,11 +178,19 @@ theorem nominal_holds {b : Basis} (result : Result input count flex)
   have hh : i < b.heads.length := List.mem_range.mp (hs i hi)
   simp [ComparisonTupleCNF.world, basisValue, hh]
 
-theorem leaf_complete {fuel : Nat} {flex : List Nat} {b : Basis}
+/-- Reification depends on the returned polynomial and scalar supports, rather
+than on the particular solver run that produced them. -/
+theorem leaf_complete_of_properties {flex : List Nat} {b : Basis}
     {input : ComparisonJointGroup.Input} {result : Result input count flex}
-    (hl : ComparisonJointHorn.Linear (· < 4 * count) input.locality)
-    (ho : ComparisonJointHorn.Linear (· < 4 * count) input.other)
-    (hr : ComparisonJointAssembly.run fuel ModalSynthesis.locality flex count b.heads.length input = .success result)
+    (hp : result.solution.types.Polynomial b.heads.length)
+    (haxes : ∀ v w, w ∈ (result.solution.modes.substitute v).atoms →
+      ModalSynthesis.locality w = ModalSynthesis.locality v)
+    (hlp : result.locality.Positive)
+    (hls : ComparisonJointAxisSummary.OwnAxisSupported ModalSynthesis.locality true
+      b.heads.length (input.locality.length + 1) result.locality)
+    (hop : result.other.Positive)
+    (hos : ComparisonJointAxisSummary.OwnAxisSupported ModalSynthesis.locality false
+      b.heads.length (input.other.length + 1) result.other)
     (i : Fin count) :
     ∃ generated : ComparisonControls.Generated b,
       leaf b result i = some generated.term ∧ ComparisonTupleReification.Total generated ∧
@@ -170,25 +200,23 @@ theorem leaf_complete {fuel : Nat} {flex : List Nat} {b : Basis}
         ∀ coordinate, ComparisonTupleReification.observe coordinate heads η generated =
           result.state b.heads.length (basisValue b.heads heads)
             (projectWorld b.modes (encodeModes η)) (ComparisonJointGroup.state coordinate i) := by
-  have hp := (run_compiled hr).1
-  obtain ⟨hlocal, hother⟩ := run_coordinates hl ho hr
-  have sl := rebase_coordinate_supported hr
+  have sl := rebase_coordinate_supported_of_axes haxes
     (component := true) (axis := .locality)
     (fun v hv => by simpa [Axis.Supports, ModalSynthesis.locality] using hv)
-    (localityEmbedding input) (hlocal.2.2.1 (ComparisonJointGroup.state .locality i))
-  have sf := rebase_coordinate_supported hr
+    (localityEmbedding input) (hls (ComparisonJointGroup.state .locality i))
+  have sf := rebase_coordinate_supported_of_axes haxes
     (component := false) (axis := .affinity)
     (fun v hv => by simpa [Axis.Supports, ModalSynthesis.locality] using hv)
-    (otherEmbedding input) (hother.2.2.1 (ComparisonJointGroup.state .affinity i))
-  have su := rebase_coordinate_supported hr
+    (otherEmbedding input) (hos (ComparisonJointGroup.state .affinity i))
+  have su := rebase_coordinate_supported_of_axes haxes
     (component := false) (axis := .uniqueness)
     (fun v hv => by simpa [Axis.Supports, ModalSynthesis.locality] using hv)
-    (otherEmbedding input) (hother.2.2.1 (ComparisonJointGroup.state .uniqueness i))
+    (otherEmbedding input) (hos (ComparisonJointGroup.state .uniqueness i))
   obtain ⟨generated, hg, ht, he⟩ := ComparisonTupleWitness.reconstructWith_complete
     (hp.1 i) (hp.2.1 i) (hp.2.2.2 i) (hp.2.2.1 i)
-    (ComparisonTupleCNF.positive_headPositive (rebase_positive (hlocal.1 (ComparisonJointGroup.state .locality i))))
-    (ComparisonTupleCNF.positive_headPositive (rebase_positive (hother.1 (ComparisonJointGroup.state .affinity i))))
-    (ComparisonTupleCNF.positive_headPositive (rebase_positive (hother.1 (ComparisonJointGroup.state .uniqueness i))))
+    (ComparisonTupleCNF.positive_headPositive (rebase_positive (hlp (ComparisonJointGroup.state .locality i))))
+    (ComparisonTupleCNF.positive_headPositive (rebase_positive (hop (ComparisonJointGroup.state .affinity i))))
+    (ComparisonTupleCNF.positive_headPositive (rebase_positive (hop (ComparisonJointGroup.state .uniqueness i))))
     sl sf su
   refine ⟨generated, hg, ht, ?_⟩
   intro heads η hcompatible
@@ -227,13 +255,31 @@ theorem leaf_complete {fuel : Nat} {flex : List Nat} {b : Basis}
   · exact Bool.eq_iff_iff.mpr (he.2.2.1.trans ef)
   · exact Bool.eq_iff_iff.mpr (he.2.2.2.trans eu)
 
+theorem leaf_complete {fuel minimumModes : Nat} {flex : List Nat} {b : Basis}
+    {input : ComparisonJointGroup.Input} {result : Result input count flex}
+    (hl : ComparisonJointHorn.Linear (· < 4 * count) input.locality)
+    (ho : ComparisonJointHorn.Linear (· < 4 * count) input.other)
+    (hr : ComparisonJointAssembly.run fuel ModalSynthesis.locality flex count b.heads.length input minimumModes = .success result)
+    (i : Fin count) :
+    ∃ generated : ComparisonControls.Generated b,
+      leaf b result i = some generated.term ∧ ComparisonTupleReification.Total generated ∧
+      ∀ heads η,
+        ComparisonJointGroup.Compatible (result.state b.heads.length (basisValue b.heads heads)
+          (projectWorld b.modes (encodeModes η))) →
+        ∀ coordinate, ComparisonTupleReification.observe coordinate heads η generated =
+          result.state b.heads.length (basisValue b.heads heads)
+            (projectWorld b.modes (encodeModes η)) (ComparisonJointGroup.state coordinate i) := by
+  obtain ⟨hlocal, hother⟩ := run_coordinates hl ho hr
+  exact leaf_complete_of_properties (run_compiled hr).1
+    (fun _ _ hw => (run_modes_atoms hr hw).1) hlocal.1 hlocal.2.2.1 hother.1 hother.2.2.1 i
+
 /-- Every actual assembled leaf has one finite type realizing all four
 coordinates. Its symbolic coefficients share one projected input valuation. -/
-theorem group_leaf_complete {prepareFuel fuel : Nat} {flex : List Nat} {b : Basis}
+theorem group_leaf_complete {prepareFuel fuel minimumModes : Nat} {flex : List Nat} {b : Basis}
     {assumptions required : Bounds} {g : ComparisonGroups.Group}
     {input : ComparisonJointGroup.Input} {result : Result input g.leaves.length flex}
     (hp : ComparisonJointGroup.prepare prepareFuel assumptions required g = .success input)
-    (hr : ComparisonJointAssembly.run fuel ModalSynthesis.locality flex g.leaves.length g.heads.length input = .success result)
+    (hr : ComparisonJointAssembly.run fuel ModalSynthesis.locality flex g.leaves.length g.heads.length input minimumModes = .success result)
     (hheads : b.heads.length = g.heads.length) (i : Fin g.leaves.length) :
     ∃ generated : ComparisonControls.Generated b,
       leaf b result i = some generated.term ∧ ComparisonTupleReification.Total generated ∧
@@ -241,7 +287,7 @@ theorem group_leaf_complete {prepareFuel fuel : Nat} {flex : List Nat} {b : Basi
         ComparisonTupleReification.observe coordinate heads η generated =
           result.state g.heads.length (basisValue b.heads heads)
             (projectWorld b.modes (encodeModes η)) (ComparisonJointGroup.state coordinate i) := by
-  have hr' : ComparisonJointAssembly.run fuel ModalSynthesis.locality flex g.leaves.length b.heads.length input =
+  have hr' : ComparisonJointAssembly.run fuel ModalSynthesis.locality flex g.leaves.length b.heads.length input minimumModes =
       .success result := by simpa only [hheads] using hr
   have hlinear := ComparisonJointGroup.prepare_linear hp
   obtain ⟨generated, hg, ht, he⟩ := leaf_complete hlinear.2.1 hlinear.2.2 hr' i
@@ -252,11 +298,11 @@ theorem group_leaf_complete {prepareFuel fuel : Nat} {flex : List Nat} {b : Basi
 
 /-- Common-shape, defined basis heads and their original identifier support
 are preserved by the actual returned type, without enlarging the allowed modes. -/
-theorem group_leaf_properties {prepareFuel fuel : Nat} {flex : List Nat} {b : Basis}
+theorem group_leaf_properties {prepareFuel fuel minimumModes : Nat} {flex : List Nat} {b : Basis}
     {assumptions required : Bounds} {g : ComparisonGroups.Group}
     {input : ComparisonJointGroup.Input} {result : Result input g.leaves.length flex}
     (hp : ComparisonJointGroup.prepare prepareFuel assumptions required g = .success input)
-    (hr : ComparisonJointAssembly.run fuel ModalSynthesis.locality flex g.leaves.length g.heads.length input = .success result)
+    (hr : ComparisonJointAssembly.run fuel ModalSynthesis.locality flex g.leaves.length g.heads.length input minimumModes = .success result)
     (hheads : b.heads.length = g.heads.length) (i : Fin g.leaves.length)
     {Δ : Bounds} {shape : ComparisonShape} {P : TypeVar → Prop} {Q : ModVar → Prop}
     (hh : ∀ a ∈ b.heads, a.WellShaped Δ ∧ ComparisonShape.Equivalent Δ a.shape shape)

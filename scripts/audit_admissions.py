@@ -74,6 +74,38 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.toCNF_literal',
+    'ModalityInference.ConcreteBackend.equationFrom_complete',
+    'ModalityInference.ConcreteBackend.decideClauses_complete',
+    'ModalityInference.ConcreteBackend.decideFormula_complete',
+    'ModalityInference.ComparisonBody.checkTotal_eventual_success',
+    'ModalityInference.ComparisonBody.knownTotal_eventual_success',
+    'ModalityInference.ComparisonSkeleton.prepare_class_origin',
+    'ModalityInference.ComparisonGroups.collect_complete',
+    'ModalityInference.ComparisonReduction.prepare_collectable',
+    'ModalityInference.ComparisonGroups.prepared_collect_complete',
+    'ModalityInference.ComparisonGroups.prepared_collect_covered',
+    'ModalityInference.ComparisonGroups.prepared_collect_nonempty',
+    'ModalityInference.ComparisonFixedModeWitness.prepared_project',
+    'ModalityInference.ComparisonFixedModeWitness.algebra_prepared_fixed',
+    'ModalityInference.ComparisonFixedModeWitness.prepared_template_fixed',
+    'ModalityInference.ComparisonFixedModeWitness.prepared_template_fixed_opaque',
+    'ModalityInference.ComparisonFixedModeWitness.project_type_support',
+    'ModalityInference.ComparisonFixedModeWitness.fixedImages_type_idempotent',
+    'ModalityInference.ComparisonJointAssembly.modeBound_minimum',
+    'ModalityInference.ComparisonJointAssembly.reconstruct_coordinates',
+    'ModalityInference.ComparisonJointAssembly.reconstruct_coordinate_clauses',
+    'ModalityInference.ComparisonJointAssembly.reconstruct_group_sound',
+    'ModalityInference.ComparisonJointAssemblyReification.leaf_complete_of_properties',
+    'ModalityInference.ComparisonJointAssemblyReification.guarded_run_modes_atoms',
+    'ModalityInference.ComparisonJointAssemblyReification.projected_modes_finite_of_axes',
+    'ModalityInference.ComparisonJointAssemblyReification.projected_modes_finite',
+    'ModalityInference.ComparisonJointAssemblyReification.projected_fixed_models',
+    'ModalityInference.ComparisonJointAssemblyReification.projected_scalar_guards',
+    'ModalityInference.ComparisonJointAssemblyReification.run_projected_scalar_guards',
+    'ModalityInference.ComparisonJointReindex.store_polynomial',
+    'ModalityInference.ComparisonJointReindex.headClause_project',
+    'ModalityInference.ComparisonJointReindex.holds_project',
     'ModalityInference.ComparisonReduction.step_forward',
     'ModalityInference.ComparisonReduction.run_forward',
     'ModalityInference.ComparisonReduction.run_complete_ordinary',
@@ -3305,6 +3337,14 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonJointAssemblyNominal\n'
                     'import ModalityInference.Proofs.ComparisonJointAssemblyGroup\n'
                     'import ModalityInference.Proofs.ComparisonJointAssemblyReification\n'
+                    'import ModalityInference.Proofs.BackendComplete\n'
+                    'import ModalityInference.Proofs.ComparisonGroupOrigins\n'
+                    'import ModalityInference.Proofs.ComparisonGroupCoverage\n'
+                    'import ModalityInference.Proofs.ComparisonReductionCollectable\n'
+                    'import ModalityInference.Proofs.ComparisonPreparedCollection\n'
+                    'import ModalityInference.Proofs.ComparisonFixedModeWitness\n'
+                    'import ModalityInference.Proofs.ComparisonJointAssemblyModes\n'
+                    'import ModalityInference.Proofs.ComparisonJointReindex\n'
                     'import ModalityInference.Proofs.Evaluation\n'
                     'import ModalityInference.Proofs.Interpretation\n'
                     'import ModalityInference.Proofs.Erasure\n'

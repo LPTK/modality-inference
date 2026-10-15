@@ -19,20 +19,23 @@ private theorem foldMax_bounds (xs : List Nat) (start : Nat) :
       And.intro ((le_max_left start a).trans hr.1)
         (And.intro ((le_max_right start a).trans hr.1) hr.2)
 
-theorem modeBound_supported (input : Input) (offset : Nat) :
-    Supported (List.range (offset + modeBound input))
+theorem modeBound_minimum (input : Input) (minimumModes : Nat) :
+    minimumModes ≤ modeBound input minimumModes := Nat.le_max_left _ _
+
+theorem modeBound_supported (input : Input) (offset : Nat) (minimumModes : Nat := 0) :
+    Supported (List.range (offset + modeBound input minimumModes))
       (input.locality ++ input.other ++ input.scalar) := by
   intro v hv
   have h := (foldMax_bounds _ 0).2 v hv
   simp only [List.mem_range, modeBound]
   omega
 
-theorem input_supported (input : Input) (offset : Nat) :
-    Supported (List.range (offset + modeBound input)) input.locality ∧
-      Supported (List.range (offset + modeBound input)) input.other ∧
-      Supported (List.range (offset + modeBound input)) input.scalar := by
+theorem input_supported (input : Input) (offset : Nat) (minimumModes : Nat := 0) :
+    Supported (List.range (offset + modeBound input minimumModes)) input.locality ∧
+      Supported (List.range (offset + modeBound input minimumModes)) input.other ∧
+      Supported (List.range (offset + modeBound input minimumModes)) input.scalar := by
   simpa only [ComparisonBoundarySupport.supported_iff, List.forall_mem_append, and_assoc] using
-    modeBound_supported input offset
+    modeBound_supported input offset minimumModes
 
 theorem scalarClauses_correct (choice : Fin constants → Bool) (store : Store count)
     (strategy : (Nat → Bool) → Nat → Bool) (clauses : CNF) :
@@ -87,25 +90,32 @@ theorem holds_append (choice : Fin constants → Bool) (store : Store count)
       Holds choice store strategy left ∧ Holds choice store strategy right := by
   simp only [Holds, List.mem_append, or_imp, forall_and]
 
-theorem run_solution {fuel : Nat} {side : Nat → Bool} {flex : List Nat}
+theorem run_solution {fuel minimumModes : Nat} {side : Nat → Bool} {flex : List Nat}
     {count heads : Nat} {input : Input} {result : Result input count flex}
-    (h : run fuel side flex count heads input = .success result) :
-    ∃ solution, ComparisonJointGuarded.run fuel side flex (compile side count heads input) = .success solution ∧
-      result = reconstruct side count heads input solution := by
+    (h : run fuel side flex count heads input minimumModes = .success result) :
+    ∃ solution, ComparisonJointGuarded.run fuel side flex (compile side count heads input minimumModes) = .success solution ∧
+      result = reconstruct side count heads input solution minimumModes := by
   unfold run at h
-  cases hs : ComparisonJointGuarded.run fuel side flex (compile side count heads input) with
+  cases hs : ComparisonJointGuarded.run fuel side flex (compile side count heads input minimumModes) with
   | exhausted | rejected => simp [hs, bind, RunResult.bind] at h
   | success solution =>
     simp only [hs, bind, RunResult.bind, pure, RunResult.success.injEq] at h
     exact ⟨solution, rfl, h.symm⟩
 
-theorem run_compiled {fuel : Nat} {side : Nat → Bool} {flex : List Nat}
+def SolutionCorrect (side : Nat → Bool) (count heads : Nat) (input : Input)
+    (minimumModes : Nat) (solution : ComparisonJointGuarded.Result count (constantCount input) flex) : Prop :=
+  solution.types.Polynomial heads ∧
+    ModalSynthesis.Uniform side flex (fun world v => (solution.modes.substitute v).eval world) ∧
+    Holds (fun i => solution.constants[i]) solution.types
+      (fun world v => (solution.modes.substitute v).eval world) (compile side count heads input minimumModes)
+
+theorem run_compiled {fuel minimumModes : Nat} {side : Nat → Bool} {flex : List Nat}
     {count heads : Nat} {input : Input} {result : Result input count flex}
-    (h : run fuel side flex count heads input = .success result) :
+    (h : run fuel side flex count heads input minimumModes = .success result) :
     result.solution.types.Polynomial heads ∧
       ModalSynthesis.Uniform side flex (fun world v => (result.solution.modes.substitute v).eval world) ∧
       Holds (fun i => result.solution.constants[i]) result.solution.types
-        (fun world v => (result.solution.modes.substitute v).eval world) (compile side count heads input) := by
+        (fun world v => (result.solution.modes.substitute v).eval world) (compile side count heads input minimumModes) := by
   obtain ⟨solution, hs, rfl⟩ := run_solution h
   exact ComparisonJointGuarded.run_sound hs
 
@@ -121,38 +131,52 @@ def CoordinateCorrect (side : Nat → Bool) (component : Bool) (heads selectors 
       ComparisonBoundaryPropagation.BoundaryAgreement heads (selectors + modes)
         (ComparisonJointAxisSummary.parameterWorld embedding choice (strategy input)) boundary full retainedStore
 
-theorem run_coordinates {fuel : Nat} {side : Nat → Bool} {flex : List Nat}
-    {count heads : Nat} {input : Input} {result : Result input count flex}
+theorem reconstruct_coordinates {minimumModes : Nat} {side : Nat → Bool} {flex : List Nat}
+    {count heads : Nat} {input : Input} {solution : ComparisonJointGuarded.Result count (constantCount input) flex}
     (hl : ComparisonJointHorn.Linear (· < 4 * count) input.locality)
     (ho : ComparisonJointHorn.Linear (· < 4 * count) input.other)
-    (h : run fuel side flex count heads input = .success result) :
+    (hp : SolutionCorrect side count heads input minimumModes solution) :
+    let result := reconstruct side count heads input solution minimumModes
     let choice := fun i => result.solution.constants[i]
     let strategy := fun world v => (result.solution.modes.substitute v).eval world
-    CoordinateCorrect side true heads (input.locality.length + 1) (modeBound input)
+    CoordinateCorrect side true heads (input.locality.length + 1) (modeBound input minimumModes)
         (localityEmbedding input) input.locality (boundary count) choice strategy result.solution.types result.locality ∧
-      CoordinateCorrect side false heads (input.other.length + 1) (modeBound input)
+      CoordinateCorrect side false heads (input.other.length + 1) (modeBound input minimumModes)
         (otherEmbedding input) input.other (boundary count) choice strategy result.solution.types result.other := by
-  obtain ⟨solution, hs, rfl⟩ := run_solution h
-  have hp := ComparisonJointGuarded.run_sound hs
   have hc := hp.2.2
   simp only [compile, holds_append, and_assoc] at hc
   have hlocal := ComparisonJointAxisSummary.compile_sound
     (count := 4 * count) (heads := heads) (selectors := input.locality.length + 1)
-    (modes := modeBound input) (clauses := input.locality) (embedding := localityEmbedding input)
+    (modes := modeBound input minimumModes) (clauses := input.locality) (embedding := localityEmbedding input)
     (boundary := boundary count) (retainedStore := solution.types)
-    (Nat.le_succ _) (input_supported input (4 * count + heads)).1 hl hp.2.1.2 hp.1.2.1 hc.2.1
+    (Nat.le_succ _) (input_supported input (4 * count + heads) minimumModes).1 hl hp.2.1.2 hp.1.2.1 hc.2.1
   have hother := ComparisonJointAxisSummary.compile_sound
     (count := 4 * count) (heads := heads) (selectors := input.other.length + 1)
-    (modes := modeBound input) (clauses := input.other) (embedding := otherEmbedding input)
+    (modes := modeBound input minimumModes) (clauses := input.other) (embedding := otherEmbedding input)
     (boundary := boundary count) (retainedStore := solution.types)
-    (Nat.le_succ _) (input_supported input (4 * count + heads)).2.1 ho hp.2.1.2 hp.1.2.1 hc.2.2.1
+    (Nat.le_succ _) (input_supported input (4 * count + heads) minimumModes).2.1 ho hp.2.1.2 hp.1.2.1 hc.2.2.1
   exact ⟨hlocal, hother⟩
 
-theorem run_coordinate_clauses {fuel : Nat} {side : Nat → Bool} {flex : List Nat}
+theorem run_coordinates {fuel minimumModes : Nat} {side : Nat → Bool} {flex : List Nat}
     {count heads : Nat} {input : Input} {result : Result input count flex}
     (hl : ComparisonJointHorn.Linear (· < 4 * count) input.locality)
     (ho : ComparisonJointHorn.Linear (· < 4 * count) input.other)
-    (h : run fuel side flex count heads input = .success result) :
+    (h : run fuel side flex count heads input minimumModes = .success result) :
+    let choice := fun i => result.solution.constants[i]
+    let strategy := fun world v => (result.solution.modes.substitute v).eval world
+    CoordinateCorrect side true heads (input.locality.length + 1) (modeBound input minimumModes)
+        (localityEmbedding input) input.locality (boundary count) choice strategy result.solution.types result.locality ∧
+      CoordinateCorrect side false heads (input.other.length + 1) (modeBound input minimumModes)
+        (otherEmbedding input) input.other (boundary count) choice strategy result.solution.types result.other := by
+  obtain ⟨solution, hs, rfl⟩ := run_solution h
+  exact reconstruct_coordinates hl ho (ComparisonJointGuarded.run_sound hs)
+
+theorem reconstruct_coordinate_clauses {minimumModes : Nat} {side : Nat → Bool} {flex : List Nat}
+    {count heads : Nat} {input : Input} {solution : ComparisonJointGuarded.Result count (constantCount input) flex}
+    (hl : ComparisonJointHorn.Linear (· < 4 * count) input.locality)
+    (ho : ComparisonJointHorn.Linear (· < 4 * count) input.other)
+    (hp : SolutionCorrect side count heads input minimumModes solution) :
+    let result := reconstruct side count heads input solution minimumModes
     let choice := fun i => result.solution.constants[i]
     let strategy := fun world v => (result.solution.modes.substitute v).eval world
     (∀ headWorld inputWorld, CNFHolds (ComparisonJointAxes.valuation heads
@@ -161,8 +185,8 @@ theorem run_coordinate_clauses {fuel : Nat} {side : Nat → Bool} {flex : List N
     (∀ headWorld inputWorld, CNFHolds (ComparisonJointAxes.valuation heads
       (ComparisonJointAxisSummary.coordinateState heads (otherEmbedding input) choice strategy result.other)
       strategy headWorld inputWorld) input.other) := by
-  obtain ⟨hlocal, hother⟩ := run_coordinates hl ho h
-  have hc := (run_compiled h).2.2
+  obtain ⟨hlocal, hother⟩ := reconstruct_coordinates hl ho hp
+  have hc := hp.2.2
   simp only [compile, holds_append, and_assoc] at hc
   constructor
   · exact ComparisonJointAxes.selectors_sound
@@ -173,5 +197,21 @@ theorem run_coordinate_clauses {fuel : Nat} {side : Nat → Bool} {flex : List N
       (fun headWorld inputWorld => ComparisonJointAxisSummary.coordinateState_valid
         (Nat.le_succ _) hother.2.1 ho (hother.2.2.2 inputWorld).1 headWorld)
       ((oppositeClauses_correct (otherEmbedding input) _ _ _ (Nat.le_succ _)).mp hc.2.2.2.2.1)
+
+theorem run_coordinate_clauses {fuel minimumModes : Nat} {side : Nat → Bool} {flex : List Nat}
+    {count heads : Nat} {input : Input} {result : Result input count flex}
+    (hl : ComparisonJointHorn.Linear (· < 4 * count) input.locality)
+    (ho : ComparisonJointHorn.Linear (· < 4 * count) input.other)
+    (h : run fuel side flex count heads input minimumModes = .success result) :
+    let choice := fun i => result.solution.constants[i]
+    let strategy := fun world v => (result.solution.modes.substitute v).eval world
+    (∀ headWorld inputWorld, CNFHolds (ComparisonJointAxes.valuation heads
+      (ComparisonJointAxisSummary.coordinateState heads (localityEmbedding input) choice strategy result.locality)
+      strategy headWorld inputWorld) input.locality) ∧
+    (∀ headWorld inputWorld, CNFHolds (ComparisonJointAxes.valuation heads
+      (ComparisonJointAxisSummary.coordinateState heads (otherEmbedding input) choice strategy result.other)
+      strategy headWorld inputWorld) input.other) := by
+  obtain ⟨solution, hs, rfl⟩ := run_solution h
+  exact reconstruct_coordinate_clauses hl ho (ComparisonJointGuarded.run_sound hs)
 
 end ModalityInference.ComparisonJointAssembly

@@ -24,8 +24,8 @@ def otherEmbedding (input : Input) (i : Fin (input.other.length + 1)) :
 def boundary (count : Nat) : Vector (Fin (4 * count)) count :=
   Vector.ofFn (state .unaffected)
 
-def modeBound (input : Input) : Nat :=
-  (CNFPropagation.atoms (input.locality ++ input.other ++ input.scalar)).foldl max 0 + 1
+def modeBound (input : Input) (minimumModes : Nat := 0) : Nat :=
+  max minimumModes ((CNFPropagation.atoms (input.locality ++ input.other ++ input.scalar)).foldl max 0 + 1)
 
 def nominalState (count v : Nat) : Option (Fin count) :=
   if h : v < count then some ⟨v, h⟩ else none
@@ -47,13 +47,13 @@ def oppositeClauses (side : Nat → Bool) (component : Bool) (count heads select
     ComparisonJointSummary.separateParameters (ComparisonJointAxisSummary.decode embedding)
       ⟨.check [], clause.map fun literal => (oppositeParameter selectors literal.1, literal.2)⟩
 
-def compile (side : Nat → Bool) (count heads : Nat) (input : Input) :
+def compile (side : Nat → Bool) (count heads : Nat) (input : Input) (minimumModes : Nat := 0) :
     List (GuardedClause heads count (constantCount input)) :=
   ComparisonJointSummary.compileGuarded heads (fun i => .inr i) (nominalProgram count heads input) ++
     ComparisonJointAxisSummary.compile side true (4 * count) heads
-      (input.locality.length + 1) (modeBound input) (localityEmbedding input) input.locality (boundary count) ++
+      (input.locality.length + 1) (modeBound input minimumModes) (localityEmbedding input) input.locality (boundary count) ++
     ComparisonJointAxisSummary.compile side false (4 * count) heads
-      (input.other.length + 1) (modeBound input) (otherEmbedding input) input.other (boundary count) ++
+      (input.other.length + 1) (modeBound input minimumModes) (otherEmbedding input) input.other (boundary count) ++
     oppositeClauses side true (4 * count) heads (input.locality.length + 1)
       (localityEmbedding input) input.locality ++
     oppositeClauses side false (4 * count) heads (input.other.length + 1)
@@ -67,23 +67,25 @@ structure Result (input : Input) (count : Nat) (flex : List Nat) where
 /-- The returned coordinate stores retain their selector and scalar parameters;
 only parameters belonging to the opposite component are fixed to a baseline. -/
 def reconstruct (side : Nat → Bool) (count heads : Nat) (input : Input)
-    (solution : ComparisonJointGuarded.Result count (constantCount input) flex) : Result input count flex :=
+    (solution : ComparisonJointGuarded.Result count (constantCount input) flex)
+    (minimumModes : Nat := 0) : Result input count flex :=
   let baseline := fun i => (solution.modes.substitute i).eval (fun _ => false)
   let locality := ComparisonBoundaryPropagation.reconstruct heads
-    (input.locality.length + 1 + modeBound input)
+    (input.locality.length + 1 + modeBound input minimumModes)
     (ComparisonJointAxisSummary.program side true (4 * count) heads
-      (input.locality.length + 1) (modeBound input) input.locality) (boundary count) solution.types
+      (input.locality.length + 1) (modeBound input minimumModes) input.locality) (boundary count) solution.types
   let other := ComparisonBoundaryPropagation.reconstruct heads
-    (input.other.length + 1 + modeBound input)
+    (input.other.length + 1 + modeBound input minimumModes)
     (ComparisonJointAxisSummary.program side false (4 * count) heads
-      (input.other.length + 1) (modeBound input) input.other) (boundary count) solution.types
+      (input.other.length + 1) (modeBound input minimumModes) input.other) (boundary count) solution.types
   ⟨solution,
     ComparisonJointAxisSummary.restrictStore side true heads (input.locality.length + 1) baseline locality,
     ComparisonJointAxisSummary.restrictStore side false heads (input.other.length + 1) baseline other⟩
 
-def run (fuel : Nat) (side : Nat → Bool) (flex : List Nat) (count heads : Nat) (input : Input) :
+def run (fuel : Nat) (side : Nat → Bool) (flex : List Nat) (count heads : Nat) (input : Input)
+    (minimumModes : Nat := 0) :
     RunResult (Result input count flex) := do
-  let solution ← ComparisonJointGuarded.run fuel side flex (compile side count heads input)
-  return reconstruct side count heads input solution
+  let solution ← ComparisonJointGuarded.run fuel side flex (compile side count heads input minimumModes)
+  return reconstruct side count heads input solution minimumModes
 
 end ModalityInference.ComparisonJointAssembly

@@ -359,5 +359,13 @@ import ModalityInference.Proofs.ComparisonJointAssembly
 import ModalityInference.Proofs.ComparisonJointAssemblyNominal
 import ModalityInference.Proofs.ComparisonJointAssemblyGroup
 import ModalityInference.Proofs.ComparisonJointAssemblyReification
+import ModalityInference.Proofs.BackendComplete
+import ModalityInference.Proofs.ComparisonGroupOrigins
+import ModalityInference.Proofs.ComparisonGroupCoverage
+import ModalityInference.Proofs.ComparisonReductionCollectable
+import ModalityInference.Proofs.ComparisonPreparedCollection
+import ModalityInference.Proofs.ComparisonFixedModeWitness
+import ModalityInference.Proofs.ComparisonJointAssemblyModes
+import ModalityInference.Proofs.ComparisonJointReindex
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
