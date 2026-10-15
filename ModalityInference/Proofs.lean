@@ -121,6 +121,9 @@ import ModalityInference.Proofs.ComparisonPartial
 import ModalityInference.Proofs.ComparisonPartialModes
 import ModalityInference.Proofs.ComparisonBody
 import ModalityInference.Proofs.ComparisonInstance
+import ModalityInference.Proofs.ComparisonAbsorption
+import ModalityInference.Proofs.ComparisonContext
+import ModalityInference.Proofs.ComparisonExactContext
 import ModalityInference.Proofs.ComparisonInterpolation
 import ModalityInference.Proofs.ComparisonPreparation
 import ModalityInference.Proofs.SymbolicCNF

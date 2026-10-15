@@ -138,6 +138,67 @@ def maskedTarget (result : Ty) : Scheme :=
   (.mono (.prod (.modal .unit (.compose undefinedMode (.const Mode.global)))
     (.prod partialBody (.modal .unit (.const Mode.global)))))).isSuccess
 
+-- Partial mode contexts are matched without demanding exact sibling bodies.
+#guard (compare
+  { modParams := [0, 1]
+    body := .prod (.modal (.modal (head 0) (.var (.flex 0))) (.var (.flex 1))) .unit }
+  (.mono (.prod (.modal (.modal (head 0) undefinedMode) (.const Mode.global))
+    (.modal .unit .top)))).isSuccess
+#guard rejected (compare
+  { modParams := [0, 1], bounds := [.defined (.var (.flex 0))]
+    body := .prod (.modal (.modal (head 0) (.var (.flex 0))) (.var (.flex 1))) .unit }
+  (.mono (.prod (.modal (.modal (head 0) undefinedMode) (.const Mode.global))
+    (.modal .unit .top))))
+
+-- Uniform body-only mode capsules can be absorbed into their type images.
+def capsule (x m : Nat) : Ty := .modal (.var (.flex x)) (.var (.flex m))
+def coupledSource : Scheme :=
+  { typeParams := [0], modParams := [0]
+    body := .prod (capsule 0 0) (capsule 0 0) }
+def coupledTarget : Scheme :=
+  { bounds := [.sub (head 0) (head 1)]
+    body := .prod (.modal (head 0) undefinedMode) (.modal (head 1) undefinedMode) }
+#guard match compare coupledSource coupledTarget with
+  | .success result => result.substitution.mode (.flex 0) == .epsilon &&
+      (result.substitution.type (.flex 0)).wellFormedBounds.contains (.defined undefinedMode)
+  | _ => false
+#guard (compare
+  { typeParams := [0, 1], modParams := [0]
+    body := .prod (capsule 0 0) (.prod (capsule 1 0) .unit) }
+  (.mono (.prod partialBody (.prod (.modal .credit undefinedMode) (.modal .unit .top))))).isSuccess
+
+-- Context matching must preserve the identity choice of absorbed modalities.
+#guard match compare
+    { typeParams := [7], modParams := [11, 4]
+      body := .prod (.prod (capsule 7 11) (capsule 7 11))
+        (.prod (.modal (head 92) (.close (.var (.flex 4)))) .unit) }
+    { bounds := [.sub (head 93) (head 94)]
+      body := .prod (.prod (.modal (head 93) undefinedMode) (.modal (head 94) undefinedMode))
+        (.prod (.modal (head 92) (.close undefinedMode)) (.modal .unit .top)) } with
+  | .success result => result.substitution.mode (.flex 11) == .epsilon &&
+      result.substitution.mode (.flex 4) == undefinedMode &&
+      result.substitution.types.map Prod.fst == [7] &&
+      result.substitution.modes.map Prod.fst == [11, 4]
+  | _ => false
+
+-- An opaque partial context can determine a bound-constrained type base.
+def constrainedPartialSource : Scheme :=
+  { typeParams := [0], modParams := [0]
+    bounds := [.sub (head 0) (.var (.flex 0)), .sub (.var (.flex 0)) (head 0)]
+    body := .prod (capsule 0 0) .unit }
+def constrainedPartialTarget : Scheme :=
+  .mono (.prod (.modal (head 0) undefinedMode) (.modal .unit .top))
+#guard match compare constrainedPartialSource constrainedPartialTarget with
+  | .success result => result.substitution.type (.flex 0) == .ofTy (head 0) &&
+      result.substitution.mode (.flex 0) == undefinedMode &&
+      result.substitution.types.map Prod.fst == [0] &&
+      result.substitution.modes.map Prod.fst == [0]
+  | _ => false
+#guard rejected (compare
+  { constrainedPartialSource with
+    bounds := .defined (.var (.flex 0)) :: constrainedPartialSource.bounds }
+  constrainedPartialTarget)
+
 -- Modal propagation preserves dependence on the fixed type endpoints.
 def aliased (t : Ty) : Ty := .modal t (.const Mode.aliased)
 #guard (compare

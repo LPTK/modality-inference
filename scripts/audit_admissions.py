@@ -74,6 +74,45 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonExactContext.scopeCheck_iff',
+    'ModalityInference.ComparisonExactContext.prepare_spec',
+    'ModalityInference.ComparisonExactContext.prepare_scoped',
+    'ModalityInference.ComparisonExactContext.Scoped.type_keys',
+    'ModalityInference.ComparisonExactContext.Scoped.mode_keys',
+    'ModalityInference.ComparisonExactContext.Scoped.type_fixed',
+    'ModalityInference.ComparisonExactContext.Scoped.mode_fixed',
+    'ModalityInference.ComparisonExactContext.prepare_target_fixed',
+    'ModalityInference.ComparisonExactContext.finish_type',
+    'ModalityInference.ComparisonExactContext.finish_mode',
+    'ModalityInference.ComparisonExactContext.finish_modality',
+    'ModalityInference.ComparisonExactContext.finish_ty',
+    'ModalityInference.ComparisonExactContext.finish_constraint',
+    'ModalityInference.ComparisonExactContext.finish_bounds',
+    'ModalityInference.ComparisonExactContext.finish_rewrite_type',
+    'ModalityInference.ComparisonExactContext.finish_rewrite_bounds',
+    'ModalityInference.ComparisonExactContext.rewrite_spec',
+    'ModalityInference.ComparisonContext.prepare_scoped',
+    'ModalityInference.ComparisonContext.prepare_types',
+    'ModalityInference.ComparisonContext.prepare_keys',
+    'ModalityInference.ComparisonContext.prepare_image_fresh',
+    'ModalityInference.ComparisonContext.prepare_fixed',
+    'ModalityInference.ComparisonContext.finish_mode',
+    'ModalityInference.ComparisonContext.finish_ty',
+    'ModalityInference.ComparisonContext.finish_constraint',
+    'ModalityInference.ComparisonContext.finish_bounds',
+    'ModalityInference.ComparisonContext.rewrite_spec',
+    'ModalityInference.ComparisonContext.prepare_target_fresh',
+    'ModalityInference.ComparisonContext.prepare_target_fixed',
+    'ModalityInference.ComparisonAbsorption.rewrite_equivalent',
+    'ModalityInference.ComparisonAbsorption.reconstruct',
+    'ModalityInference.ComparisonAbsorption.absorb_complete',
+    'ModalityInference.ComparisonAbsorption.plan_spec',
+    'ModalityInference.ComparisonAbsorption.plan_bounds_fixed',
+    'ModalityInference.ComparisonAbsorption.plan_type_avoids_bounds',
+    'ModalityInference.ComparisonAbsorption.plan_mode_avoids_bounds',
+    'ModalityInference.ComparisonAbsorption.action_mode',
+    'ModalityInference.ComparisonAbsorption.plan_reconstruct',
+    'ModalityInference.ComparisonAbsorption.plan_absorb_complete',
     'ModalityInference.ComparisonInstance.attempt_some_iff',
     'ModalityInference.ComparisonInstance.attempt_success_run',
     'ModalityInference.ComparisonInstance.attempt_stable',
@@ -2198,6 +2237,9 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonPartialModes\n'
                     'import ModalityInference.Proofs.ComparisonBody\n'
                     'import ModalityInference.Proofs.ComparisonInstance\n'
+                    'import ModalityInference.Proofs.ComparisonAbsorption\n'
+                    'import ModalityInference.Proofs.ComparisonContext\n'
+                    'import ModalityInference.Proofs.ComparisonExactContext\n'
                     'import ModalityInference.Proofs.ComparisonPartial\n'
                     'import ModalityInference.Proofs.ComparisonInterpolation\n'
                     'import ModalityInference.Proofs.ComparisonPreparation\n'

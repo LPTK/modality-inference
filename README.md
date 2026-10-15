@@ -93,8 +93,10 @@ source obligations, a separate body comparison, and expanded target assumptions.
 propagation, and uniform modality-image assembly. There is no type-representative
 search. Exact-body matching has a proved ordinary scheme-soundness theorem,
 including partial type and mode images. Bare type intervals, sufficient
-shared-wrapper reductions, and direct shared-prefix mode requests preserve
-partial syntax without adding a body guard. General coupled partial contexts
+shared-wrapper reductions, uniform body-only modality absorption, and direct
+shared-prefix mode requests preserve partial syntax without adding a body guard.
+Exact partial-context matching is a positive prepass; its substitution is applied
+to the complete source bounds as well as the body. General coupled partial contexts
 remain a completeness obligation.
 
 `CompareTy` is a separate finite witness language with binary joins and meets.

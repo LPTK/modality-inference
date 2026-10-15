@@ -2,6 +2,9 @@ import ModalityInference.ComparisonElimination
 import ModalityInference.ComparisonPreparation
 import ModalityInference.SchemeModeSynthesis
 import ModalityInference.ComparisonInstance
+import ModalityInference.ComparisonAbsorption
+import ModalityInference.ComparisonContext
+import ModalityInference.ComparisonExactContext
 
 namespace ModalityInference.ComparisonChecker
 
@@ -18,21 +21,26 @@ structure Evidence where
 /-- The ordinary decomposition retains modalized bounds. The strengthened
 variant uses only sufficient shared-wrapper steps to certify partial bodies. -/
 def propagate (fuel : Nat) (p : SchemePreparation.Prepared)
-    (shapes : ComparisonShapeSolver.Solved) (shared : Bool) : RunResult Evidence := do
-  let known ← ComparisonBody.knownTotal fuel p.assumptions
-    (ComparisonAnnotations.expressions p.sourceType ++
-      ComparisonAnnotations.expressions p.targetType)
-  let annotations := ComparisonAnnotations.prepare p (ComparisonBody.isTotal known)
-  let work := { p with sourceType := annotations.substitution.ty p.sourceType }
-  let bare := if shared then ComparisonBody.eligible work (ComparisonBody.isTotal known)
-        else ComparisonPartial.eligible work
+    (shapes : ComparisonShapeSolver.Solved) (shared : Bool)
+    (before : Substitution := {}) : RunResult Evidence := do
+  let input := ComparisonExactContext.rewrite p before
+  let known ← ComparisonBody.knownTotal fuel input.assumptions
+    (ComparisonAnnotations.expressions input.sourceType ++
+      ComparisonAnnotations.expressions input.targetType)
+  let absorption := ComparisonAbsorption.plan input (ComparisonBody.isTotal known)
+  let absorbed := { input with sourceType := absorption.body }
+  let annotations := ComparisonAnnotations.prepare absorbed (ComparisonBody.isTotal known)
+  let work := { absorbed with sourceType := annotations.substitution.ty absorbed.sourceType }
+  let selected := before.types.map Prod.fst
+  let bare := (if shared then ComparisonBody.eligible work (ComparisonBody.isTotal known)
+        else ComparisonPartial.eligible work).filter (fun n => !selected.contains n)
   let names := (List.range' p.firstType (p.nextType - p.firstType)).filter
-    (fun n => !bare.contains n)
+    (fun n => !selected.contains n && !bare.contains n)
   let templates := ComparisonSkeleton.allocate work shapes names p.nextType annotations.nextMode
   let reduced ← ComparisonReduction.prepare fuel work templates bare known shared
   let reduced := { reduced with modes := annotations.bounds ++ reduced.modes }
   let types ← ComparisonElimination.run fuel work shapes templates reduced
-  let adapted := annotations.images.map Prod.fst
+  let adapted := before.modes.map Prod.fst ++ absorption.modes ++ annotations.images.map Prod.fst
   let modes ← SchemeModeSynthesis.run fuel
     ((List.range' p.firstMode (templates.nextMode - p.firstMode)).filter
       (fun n => !adapted.contains n)) types.query
@@ -40,7 +48,8 @@ def propagate (fuel : Nat) (p : SchemePreparation.Prepared)
   if !report.valid then return ← .rejected "scheme comparison obligations are not valid"
   let leaves : CompareSubstitution := { types := types.types }
   let modeAction : Substitution :=
-    { modes := annotations.images.map (fun (n, m) => (n, m.subst modes.substitution.mode)) ++
+    { modes := absorption.action.modes ++
+        annotations.images.map (fun (n, m) => (n, m.subst modes.substitution.mode)) ++
         modes.substitution.modes }
   let images : List (Nat × CompareTy) := reduced.partialTypes ++
     templates.substitution.types.map (fun (n, t) => (n, leaves.ty t))
@@ -48,6 +57,7 @@ def propagate (fuel : Nat) (p : SchemePreparation.Prepared)
     { types := images.map fun (n, t) =>
         (n, t.subst CompareTy.var modeAction.mode)
       modes := modeAction.modes }
+  let action := ComparisonExactContext.finish before action
   return {
       substitution := ComparisonPreparation.reconstruct p action
       assumptions := p.assumptions
@@ -56,6 +66,18 @@ def propagate (fuel : Nat) (p : SchemePreparation.Prepared)
       flexibleAtoms := modes.flexibleAtoms
       query := modes.query
       backend := report }
+
+/-- Sufficient shared-wrapper reduction is attempted only after a definitive
+ordinary rejection. It never replaces a successful or exhausted result. -/
+def variants (fuel : Nat) (p : SchemePreparation.Prepared)
+    (shapes : ComparisonShapeSolver.Solved) (before : Substitution := {}) : RunResult Evidence :=
+  match propagate fuel p shapes false before with
+  | .rejected reason =>
+      match propagate fuel p shapes true before with
+      | .success result => .success result
+      | .exhausted => .exhausted
+      | .rejected _ => .rejected reason
+  | result => result
 
 def run (fuel : Nat) (source target : Scheme) : RunResult Evidence := do
   let p := SchemePreparation.prepare [] source target
@@ -74,14 +96,27 @@ def run (fuel : Nat) (source target : Scheme) : RunResult Evidence := do
   | .infeasibleAssumptions =>
       .rejected "declared shape equations are infeasible; outside residual-target comparison"
   | .solved shapes =>
-    match propagate fuel p shapes false with
+    match variants fuel p shapes with
     | .rejected reason =>
-        -- Shared-wrapper reduction is sufficient, not invertible. It is a
-        -- positive fallback; an exhausted primary run never selects this path.
-        match propagate fuel p shapes true with
-        | .success result => .success result
-        | .exhausted => .exhausted
-        | .rejected _ => .rejected reason
+        let known ← ComparisonBody.knownTotal fuel p.assumptions
+          (ComparisonAnnotations.expressions p.sourceType ++
+            ComparisonAnnotations.expressions p.targetType)
+        let absorption := ComparisonAbsorption.plan p (ComparisonBody.isTotal known)
+        let context := { p with sourceType := absorption.body }
+        let modes : RunResult Evidence :=
+          match ComparisonContext.prepare context (ComparisonBody.isTotal known) with
+          | some before =>
+              if before.modes.isEmpty then .rejected reason
+              else variants fuel p shapes before
+          | none => .rejected reason
+        match modes with
+        | .rejected _ =>
+            match ComparisonExactContext.prepare context (ComparisonBody.isTotal known) with
+            | some before =>
+                if before.types.isEmpty && before.modes.isEmpty then .rejected reason
+                else variants fuel p shapes before
+            | none => .rejected reason
+        | result => result
     | result => result
 
 end ModalityInference.ComparisonChecker
