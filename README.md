@@ -108,6 +108,14 @@ preservation of written guards in the unrestricted comparison relation. Its
 shape-restricted lift and structural/modalized occurrences remain separate work.
 The source typing and semantic theorems still use the original scheme relation.
 
+`ComparisonPropagation` solves a supplied finite lattice-basis problem by ordered
+clause projection and least-fixed-point propagation. It compiles modalized leaf
+bounds using explicit lower/upper clamping actions, reconstructs finite joins
+and meets, and retains the upper and constant checks as a symbolic residual.
+Compilation, finite stabilization, least solutions, reification, and exactness
+relative to the supplied basis are proved. Connecting every prepared comparison
+and admissible modality image to such a basis remains a separate obligation.
+
 ## Constraint solving
 
 `solve` first runs the deterministic structural worklist in `Constraints`.

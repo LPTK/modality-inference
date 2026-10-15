@@ -74,6 +74,38 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonPropagation.project_complete',
+    'ModalityInference.ComparisonPropagation.upward_correct',
+    'ModalityInference.ComparisonPropagation.upward_positive',
+    'ModalityInference.ComparisonPropagation.upward_supported',
+    'ModalityInference.ComparisonPropagation.upward_monotone',
+    'ModalityInference.ComparisonPropagation.upward_least',
+    'ModalityInference.ComparisonPropagation.image_correct',
+    'ModalityInference.ComparisonPropagation.compileBound_correct',
+    'ModalityInference.ComparisonPropagation.iterate_height_fixed',
+    'ModalityInference.ComparisonPropagation.propagate_fixed',
+    'ModalityInference.ComparisonPropagation.propagate_least',
+    'ModalityInference.ComparisonPropagation.propagate_positive',
+    'ModalityInference.ComparisonPropagation.propagate_supported',
+    'ModalityInference.ComparisonPropagation.propagate_nonzero',
+    'ModalityInference.ComparisonPropagation.propagate_closed',
+    'ModalityInference.ComparisonPropagation.propagate_least_closed',
+    'ModalityInference.ComparisonPropagation.reify_correct',
+    'ModalityInference.ComparisonPropagation.reify_property',
+    'ModalityInference.ComparisonPropagation.reify_complete',
+    'ModalityInference.ComparisonPropagation.reconstruct_correct',
+    'ModalityInference.ComparisonPropagation.reconstruct_complete',
+    'ModalityInference.ComparisonPropagation.residual_correct',
+    'ModalityInference.ComparisonPropagation.compile_correct',
+    'ModalityInference.ComparisonPropagation.compile_nonzero',
+    'ModalityInference.ComparisonPropagation.reduce_correct',
+    'ModalityInference.ComparisonPropagation.reduce_obligation',
+    'ModalityInference.ComparisonPropagation.reduce_images',
+    'ModalityInference.ComparisonPropagation.reduce_complete',
+    'ModalityInference.ComparisonPropagation.compile_reduce_complete',
+    'ModalityInference.ComparisonPropagation.reduce_polynomial',
+    'ModalityInference.ComparisonPropagation.reduce_closed',
+    'ModalityInference.ComparisonPropagation.reduce_solves_iff',
     'ModalityInference.ComparisonShapeSolver.unify_sound',
     'ModalityInference.ComparisonShapeSolver.unify_factor',
     'ModalityInference.ComparisonShapeSolver.unify_equivalent',
@@ -2023,6 +2055,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonTypes\n'
                     'import ModalityInference.Proofs.ComparisonShapes\n'
                     'import ModalityInference.Proofs.ComparisonShapeSolver\n'
+                    'import ModalityInference.Proofs.ComparisonPropagation\n'
                     'import ModalityInference.Proofs.ComparisonInterpolation\n'
                     'import ModalityInference.Proofs.ComparisonPreparation\n'
                     'import ModalityInference.Proofs.SymbolicCNF\n'

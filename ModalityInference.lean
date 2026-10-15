@@ -19,6 +19,7 @@ import ModalityInference.SchemePreparation
 import ModalityInference.ComparisonTypes
 import ModalityInference.ComparisonShapes
 import ModalityInference.ComparisonShapeSolver
+import ModalityInference.ComparisonPropagation
 import ModalityInference.ComparisonInterpolation
 import ModalityInference.ComparisonPreparation
 
