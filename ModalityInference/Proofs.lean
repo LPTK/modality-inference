@@ -112,6 +112,9 @@ import ModalityInference.Proofs.SchemeReconstructionClosed
 import ModalityInference.Proofs.ComparisonTypes
 import ModalityInference.Proofs.ComparisonShapes
 import ModalityInference.Proofs.ComparisonAlgebra
+import ModalityInference.Proofs.ComparisonAlgebraSoundness
+import ModalityInference.Proofs.ComparisonAlgebraInstances
+import ModalityInference.Proofs.ComparisonAlgebraPreparation
 import ModalityInference.Proofs.ComparisonSkeleton
 import ModalityInference.Proofs.ComparisonShapeSolver
 import ModalityInference.Proofs.ComparisonPropagation
