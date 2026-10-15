@@ -5,6 +5,7 @@ import ModalityInference.Proofs.ComparisonReduction
 import ModalityInference.Proofs.SchemeModeSynthesis
 import ModalityInference.Proofs.ComparisonContext
 import ModalityInference.Proofs.ComparisonCapsuleContext
+import ModalityInference.Proofs.ComparisonFrozenContext
 
 /-! Fresh-domain invariants for the assembled comparison witness. -/
 namespace ModalityInference
@@ -222,14 +223,12 @@ theorem refineContexts_domains {fuel p shapes before e}
   case exhausted => contradiction
   case rejected =>
     simp only [bind, RunResult.bind] at h
-    repeat' first
-      | contradiction
-      | exact variants_domains hb h
-      | (refine variants_domains (Substitution.compose_domainsAbove hb ?_) h
-         first
-         | (have hs := ComparisonContext.prepare_scoped (by assumption); exact hs.domainsAbove)
-         | (have hs := ComparisonExactContext.prepare_scoped (by assumption); exact hs.domainsAbove))
-      | split at h
+    repeat' first | contradiction | split at h
+    all_goals rename_i selected hselected hnonempty
+    all_goals apply variants_domains (Substitution.compose_domainsAbove hb ?_) h
+    · exact (ComparisonFrozenContext.prepare_scoped hselected).domainsAbove
+    · exact (ComparisonExactContext.prepare_scoped hselected).domainsAbove
+    · exact (ComparisonContext.prepare_scoped hselected).domainsAbove
 
 theorem core_domains {fuel source target e}
     (h : core fuel source target = .success e) :
@@ -276,15 +275,15 @@ theorem capsuleAction_domains {fuel : Nat} {p : SchemePreparation.Prepared}
     (hcore : core fuel
       (ComparisonParameterization.source p
         (ComparisonCapsuleContext.symbolic
-          (ComparisonCapsuleContext.mixedBindings p (ComparisonBody.isTotal known)))
-        ((ComparisonCapsuleContext.mixedBindings p (ComparisonBody.isTotal known)).map
+          (ComparisonCapsuleContext.unfrozenBindings p (ComparisonBody.isTotal known)))
+        ((ComparisonCapsuleContext.unfrozenBindings p (ComparisonBody.isTotal known)).map
           ComparisonCapsuleIntervals.Binding.fresh)
         (ComparisonCapsuleContext.goals (ComparisonBody.isTotal known)
-          (ComparisonCapsuleContext.mixedBindings p (ComparisonBody.isTotal known))))
+          (ComparisonCapsuleContext.unfrozenBindings p (ComparisonBody.isTotal known))))
       (ComparisonParameterization.target p target) = .success result) :
     (ComparisonExactContext.finish
       (ComparisonCapsuleContext.symbolic
-        (ComparisonCapsuleContext.mixedBindings p (ComparisonBody.isTotal known)))
+        (ComparisonCapsuleContext.unfrozenBindings p (ComparisonBody.isTotal known)))
       result.substitution).DomainsAbove p.firstType p.firstMode := by
   apply ComparisonExactContext.finish_domainsAbove
   · constructor
@@ -292,7 +291,7 @@ theorem capsuleAction_domains {fuel : Nat} {p : SchemePreparation.Prepared}
       simp only [CompareSubstitution.ofSubstitution, ComparisonCapsuleContext.symbolic,
         List.mem_map] at he
       obtain ⟨pair, ⟨b, hb, rfl⟩, rfl⟩ := he
-      have ha := (ComparisonCapsuleContext.mem_mixedBindings hb).1
+      have ha := (ComparisonCapsuleContext.mem_mixedBindings (List.mem_filter.mp hb).1).1
       simp only [ComparisonInstance.typeAllowed, Bool.and_eq_true, decide_eq_true_eq] at ha
       exact ha.1
     · simp [CompareSubstitution.ofSubstitution, ComparisonCapsuleContext.symbolic]
@@ -305,7 +304,7 @@ theorem capsuleAction_domains {fuel : Nat} {p : SchemePreparation.Prepared}
         List.mem_map] at hn
       rcases hn with hn | ⟨b, hb, he⟩
       · omega
-      · have hlo := (ComparisonCapsuleContext.mem_mixedBindings hb).2
+      · have hlo := (ComparisonCapsuleContext.mem_mixedBindings (List.mem_filter.mp hb).1).2
         omega
 
 theorem capsuleCore_domains {fuel source target e}

@@ -7,6 +7,7 @@ import ModalityInference.ComparisonContext
 import ModalityInference.ComparisonExactContext
 import ModalityInference.ComparisonPartialPropagation
 import ModalityInference.ComparisonCapsuleContext
+import ModalityInference.ComparisonFrozenContext
 
 namespace ModalityInference.ComparisonChecker
 
@@ -101,11 +102,20 @@ def refineContexts (fuel : Nat) (p : SchemePreparation.Prepared)
         | none => .rejected reason
       match modes with
       | .rejected _ =>
-          match ComparisonExactContext.prepare context (ComparisonBody.isTotal known) with
-          | some selected =>
-              if selected.types.isEmpty && selected.modes.isEmpty then .rejected reason
-              else variants fuel p shapes (selected.compose before)
-          | none => .rejected reason
+          let exact : RunResult Evidence :=
+            match ComparisonExactContext.prepare context (ComparisonBody.isTotal known) with
+            | some selected =>
+                if selected.types.isEmpty && selected.modes.isEmpty then .rejected reason
+                else variants fuel p shapes (selected.compose before)
+            | none => .rejected reason
+          match exact with
+          | .rejected _ =>
+              match ComparisonFrozenContext.prepare context (ComparisonBody.isTotal known) with
+              | some selected =>
+                  if selected.types.isEmpty && selected.modes.isEmpty then .rejected reason
+                  else variants fuel p shapes (selected.compose before)
+              | none => .rejected reason
+          | result => result
       | result => result
   | result => result
 
@@ -160,7 +170,7 @@ def capsuleCore (fuel : Nat) (source target : Scheme) : RunResult Evidence := do
     (ComparisonAnnotations.expressions p.sourceType ++
       ComparisonAnnotations.expressions p.targetType)
   let total := ComparisonBody.isTotal known
-  let selected := ComparisonCapsuleContext.mixedBindings p total
+  let selected := ComparisonCapsuleContext.unfrozenBindings p total
   if selected.isEmpty then return ← .rejected "no shared partial interval candidate"
   let before := ComparisonCapsuleContext.symbolic selected
   let result ← core fuel

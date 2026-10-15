@@ -55,6 +55,18 @@ def mixedBindings (p : Prepared) (total : ModExpr → Bool) : List Binding :=
     b.requests.any Request.isLower && b.requests.any (fun r => !r.isLower) &&
       b.requests.all (fun r => ComparisonAnnotations.hasPartial total r.endpoint)
 
+/-- Variables below a modality without a totality certificate retain their
+literal images while other intervals are parameterized. -/
+def frozenTypeSupport (total : ModExpr → Bool) : Ty → Finset TypeVar
+  | .var _ | .unit | .credit => ∅
+  | .prod a b | .sum a b | .fn a b => frozenTypeSupport total a ∪ frozenTypeSupport total b
+  | .modal a m => if total m then frozenTypeSupport total a else a.typeVars
+
+/-- Select mixed intervals whose images can be changed without entering a
+frozen source context. Literal context matching handles the remaining keys. -/
+def unfrozenBindings (p : Prepared) (total : ModExpr → Bool) : List Binding :=
+  (mixedBindings p total).filter fun b => decide (TypeVar.flex b.name ∉ frozenTypeSupport total p.sourceType)
+
 def symbolic (bindings : List Binding) : Substitution :=
   { types := bindings.map fun b => (b.name, b.image) }
 

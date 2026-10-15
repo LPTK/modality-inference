@@ -140,11 +140,6 @@ theorem family_replacement {p : Prepared} {ρ : TypeVar → ComparisonShape}
       (fun m hm => hi.defined (isTotal_defined (knownTotal_sound hknown) hm))
       (Carrier.of_public p.targetType) h.2.2.2 (fun v _ => hp v) hfree
 
-/-- A deterministic partition leaves all frozen images for literal context
-matching and selects the remaining mixed capsule groups. -/
-def unfrozenBindings (p : Prepared) (total : ModExpr → Bool) : List Binding :=
-  (mixedBindings p total).filter fun b => decide (TypeVar.flex b.name ∉ frozenTypes total p.sourceType)
-
 theorem unfrozen_family_replacement {p : Prepared} {ρ : TypeVar → ComparisonShape}
     (hΔ : p.assumptions.TypeBoundsDefined) (hR : Residual p.assumptions)
     (hρ : ComparisonShape.Models p.assumptions ρ)

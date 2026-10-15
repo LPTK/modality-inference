@@ -19,14 +19,11 @@ theorem PreservesBounds.trans {Δ : Bounds} {a b c : CompareTy}
 
 /-- Type parameters below an annotation for which the supplied totality
 predicate does not justify congruence retain their literal images. -/
-def frozenTypes (total : ModExpr → Bool) : Ty → Finset TypeVar
-  | .var _ | .unit | .credit => ∅
-  | .prod a b | .sum a b | .fn a b => frozenTypes total a ∪ frozenTypes total b
-  | .modal a m => if total m then frozenTypes total a else a.typeVars
+abbrev frozenTypes := ComparisonCapsuleContext.frozenTypeSupport
 
 theorem frozenTypes_subset (total : ModExpr → Bool) (body : Ty) :
     frozenTypes total body ⊆ body.typeVars := by
-  induction body <;> simp only [frozenTypes, TypeExpr.typeVars]
+  induction body <;> simp only [frozenTypes, ComparisonCapsuleContext.frozenTypeSupport, TypeExpr.typeVars]
   case var | unit | credit => exact Finset.empty_subset _
   case prod a b ia ib | sum a b ia ib | fn a b ia ib => exact Finset.union_subset_union ia ib
   case modal a m ih => split <;> first | exact ih | exact Finset.Subset.refl _
@@ -83,11 +80,11 @@ theorem InDirection.replace {Δ : Bounds} (hΔ : Δ.TypeBoundsDefined)
     · have ht := htotal m hm
       obtain ⟨c, hc, he⟩ := h.modal_factor hΔ ht
       have hf' : ∀ v ∈ frozenTypes total a, replacement v = types v := by
-        simpa only [frozenTypes, hm, ↓reduceIte] using hf
+        simpa only [frozenTypes, ComparisonCapsuleContext.frozenTypeSupport, hm, ↓reduceIte] using hf
       exact refine_trans he (refine_modal ht (ia lower c hs hc hp hf'))
     · have he : publicImage replacement modes (.modal a m) = publicImage types modes (.modal a m) :=
         ComparisonAbsorption.instantiate_congr (.modal a m)
-          (by simpa only [frozenTypes, hm, ↓reduceIte, TypeExpr.typeVars] using hf)
+          (by simpa only [frozenTypes, ComparisonCapsuleContext.frozenTypeSupport, hm, ↓reduceIte, TypeExpr.typeVars] using hf)
           (fun _ _ => rfl)
       rw [he]
       exact h.sound hs

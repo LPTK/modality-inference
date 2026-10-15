@@ -100,8 +100,12 @@ to the complete source bounds as well as the body. Shared partial type intervals
 also introduce one total inner suffix and solve it jointly with source modalities,
 the complete original bounds, and the substituted body. Structural parameterization
 exposes fresh opaque leaves and root modalities to this joint comparison, allowing
-partial leaf images while retaining all source guards. General coupled partial contexts remain a
-completeness obligation.
+partial leaf images while retaining all source guards. Total outer annotations
+are separated before matching literal partial stems, with one shared assignment
+rechecked against the complete input. Interval replacement retains exact images
+inside frozen partial contexts. General coupled partial contexts remain a
+completeness obligation, including classification of source-dependent annotations
+whose totality follows from the source bounds.
 
 `CompareTy` is a separate finite witness language with binary joins and meets.
 `ShapedSubsumes` restricts instantiations and intermediate types to compatible
@@ -260,6 +264,11 @@ Arbitrary witness shapes factor through the actual shape solver; the allocated
 template forest admits one simultaneous realization. Structural rebasing preserves
 shared guarded source bounds and defined body comparisons. Every algebraic witness
 under residual assumptions also gives eventual successful shape preparation.
+Collected opaque classes contain every compatible head; their modal grammar
+covers images with supported modality names. A Boolean observation preserves all
+algebraic derivations, including partial intermediate types. Joint atomic interval
+selection and replacement give witnesses for the actual parameterized schemes
+under the stated local totality conditions.
 Remaining comparison
 work includes assembling these results with finite-basis elimination, arbitrary
 coupled partial type/modality contexts, and complete witness reconstruction in

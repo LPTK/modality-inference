@@ -266,5 +266,14 @@ import ModalityInference.Proofs.ComparisonCapsuleBodyReplacement
 import ModalityInference.Proofs.ComparisonCapsuleBindingReplacement
 import ModalityInference.Proofs.ComparisonCapsuleFamilyReplacement
 import ModalityInference.Proofs.ComparisonStructuredCapsuleWitness
+import ModalityInference.Proofs.ComparisonPartialStemCancellation
+import ModalityInference.Proofs.ComparisonFrozenContext
+import ModalityInference.Proofs.ComparisonFrozenContextCompleteness
+import ModalityInference.Proofs.ComparisonFrozenContextWitness
+import ModalityInference.Proofs.ComparisonContextSpecialization
+import ModalityInference.Proofs.ComparisonCapsuleParameterization
+import ModalityInference.Proofs.ComparisonCapsuleSelection
+import ModalityInference.Proofs.ComparisonOpaqueObserver
+import ModalityInference.Proofs.ComparisonOpaqueGrammar
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

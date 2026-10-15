@@ -43,19 +43,16 @@ theorem refineContexts_solution_of_propagate {fuel p shapes before e}
   case rejected =>
     simp only [bind, RunResult.bind] at h
     repeat' first | contradiction | split at h
-    all_goals first
-      | exact variants_solution_of_propagate hprop hs hb h
-      | (refine variants_solution_of_propagate hprop (hs.compose ?_) (hb.compose ?_) h
-         · first
-           | (have hselected := ComparisonContext.prepare_scoped (by assumption)
-              exact hselected.exact)
-           | (have hselected := ComparisonExactContext.prepare_scoped (by assumption)
-              exact hselected)
-         · first
-           | (have hselected := ComparisonContext.prepare_bounded (by assumption) (by exact ht)
-              exact hselected)
-           | (have hselected := ComparisonExactContext.prepare_bounded (by assumption) (by exact ht)
-              exact hselected))
+    all_goals rename_i selected hselected hnonempty
+    · have hscope := ComparisonFrozenContext.prepare_scoped hselected
+      have hbound := ComparisonFrozenContext.prepare_bounded hselected (by exact ht)
+      exact variants_solution_of_propagate hprop (hs.compose hscope) (hb.compose hbound) h
+    · have hscope := ComparisonExactContext.prepare_scoped hselected
+      have hbound := ComparisonExactContext.prepare_bounded hselected (by exact ht)
+      exact variants_solution_of_propagate hprop (hs.compose hscope) (hb.compose hbound) h
+    · have hscope := ComparisonContext.prepare_scoped hselected
+      have hbound := ComparisonContext.prepare_bounded hselected (by exact ht)
+      exact variants_solution_of_propagate hprop (hs.compose hscope.exact) (hb.compose hbound) h
 
 theorem core_solution_of_propagate {fuel source target e}
     (ht : (SchemePreparation.prepare [] source target).targetType.Bounded
