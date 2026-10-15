@@ -74,6 +74,11 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.CompareTy.defined_ofTy_subst_types',
+    'ModalityInference.CompareTy.defined_ofTy_subst_modes',
+    'ModalityInference.AlgebraEntails.constraint_types_defined',
+    'ModalityInference.AlgebraEntails.constraint_modes_defined',
+    'ModalityInference.AlgebraEntailsAll.bounds_support_defined',
     'ModalityInference.ComparisonChecker.propagate_solution',
     'ModalityInference.ComparisonChecker.run_solution',
     'ModalityInference.ComparisonChecker.run_algebra_subsumes',
@@ -2379,6 +2384,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonAlgebraSoundness\n'
                     'import ModalityInference.Proofs.ComparisonAlgebraInstances\n'
                     'import ModalityInference.Proofs.ComparisonSoundness\n'
+                    'import ModalityInference.Proofs.ComparisonBoundDefinedness\n'
                     'import ModalityInference.Proofs.ComparisonAlgebraPreparation\n'
                     'import ModalityInference.Proofs.ComparisonAlgebraOrder\n'
                     'import ModalityInference.Proofs.ComparisonControlSeparation\n'

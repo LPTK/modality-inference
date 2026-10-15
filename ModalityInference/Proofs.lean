@@ -179,5 +179,6 @@ import ModalityInference.Proofs.ComparisonPropagationRuntimeShapes
 import ModalityInference.Proofs.ComparisonPropagationResult
 import ModalityInference.Proofs.ComparisonPropagationSoundness
 import ModalityInference.Proofs.ComparisonSoundness
+import ModalityInference.Proofs.ComparisonBoundDefinedness
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
