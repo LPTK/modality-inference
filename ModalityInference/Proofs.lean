@@ -143,5 +143,11 @@ import ModalityInference.Proofs.ModalSynthesis
 import ModalityInference.Proofs.SchemeModeSynthesis
 import ModalityInference.Proofs.ComparisonBoundary
 
+import ModalityInference.Proofs.ComparisonModalSeparation
+import ModalityInference.Proofs.ComparisonAlgebraReification
+import ModalityInference.Proofs.ComparisonObserverTheory
+import ModalityInference.Proofs.ComparisonWitnessShapes
+import ModalityInference.Proofs.ComparisonCheckerScope
+import ModalityInference.Proofs.ComparisonPropagationPointwise
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

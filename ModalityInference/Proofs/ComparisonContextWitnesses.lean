@@ -1,8 +1,8 @@
 import ModalityInference.Proofs.ComparisonAlgebra
 import ModalityInference.Proofs.Normalization
 import ModalityInference.ComparisonChecker
-/-! Ordinary subsumption witnesses for simultaneous partial annotation contexts.
-Their proofs use only public types and the original subtyping rules. -/
+/-! Ordinary and compatible internal subsumption witnesses for simultaneous
+partial annotation contexts, paired with executable acceptance checks. -/
 namespace ModalityInference.ComparisonContextWitnesses
 
 def bad : ModExpr := .leftResidual .epsilon (.const Mode.bottom)
@@ -168,11 +168,47 @@ theorem combined_shaped_witness : ShapedSubsumes [] combinedSource combinedTarge
 theorem combined_algebra_witness : AlgebraSubsumes [] combinedSource combinedTarget :=
   combined_shaped_witness.to_algebra
 
+def forcedSource : Scheme :=
+  { mixedSource with bounds := [.mode (.var (.flex 0)) (.const Mode.global),
+      .mode (.const Mode.global) (.var (.flex 0))] }
+
+def forcedTarget : Scheme :=
+  { mixedMeetTarget with body := (.prod (.modal h bad)
+      (.prod (.modal (.modal (.var (.rigid 1)) bad) (.const Mode.global))
+        (.modal .unit .top))) }
+
+def forcedWitness : CompareSubstitution :=
+  { types := [(0, meetImage)], modes := [(0, .const Mode.global)] }
+
+theorem forced_shaped_witness : ShapedSubsumes [] forcedSource forcedTarget := by
+  refine ⟨forcedWitness, ?_, ?_, ?_, ?_⟩
+  · simp [CompareInstantiates, forcedSource, mixedSource, forcedWitness]
+  · change forcedWitness.WellShaped meetBounds
+    simpa [CompareSubstitution.WellShaped, forcedWitness] using meetImage_wellShaped
+  · change ShapedEntailsAll meetBounds [.mode (.const Mode.global) (.const Mode.global),
+      .mode (.const Mode.global) (.const Mode.global)]
+    simp only [ShapedEntailsAll, List.mem_cons, List.not_mem_nil, or_false, or_self,
+      forall_eq, ShapedEntails]
+    exact .valid fun _ _ => ⟨Mode.global, Mode.global, rfl, rfl, by decide⟩
+  · change ShapedSubtype meetBounds
+      (.prod meetImage (.prod (.modal meetImage (.const Mode.global)) .unit))
+      (.prod (.modal (.var (.rigid 0)) bad)
+        (.prod (.modal (.modal (.var (.rigid 1)) bad) (.const Mode.global))
+          (.modal .unit .top)))
+    exact ShapedSubtype.prod_congr (.meetLeft meetImage_wellShaped)
+      (.prod_congr (.congr (.meetRight meetImage_wellShaped)
+        (.valid fun _ _ => ⟨Mode.global, Mode.global, rfl, rfl, by decide⟩))
+        ((ShapedSubtype.identityRev (a := .unit) trivial).trans (.congr (.refl trivial)
+          (.valid fun _ _ => ⟨Mode.identity, Mode.top, rfl, rfl, by decide⟩))))
+
+theorem forced_algebra_witness : AlgebraSubsumes [] forcedSource forcedTarget :=
+  forced_shaped_witness.to_algebra
+
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 16000000 in
 #guard [ (source, target), (sharedSource, sharedTarget), (mixedSource, mixedTarget),
     (mixedSource, mixedMeetTarget), (definedMixedSource, mixedMeetTarget),
-    (combinedSource, combinedTarget) ].all
+    (combinedSource, combinedTarget), (forcedSource, forcedTarget) ].all
   fun (a, b) => (ComparisonChecker.run 20000 a b).isSuccess
 
 set_option maxRecDepth 100000 in

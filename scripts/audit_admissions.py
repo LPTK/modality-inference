@@ -74,6 +74,21 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonAlgebra.observer_modal_realizable',
+    'ModalityInference.ComparisonAlgebra.reify_observer',
+    'ModalityInference.ComparisonAlgebra.reify_order',
+    'ModalityInference.ComparisonControls.Basis.theoryAt_of_modal',
+    'ModalityInference.ComparisonAlgebra.observer_substituted_realizable',
+    'ModalityInference.ComparisonElimination.group_trace',
+    'ModalityInference.ComparisonElimination.GroupTrace.obligation',
+    'ModalityInference.ComparisonElimination.GroupTrace.action_compiled',
+    'ModalityInference.ComparisonElimination.GroupTrace.theory_correct',
+    'ModalityInference.ComparisonElimination.GroupTrace.goal_compiled',
+    'ModalityInference.ComparisonElimination.GroupTrace.goal_holds',
+    'ModalityInference.ComparisonChecker.run_domains',
+    'ModalityInference.ComparisonPropagation.reduce_compile_pointwise',
+    'ModalityInference.ComparisonElimination.run_leaf_interpretation',
+    'ModalityInference.ComparisonReduction.prepare_partialTypes_wellShaped',
     'ModalityInference.ComparisonAlgebra.observer_coordinate_cases',
     'ModalityInference.ComparisonAlgebra.BandScalar.observations_realizable',
     'ModalityInference.ComparisonAnnotations.prepare_bounds_fixed',
@@ -2328,6 +2343,12 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonReduction\n'
                     'import ModalityInference.Proofs.ComparisonAnnotations\n'
                     'import ModalityInference.Proofs.ComparisonElimination\n'
+                    'import ModalityInference.Proofs.ComparisonModalSeparation\n'
+                    'import ModalityInference.Proofs.ComparisonAlgebraReification\n'
+                    'import ModalityInference.Proofs.ComparisonObserverTheory\n'
+                    'import ModalityInference.Proofs.ComparisonWitnessShapes\n'
+                    'import ModalityInference.Proofs.ComparisonCheckerScope\n'
+                    'import ModalityInference.Proofs.ComparisonPropagationPointwise\n'
                     'import ModalityInference.Proofs.ComparisonChecker\n'
                     'import ModalityInference.Proofs.ComparisonPartial\n'
                     'import ModalityInference.Proofs.ComparisonInterpolation\n'
