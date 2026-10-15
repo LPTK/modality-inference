@@ -1,6 +1,7 @@
 import ModalityInference.ComparisonAnnotations
 import ModalityInference.Proofs.ComparisonPartialModes
 import ModalityInference.Proofs.ComparisonExactContext
+import ModalityInference.Proofs.ComparisonModalSpine
 
 /-! Scope and exact reconstruction of the partial-annotation prepass. -/
 namespace ModalityInference.ComparisonAnnotations
@@ -80,11 +81,10 @@ theorem requests_support {p : SchemePreparation.Prepared} {total : ModExpr → B
     split at hr
     · split at hr
       · split at hr
-        all_goals split at hr
-        all_goals simp only [List.mem_singleton, List.not_mem_nil] at hr
-        all_goals cases hr
-        · exact Finset.subset_union_right
-        · exact Finset.empty_subset _
+        · simp only [List.mem_singleton] at hr
+          cases hr
+          exact ComparisonModalSpine.factor_recompose_support (by assumption)
+        · simp only [List.not_mem_nil] at hr
       · simp at hr
     · split at hr
       · rename_i a b hs

@@ -291,5 +291,13 @@ import ModalityInference.Proofs.ComparisonCapsuleFrozenBody
 import ModalityInference.Proofs.ComparisonModePrepassWitness
 import ModalityInference.Proofs.ComparisonFrozenActionReification
 import ModalityInference.Proofs.ComparisonCapsuleSemanticParameterization
+import ModalityInference.Proofs.ComparisonExactMatchingCoverage
+import ModalityInference.Proofs.ComparisonExactMatchingScope
+import ModalityInference.Proofs.ComparisonContextMatchingCoverage
+import ModalityInference.Proofs.ComparisonCapsuleSemanticSpecialization
+import ModalityInference.Proofs.ComparisonCapsuleMatchedParameterization
+import ModalityInference.Proofs.ComparisonModalSpine
+import ModalityInference.Proofs.ComparisonModalSpineComplete
+import ModalityInference.Proofs.ComparisonModalSpineWitness
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

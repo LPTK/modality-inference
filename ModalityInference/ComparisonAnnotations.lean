@@ -1,5 +1,6 @@
 import ModalityInference.ComparisonBody
 import ModalityInference.ComparisonShapeSolver
+import ModalityInference.ComparisonModalSpine
 
 /-! Collect direct body-only modality requests at an identical fixed base.
 Every original body obligation remains for checking after adaptation. -/
@@ -26,9 +27,9 @@ def requests (p : SchemePreparation.Prepared) (total : ModExpr → Bool)
     match source with
     | .modal a (.var (.flex n)) =>
       if indices.contains n && fixed p a then
-        match target with
-        | .modal b m => if a == b then [⟨n, m, reversed⟩] else []
-        | b => if a == b then [⟨n, .epsilon, reversed⟩] else []
+        match ComparisonModalSpine.factor a target with
+        | some spine => [⟨n, ComparisonPartialModes.recompose spine, reversed⟩]
+        | none => []
       else []
     | _ =>
       match ComparisonBody.stripShared total source target with

@@ -74,6 +74,19 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonModalSpineRegression.algebra_witnesses',
+    'ModalityInference.ComparisonInstance.matchMode_extends_covers',
+    'ModalityInference.ComparisonInstance.matchType_extends_covers',
+    'ModalityInference.ComparisonInstance.matchTypes_complete_scoped_covers',
+    'ModalityInference.ComparisonFrozenContext.prepare_covers',
+    'ModalityInference.ComparisonCapsuleContext.specialized_family_replacement',
+    'ModalityInference.ComparisonCapsuleContext.rewritten_selector_exact_of_covered',
+    'ModalityInference.ComparisonCapsuleContext.matchTypes_parameterized_witness',
+    'ModalityInference.ComparisonModalSpine.factor_recompose_support',
+    'ModalityInference.ComparisonModalSpine.factor_spec',
+    'ModalityInference.ComparisonModalSpine.factor_complete',
+    'ModalityInference.ComparisonModalSpine.factor_iff',
+    'ModalityInference.ComparisonModalSpine.factor_equivalent',
     'ModalityInference.ComparisonModePrepassRegression.ordinary_witness',
     'ModalityInference.ComparisonModePrepassRegression.algebra_witness',
     'ModalityInference.ComparisonPartialStructuredCapsule.peel_partial_action_equivalent',
@@ -3117,6 +3130,14 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonFrozenPeeling\n'
                     'import ModalityInference.Proofs.ComparisonCapsuleFrozenBody\n'
                     'import ModalityInference.Proofs.ComparisonModePrepassWitness\n'
+                    'import ModalityInference.Proofs.ComparisonExactMatchingCoverage\n'
+                    'import ModalityInference.Proofs.ComparisonExactMatchingScope\n'
+                    'import ModalityInference.Proofs.ComparisonContextMatchingCoverage\n'
+                    'import ModalityInference.Proofs.ComparisonCapsuleSemanticSpecialization\n'
+                    'import ModalityInference.Proofs.ComparisonCapsuleMatchedParameterization\n'
+                    'import ModalityInference.Proofs.ComparisonModalSpine\n'
+                    'import ModalityInference.Proofs.ComparisonModalSpineComplete\n'
+                    'import ModalityInference.Proofs.ComparisonModalSpineWitness\n'
                     'import ModalityInference.Proofs.ComparisonFrozenActionReification\n'
                     'import ModalityInference.Proofs.ComparisonCapsuleSemanticParameterization\n'
                     'import ModalityInference.Proofs.ComparisonCarrierBodyPlan\n'
