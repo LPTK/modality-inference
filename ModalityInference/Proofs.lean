@@ -317,5 +317,12 @@ import ModalityInference.Proofs.ComparisonSelectorPropagation
 import ModalityInference.Proofs.ComparisonParametricPropagation
 import ModalityInference.Proofs.ComparisonBoundaryPropagation
 import ModalityInference.Proofs.ComparisonTupleReification
+import ModalityInference.Proofs.GuardedSourceTyping
+import ModalityInference.Proofs.GuardedSourceSoundness
+import ModalityInference.Proofs.GuardedContexts
+import ModalityInference.Proofs.GuardedRefinedContexts
+import ModalityInference.Proofs.GuardedRefinedReuse
+import ModalityInference.Proofs.GuardedGenerationSoundness
+import ModalityInference.Proofs.GuardedSourceInference
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

@@ -7,7 +7,7 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
-SEMANTIC_ROOT = 'ModalityInference.Proofs.SourceSoundness'
+SEMANTIC_ROOT = 'ModalityInference.Proofs.GuardedSourceSoundness'
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--semantic', action='store_true',
@@ -74,6 +74,18 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.Generates.Hygienic.guarded_typing_refined',
+    'ModalityInference.Generates.guarded_raw_sound',
+    'ModalityInference.Generates.guarded_source_sound',
+    'ModalityInference.inference_guarded_source_sound',
+    'ModalityInference.inference_guarded_source_defined',
+    'ModalityInference.GuardedSourceTyping.inference_complete',
+    'ModalityInference.GuardedSourceTyping.inference_ground_principal',
+    'ModalityInference.Scheme.subsumesUnder_refined_of_instances',
+    'ModalityInference.Scheme.generalize_subsumesUnder_substAvoid_refined',
+    'ModalityInference.AlgorithmicContext.refinedContext_guarded_lock',
+    'ModalityInference.UsageSplit.declarative_refined_guarded',
+    'ModalityInference.UsageSplit.declarative_refined_guarded_reuse',
     'ModalityInference.ComparisonBoundaryPropagation.summarize_uniform_iff',
     'ModalityInference.ComparisonBoundaryPropagation.summarize_iff',
     'ModalityInference.ComparisonBoundaryPropagation.summarize_sound',
@@ -2571,6 +2583,12 @@ constants = [
     'ModalityInference.Lookup.refinedContext_instance',
 ]
 source_semantic_constants = [
+    'ModalityInference.SubsumesUnder.to_subsumes',
+    'ModalityInference.GuardedContextLe.to_contextLe',
+    'ModalityInference.GuardedSourceTyping.to_sourceTyping',
+    'ModalityInference.GuardedSourceTyping.to_rawTyping',
+    'ModalityInference.GuardedSourceTyping.realize_defined',
+    'ModalityInference.GuardedSourceTyping.resource_semantic',
     'ModalityInference.Typing.source',
     'ModalityInference.SourceTyping.to_rawTyping',
     'ModalityInference.SourceTyping.of_rawTyping',
@@ -3117,6 +3135,13 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
     path.write_text((f'import {SEMANTIC_ROOT}\n' if args.semantic else
                     'import ModalityInference\nimport ModalityInference.Proofs.SourceInference\n'
+                    'import ModalityInference.Proofs.GuardedSourceTyping\n'
+                    'import ModalityInference.Proofs.GuardedSourceSoundness\n'
+                    'import ModalityInference.Proofs.GuardedContexts\n'
+                    'import ModalityInference.Proofs.GuardedRefinedContexts\n'
+                    'import ModalityInference.Proofs.GuardedRefinedReuse\n'
+                    'import ModalityInference.Proofs.GuardedGenerationSoundness\n'
+                    'import ModalityInference.Proofs.GuardedSourceInference\n'
                     'import ModalityInference.Proofs.Evaluation\n'
                     'import ModalityInference.Proofs.Interpretation\n'
                     'import ModalityInference.Proofs.Erasure\n'

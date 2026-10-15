@@ -7,7 +7,7 @@ and evaluation judgments, executable inference and evaluation, and checked proof
 of source soundness, closed inference completeness, and ground principality.
 
 The executable syntax is `RawTerm`; inference returns the input term unchanged.
-`Runtime.Value.closure` stores a trimmed environment and a raw body. `SourceTyping`
+`Runtime.Value.closure` stores a trimmed environment and a raw body. `GuardedSourceTyping`
 states typing directly for this syntax. An annotated representation supports the
 semantic proofs through proved erasure correspondences.
 
@@ -196,7 +196,7 @@ of aliased references as well as owned ones.
 | Direct source typing, full open-environment resource soundness, eventual evaluation without rejection, live results, ownership bounds, and fresh-only ownership for closed programs | `Proofs/SourceSoundness` |
 | Evaluator soundness, completeness, determinism, fuel stability, and exact correspondence with the proof representation, including rejection and exhaustion | `Proofs/Runtime` |
 | Exact source preservation, hygienic generation, and correspondence with the independent generation relation | `Proofs/GenerationExecution`, `Proofs/GenerationCorrespondence`, `Proofs/GenerationSoundness` |
-| Successful inference gives a `SourceTyping` derivation under returned residual bounds and the substituted context, with sound raw execution under the semantic premises | `Proofs/SourceInference` |
+| Successful inference gives a `GuardedSourceTyping` derivation with defined instances and guarded context comparisons, plus defined returned body/images under its residual bounds | `Proofs/GuardedSourceInference` |
 | Every declaratively typable closed source term is accepted with sufficiently large fuel; every successful result covers all its valid ground result instances up to subtyping | `Proofs/InferenceCompleteness`, `Proofs/SourceInference` |
 | Solver output entails the original constraints after substitution and preserves acyclicity and definedness; flexible inputs have a ground model using the returned witness | `Proofs/SolverSoundness`, `Proofs/SolverImages`, `Proofs/ResidualModels` |
 | Initialized solving terminates on every input; on flexible inputs it eventually accepts every satisfiable input and factors every original ground solution through every successful result | `Proofs/SolverTermination`, `Proofs/SolverCompleteness` |
@@ -225,11 +225,13 @@ a typing premise. Successful closed inference followed by signature checking
 therefore gives safe execution at every admissible declared instance.
 Termination and completed-result fuel stability are proved on every input.
 
-`inference_source_defined` proves body and returned-substitution definedness
-under the actual residual bounds. `SourceTyping.var` requires defined instances
-including unused quantified parameters. Auxiliary context weakening transports
-every admissible instance under those residual bounds. Converting its steps to
-the paper's guarded scheme replacements remains a separate correspondence task.
+`inference_guarded_source_defined` proves body and returned-substitution
+definedness under the actual residual bounds, together with the paper's guarded
+source derivation. Every variable instance has defined body/images, every changed
+context binding has a defined scheme-comparison witness, and unchanged bindings
+use identity. All constructors are covered without a global well-formedness
+premise on the input context. Independent semantic soundness, closed completeness,
+and ground principality are proved for this guarded source judgment.
 
 `Obligations.SchemeSubsumptionComplete` remains unproved. Its premise is
 `AlgebraSubsumesUnder`, retaining duplicate-free binders and residual target

@@ -5,6 +5,7 @@ import ModalityInference.SymbolicSchemeModes
 import ModalityInference.Core.Scoping
 import ModalityInference.Declarative
 import ModalityInference.SourceTyping
+import ModalityInference.GuardedSourceTyping
 import ModalityInference.Evaluation
 import ModalityInference.Runtime
 import ModalityInference.Semantics
