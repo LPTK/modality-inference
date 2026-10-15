@@ -470,11 +470,20 @@ theorem refineContexts_settles (p : SchemePreparation.Prepared)
           | none => .rejected reason
         match exact with
         | .rejected _ =>
-            match ComparisonFrozenContext.prepare context (ComparisonBody.isTotal known) with
-            | some selected =>
-                if selected.types.isEmpty && selected.modes.isEmpty then .rejected reason
-                else variants fuel p shapes (selected.compose before)
-            | none => .rejected reason
+            let frozen : RunResult Evidence :=
+              match ComparisonFrozenContext.prepare context (ComparisonBody.isTotal known) with
+              | some selected =>
+                  if selected.types.isEmpty && selected.modes.isEmpty then .rejected reason
+                  else variants fuel p shapes (selected.compose before)
+              | none => .rejected reason
+            match frozen with
+            | .rejected _ =>
+                match ComparisonCompoundSpine.prepare context with
+                | some selected =>
+                    if selected.types.isEmpty && selected.modes.isEmpty then .rejected reason
+                    else variants fuel p shapes (selected.compose before)
+                | none => .rejected reason
+            | result => result
         | result => result
     | result => result
   refine Settles.congr (Settles.recover (g := continuation) (variants_settles p shapes before) ?_) ?_
@@ -499,6 +508,11 @@ theorem refineContexts_settles (p : SchemePreparation.Prepared)
       | some selected => if selected.types.isEmpty && selected.modes.isEmpty then .rejected reason
           else variants fuel p shapes (selected.compose before)
       | none => .rejected reason
+    let selectedCompound : Nat → RunResult Evidence := fun fuel =>
+      match ComparisonCompoundSpine.prepare context with
+      | some selected => if selected.types.isEmpty && selected.modes.isEmpty then .rejected reason
+          else variants fuel p shapes (selected.compose before)
+      | none => .rejected reason
     have hm : Settles selectedModes := by
       dsimp only [selectedModes]
       split
@@ -520,10 +534,27 @@ theorem refineContexts_settles (p : SchemePreparation.Prepared)
         · exact Settles.rejected _
         · exact variants_settles _ _ _
       · exact Settles.rejected _
-    have htf := Settles.recover (g := fun fuel _ => selectedFrozen fuel) ht (fun _ => hf)
+    have hc : Settles selectedCompound := by
+      dsimp only [selectedCompound]
+      split
+      · split
+        · exact Settles.rejected _
+        · exact variants_settles _ _ _
+      · exact Settles.rejected _
+    have hfc := Settles.recover (g := fun fuel _ => selectedCompound fuel) hf (fun _ => hc)
+    let selectedPartial : Nat → RunResult Evidence := fun fuel =>
+      match selectedFrozen fuel with
+      | .rejected _ => selectedCompound fuel
+      | result => result
+    have hp : Settles selectedPartial := by
+      refine Settles.congr hfc ?_
+      intro fuel
+      dsimp only [selectedPartial]
+      cases selectedFrozen fuel <;> rfl
+    have htf := Settles.recover (g := fun fuel _ => selectedPartial fuel) ht (fun _ => hp)
     refine Settles.congr (Settles.recover (g := fun fuel _ =>
       match selectedTypes fuel with
-      | .rejected _ => selectedFrozen fuel
+      | .rejected _ => selectedPartial fuel
       | result => result) hm ?_) ?_
     · intro _
       refine Settles.congr htf ?_
@@ -533,7 +564,7 @@ theorem refineContexts_settles (p : SchemePreparation.Prepared)
     · intro fuel
       change (match selectedModes fuel with
         | .rejected _ => match selectedTypes fuel with
-          | .rejected _ => selectedFrozen fuel
+          | .rejected _ => selectedPartial fuel
           | result => result
         | result => result) = _
       cases selectedModes fuel <;> rfl

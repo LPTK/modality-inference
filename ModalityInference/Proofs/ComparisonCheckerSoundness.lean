@@ -44,6 +44,9 @@ theorem refineContexts_solution_of_propagate {fuel p shapes before e}
     simp only [bind, RunResult.bind] at h
     repeat' first | contradiction | split at h
     all_goals rename_i selected hselected hnonempty
+    · have hscope := ComparisonCompoundSpine.prepare_scoped hselected
+      have hbound := ComparisonCompoundSpine.prepare_bounded hselected (by exact ht)
+      exact variants_solution_of_propagate hprop (hs.compose hscope) (hb.compose hbound) h
     · have hscope := ComparisonFrozenContext.prepare_scoped hselected
       have hbound := ComparisonFrozenContext.prepare_bounded hselected (by exact ht)
       exact variants_solution_of_propagate hprop (hs.compose hscope) (hb.compose hbound) h

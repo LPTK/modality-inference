@@ -74,6 +74,23 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonCompoundSpine.prepare_scoped',
+    'ModalityInference.ComparisonCompoundSpine.prepare_bounded',
+    'ModalityInference.ComparisonCompoundSpine.prepare_success',
+    'ModalityInference.ComparisonCompoundSpineRegression.algebra_witnesses',
+    'ModalityInference.ComparisonFrozenContext.prepare_eq_independent',
+    'ModalityInference.ComparisonFrozenContext.prepared_prepare_eq',
+    'ModalityInference.ComparisonFrozenContext.prepare_shared_specialization',
+    'ModalityInference.ComparisonFrozenContext.prepare_parameterized_witness',
+    'ModalityInference.ComparisonFrozenContext.independent_nonempty_of_request',
+    'ModalityInference.ComparisonJointHorn.resolve_linear',
+    'ModalityInference.ComparisonJointHorn.eliminate_linear',
+    'ModalityInference.ComparisonJointHorn.project_linear',
+    'ModalityInference.ComparisonJointHorn.coordinate_residual',
+    'ModalityInference.ComparisonJointHorn.component_linear',
+    'ModalityInference.ComparisonJointHorn.compileClause_correct',
+    'ModalityInference.ComparisonJointHorn.compileClauses_correct',
+    'ModalityInference.ComparisonJointHorn.uniform_components_iff',
     'ModalityInference.ComparisonModalSpineRegression.algebra_witnesses',
     'ModalityInference.ComparisonInstance.matchMode_extends_covers',
     'ModalityInference.ComparisonInstance.matchType_extends_covers',
@@ -3138,6 +3155,11 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonModalSpine\n'
                     'import ModalityInference.Proofs.ComparisonModalSpineComplete\n'
                     'import ModalityInference.Proofs.ComparisonModalSpineWitness\n'
+                    'import ModalityInference.Proofs.ComparisonCompoundSpine\n'
+                    'import ModalityInference.Proofs.ComparisonCompoundSpineSelection\n'
+                    'import ModalityInference.Proofs.ComparisonCompoundSpineWitness\n'
+                    'import ModalityInference.Proofs.ComparisonFrozenSpecialization\n'
+                    'import ModalityInference.Proofs.ComparisonJointHorn\n'
                     'import ModalityInference.Proofs.ComparisonFrozenActionReification\n'
                     'import ModalityInference.Proofs.ComparisonCapsuleSemanticParameterization\n'
                     'import ModalityInference.Proofs.ComparisonCarrierBodyPlan\n'

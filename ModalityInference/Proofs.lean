@@ -299,5 +299,10 @@ import ModalityInference.Proofs.ComparisonCapsuleMatchedParameterization
 import ModalityInference.Proofs.ComparisonModalSpine
 import ModalityInference.Proofs.ComparisonModalSpineComplete
 import ModalityInference.Proofs.ComparisonModalSpineWitness
+import ModalityInference.Proofs.ComparisonCompoundSpine
+import ModalityInference.Proofs.ComparisonCompoundSpineSelection
+import ModalityInference.Proofs.ComparisonCompoundSpineWitness
+import ModalityInference.Proofs.ComparisonFrozenSpecialization
+import ModalityInference.Proofs.ComparisonJointHorn
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

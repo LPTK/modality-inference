@@ -10,6 +10,7 @@ import ModalityInference.ComparisonCapsuleContext
 import ModalityInference.ComparisonFrozenContext
 import ModalityInference.ComparisonGuardedTotal
 import ModalityInference.ComparisonModePrepass
+import ModalityInference.ComparisonCompoundSpine
 
 namespace ModalityInference.ComparisonChecker
 
@@ -113,11 +114,20 @@ def refineContexts (fuel : Nat) (p : SchemePreparation.Prepared)
             | none => .rejected reason
           match exact with
           | .rejected _ =>
-              match ComparisonFrozenContext.prepare context (ComparisonBody.isTotal known) with
-              | some selected =>
-                  if selected.types.isEmpty && selected.modes.isEmpty then .rejected reason
-                  else variants fuel p shapes (selected.compose before)
-              | none => .rejected reason
+              let frozen : RunResult Evidence :=
+                match ComparisonFrozenContext.prepare context (ComparisonBody.isTotal known) with
+                | some selected =>
+                    if selected.types.isEmpty && selected.modes.isEmpty then .rejected reason
+                    else variants fuel p shapes (selected.compose before)
+                | none => .rejected reason
+              match frozen with
+              | .rejected _ =>
+                  match ComparisonCompoundSpine.prepare context with
+                  | some selected =>
+                      if selected.types.isEmpty && selected.modes.isEmpty then .rejected reason
+                      else variants fuel p shapes (selected.compose before)
+                  | none => .rejected reason
+              | result => result
           | result => result
       | result => result
   | result => result

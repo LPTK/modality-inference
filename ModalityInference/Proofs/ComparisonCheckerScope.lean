@@ -7,6 +7,7 @@ import ModalityInference.Proofs.ComparisonContext
 import ModalityInference.Proofs.ComparisonCapsuleContext
 import ModalityInference.Proofs.ComparisonFrozenContext
 import ModalityInference.Proofs.ComparisonModePrepass
+import ModalityInference.Proofs.ComparisonCompoundSpine
 
 /-! Fresh-domain invariants for the assembled comparison witness. -/
 namespace ModalityInference
@@ -227,6 +228,7 @@ theorem refineContexts_domains {fuel p shapes before e}
     repeat' first | contradiction | split at h
     all_goals rename_i selected hselected hnonempty
     all_goals apply variants_domains (Substitution.compose_domainsAbove hb ?_) h
+    · exact (ComparisonCompoundSpine.prepare_scoped hselected).domainsAbove
     · exact (ComparisonFrozenContext.prepare_scoped hselected).domainsAbove
     · exact (ComparisonExactContext.prepare_scoped hselected).domainsAbove
     · exact (ComparisonContext.prepare_scoped hselected).domainsAbove
