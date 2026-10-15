@@ -111,11 +111,16 @@ import ModalityInference.Proofs.SchemeReconstruction
 import ModalityInference.Proofs.SchemeReconstructionClosed
 import ModalityInference.Proofs.ComparisonTypes
 import ModalityInference.Proofs.ComparisonShapes
+import ModalityInference.Proofs.ComparisonAlgebra
+import ModalityInference.Proofs.ComparisonSkeleton
 import ModalityInference.Proofs.ComparisonShapeSolver
 import ModalityInference.Proofs.ComparisonPropagation
 import ModalityInference.Proofs.ComparisonControls
 import ModalityInference.Proofs.ComparisonLattice
 import ModalityInference.Proofs.ComparisonPartial
+import ModalityInference.Proofs.ComparisonPartialModes
+import ModalityInference.Proofs.ComparisonBody
+import ModalityInference.Proofs.ComparisonInstance
 import ModalityInference.Proofs.ComparisonInterpolation
 import ModalityInference.Proofs.ComparisonPreparation
 import ModalityInference.Proofs.SymbolicCNF

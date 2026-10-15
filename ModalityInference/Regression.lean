@@ -4,6 +4,7 @@ import ModalityInference.RuntimeRegression
 import ModalityInference.HornPropagationRegression
 import ModalityInference.PropagationRegression
 import ModalityInference.ModalSynthesisRegression
+import ModalityInference.ComparisonRegression
 
 /-! Executable regression checks. No imports from `Proofs` and no native-decide
 axioms: these commands run examples; they do not assert metatheorems. -/

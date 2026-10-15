@@ -67,7 +67,7 @@ All public functions below are in namespace `ModalityInference` and return
 | `solve fuel constraints` | Substitution, residual bounds, concrete consistency witness, fresh counters, and trace |
 | `satisfiableModes fuel constraints` | A concrete modality assignment modeling the modality constraints |
 | `Runtime.evalFuel fuel supplies environment term` | A runtime value |
-| `checkSubsumption fuel inferred declared` | Executable scheme-comparison evidence; the checker has known mismatches with `Subsumes` and no soundness or completeness theorem |
+| `checkSubsumption fuel inferred declared` | Internal comparison substitution and residual validity evidence; whole-checker soundness/completeness remain unproved |
 
 Exhaustion is not rejection. Increasing fuel permits deeper recursion and more
 worklist or normalization steps. The Horn check's `requiredFuel` is a threshold
@@ -82,21 +82,26 @@ actual modality images through `SchemeModeSynthesis.run`; it does not expand
 Boolean assignments. The wrapper proves validity under the assembled modality
 interpretation, exact finite domains, and removal of selected fresh variables.
 
-Additional symbolic components support the structural checker replacement.
+The structural checker uses scope-preserving preparation and compatible internal witnesses.
 `SymbolicModes.eliminate flexibleAtoms formula` returns an optional symbolic
 witness and residual obligation for its exact accepted Horn grammar;
 `SymbolicModes.Elimination.mode` optionally reifies a witness as a defined
 `ModExpr`, and `SymbolicSchemeModes.assemble` collects the images into a finite
 substitution. `SchemePreparation.prepare ambient source target` returns fresh
 source obligations, a separate body comparison, and expanded target assumptions.
-Preparation and internal interpolation do not return a subsumption decision
-and have not replaced the checker's type search. Modality-image assembly is
-used with the general uniform synthesis procedure.
+`ComparisonChecker.run` integrates preparation, structural templates, finite-basis
+propagation, and uniform modality-image assembly. There is no type-representative
+search. Exact-body matching has a proved ordinary scheme-soundness theorem,
+including partial type and mode images. Bare type intervals, sufficient
+shared-wrapper reductions, and direct shared-prefix mode requests preserve
+partial syntax without adding a body guard. General coupled partial contexts
+remain a completeness obligation.
 
 `CompareTy` is a separate finite witness language with binary joins and meets.
-`ShapedSubsumes` restricts its instantiations and intermediate subtype derivations
-to compatible shapes under the declared assumptions; public `Ty` and `Scheme`
-remain join-free. The original subtype and scheme relations embed into it.
+`ShapedSubsumes` restricts instantiations and intermediate types to compatible
+shapes under the declared assumptions. `AlgebraSubsumes` adds guarded
+distributive and modal equations, with proved ground laws. Public `Ty` and
+`Scheme` remain join-free; ordinary subtype and scheme derivations embed.
 `ComparisonShapeSolver.prepare` first unifies declared shape equations, freezes
 their remaining parameters, and solves only fresh source shape variables. Its
 unifier is sound, most-general, terminating, and stable as fuel grows; the
@@ -105,7 +110,7 @@ assumptions are reported separately from a failed source shape comparison.
 `ComparisonInterpolation.witness` reconstructs an isolated variable
 from its lower or upper endpoints, with an exact crossed-bound criterion and
 preservation of written guards in the unrestricted comparison relation. Its
-shape-restricted lift and structural/modalized occurrences remain separate work.
+generic shape-restricted lift and whole-checker correspondence remain separate work.
 The source typing and semantic theorems still use the original scheme relation.
 
 `ComparisonPropagation` solves a supplied finite lattice-basis problem by ordered
@@ -234,37 +239,25 @@ point nor public executables depend on those unproved specifications.
 
 ## Remaining work and scope
 
-The executable scheme checker still uses `checkCandidates` for type
-representatives. Its Boolean assignment expansion is replaced by verified
-uniform symbolic synthesis. Replacing type search is [TODO item 1](../TODO.md).
-Integration must preserve fixed identifiers, retain original rigid type
-obligations, and construct admissible internal type images satisfying the
-original scheme goals. Correct modality synthesis alone does not prove the
-rigid graph or complete checker correct.
+`checkSubsumption` uses the symbolic comparison pipeline. Its intended contracts
+are `Obligations.SchemeSubsumptionSound` and `SchemeSubsumptionComplete` against
+`AlgebraSubsumes`, with duplicate-free binders and residual declared bounds.
+They retain arbitrary source bounds, fixed free identifiers, and bare partial
+body comparisons. Verified shape, lattice, propagation, and modality kernels
+do not establish these assembled contracts.
 
-`SchemePreparation.reconstruct_sound` proves the final bridge once supplied an
-action that fixes the original identifiers and solves the prepared guarded bounds
-and unguarded body comparison. It does not supply the action itself.
-The comparison witness for crossed rigid bounds can use an internal join;
-`ComparisonInterpolation.exists_interval_iff` proves exact reconstruction for
-isolated lower/upper bounds. Global reduction must also handle structural cycles
-and modalized occurrences without assuming constructor or modality distribution
-laws absent from `CompareSubtype`. Returning unresolved constraints is a reduction
-API, not a successful comparison decision. `ShapedSubtype` and `ShapedSubsumes`
-require joins/meets to have compatible shapes under the declared assumptions,
-including all intermediate comparison types. Ordinary derivations embed, shape
-preservation is proved, and mixed-constructor witnesses are excluded. The ground
-semantic bridge and complete structural reduction remain separate obligations.
+Remaining comparison work includes structural normalization into the generated
+finite-basis grammar, arbitrary coupled partial type/modality contexts, full
+reconstruction soundness/completeness, and whole-checker fuel guarantees.
+Exact-instance matching and shared-prefix adapters are positive certificate
+paths; they do not prove complete coverage of partial syntax. Non-residual
+declared type bounds also lack a complete general decision procedure.
+See [TODO.md](../TODO.md) for the current proof and implementation work.
 
-The current checker can also instantiate unquantified flexible identifiers,
-omits expansion of target assumptions, and requires body definedness beyond
-declarative `Subsumes`. It accepts a fixed free type variable against `unit` and
-rejects reflexivity for an undefined body, contrary to the corresponding proved
-declarative results in `Proofs/SchemeReconstruction`. Both examples satisfy the
-soundness and completeness contracts' duplicate-free-quantifier and residual-target
-premises. Those contracts require implementation repairs, not additional scope
-restrictions. Correctness of the Boolean validity solver alone does not establish
-correctness of the scheme checker.
+The ground laws for the explicit guarded comparison algebra are proved, but
+semantic admissibility of extended scheme comparison for signatures remains
+separate. Source typing and resource theorems continue to use ordinary
+`Subsumes`. No public or inferred type scheme contains an internal join or meet.
 
 `Obligations.RunSolverCorrespondence`, relating the complete structural worklist
 to the abstract rewrite relation, and `Obligations.PrincipalFactorization`, the

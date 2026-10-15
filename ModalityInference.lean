@@ -18,6 +18,7 @@ import ModalityInference.SchemeSubsumption
 import ModalityInference.SchemePreparation
 import ModalityInference.ComparisonTypes
 import ModalityInference.ComparisonShapes
+import ModalityInference.ComparisonAlgebra
 import ModalityInference.ComparisonShapeSolver
 import ModalityInference.ComparisonPropagation
 import ModalityInference.ComparisonControls

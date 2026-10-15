@@ -1,5 +1,6 @@
 import ModalityInference.Rewriting
 import ModalityInference.SchemeSubsumption
+import ModalityInference.ComparisonAlgebra
 
 /-! Unproved specifications retained without admissions.
 
@@ -54,24 +55,24 @@ def PrincipalFactorization : Prop :=
         Submode Δ (θ.mode v) ((result.substitution.mode v).subst τ.mode) ∧
         Submode Δ ((result.substitution.mode v).subst τ.mode) (θ.mode v))
 
-/-- Signature-checker soundness still requires correct fixed-name handling,
-structural instantiation and rigid entailment. The modality synthesis kernel
-has a separate uniform-witness theorem; that theorem does not verify this checker. -/
+/-- Signature-checker soundness requires structural reconstruction and rigid
+entailment in the compatible-shape comparison algebra. The verified finite-basis
+and modality kernels do not by themselves verify the assembled checker. -/
 def SchemeSubsumptionSound : Prop :=
   ∀ {fuel : Nat} {source target : Scheme} {evidence : SubsumptionEvidence},
     (source.typeParams.Nodup ∧ source.modParams.Nodup) →
     (target.typeParams.Nodup ∧ target.modParams.Nodup) →
     Residual target.bounds → checkSubsumption fuel source target = .success evidence →
-    Subsumes [] source target
+    AlgebraSubsumes [] source target
 
-/-- Signature-checker completeness requires complete structural reconstruction,
-rigid entailment and scope-preserving preparation. The production type search
-has not yet been replaced by the internal comparison reduction. -/
+/-- Completeness covers compatible internal witnesses, including ordinary
+instantiations. Partial body images remain in scope; no body-definedness or
+satisfiable-target premise is imposed. -/
 def SchemeSubsumptionComplete : Prop :=
   ∀ {source target : Scheme},
     (source.typeParams.Nodup ∧ source.modParams.Nodup) →
     (target.typeParams.Nodup ∧ target.modParams.Nodup) →
-    Residual target.bounds → Subsumes [] source target →
+    Residual target.bounds → AlgebraSubsumes [] source target →
     ∃ n, ∀ fuel ≥ n, ∃ evidence,
       checkSubsumption fuel source target = .success evidence
 
