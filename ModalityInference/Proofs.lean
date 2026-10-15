@@ -185,5 +185,10 @@ import ModalityInference.Proofs.ComparisonPartialCovers
 import ModalityInference.Proofs.ComparisonPartialPropagation
 import ModalityInference.Proofs.ComparisonPartialPropagationFuel
 import ModalityInference.Proofs.ComparisonPartialBoundary
+import ModalityInference.Proofs.ComparisonDefinedCovers
+import ModalityInference.Proofs.ComparisonDefinedCoverOrder
+import ModalityInference.Proofs.ComparisonDefinedCoverMonotonicity
+import ModalityInference.Proofs.ComparisonPartialPropagationTermination
+import ModalityInference.Proofs.ComparisonDefinedCoverFamilies
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
