@@ -105,7 +105,10 @@ are separated before matching literal partial stems, with one shared assignment
 rechecked against the complete input. Interval replacement retains exact images
 inside frozen partial contexts. General coupled partial contexts remain a
 completeness obligation, including classification of source-dependent annotations
-whose totality follows from the source bounds.
+with shared partial modality images. Propagation uses the source bounds' scalar
+consequences to classify total annotations and retains those consequences in the
+final query. It can therefore traverse a total compound action around a partial
+type without weakening any original guard.
 
 `CompareTy` is a separate finite witness language with binary joins and meets.
 `ShapedSubsumes` restricts instantiations and intermediate types to compatible
@@ -268,7 +271,10 @@ Collected opaque classes contain every compatible head; their modal grammar
 covers images with supported modality names. A Boolean observation preserves all
 algebraic derivations, including partial intermediate types. Joint atomic interval
 selection and replacement give witnesses for the actual parameterized schemes
-under the stated local totality conditions.
+under annotation-local totality conditions, leaving other modality images partial.
+Every collected name either has total instantiated occurrence actions or retains
+an exact literal image from the input operand grammar. At each fixed modality
+valuation, arbitrary defined opaque images have positive finite-basis representations.
 Remaining comparison
 work includes assembling these results with finite-basis elimination, arbitrary
 coupled partial type/modality contexts, and complete witness reconstruction in

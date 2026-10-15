@@ -74,6 +74,19 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonGuardedTotal.prepared_scalarBounds_iff',
+    'ModalityInference.ComparisonCapsuleContext.mixed_name_normal_form',
+    'ModalityInference.ComparisonGuardedTotal.scalarBounds_models',
+    'ModalityInference.ComparisonGuardedTotal.scalarBounds_entails',
+    'ModalityInference.ComparisonGuardedTotal.knownTotal_subst',
+    'ModalityInference.ComparisonGuardedTotal.isTotal_synthesized',
+    'ModalityInference.ComparisonGuardedContextRegression.algebra_witness',
+    'ModalityInference.ComparisonChecker.Setup.core_sound_of_total',
+    'ModalityInference.ComparisonChecker.Setup.semantic_sound_of_total',
+    'ModalityInference.ComparisonCapsuleContext.unfrozen_parameterized_subsumes_local',
+    'ModalityInference.ComparisonCapsuleContext.body_unfrozen_name_complete_local',
+    'ModalityInference.ComparisonCapsuleContext.collected_actions_or_literal_images',
+    'ModalityInference.ComparisonOpaqueObserver.collected_slice_polynomial',
     'ModalityInference.ComparisonPartialStructuredCapsule.internal_frozen_stem_cancel',
     'ModalityInference.ComparisonInstance.matchType_frozen_suffix_complete',
     'ModalityInference.ComparisonInstance.matchTypes_frozen_suffix_complete',
@@ -3072,6 +3085,14 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonCapsuleSelection\n'
                     'import ModalityInference.Proofs.ComparisonOpaqueObserver\n'
                     'import ModalityInference.Proofs.ComparisonOpaqueGrammar\n'
+                    'import ModalityInference.Proofs.ComparisonGuardedTotal\n'
+                    'import ModalityInference.Proofs.ComparisonGuardedTotalCompleteness\n'
+                    'import ModalityInference.Proofs.ComparisonCapsuleNameNormalForm\n'
+                    'import ModalityInference.Proofs.ComparisonGuardedContextWitness\n'
+                    'import ModalityInference.Proofs.ComparisonCapsuleLocalParameterization\n'
+                    'import ModalityInference.Proofs.ComparisonCapsuleLocalSelection\n'
+                    'import ModalityInference.Proofs.ComparisonCapsuleFrozenSelection\n'
+                    'import ModalityInference.Proofs.ComparisonOpaqueSlice\n'
                     'import ModalityInference.Proofs.ComparisonCarrierBodyPlan\n'
                     'import ModalityInference.Proofs.ComparisonCarrierBodyReduction\n'
                     'import ModalityInference.Proofs.ComparisonPreparedCarrierPlan\n'

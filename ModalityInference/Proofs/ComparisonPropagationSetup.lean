@@ -42,7 +42,8 @@ def Setup.templates (s : Setup) : ComparisonSkeleton.Templates :=
   ComparisonSkeleton.allocate s.work s.shapes s.names s.original.nextType s.annotations.nextMode
 
 def Setup.reduced (s : Setup) (result : ComparisonReduction.State) : ComparisonReduction.State :=
-  { result with modes := s.annotations.bounds ++ result.modes }
+  { result with modes :=
+    (s.annotations.bounds ++ ComparisonGuardedTotal.scalarBounds s.input.sourceBounds) ++ result.modes }
 
 def Setup.modeIds (s : Setup) : List Nat :=
   (List.range' s.original.firstMode (s.templates.nextMode - s.original.firstMode)).filter

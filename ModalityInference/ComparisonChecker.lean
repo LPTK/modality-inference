@@ -8,6 +8,7 @@ import ModalityInference.ComparisonExactContext
 import ModalityInference.ComparisonPartialPropagation
 import ModalityInference.ComparisonCapsuleContext
 import ModalityInference.ComparisonFrozenContext
+import ModalityInference.ComparisonGuardedTotal
 
 namespace ModalityInference.ComparisonChecker
 
@@ -27,7 +28,7 @@ def propagate (fuel : Nat) (p : SchemePreparation.Prepared)
     (shapes : ComparisonShapeSolver.Solved) (shared : Bool)
     (before : Substitution := {}) : RunResult Evidence := do
   let input := ComparisonExactContext.rewrite p before
-  let known ← ComparisonBody.knownTotal fuel input.assumptions
+  let known ← ComparisonBody.knownTotal fuel (input.assumptions ++ input.sourceBounds.assumptions)
     (ComparisonAnnotations.expressions input.sourceType ++
       ComparisonAnnotations.expressions input.targetType)
   let absorption := ComparisonAbsorption.plan input (ComparisonBody.isTotal known)
@@ -41,7 +42,8 @@ def propagate (fuel : Nat) (p : SchemePreparation.Prepared)
     (fun n => !selected.contains n && !bare.contains n)
   let templates := ComparisonSkeleton.allocate work shapes names p.nextType annotations.nextMode
   let reduced ← ComparisonReduction.prepare fuel work templates bare known shared
-  let reduced := { reduced with modes := annotations.bounds ++ reduced.modes }
+  let reduced := { reduced with modes :=
+    (annotations.bounds ++ ComparisonGuardedTotal.scalarBounds input.sourceBounds) ++ reduced.modes }
   let types ← ComparisonElimination.run fuel work shapes templates reduced
   let adapted := before.modes.map Prod.fst ++ absorption.modes ++ annotations.images.map Prod.fst
   let modes ← SchemeModeSynthesis.run fuel

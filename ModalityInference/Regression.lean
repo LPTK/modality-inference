@@ -9,6 +9,7 @@ import ModalityInference.ComparisonPartialPropagationRegression
 import ModalityInference.ComparisonCapsuleContextRegression
 import ModalityInference.ComparisonTemplateContextRegression
 import ModalityInference.ComparisonFrozenContextRegression
+import ModalityInference.ComparisonGuardedContextRegression
 
 /-! Executable regression checks. No imports from `Proofs` and no native-decide
 axioms: these commands run examples; they do not assert metatheorems. -/

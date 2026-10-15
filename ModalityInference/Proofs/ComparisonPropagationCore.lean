@@ -202,14 +202,13 @@ theorem Setup.core_inequalities (s : Setup) {source target : Scheme} {fuel reduc
 set_option maxHeartbeats 1000000 in
 /-- The synthesized core discharges the original reduction input, retaining
 partial interval witnesses only in the body paths where they were admitted. -/
-theorem Setup.core_sound (s : Setup) {source target : Scheme} {fuel reduced types modes}
+theorem Setup.core_sound_of_total (s : Setup) {source target : Scheme} {fuel reduced types modes}
     (hp : s.original = SchemePreparation.prepare [] source target)
     (hs : ComparisonShapeSolver.prepare fuel s.original = .success (.solved s.shapes))
     (hb : ComparisonExactContext.Scoped s.original s.before)
     (hbounded : s.before.Bounded s.original.nextType s.original.nextMode)
-    (hk : ComparisonBody.knownTotal fuel s.input.assumptions
-      (ComparisonAnnotations.expressions s.input.sourceType ++
-        ComparisonAnnotations.expressions s.input.targetType) = .success s.known)
+    (htotal : ∀ m, s.total m = true → Submode s.original.assumptions
+      (m.subst modes.substitution.mode) (m.subst modes.substitution.mode))
     (hr : ComparisonReduction.prepare fuel s.work s.templates s.bare s.known s.shared = .success reduced)
     (he : ComparisonElimination.run fuel s.work s.shapes s.templates (s.reduced reduced) = .success types)
     (hm : SchemeModeSynthesis.run fuel s.modeIds types.query = .success modes) :
@@ -241,7 +240,7 @@ theorem Setup.core_sound (s : Setup) {source target : Scheme} {fuel reduced type
       (List.mem_append_right _ hmem))
   have hinitial := ComparisonReduction.prepare_sound (p := s.work) hwell
     (fun _ _ hc => CompareSubstitution.declared_subtype hat hmode hc)
-    (fun _ htotal => ComparisonBody.isTotal_synthesized hk hm hmode htotal)
+    htotal
     (s.coreAction_partial hp hr he) hr hresult
   have hstart : ComparisonReduction.Holds s.original.assumptions (s.coreAction reduced types modes)
       (ComparisonReduction.initial (s.templates.substitution.bounds s.work.sourceBounds)
@@ -254,5 +253,30 @@ theorem Setup.core_sound (s : Setup) {source target : Scheme} {fuel reduced type
     (s.coreAction_target_types hp hr he)
     (fun v hv => s.synthesized_fixed hm v ((TypeExpr.bounded_iff _ _ _).mp ht |>.2 v hv))
   simpa only [htarget] using ComparisonReduction.initial_body hstart
+
+/-- Totality established under the original assumptions instantiates the
+post-synthesis totality interface. -/
+theorem Setup.core_sound (s : Setup) {source target : Scheme} {fuel reduced types modes}
+    (hp : s.original = SchemePreparation.prepare [] source target)
+    (hs : ComparisonShapeSolver.prepare fuel s.original = .success (.solved s.shapes))
+    (hb : ComparisonExactContext.Scoped s.original s.before)
+    (hbounded : s.before.Bounded s.original.nextType s.original.nextMode)
+    (hk : ComparisonBody.knownTotal fuel s.input.assumptions
+      (ComparisonAnnotations.expressions s.input.sourceType ++
+        ComparisonAnnotations.expressions s.input.targetType) = .success s.known)
+    (hr : ComparisonReduction.prepare fuel s.work s.templates s.bare s.known s.shared = .success reduced)
+    (he : ComparisonElimination.run fuel s.work s.shapes s.templates (s.reduced reduced) = .success types)
+    (hm : SchemeModeSynthesis.run fuel s.modeIds types.query = .success modes) :
+    (s.coreAction reduced types modes).WellShaped s.original.assumptions ∧
+    AlgebraEntailsAll s.original.assumptions
+      ((s.coreAction reduced types modes).bounds (s.templates.substitution.bounds s.work.sourceBounds)) ∧
+    AlgebraSubtype s.original.assumptions
+      ((s.coreAction reduced types modes).ty (s.templates.substitution.ty s.work.sourceType))
+      (.ofTy s.original.targetType) := by
+  have ha : s.original.assumptions.Bounded s.original.firstType s.original.firstMode := by
+    simpa only [hp] using SchemePreparation.prepare_assumptions_bounded_first [] source target
+  exact s.core_sound_of_total hp hs hb hbounded
+    (fun _ ht => ComparisonBody.isTotal_synthesized hk hm (s.synthesized_assumptions hm ha) ht)
+    hr he hm
 
 end ModalityInference.ComparisonChecker

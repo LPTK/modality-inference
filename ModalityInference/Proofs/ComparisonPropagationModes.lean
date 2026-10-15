@@ -3,6 +3,7 @@ import ModalityInference.Proofs.ComparisonEliminationSupport
 import ModalityInference.Proofs.ComparisonPreparedBounds
 import ModalityInference.Proofs.ComparisonReductionSupport
 import ModalityInference.Proofs.ComparisonPropagationSetup
+import ModalityInference.Proofs.ComparisonGuardedTotal
 
 /-! The reconstructed type images avoid the modality domains restored by
 the absorption and annotation adapters. -/
@@ -327,7 +328,7 @@ theorem Setup.rawImages_avoid (s : Setup) {fuel : Nat}
     (hreduce : ComparisonReduction.prepare fuel s.work s.templates s.bare s.known s.shared =
       .success reduced)
     (helim : ComparisonElimination.run fuel s.work s.shapes s.templates
-      {reduced with modes := s.annotations.bounds ++ reduced.modes} = .success types)
+      (s.reduced reduced) = .success types)
     (htarget : ∀ v ∈ s.original.targetType.modVars,
       ComparisonInstance.modeAllowed s.original v = false)
     (hassumptions : ∀ v ∈ s.original.assumptions.modVars,
@@ -365,6 +366,10 @@ theorem Setup.rawImages_avoid (s : Setup) {fuel : Nat}
   have hsupport := ComparisonReduction.prepare_modeSupport hreduce hbounds hbody htarget'
   have hann : ∀ c ∈ s.annotations.bounds, ∀ v ∈ c.modVars, Q v :=
     annotation_bounds_avoid (p := s.input) (total := s.total) htarget
+  have hguards : ∀ c ∈ ComparisonGuardedTotal.scalarBounds s.input.sourceBounds,
+      ∀ v ∈ c.modVars, Q v :=
+    ComparisonGuardedTotal.scalarBounds_modeSupport
+      (fun _ hc _ hv => sourceBounds_avoid (p := s.input) hc hv)
   have hleaf : ∀ entry ∈ types.types,
       ComparisonInterpolation.Supports (fun _ => True) Q entry.2 := by
     apply ComparisonElimination.run_mode_support helim
@@ -372,8 +377,10 @@ theorem Setup.rawImages_avoid (s : Setup) {fuel : Nat}
       exact avoids_adaptedNames_of_fixed (hassumptions v hv)
     · intro v hv
       obtain ⟨c, hc, hv⟩ := (Bounds.mem_modVars_iff _ _).mp hv
-      exact (List.mem_append.mp hc).elim (fun hc => hann c hc v hv)
-        (fun hc => hsupport.modes c hc v hv)
+      rcases List.mem_append.mp hc with hc | hc
+      · exact (List.mem_append.mp hc).elim (fun hc => hann c hc v hv)
+          (fun hc => hguards c hc v hv)
+      · exact hsupport.modes c hc v hv
     · intro pair hp v hv
       exact (Finset.mem_union.mp hv).elim ((hsupport.inequalities pair hp).1 v)
         ((hsupport.inequalities pair hp).2 v)
@@ -393,7 +400,7 @@ theorem Setup.rawImages_mode_eq (s : Setup) {fuel : Nat}
     (hreduce : ComparisonReduction.prepare fuel s.work s.templates s.bare s.known s.shared =
       .success reduced)
     (helim : ComparisonElimination.run fuel s.work s.shapes s.templates
-      {reduced with modes := s.annotations.bounds ++ reduced.modes} = .success types)
+      (s.reduced reduced) = .success types)
     (htarget : ∀ v ∈ s.original.targetType.modVars,
       ComparisonInstance.modeAllowed s.original v = false)
     (hassumptions : ∀ v ∈ s.original.assumptions.modVars,

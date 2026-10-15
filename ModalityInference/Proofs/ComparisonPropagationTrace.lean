@@ -42,7 +42,7 @@ structure PropagationTrace (fuel : Nat) (s : Setup) (e : Evidence) where
   types : ComparisonElimination.Result
   modes : SchemeModeSynthesis.Result
   report : ConcreteBackend.Report
-  known_eq : ComparisonBody.knownTotal fuel s.input.assumptions
+  known_eq : ComparisonBody.knownTotal fuel (s.input.assumptions ++ s.input.sourceBounds.assumptions)
     (ComparisonAnnotations.expressions s.input.sourceType ++
       ComparisonAnnotations.expressions s.input.targetType) = .success s.known
   reduced_eq : ComparisonReduction.prepare fuel s.work s.templates s.bare s.known s.shared = .success reduced

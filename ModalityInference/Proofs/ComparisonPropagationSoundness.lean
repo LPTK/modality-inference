@@ -17,8 +17,18 @@ theorem propagate_solution {fuel : Nat} {source target : Scheme}
     PreparedSolution (SchemePreparation.prepare [] source target) e := by
   obtain ⟨known, ⟨trace⟩⟩ := propagate_trace h
   let s : Setup := ⟨SchemePreparation.prepare [] source target, before, shapes, known, shared⟩
-  have hsemantic := s.semantic_sound rfl hs hb hbounded
-    trace.known_eq trace.reduced_eq trace.types_eq trace.modes_eq
+  have htotal : ∀ m, s.total m = true → Submode s.original.assumptions
+      (m.subst trace.modes.substitution.mode) (m.subst trace.modes.substitution.mode) := by
+    intro m ht
+    apply ComparisonGuardedTotal.isTotal_synthesized
+      (p := s.work) (guards := s.input.sourceBounds) trace.known_eq trace.types_eq trace.modes_eq
+      (s.synthesized_assumptions trace.modes_eq
+        (SchemePreparation.prepare_assumptions_bounded_first [] source target))
+    · intro c hc
+      exact List.mem_append_left _ (List.mem_append_right _ hc)
+    · exact ht
+  have hsemantic := s.semantic_sound_of_total rfl hs hb hbounded
+    htotal trace.reduced_eq trace.types_eq trace.modes_eq
   exact trace.solution_of_semantic rfl hs hb hbounded hsemantic.2.1 hsemantic.2.2
 
 theorem run_solution {fuel : Nat} {source target : Scheme} {e : Evidence}
