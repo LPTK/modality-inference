@@ -98,8 +98,39 @@ constants = [
     'ModalityInference.SchemeModeSynthesis.run_complete_witness',
     'ModalityInference.SchemeModeSynthesis.run_complete_substituted',
     'ModalityInference.SchemeModeSynthesis.run_substituted_models',
-    'ModalityInference.ComparisonCapsuleContext.bounded_iff',
-    'ModalityInference.ComparisonCapsuleContext.prepare_scoped',
+    'ModalityInference.ComparisonCapsuleContext.mem_bindings',
+    'ModalityInference.ComparisonCapsuleContext.mem_mixedBindings',
+    'ModalityInference.ComparisonParameterization.result_sound',
+    'ModalityInference.ComparisonChecker.PreparedSolution.result',
+    'ModalityInference.ComparisonCapsuleContext.collect_residuals_covered',
+    'ModalityInference.ComparisonCapsuleContext.collect_support',
+    'ModalityInference.ComparisonCapsuleContext.collect_action_total',
+    'ModalityInference.ComparisonCapsuleContext.collect_peel_normal',
+    'ModalityInference.ComparisonCapsuleContext.run_complete_joint',
+    'ModalityInference.ComparisonCapsuleContext.run_complete_suffix_family',
+    'ModalityInference.ComparisonCapsuleContext.mixed_bindings_run_complete',
+    'ModalityInference.ComparisonCapsuleContext.mixedBindings_fresh_nodup',
+    'ModalityInference.ComparisonCapsuleContext.mixedBindings_name_nodup',
+    'ModalityInference.ComparisonPartialStructuredCapsule.public_partial_cancel',
+    'ModalityInference.ComparisonPartialStructuredCapsule.partial_public_context_iff',
+    'ModalityInference.ComparisonPartialStructuredCapsule.public_partial_context_iff',
+    'ModalityInference.ComparisonInstance.matchMode_complete',
+    'ModalityInference.ComparisonInstance.matchType_complete',
+    'ModalityInference.ComparisonInstance.matchTypes_complete',
+    'ModalityInference.ComparisonInstance.matchTypes_frozen_complete',
+    'ModalityInference.ComparisonSkeleton.allocate_factor',
+    'ModalityInference.ComparisonSkeleton.prepared_witness_shape_realizer',
+    'ModalityInference.ComparisonSkeletonCoordinates.rebase_le',
+    'ModalityInference.ComparisonSkeletonCoordinates.rebase_modal',
+    'ModalityInference.ComparisonSkeletonCoordinates.rebase_public_at',
+    'ModalityInference.ComparisonSkeletonCoordinates.rebase_ty',
+    'ModalityInference.ComparisonSkeletonCoordinates.Rebased.bounds',
+    'ModalityInference.ComparisonSkeletonCoordinates.Rebased.body',
+    'ModalityInference.ComparisonCapsuleContext.collect_algebra',
+    'ModalityInference.ComparisonSkeleton.prepared_normalized',
+    'ModalityInference.ComparisonPartialStructuredCapsule.internal_operandGrammar_complete',
+    'ModalityInference.ComparisonPartialStructuredCapsule.operandGrammar_public',
+    'ModalityInference.ComparisonPartialCapsuleScalar.mixed_carrier_replacement',
     'ModalityInference.ComparisonChecker.capsuleCore_solution_of_propagate',
     'ModalityInference.ComparisonChecker.capsuleCore_settles',
     'ModalityInference.ComparisonPartialCapsuleScalar.project_spec',
@@ -2992,6 +3023,15 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonPartialFrozenModes\n'
                     'import ModalityInference.Proofs.ComparisonPartialRootProjection\n'
                     'import ModalityInference.Proofs.ComparisonSkeletonRealization\n'
+                    'import ModalityInference.Proofs.ComparisonParameterization\n'
+                    'import ModalityInference.Proofs.ComparisonCapsuleExtraction\n'
+                    'import ModalityInference.Proofs.ComparisonExactMatchingCompleteness\n'
+                    'import ModalityInference.Proofs.ComparisonSkeletonForest\n'
+                    'import ModalityInference.Proofs.ComparisonSkeletonShapeRealizer\n'
+                    'import ModalityInference.Proofs.ComparisonSkeletonContextBounds\n'
+                    'import ModalityInference.Proofs.ComparisonSkeletonWitness\n'
+                    'import ModalityInference.Proofs.ComparisonPartialOperandGrammar\n'
+                    'import ModalityInference.Proofs.ComparisonCapsuleCarrierReplacement\n'
                     'import ModalityInference.Proofs.ComparisonCarrierBodyPlan\n'
                     'import ModalityInference.Proofs.ComparisonCarrierBodyReduction\n'
                     'import ModalityInference.Proofs.ComparisonPreparedCarrierPlan\n'

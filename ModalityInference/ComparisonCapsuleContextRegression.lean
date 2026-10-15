@@ -25,6 +25,12 @@ def symbolicTarget : Scheme :=
   .mono (.prod (.modal capsule (.compose (.var (.rigid 2)) (.var (.rigid 0))))
     (.fn (.modal capsule (.compose (.var (.rigid 2)) (.var (.rigid 1)))) .unit))
 
+def constrainedModeSource : Scheme :=
+  { typeParams := [0], modParams := [0]
+    bounds := [.mode (.var (.flex 0)) .epsilon, .mode .epsilon (.var (.flex 0))]
+    body := .prod (.modal (.var (.flex 0)) (.var (.flex 0)))
+      (.fn (.modal (.var (.flex 0)) .bottom) .unit) }
+
 def rejected (r : RunResult α) : Bool :=
   match r with | .rejected _ => true | _ => false
 
@@ -36,6 +42,12 @@ set_option maxHeartbeats 16000000
       result.substitution.modes.isEmpty
   | _ => false
 #guard (checkSubsumption 20000 symbolicSource symbolicTarget).isSuccess
+
+-- The shared suffix and the original modality satisfy written bounds together.
+#guard match checkSubsumption 20000 constrainedModeSource mixedTarget with
+  | .success result => result.substitution.types.map Prod.fst == [0] &&
+      result.substitution.modes.map Prod.fst == [0]
+  | _ => false
 
 -- Written source guards still exclude a partial parameter image.
 #guard rejected (checkSubsumption 20000

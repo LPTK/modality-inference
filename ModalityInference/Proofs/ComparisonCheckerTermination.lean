@@ -125,16 +125,6 @@ theorem checkTotal_settles (assumptions : Bounds) (expressions : List ModExpr) :
     intro rest
     exact Settles.pure _
 
-theorem capsulePrepare_settles (p : SchemePreparation.Prepared) (total : ModExpr → Bool) :
-    Settles (fun fuel => ComparisonCapsuleContext.prepare fuel p total) := by
-  unfold ComparisonCapsuleContext.prepare
-  dsimp only
-  split
-  · exact Settles.pure _
-  · apply Settles.bind (modes_settles _ _)
-    intro modes
-    split <;> exact Settles.pure _
-
 theorem knownTotal_settles (assumptions : Bounds) (expressions : List ModExpr) :
     Settles (fun fuel => ComparisonBody.knownTotal fuel assumptions expressions) :=
   checkTotal_settles _ _
@@ -487,19 +477,12 @@ theorem core_settles (source target : Scheme) :
 
 theorem capsuleCore_settles (source target : Scheme) :
     Settles (fun fuel => capsuleCore fuel source target) := by
-  simp only [capsuleCore, bind, RunResult.bind]
-  apply Settles.bind ⟨shapePrepare_stable _, ComparisonShapeSolver.prepare_eventually _⟩
-  intro shapeResult
-  cases shapeResult with
-  | infeasibleAssumptions => exact Settles.rejected _
-  | solved shapes =>
-    apply Settles.bind (knownTotal_settles _ _)
-    intro known
-    apply Settles.bind (capsulePrepare_settles _ _)
-    intro candidate
-    cases candidate with
-    | none => exact Settles.rejected _
-    | some before => exact variants_settles _ _ _
+  simp only [capsuleCore, bind, pure, RunResult.bind]
+  apply Settles.bind (knownTotal_settles _ _)
+  intro known
+  split
+  · exact Settles.rejected _
+  · exact Settles.bind (core_settles _ _) (fun _ => Settles.pure _)
 
 theorem run_settles (source target : Scheme) :
     Settles (fun fuel => run fuel source target) := by

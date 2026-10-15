@@ -34,6 +34,45 @@ theorem PreparedSolution.subsumes {ambient : Bounds} {source target : Scheme} {e
       TypeExpr.mem_modeVariables, Bounds.mem_modeVariables]
     tauto
 
+/-- The evidence's actual substitution realizes the original source scheme. -/
+theorem PreparedSolution.result {ambient : Bounds} {source target : Scheme} {e : Evidence}
+    (h : PreparedSolution (SchemePreparation.prepare ambient source target) e) :
+    let p := SchemePreparation.prepare ambient source target
+    e.substitution.WellShaped p.assumptions ∧
+      AlgebraEntailsAll p.assumptions (e.substitution.bounds source.bounds) ∧
+      AlgebraSubtype p.assumptions (e.substitution.ty source.body) (.ofTy p.targetType) := by
+  obtain ⟨action, he, _, _, hd, hs, hb, ht⟩ := h
+  let p := SchemePreparation.prepare ambient source target
+  have htypes : ∀ v ∈ source.body.typeVars ∪ source.bounds.typeVars,
+      action.type v = .var v := by
+    intro v hv
+    apply hd.type_fixed
+    apply SchemePreparation.original_type_lt_first
+    have hv' := Finset.mem_union.mp hv
+    simp only [SchemePreparation.originalTypeIds, List.mem_append,
+      TypeExpr.mem_typeVariables, Bounds.mem_typeVariables]
+    tauto
+  have hmodes : ∀ v ∈ source.body.modVars ∪ source.bounds.modVars,
+      action.mode v = .var v := by
+    intro v hv
+    apply hd.mode_fixed
+    apply SchemePreparation.original_mode_lt_first
+    have hv' := Finset.mem_union.mp hv
+    simp only [SchemePreparation.originalModeIds, List.mem_append,
+      TypeExpr.mem_modeVariables, Bounds.mem_modeVariables]
+    tauto
+  rw [he]
+  refine ⟨ComparisonPreparation.reconstruct_wellShaped hs, ?_, ?_⟩
+  · exact (ComparisonPreparation.reconstruct_algebra_bounds p action source.bounds p.assumptions
+      (fun v hv => htypes v (Finset.mem_union_right _ hv))
+      (fun v hv => hmodes v (Finset.mem_union_right _ hv))).mpr hb
+  · change AlgebraSubtype p.assumptions
+      ((ComparisonPreparation.reconstruct p action).ty source.body) (.ofTy p.targetType)
+    rw [ComparisonPreparation.reconstruct_ty p action source.body
+      (fun v hv => htypes v (Finset.mem_union_left _ hv))
+      (fun v hv => hmodes v (Finset.mem_union_left _ hv))]
+    exact ht
+
 theorem exact_solution {fuel : Nat} {p : SchemePreparation.Prepared} {result : ComparisonInstance.Result}
     (h : ComparisonInstance.attempt fuel p = .success (some result)) :
     PreparedSolution p

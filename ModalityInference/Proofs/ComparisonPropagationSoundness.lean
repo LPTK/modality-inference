@@ -26,7 +26,7 @@ theorem run_solution {fuel : Nat} {source target : Scheme} {e : Evidence}
     PreparedSolution (SchemePreparation.prepare [] source target) e :=
   run_solution_of_propagate
     (SchemePreparation.prepare_targetType_bounded [] source target)
-    (fun _ hs _ _ _ hb hbounded hr => propagate_solution hs hb hbounded hr) h
+    (fun _ _ _ hs _ _ _ hb hbounded hr => propagate_solution hs hb hbounded hr) h
 
 theorem run_algebra_subsumes {fuel : Nat} {source target : Scheme} {e : Evidence}
     (h : run fuel source target = .success e) : AlgebraSubsumes [] source target :=

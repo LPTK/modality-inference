@@ -1,6 +1,8 @@
 import ModalityInference.Proofs.ComparisonCheckerSolution
 import ModalityInference.Proofs.ComparisonContextSupport
 import ModalityInference.Proofs.ComparisonCapsuleContext
+import ModalityInference.Proofs.ComparisonParameterization
+import ModalityInference.Proofs.ComparisonPreparedBounds
 
 /-! Semantic composition of the successful comparison branches. -/
 namespace ModalityInference
@@ -86,27 +88,31 @@ theorem partial_solution {fuel source target result}
   exact ⟨result.action, rfl, rfl, rfl, partial_action_domains h, hs, hb, ht⟩
 
 theorem capsuleCore_solution_of_propagate {fuel source target e}
-    (hprop : ∀ shapes, ComparisonShapeSolver.prepare fuel (SchemePreparation.prepare [] source target) =
-      .success (.solved shapes) → PropagationSound fuel (SchemePreparation.prepare [] source target) shapes)
+    (hprop : ∀ source target shapes,
+      ComparisonShapeSolver.prepare fuel (SchemePreparation.prepare [] source target) =
+        .success (.solved shapes) → PropagationSound fuel (SchemePreparation.prepare [] source target) shapes)
     (h : capsuleCore fuel source target = .success e) :
     PreparedSolution (SchemePreparation.prepare [] source target) e := by
-  simp only [capsuleCore, bind, RunResult.bind] at h
-  repeat' first | contradiction | split at h
-  all_goals
-    exact variants_solution_of_propagate (hprop _ (by assumption))
-      (ComparisonCapsuleContext.prepare_scoped (by assumption)).1
-      (ComparisonCapsuleContext.prepare_scoped (by assumption)).2 h
+  simp only [capsuleCore, bind, pure, RunResult.bind] at h
+  repeat' first | contradiction | cases h | split at h
+  rename_i _ known hknown hnonempty _ result hcore
+  have hs := core_solution_of_propagate
+    (SchemePreparation.prepare_targetType_bounded [] _ _) (hprop _ _) hcore
+  have hc := ComparisonParameterization.result_sound source target _ _ _ hs
+  exact ⟨_, rfl, rfl, rfl,
+    capsuleAction_domains (by simp [SchemePreparation.prepare]) hcore, hc⟩
 
 theorem run_solution_of_propagate {fuel source target e}
     (ht : (SchemePreparation.prepare [] source target).targetType.Bounded
       (SchemePreparation.prepare [] source target).nextType
       (SchemePreparation.prepare [] source target).nextMode)
-    (hprop : ∀ shapes, ComparisonShapeSolver.prepare fuel (SchemePreparation.prepare [] source target) =
-      .success (.solved shapes) → PropagationSound fuel (SchemePreparation.prepare [] source target) shapes)
+    (hprop : ∀ source target shapes,
+      ComparisonShapeSolver.prepare fuel (SchemePreparation.prepare [] source target) =
+        .success (.solved shapes) → PropagationSound fuel (SchemePreparation.prepare [] source target) shapes)
     (h : run fuel source target = .success e) :
     PreparedSolution (SchemePreparation.prepare [] source target) e := by
   cases hc : core fuel source target <;> simp only [run, hc] at h
-  case success => cases h; exact core_solution_of_propagate ht hprop hc
+  case success => cases h; exact core_solution_of_propagate ht (hprop source target) hc
   case exhausted => contradiction
   case rejected reason =>
     cases hp : ComparisonPartialPropagation.attempt fuel
@@ -125,8 +131,9 @@ theorem run_algebra_subsumes_of_propagate {fuel source target e}
     (ht : (SchemePreparation.prepare [] source target).targetType.Bounded
       (SchemePreparation.prepare [] source target).nextType
       (SchemePreparation.prepare [] source target).nextMode)
-    (hprop : ∀ shapes, ComparisonShapeSolver.prepare fuel (SchemePreparation.prepare [] source target) =
-      .success (.solved shapes) → PropagationSound fuel (SchemePreparation.prepare [] source target) shapes)
+    (hprop : ∀ source target shapes,
+      ComparisonShapeSolver.prepare fuel (SchemePreparation.prepare [] source target) =
+        .success (.solved shapes) → PropagationSound fuel (SchemePreparation.prepare [] source target) shapes)
     (h : run fuel source target = .success e) : AlgebraSubsumes [] source target :=
   (run_solution_of_propagate ht hprop h).subsumes
 

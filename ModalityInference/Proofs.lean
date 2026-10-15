@@ -242,5 +242,21 @@ import ModalityInference.Proofs.ComparisonCapsuleSupport
 import ModalityInference.Proofs.ComparisonPartialFrozenModes
 import ModalityInference.Proofs.ComparisonPartialRootProjection
 import ModalityInference.Proofs.ComparisonSkeletonRealization
+import ModalityInference.Proofs.ComparisonParameterization
+import ModalityInference.Proofs.ComparisonCapsuleCollected
+import ModalityInference.Proofs.ComparisonCapsuleJoint
+import ModalityInference.Proofs.ComparisonCapsuleGroups
+import ModalityInference.Proofs.ComparisonPartialCancellation
+import ModalityInference.Proofs.ComparisonExactMatchingCompleteness
+import ModalityInference.Proofs.ComparisonSkeletonForest
+import ModalityInference.Proofs.ComparisonSkeletonRebase
+import ModalityInference.Proofs.ComparisonSkeletonPublic
+import ModalityInference.Proofs.ComparisonSkeletonShapeRealizer
+import ModalityInference.Proofs.ComparisonSkeletonContext
+import ModalityInference.Proofs.ComparisonCapsuleExtraction
+import ModalityInference.Proofs.ComparisonSkeletonContextBounds
+import ModalityInference.Proofs.ComparisonSkeletonWitness
+import ModalityInference.Proofs.ComparisonPartialOperandGrammar
+import ModalityInference.Proofs.ComparisonCapsuleCarrierReplacement
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

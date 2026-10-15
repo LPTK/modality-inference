@@ -262,6 +262,52 @@ theorem partial_action_domains {fuel p result}
     simp
   · simp [ComparisonPartialPropagation.action]
 
+theorem core_substitution_domains {fuel source target e nt nm}
+    (h : core fuel source target = .success e)
+    (ht : ∀ n ∈ source.typeParams, nt ≤ n)
+    (hm : ∀ n ∈ source.modParams, nm ≤ n) : e.substitution.DomainsAbove nt nm := by
+  have hi := core_instantiates h
+  exact ⟨fun entry he => ht entry.1 (hi.1.mem_iff.mp (List.mem_map.mpr ⟨entry, he, rfl⟩)),
+    fun entry he => hm entry.1 (hi.2.mem_iff.mp (List.mem_map.mpr ⟨entry, he, rfl⟩))⟩
+
+theorem capsuleAction_domains {fuel : Nat} {p : SchemePreparation.Prepared}
+    {target : Scheme} {known : List ModExpr} {result : Evidence}
+    (hfirst : p.firstMode ≤ p.nextMode)
+    (hcore : core fuel
+      (ComparisonParameterization.source p
+        (ComparisonCapsuleContext.symbolic
+          (ComparisonCapsuleContext.mixedBindings p (ComparisonBody.isTotal known)))
+        ((ComparisonCapsuleContext.mixedBindings p (ComparisonBody.isTotal known)).map
+          ComparisonCapsuleIntervals.Binding.fresh)
+        (ComparisonCapsuleContext.goals (ComparisonBody.isTotal known)
+          (ComparisonCapsuleContext.mixedBindings p (ComparisonBody.isTotal known))))
+      (ComparisonParameterization.target p target) = .success result) :
+    (ComparisonExactContext.finish
+      (ComparisonCapsuleContext.symbolic
+        (ComparisonCapsuleContext.mixedBindings p (ComparisonBody.isTotal known)))
+      result.substitution).DomainsAbove p.firstType p.firstMode := by
+  apply ComparisonExactContext.finish_domainsAbove
+  · constructor
+    · intro entry he
+      simp only [CompareSubstitution.ofSubstitution, ComparisonCapsuleContext.symbolic,
+        List.mem_map] at he
+      obtain ⟨pair, ⟨b, hb, rfl⟩, rfl⟩ := he
+      have ha := (ComparisonCapsuleContext.mem_mixedBindings hb).1
+      simp only [ComparisonInstance.typeAllowed, Bool.and_eq_true, decide_eq_true_eq] at ha
+      exact ha.1
+    · simp [CompareSubstitution.ofSubstitution, ComparisonCapsuleContext.symbolic]
+  · apply core_substitution_domains hcore
+    · intro n hn
+      simp only [ComparisonParameterization.source, List.mem_range'] at hn
+      omega
+    · intro n hn
+      simp only [ComparisonParameterization.source, List.mem_append, List.mem_range',
+        List.mem_map] at hn
+      rcases hn with hn | ⟨b, hb, he⟩
+      · omega
+      · have hlo := (ComparisonCapsuleContext.mem_mixedBindings hb).2
+        omega
+
 theorem capsuleCore_domains {fuel source target e}
     (h : capsuleCore fuel source target = .success e) :
     let p := SchemePreparation.prepare [] source target
@@ -269,10 +315,10 @@ theorem capsuleCore_domains {fuel source target e}
       e.obligations = action.bounds p.sourceBounds ∧
       e.body = (action.ty p.sourceType, CompareTy.ofTy p.targetType) ∧
       action.DomainsAbove p.firstType p.firstMode := by
-  simp only [capsuleCore, bind, RunResult.bind] at h
-  repeat' first | contradiction | split at h
-  exact variants_domains
-    (ComparisonCapsuleContext.prepare_scoped (by assumption)).1.domainsAbove h
+  simp only [capsuleCore, bind, pure, RunResult.bind] at h
+  repeat' first | contradiction | cases h | split at h
+  exact ⟨_, rfl, rfl, rfl, capsuleAction_domains (by simp [SchemePreparation.prepare])
+    (by assumption)⟩
 
 theorem run_domains {fuel source target e}
     (h : run fuel source target = .success e) :

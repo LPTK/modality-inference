@@ -58,11 +58,18 @@ theorem partial_evidence {fuel p result}
     PreparedEvidence p (partialEvidence p result) :=
   ⟨result.action, rfl, rfl, rfl, rfl, ComparisonPartialPropagation.attempt_query_valid h⟩
 
+theorem core_instantiates {fuel source target e}
+    (h : core fuel source target = .success e) : CompareInstantiates source e.substitution := by
+  obtain ⟨action, he, _⟩ := core_evidence h
+  exact he ▸ ComparisonPreparation.reconstruct_instantiates [] source target action
+
 theorem capsuleCore_evidence {fuel source target e}
     (h : capsuleCore fuel source target = .success e) :
     PreparedEvidence (SchemePreparation.prepare [] source target) e := by
-  simp only [capsuleCore, bind, RunResult.bind] at h
-  repeat' first | contradiction | exact variants_evidence h | split at h
+  simp only [capsuleCore, bind, pure, RunResult.bind] at h
+  repeat' first | contradiction | cases h | split at h
+  rename_i _ result hcore
+  exact ⟨_, rfl, rfl, rfl, rfl, (core_evidence hcore).choose_spec.2.2.2.2⟩
 
 theorem run_evidence {fuel source target e}
     (h : run fuel source target = .success e) :

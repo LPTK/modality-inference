@@ -143,18 +143,31 @@ def partialEvidence (p : SchemePreparation.Prepared)
     query := result.query
     backend := result.backend }
 
-/-- Joint suffix synthesis supplies a candidate for shared partial images.
-Ordinary propagation then checks all original body and source-bound obligations. -/
+def parameterizedEvidence (p : SchemePreparation.Prepared) (before : Substitution)
+    (result : Evidence) : Evidence :=
+  let action := ComparisonExactContext.finish before result.substitution
+  { result with
+    substitution := ComparisonPreparation.reconstruct p action
+    assumptions := p.assumptions
+    obligations := action.bounds p.sourceBounds
+    body := (action.ty p.sourceType, .ofTy p.targetType) }
+
+/-- Shared suffixes remain symbolic until the same comparison solves every
+original body and source-bound obligation, including the original modalities. -/
 def capsuleCore (fuel : Nat) (source target : Scheme) : RunResult Evidence := do
   let p := SchemePreparation.prepare [] source target
-  let .solved shapes ← ComparisonShapeSolver.prepare fuel p |
-    .rejected "declared shape equations are infeasible; outside residual-target comparison"
   let known ← ComparisonBody.knownTotal fuel p.assumptions
     (ComparisonAnnotations.expressions p.sourceType ++
       ComparisonAnnotations.expressions p.targetType)
-  let some before ← ComparisonCapsuleContext.prepare fuel p (ComparisonBody.isTotal known) |
-    .rejected "no shared partial interval candidate"
-  variants fuel p shapes before
+  let total := ComparisonBody.isTotal known
+  let selected := ComparisonCapsuleContext.mixedBindings p total
+  if selected.isEmpty then return ← .rejected "no shared partial interval candidate"
+  let before := ComparisonCapsuleContext.symbolic selected
+  let result ← core fuel
+    (ComparisonParameterization.source p before (selected.map ComparisonCapsuleIntervals.Binding.fresh)
+      (ComparisonCapsuleContext.goals total selected))
+    (ComparisonParameterization.target p target)
+  return parameterizedEvidence p before result
 
 /-- Additional partial-context phases preserve successful and exhausted core
 runs. Every success retains a certificate for the complete original input. -/

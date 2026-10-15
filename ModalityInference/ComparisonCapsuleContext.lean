@@ -1,6 +1,7 @@
 import ModalityInference.ComparisonCapsuleIntervals
-import ModalityInference.ComparisonExactContext
-import ModalityInference.SchemeModeSynthesis
+import ModalityInference.ComparisonParameterization
+import ModalityInference.ComparisonAnnotations
+import ModalityInference.ComparisonInstance
 
 /-! Shared partial type intervals retain one literal input base and synthesize
 their total suffix together with the source modalities. The resulting candidate
@@ -47,33 +48,20 @@ def bindings (p : Prepared) (total : ModExpr → Bool) : List Binding :=
   names.zipIdx.filterMap fun (name, offset) =>
     plan total name (p.nextMode + offset) collected
 
+/-- Mixed partial intervals use one shared symbolic suffix. Defined groups
+remain in structural reduction, where declared subtype paths are retained. -/
+def mixedBindings (p : Prepared) (total : ModExpr → Bool) : List Binding :=
+  (bindings p total).filter fun b =>
+    b.requests.any Request.isLower && b.requests.any (fun r => !r.isLower) &&
+      b.requests.all (fun r => ComparisonAnnotations.hasPartial total r.endpoint)
+
+def symbolic (bindings : List Binding) : Substitution :=
+  { types := bindings.map fun b => (b.name, b.image) }
+
 def modeIds (p : Prepared) (bindings : List Binding) : List Nat :=
   List.range' p.firstMode (p.nextMode - p.firstMode) ++ bindings.map Binding.fresh
 
 def goals (total : ModExpr → Bool) (bindings : List Binding) : Bounds :=
   bindings.flatMap (Binding.bounds total)
-
-def materialize (p : Prepared) (bindings : List Binding) (modes : Substitution) : Substitution :=
-  { types := bindings.map fun b =>
-      (b.name, .modal b.base (modes.mode (.flex b.fresh)))
-    modes := modes.modes.filter fun (n, _) => ComparisonInstance.modeAllowed p (.flex n) }
-
-/-- Fresh suffix coordinates must have been eliminated from every image. -/
-def bounded (p : Prepared) (action : Substitution) : Bool :=
-  action.types.all (fun (n, t) => n < p.nextType &&
-    t.typeVariables.all (fun v => v.index < p.nextType) &&
-    t.modeVariables.all (fun v => v.index < p.nextMode)) &&
-  action.modes.all (fun (n, m) => n < p.nextMode &&
-    m.freeVariables.all (fun v => v.index < p.nextMode))
-
-def prepare (fuel : Nat) (p : Prepared) (total : ModExpr → Bool) :
-    RunResult (Option Substitution) := do
-  let selected := bindings p total
-  if selected.isEmpty then return none
-  let modes ← SchemeModeSynthesis.run fuel (modeIds p selected)
-    (.imp (boundsModeFormula p.assumptions) (boundsModeFormula (goals total selected)))
-  let action := materialize p selected modes.substitution
-  if ComparisonExactContext.scopeCheck p action && bounded p action then return some action
-  else return none
 
 end ModalityInference.ComparisonCapsuleContext
