@@ -230,14 +230,14 @@ theorem refineContexts_domains {fuel p shapes before e}
          | (have hs := ComparisonExactContext.prepare_scoped (by assumption); exact hs.domainsAbove))
       | split at h
 
-theorem run_domains {fuel source target e}
-    (h : run fuel source target = .success e) :
+theorem core_domains {fuel source target e}
+    (h : core fuel source target = .success e) :
     let p := SchemePreparation.prepare [] source target
     ∃ action, e.substitution = ComparisonPreparation.reconstruct p action ∧
       e.obligations = action.bounds p.sourceBounds ∧
       e.body = (action.ty p.sourceType, CompareTy.ofTy p.targetType) ∧
       action.DomainsAbove p.firstType p.firstMode := by
-  simp only [run, bind, pure, RunResult.bind] at h
+  simp only [core, bind, pure, RunResult.bind] at h
   repeat' first
     | contradiction
     | (refine refineContexts_domains ?_ h
@@ -249,6 +249,37 @@ theorem run_domains {fuel source target e}
   refine ⟨_, rfl, rfl, rfl, ?_⟩
   rename_i result hi
   exact ComparisonInstance.run_domainsAbove (ComparisonInstance.attempt_some_iff.mp hi)
+
+theorem partial_action_domains {fuel p result}
+    (h : ComparisonPartialPropagation.attempt fuel p = .success (some result)) :
+    result.action.DomainsAbove p.firstType p.firstMode := by
+  rw [(ComparisonPartialPropagation.attempt_spec h).action_eq]
+  constructor
+  · rintro entry he
+    obtain ⟨n, hn, rfl⟩ := List.mem_map.mp he
+    obtain ⟨i, _, rfl⟩ := List.mem_range'.mp hn
+    simp
+  · simp [ComparisonPartialPropagation.action]
+
+theorem run_domains {fuel source target e}
+    (h : run fuel source target = .success e) :
+    let p := SchemePreparation.prepare [] source target
+    ∃ action, e.substitution = ComparisonPreparation.reconstruct p action ∧
+      e.obligations = action.bounds p.sourceBounds ∧
+      e.body = (action.ty p.sourceType, CompareTy.ofTy p.targetType) ∧
+      action.DomainsAbove p.firstType p.firstMode := by
+  cases hc : core fuel source target <;> simp only [run, hc] at h
+  case success => cases h; exact core_domains hc
+  case exhausted => contradiction
+  case rejected reason =>
+    cases hp : ComparisonPartialPropagation.attempt fuel
+        (SchemePreparation.prepare [] source target) <;>
+      simp only [hp, bind, pure, RunResult.bind] at h
+    case success result =>
+      cases result with
+      | none => contradiction
+      | some result => cases h; exact ⟨result.action, rfl, rfl, rfl, partial_action_domains hp⟩
+    all_goals contradiction
 
 end ComparisonChecker
 

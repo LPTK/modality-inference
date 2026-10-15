@@ -1,4 +1,5 @@
 import ModalityInference.ComparisonChecker
+import ModalityInference.ComparisonPartialPropagationRegression
 
 namespace ModalityInference.ComparisonRegression
 
@@ -262,5 +263,14 @@ def global (t : Ty) : Ty := .modal t (.const Mode.global)
   | .success result => result.substitution.types.map Prod.fst == [0] &&
       result.substitution.modes.isEmpty
   | _ => false
+
+-- Total actions on partial images and declared preimage paths are checked by
+-- the public entry point, including the core-to-envelope transition.
+#guard (compare ComparisonPartialPropagationRegression.compensatedSource
+  ComparisonPartialPropagationRegression.compensatedTarget).isSuccess
+#guard (compare ComparisonPartialPropagationRegression.compensatedSource
+  ComparisonPartialPropagationRegression.symbolicCompensatedTarget).isSuccess
+#guard (compare ComparisonPartialPropagationRegression.declaredSource
+  ComparisonPartialPropagationRegression.declaredTarget).isSuccess
 
 end ModalityInference.ComparisonRegression

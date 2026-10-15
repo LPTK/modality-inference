@@ -5,6 +5,7 @@ import ModalityInference.ComparisonInstance
 import ModalityInference.ComparisonAbsorption
 import ModalityInference.ComparisonContext
 import ModalityInference.ComparisonExactContext
+import ModalityInference.ComparisonPartialPropagation
 
 namespace ModalityInference.ComparisonChecker
 
@@ -107,7 +108,7 @@ def refineContexts (fuel : Nat) (p : SchemePreparation.Prepared)
       | result => result
   | result => result
 
-def run (fuel : Nat) (source target : Scheme) : RunResult Evidence := do
+def core (fuel : Nat) (source target : Scheme) : RunResult Evidence := do
   let p := SchemePreparation.prepare [] source target
   if let some result ← ComparisonInstance.attempt fuel p then
     let action := CompareSubstitution.ofSubstitution result.action
@@ -130,5 +131,26 @@ def run (fuel : Nat) (source target : Scheme) : RunResult Evidence := do
         if before.modes.isEmpty then .rejected reason
         else refineContexts fuel p shapes before
     | result => result
+
+def partialEvidence (p : SchemePreparation.Prepared)
+    (result : ComparisonPartialPropagation.Result) : Evidence :=
+  { substitution := ComparisonPreparation.reconstruct p result.action
+    assumptions := p.assumptions
+    obligations := result.action.bounds p.sourceBounds
+    body := (result.action.ty p.sourceType, .ofTy p.targetType)
+    flexibleAtoms := []
+    query := result.query
+    backend := result.backend }
+
+/-- Partial-envelope propagation preserves successful and exhausted core runs.
+Every additional success carries a checked derivation for the original body. -/
+def run (fuel : Nat) (source target : Scheme) : RunResult Evidence :=
+  match core fuel source target with
+  | .rejected reason => do
+      let p := SchemePreparation.prepare [] source target
+      match ← ComparisonPartialPropagation.attempt fuel p with
+      | some result => return partialEvidence p result
+      | none => .rejected reason
+  | result => result
 
 end ModalityInference.ComparisonChecker

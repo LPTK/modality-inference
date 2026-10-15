@@ -2,6 +2,7 @@ import ModalityInference.ComparisonChecker
 import ModalityInference.Proofs.ComparisonAlgebraPreparation
 import ModalityInference.Proofs.ComparisonInstance
 import ModalityInference.Proofs.Backend
+import ModalityInference.Proofs.ComparisonPartialPropagation
 
 /-! Evidence invariants for the assembled comparison checker. -/
 namespace ModalityInference.ComparisonChecker
@@ -40,10 +41,10 @@ theorem refineContexts_evidence {fuel p shapes before e}
     simp only [bind, RunResult.bind] at h
     repeat' first | contradiction | exact variants_evidence h | split at h
 
-theorem run_evidence {fuel source target e}
-    (h : run fuel source target = .success e) :
+theorem core_evidence {fuel source target e}
+    (h : core fuel source target = .success e) :
     PreparedEvidence (SchemePreparation.prepare [] source target) e := by
-  simp only [run, bind, pure, RunResult.bind] at h
+  simp only [core, bind, pure, RunResult.bind] at h
   repeat' first | contradiction | exact refineContexts_evidence h | split at h
   cases h
   refine ⟨_, rfl, rfl, rfl, rfl, ?_⟩
@@ -51,6 +52,27 @@ theorem run_evidence {fuel source target e}
   exact (ConcreteBackend.decideFormula_correct
     (ComparisonInstance.run_spec (ComparisonInstance.attempt_some_iff.mp hi)).2.2.2.1).mp
     (ComparisonInstance.run_spec (ComparisonInstance.attempt_some_iff.mp hi)).2.2.2.2
+
+theorem partial_evidence {fuel p result}
+    (h : ComparisonPartialPropagation.attempt fuel p = .success (some result)) :
+    PreparedEvidence p (partialEvidence p result) :=
+  ⟨result.action, rfl, rfl, rfl, rfl, ComparisonPartialPropagation.attempt_query_valid h⟩
+
+theorem run_evidence {fuel source target e}
+    (h : run fuel source target = .success e) :
+    PreparedEvidence (SchemePreparation.prepare [] source target) e := by
+  cases hc : core fuel source target <;> simp only [run, hc] at h
+  case success => cases h; exact core_evidence hc
+  case exhausted => contradiction
+  case rejected reason =>
+    cases hp : ComparisonPartialPropagation.attempt fuel
+        (SchemePreparation.prepare [] source target) <;>
+      simp only [hp, bind, pure, RunResult.bind] at h
+    case success result =>
+      cases result with
+      | none => contradiction
+      | some result => cases h; exact partial_evidence hp
+    all_goals contradiction
 
 /-- Every successful branch returns precisely the original source domain. -/
 theorem run_instantiates {fuel source target e}

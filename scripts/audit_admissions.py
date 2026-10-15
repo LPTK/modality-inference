@@ -74,6 +74,55 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonPartialPropagation.wellShaped_sound',
+    'ModalityInference.ComparisonPartialPropagation.wellShaped_prepared',
+    'ModalityInference.ComparisonPartialPropagation.Certificate.check_sound',
+    'ModalityInference.ComparisonPartialPropagation.attempt_spec',
+    'ModalityInference.ComparisonPartialPropagation.attempt_query_valid',
+    'ModalityInference.ComparisonPartialPropagation.attempt_mode_models',
+    'ModalityInference.ComparisonPartialPropagation.attempt_scalar_edge',
+    'ModalityInference.ComparisonPartialPropagation.attempt_sound',
+    'ModalityInference.ComparisonPartialPropagation.saturate_monotone',
+    'ModalityInference.ComparisonPartialBoundary.le_refl',
+    'ModalityInference.ComparisonPartialBoundary.le_trans',
+    'ModalityInference.ComparisonPartialBoundary.le_antisymm',
+    'ModalityInference.ComparisonPartialBoundary.dual_dual',
+    'ModalityInference.ComparisonPartialBoundary.dual_middle',
+    'ModalityInference.ComparisonPartialBoundary.dual_le',
+    'ModalityInference.ComparisonPartialBoundary.branch_mono',
+    'ModalityInference.ComparisonPartialBoundary.branch_middle',
+    'ModalityInference.ComparisonPartialBoundary.branch_dual',
+    'ModalityInference.ComparisonPartialBoundary.join_left',
+    'ModalityInference.ComparisonPartialBoundary.join_right',
+    'ModalityInference.ComparisonPartialBoundary.join_least',
+    'ModalityInference.ComparisonPartialBoundary.meet_left',
+    'ModalityInference.ComparisonPartialBoundary.meet_right',
+    'ModalityInference.ComparisonPartialBoundary.meet_greatest',
+    'ModalityInference.ComparisonPartialBoundary.scalar_defined',
+    'ModalityInference.ComparisonPartialBoundary.scalar_compose',
+    'ModalityInference.ComparisonPartialBoundary.scalar_mono',
+    'ModalityInference.ComparisonPartialBoundary.interpret_defined',
+    'ModalityInference.ComparisonPartialBoundary.scalar_branch_mono',
+    'ModalityInference.ComparisonPartialBoundary.scalar_fn_mono',
+    'ModalityInference.ComparisonPartialBoundary.shaped_sound',
+    'ModalityInference.ComparisonPartialBoundary.equation_sound',
+    'ModalityInference.ComparisonPartialBoundary.algebra_sound',
+    'ModalityInference.ComparisonPartialBoundary.branch_eq_middle',
+    'ModalityInference.ComparisonPartialBoundary.extreme_ne_middle',
+    'ModalityInference.ComparisonPartialBoundary.interpret_public_dual',
+    'ModalityInference.ComparisonPartialBoundary.interpret_public_middle_models',
+    'ModalityInference.ComparisonPartialBoundary.public_defined_of_below',
+    'ModalityInference.ComparisonPartialBoundary.public_defined_of_above',
+    'ModalityInference.ComparisonPartialBoundary.public_defined_of_below_assumptions',
+    'ModalityInference.ComparisonPartialBoundary.public_defined_of_above_assumptions',
+    'ModalityInference.ComparisonPartialBoundary.prepared_public_defined_of_below',
+    'ModalityInference.ComparisonPartialBoundary.prepared_public_defined_of_above',
+    'ModalityInference.ComparisonChecker.core_evidence',
+    'ModalityInference.ComparisonChecker.partial_evidence',
+    'ModalityInference.ComparisonChecker.core_domains',
+    'ModalityInference.ComparisonChecker.partial_action_domains',
+    'ModalityInference.ComparisonChecker.core_solution_of_propagate',
+    'ModalityInference.ComparisonChecker.partial_solution',
     'ModalityInference.ComparisonPreparation.liftWitness_domainsAbove',
     'ModalityInference.ComparisonPreparation.liftWitness_type_at',
     'ModalityInference.ComparisonPreparation.liftWitness_mode_at',
@@ -2413,6 +2462,9 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonSoundness\n'
                     'import ModalityInference.Proofs.ComparisonPreparationComplete\n'
                     'import ModalityInference.Proofs.ComparisonPartialCovers\n'
+                    'import ModalityInference.Proofs.ComparisonPartialPropagation\n'
+                    'import ModalityInference.Proofs.ComparisonPartialPropagationFuel\n'
+                    'import ModalityInference.Proofs.ComparisonPartialBoundary\n'
                     'import ModalityInference.Proofs.ComparisonBoundDefinedness\n'
                     'import ModalityInference.Proofs.ComparisonAlgebraPreparation\n'
                     'import ModalityInference.Proofs.ComparisonAlgebraOrder\n'

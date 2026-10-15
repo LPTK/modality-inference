@@ -182,5 +182,8 @@ import ModalityInference.Proofs.ComparisonSoundness
 import ModalityInference.Proofs.ComparisonBoundDefinedness
 import ModalityInference.Proofs.ComparisonPreparationComplete
 import ModalityInference.Proofs.ComparisonPartialCovers
+import ModalityInference.Proofs.ComparisonPartialPropagation
+import ModalityInference.Proofs.ComparisonPartialPropagationFuel
+import ModalityInference.Proofs.ComparisonPartialBoundary
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
