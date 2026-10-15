@@ -241,25 +241,29 @@ point nor public executables depend on those unproved specifications.
 
 ## Remaining work and scope
 
-`checkSubsumption` uses the symbolic comparison pipeline. Its intended contracts
-are `Obligations.SchemeSubsumptionSound` and `SchemeSubsumptionComplete` against
-`AlgebraSubsumes`, with duplicate-free binders and residual declared bounds.
-They retain arbitrary source bounds, fixed free identifiers, and bare partial
-body comparisons. Verified shape, lattice, propagation, and modality kernels
-do not establish these assembled contracts.
+`checkSubsumption` uses the symbolic comparison pipeline. Its assembled
+soundness theorem, `checkSubsumption_algebra_subsumes`, proves `AlgebraSubsumes`
+for every successful call, including arbitrary source bounds, fixed free
+identifiers, and bare partial body comparisons. `checkSubsumption_terminates`
+proves eventual success or rejection for every input; all completed results
+are stable under increasing fuel. `Obligations.SchemeSubsumptionComplete`
+remains unproved, with its original duplicate-free-binder and residual-target
+premises and no body-definedness or consistency premise.
 
 Remaining comparison work includes structural normalization into the generated
-finite-basis grammar, arbitrary coupled partial type/modality contexts, full
-reconstruction soundness/completeness, and whole-checker fuel guarantees.
+finite-basis grammar, arbitrary coupled partial type/modality contexts, and
+complete witness reconstruction.
 Exact-instance matching and shared-prefix adapters are positive certificate
 paths; they do not prove complete coverage of partial syntax. Non-residual
 declared type bounds also lack a complete general decision procedure.
 See [TODO.md](../TODO.md) for the current proof and implementation work.
 
-The ground laws for the explicit guarded comparison algebra are proved, but
-semantic admissibility of extended scheme comparison for signatures remains
-separate. Source typing and resource theorems continue to use ordinary
-`Subsumes`. No public or inferred type scheme contains an internal join or meet.
+The guarded comparison algebra preserves ground instances and resource
+interpretations of typed source schemes. Successful closed inference followed
+by successful executable signature checking therefore gives safe execution
+at every admissible declared-signature instance. Extending body realization
+to arbitrary untyped source schemes with partial annotations remains separate.
+No public or inferred type scheme contains an internal join or meet.
 
 `Obligations.RunSolverCorrespondence`, relating the complete structural worklist
 to the abstract rewrite relation, and `Obligations.PrincipalFactorization`, the
