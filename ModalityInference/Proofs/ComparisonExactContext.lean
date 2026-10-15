@@ -1,6 +1,7 @@
 import ModalityInference.ComparisonExactContext
 import ModalityInference.Proofs.ComparisonTypes
 import ModalityInference.Proofs.SubstitutionSupport
+import ModalityInference.Proofs.ComparisonAbsorption
 
 /-! Fixed support and exact composition for positive context instantiation. -/
 namespace ModalityInference.ComparisonExactContext
@@ -22,17 +23,16 @@ theorem scopeCheck_iff (p : Prepared) (action : Substitution) :
 theorem prepare_spec {p : Prepared} {total : ModExpr → Bool} {action : Substitution}
     (h : prepare p total = some action) :
     ComparisonInstance.targetFresh p = true ∧
-      collect p total p.sourceType p.targetType {} = some action ∧ Scoped p action := by
+      independent p total = action ∧ Scoped p action := by
   unfold prepare at h
   split at h
   · contradiction
   · next hf =>
-    simp only [bind, Option.bind_eq_some_iff] at h
-    obtain ⟨selected, hc, hs⟩ := h
-    split at hs
+    dsimp only at h
+    split at h
     · next hk =>
-      cases hs
-      exact ⟨by simpa using hf, hc, (scopeCheck_iff p action).mp hk⟩
+      cases h
+      exact ⟨by simpa using hf, rfl, (scopeCheck_iff p _).mp hk⟩
     · contradiction
 
 theorem prepare_scoped {p : Prepared} {total : ModExpr → Bool} {action : Substitution}
@@ -69,6 +69,20 @@ theorem Scoped.mode_fixed {p : Prepared} {action : Substitution} (h : Scoped p a
   | flex n =>
     apply Substitution.mode_fresh
     exact fun hn => Bool.noConfusion (hv.symm.trans (h.mode_keys hn))
+
+theorem Scoped.ty_fixed {p : Prepared} {action : Substitution} (h : Scoped p action)
+    (t : Ty) (ht : ∀ v ∈ t.typeVars, ComparisonInstance.typeAllowed p v = false)
+    (hm : ∀ v ∈ t.modVars, ComparisonInstance.modeAllowed p v = false) :
+    action.ty t = t := by
+  simpa only [Substitution.ty, TypeExpr.subst_id] using
+    (TypeExpr.subst_congr t (fun v hv => h.type_fixed v (ht v hv))
+      (fun v hv => h.mode_fixed v (hm v hv)))
+
+theorem Scoped.expr_fixed {p : Prepared} {action : Substitution} (h : Scoped p action)
+    (m : ModExpr) (hm : ∀ v ∈ m.vars, ComparisonInstance.modeAllowed p v = false) :
+    m.subst action.mode = m := by
+  simpa only [ModExpr.subst_id] using
+    (ModExpr.subst_congr m (fun v hv => h.mode_fixed v (hm v hv)))
 
 theorem prepare_target_fixed {p : Prepared} {total : ModExpr → Bool} {action : Substitution}
     (h : prepare p total = some action) : action.ty p.targetType = p.targetType := by
@@ -177,5 +191,40 @@ theorem rewrite_spec (p : Prepared) (action : Substitution) :
     (rewrite p action).firstMode = p.firstMode ∧
     (rewrite p action).nextMode = p.nextMode := by
   simp [rewrite]
+
+theorem neutral_mode_spec {p : Prepared} {name : Nat}
+    (h : name ∈ ComparisonAbsorption.modes (neutralOwners p)) :
+    ComparisonInstance.modeAllowed p (.flex name) = true := by
+  simp only [ComparisonAbsorption.modes, List.mem_dedup, List.mem_map] at h
+  obtain ⟨⟨x, m⟩, hm, rfl⟩ := h
+  simp only [neutralOwners, List.mem_filter, Bool.and_eq_true] at hm
+  exact hm.2.2
+
+theorem neutral_scoped (p : Prepared) : Scoped p (neutral p) := by
+  constructor
+  · simp [neutral]
+  · intro name image hi
+    simp only [neutral, List.mem_map] at hi
+    obtain ⟨m, hm, he⟩ := hi
+    cases he
+    exact ⟨neutral_mode_spec hm, by simp [ModExpr.epsilon, ModExpr.vars]⟩
+
+/-- Every successful comparison after specialization reconstructs the original
+body and bounds by exact substitution composition. -/
+theorem neutral_reconstruction (p : Prepared) (after : CompareSubstitution) :
+    (finish (neutral p) after).ty p.sourceType =
+        after.ty (rewrite p (neutral p)).sourceType ∧
+      (finish (neutral p) after).bounds p.sourceBounds =
+        after.bounds (rewrite p (neutral p)).sourceBounds := by
+  exact ⟨finish_rewrite_type p (neutral p) after,
+    finish_rewrite_bounds p (neutral p) after⟩
+
+theorem neutral_finish_types (p : Prepared) (after : CompareSubstitution) :
+    (finish (neutral p) after).types = after.types := by
+  simp [finish, neutral]
+
+theorem neutral_finish_wellShaped {Δ : Bounds} (p : Prepared) {after : CompareSubstitution}
+    (h : after.WellShaped Δ) : (finish (neutral p) after).WellShaped Δ := by
+  simpa only [CompareSubstitution.WellShaped, neutral_finish_types] using h
 
 end ModalityInference.ComparisonExactContext

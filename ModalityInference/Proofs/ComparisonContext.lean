@@ -11,85 +11,20 @@ def Scoped (p : Prepared) (action : Substitution) : Prop :=
     ComparisonInstance.modeAllowed p (.flex name) = true ∧
       ∀ v ∈ image.vars, ComparisonInstance.modeAllowed p v = false
 
-private theorem bindMode_scoped {p : Prepared} {name : Nat} {image : ModExpr}
-    {before after : Substitution} (hb : Scoped p before)
-    (hn : ComparisonInstance.modeAllowed p (.flex name) = true)
-    (hi : ∀ v ∈ image.vars, ComparisonInstance.modeAllowed p v = false)
-    (h : ComparisonInstance.bindMode name image before = some after) : Scoped p after := by
-  cases hl : before.modes.lookup name <;> simp [ComparisonInstance.bindMode, hl] at h
-  · subst after
-    refine ⟨hb.1, ?_⟩
-    intro n m hm
-    rcases List.mem_cons.mp hm with he | hm
-    · rcases Prod.mk.inj he with ⟨rfl, rfl⟩
-      exact ⟨hn, hi⟩
-    · exact hb.2 n m hm
-  · exact h.2 ▸ hb
-
-private theorem matchMode_scoped {p : Prepared} {source target : ModExpr}
-    {before after : Substitution} (hb : Scoped p before)
-    (ht : ∀ v ∈ target.vars, ComparisonInstance.modeAllowed p v = false)
-    (h : ComparisonInstance.matchMode p source target before = some after) : Scoped p after := by
-  induction source generalizing target before after with
-  | var v =>
-    cases v with
-    | flex n =>
-      simp only [ComparisonInstance.matchMode] at h
-      split at h
-      · next hn => exact bindMode_scoped hb hn ht h
-      · split at h
-        · cases h
-          exact hb
-        · contradiction
-    | rigid n =>
-      cases target <;> try { simp only [ComparisonInstance.matchMode] at h; contradiction }
-      case var v =>
-        cases v <;> simp [ComparisonInstance.matchMode] at h
-        exact h.2 ▸ hb
-  | compose a b ia ib | meet a b ia ib | join a b ia ib
-  | leftResidual a b ia ib | rightResidual a b ia ib =>
-    cases target <;> simp [ComparisonInstance.matchMode] at h
-    obtain ⟨middle, hm, ha⟩ := Option.bind_eq_some_iff.mp h
-    simp only [ModExpr.vars, Finset.mem_union, or_imp, forall_and] at ht
-    exact ib (ia hb ht.1 hm) ht.2 ha
-  | const m =>
-    cases target <;> simp [ComparisonInstance.matchMode] at h
-    exact h.2 ▸ hb
-  | close a ia | closeInv a ia | future a ia | capture a ia =>
-    cases target <;> simp [ComparisonInstance.matchMode] at h
-    exact ia hb (by simpa only [ModExpr.vars] using ht) h
-
-private theorem collect_scoped {p : Prepared} {total : ModExpr → Bool} {source target : Ty}
-    {before after : Substitution} (hb : Scoped p before)
-    (ht : ∀ v ∈ target.modVars, ComparisonInstance.modeAllowed p v = false)
-    (h : collect p total source target before = some after) : Scoped p after := by
-  induction source generalizing target before after with
-  | var v | unit | credit =>
-    cases target <;> simp only [collect, Option.some.injEq] at h <;> exact h ▸ hb
-  | prod a b ia ib | sum a b ia ib | fn a b ia ib =>
-    cases target <;> simp only [collect, bind, Option.bind_eq_some_iff, Option.some.injEq] at h
-    all_goals try exact h ▸ hb
-    obtain ⟨middle, hm, ha⟩ := h
-    simp only [TypeExpr.modVars, Finset.mem_union, or_imp, forall_and] at ht
-    exact ib (ia hb ht.1 hm) ht.2 ha
-  | modal a m ia =>
-    cases target <;> simp only [collect, bind, Option.bind_eq_some_iff, Option.some.injEq] at h
-    all_goals try exact h ▸ hb
-    obtain ⟨middle, hm, ha⟩ := h
-    simp only [TypeExpr.modVars, Finset.mem_union, or_imp, forall_and] at ht
-    split at ha
-    · cases ha
-      exact ia hb ht.1 hm
-    · exact matchMode_scoped (ia hb ht.1 hm) ht.2 ha
+theorem scopeCheck_iff (p : Prepared) (action : Substitution) :
+    scopeCheck p action = true ↔ Scoped p action := by
+  simp [scopeCheck, Scoped, List.all_eq_true]
 
 theorem prepare_scoped {p : Prepared} {total : ModExpr → Bool} {action : Substitution}
     (h : prepare p total = some action) : Scoped p action := by
   unfold prepare at h
   split at h
-  · next hf =>
-    apply collect_scoped (by simp [Scoped]) _ h
-    have hm := (Bool.and_eq_true_iff.mp hf).2
-    simpa only [List.all_eq_true, Bool.not_eq_true', TypeExpr.mem_modeVariables] using hm
+  · dsimp only at h
+    split at h
+    · next hs =>
+      cases h
+      exact (scopeCheck_iff p _).mp hs
+    · contradiction
   · contradiction
 
 theorem prepare_types {p : Prepared} {total : ModExpr → Bool} {action : Substitution}

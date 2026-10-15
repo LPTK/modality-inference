@@ -1,5 +1,6 @@
-import ModalityInference.ComparisonInstance
+import ModalityInference.ComparisonContext
 import ModalityInference.ComparisonTypes
+import ModalityInference.ComparisonAbsorption
 
 /-! Exact partial-annotation contexts may determine their type bases and mode
 images together. This positive prepass preserves every original obligation by
@@ -8,19 +9,62 @@ namespace ModalityInference.ComparisonExactContext
 
 abbrev Prepared := SchemePreparation.Prepared
 
-/-- Every selected occurrence uses the same simultaneous substitution. Function
-domains are paired syntactically because this pass asserts equality, not order. -/
-def collect (p : Prepared) (total : ModExpr → Bool) :
-    Ty → Ty → Substitution → Option Substitution
-  | .prod a b, .prod c d, action
-  | .sum a b, .sum c d, action
-  | .fn a b, .fn c d, action => do
-      let action ← collect p total a c action
-      collect p total b d action
-  | .modal a m, .modal b n, action =>
-      if total n then collect p total a b action
-      else ComparisonInstance.matchType p (.modal a m) (.modal b n) action
-  | _, _, action => some action
+abbrev Request := Ty × Ty
+
+def partialType (total : ModExpr → Bool) : Ty → Bool
+  | .var _ | .unit | .credit => false
+  | .prod a b | .sum a b | .fn a b => partialType total a || partialType total b
+  | .modal a m => !total m || partialType total a
+
+def requests (p : Prepared) (total : ModExpr → Bool) : Ty → Ty → List Request
+  | .var (.flex n), target =>
+      if ComparisonInstance.typeAllowed p (.flex n) && partialType total target
+      then [(.var (.flex n), target)] else []
+  | .prod a b, .prod c d
+  | .sum a b, .sum c d
+  | .fn a b, .fn c d => requests p total a c ++ requests p total b d
+  | .modal a m, .modal b n =>
+      if total n then requests p total a b else [(.modal a m, .modal b n)]
+  | _, _ => []
+
+/-- Type and modality identifiers have separate namespaces. -/
+def requestSupport (p : Prepared) (request : Request) : List Nat :=
+  (request.1.typeVariables.filterMap fun v => match v with
+    | .flex n => if ComparisonInstance.typeAllowed p v then some (2 * n) else none
+    | .rigid _ => none) ++
+  (request.1.modeVariables.filterMap fun v => match v with
+    | .flex n => if ComparisonInstance.modeAllowed p v then some (2 * n + 1) else none
+    | .rigid _ => none)
+
+/-- Once a type image has been determined, an outer direct mode can expose
+that entire image by the identity law. This handles a type used both bare and
+inside modality contexts without moving a partial annotation through them. -/
+def matchRequest (p : Prepared) (request : Request) (action : Substitution) :
+    Option Substitution :=
+  match request.1 with
+  | .modal a (.var (.flex n)) =>
+      if ComparisonInstance.modeAllowed p (.flex n) && action.ty a == request.2 then
+        ComparisonInstance.bindMode n .epsilon action
+      else ComparisonInstance.matchType p request.1 request.2 action
+  | _ => ComparisonInstance.matchType p request.1 request.2 action
+
+def independent (p : Prepared) (total : ModExpr → Bool) : Substitution :=
+  ComparisonContext.solvePriorityComponents (requestSupport p) (fun request =>
+    match request.1 with
+    | .modal _ m => ComparisonContext.compoundMode p m
+    | _ => true)
+    (matchRequest p) (requests p total p.sourceType p.targetType) {}
+
+/-- A sufficient identity specialization exposes modality capsules to partial
+type-interval elimination, including nonuniform and bare uses of their type
+parameters. Written bounds are rechecked after substitution. -/
+def neutralOwners (p : Prepared) : ComparisonAbsorption.Owners :=
+  (ComparisonAbsorption.capsules p.sourceType).filter fun (x, m) =>
+    ComparisonInstance.typeAllowed p (.flex x) &&
+      ComparisonInstance.modeAllowed p (.flex m)
+
+def neutral (p : Prepared) : Substitution :=
+  { modes := (ComparisonAbsorption.modes (neutralOwners p)).map fun m => (m, .epsilon) }
 
 def fixedType (p : Prepared) (t : Ty) : Bool :=
   t.typeVariables.all (fun v => !ComparisonInstance.typeAllowed p v) &&
@@ -39,7 +83,7 @@ def scopeCheck (p : Prepared) (action : Substitution) : Bool :=
 
 def prepare (p : Prepared) (total : ModExpr → Bool) : Option Substitution := do
   if !ComparisonInstance.targetFresh p then none else do
-    let action ← collect p total p.sourceType p.targetType {}
+    let action := independent p total
     if scopeCheck p action then some action else none
 
 /-- Bounds are rewritten in full, including every written definedness guard. -/

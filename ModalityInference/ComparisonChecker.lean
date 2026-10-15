@@ -111,11 +111,18 @@ def run (fuel : Nat) (source target : Scheme) : RunResult Evidence := do
           | none => .rejected reason
         match modes with
         | .rejected _ =>
-            match ComparisonExactContext.prepare context (ComparisonBody.isTotal known) with
-            | some before =>
-                if before.types.isEmpty && before.modes.isEmpty then .rejected reason
+            let exact : RunResult Evidence :=
+              match ComparisonExactContext.prepare context (ComparisonBody.isTotal known) with
+              | some before =>
+                  if before.types.isEmpty && before.modes.isEmpty then .rejected reason
+                  else variants fuel p shapes before
+              | none => .rejected reason
+            match exact with
+            | .rejected _ =>
+                let before := ComparisonExactContext.neutral p
+                if before.modes.isEmpty then .rejected reason
                 else variants fuel p shapes before
-            | none => .rejected reason
+            | result => result
         | result => result
     | result => result
 

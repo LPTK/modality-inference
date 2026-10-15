@@ -115,6 +115,7 @@ import ModalityInference.Proofs.ComparisonAlgebra
 import ModalityInference.Proofs.ComparisonAlgebraSoundness
 import ModalityInference.Proofs.ComparisonAlgebraInstances
 import ModalityInference.Proofs.ComparisonAlgebraPreparation
+import ModalityInference.Proofs.ComparisonAlgebraOrder
 import ModalityInference.Proofs.ComparisonSkeleton
 import ModalityInference.Proofs.ComparisonShapeSolver
 import ModalityInference.Proofs.ComparisonPropagation
@@ -127,6 +128,9 @@ import ModalityInference.Proofs.ComparisonInstance
 import ModalityInference.Proofs.ComparisonAbsorption
 import ModalityInference.Proofs.ComparisonContext
 import ModalityInference.Proofs.ComparisonExactContext
+import ModalityInference.Proofs.ComparisonContextWitnesses
+import ModalityInference.Proofs.ComparisonReduction
+import ModalityInference.Proofs.ComparisonChecker
 import ModalityInference.Proofs.ComparisonInterpolation
 import ModalityInference.Proofs.ComparisonPreparation
 import ModalityInference.Proofs.SymbolicCNF

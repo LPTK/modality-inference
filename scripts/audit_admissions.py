@@ -74,6 +74,29 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonAlgebra.lattice_separator',
+    'ModalityInference.ComparisonAlgebra.subtype_iff_boolean_observers',
+    'ModalityInference.ComparisonChecker.propagate_evidence',
+    'ModalityInference.ComparisonChecker.variants_evidence',
+    'ModalityInference.ComparisonChecker.run_evidence',
+    'ModalityInference.ComparisonChecker.run_instantiates',
+    'ModalityInference.ComparisonChecker.run_query_valid',
+    'ModalityInference.ComparisonReduction.step_sound',
+    'ModalityInference.ComparisonReduction.run_sound',
+    'ModalityInference.ComparisonReduction.prepare_sound',
+    'ModalityInference.ComparisonReduction.step_metadata',
+    'ModalityInference.ComparisonReduction.run_metadata',
+    'ModalityInference.ComparisonReduction.run_pending_empty',
+    'ModalityInference.ComparisonReduction.run_partialTypes',
+    'ModalityInference.ComparisonReduction.run_bare_scope',
+    'ModalityInference.ComparisonReduction.reduceBare_algebra',
+    'ModalityInference.ComparisonReduction.ty_defined_of_guards',
+    'ModalityInference.ComparisonReduction.initial_body',
+    'ModalityInference.ComparisonReduction.initial_entails',
+    'ModalityInference.ComparisonExactContext.neutral_scoped',
+    'ModalityInference.ComparisonExactContext.neutral_reconstruction',
+    'ModalityInference.ComparisonExactContext.neutral_finish_types',
+    'ModalityInference.ComparisonExactContext.neutral_finish_wellShaped',
     'ModalityInference.ModExpr.complete_subst',
     'ModalityInference.TypeExpr.complete_compareGround',
     'ModalityInference.AlgebraSubtype.ground_instance',
@@ -2269,6 +2292,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonAlgebraSoundness\n'
                     'import ModalityInference.Proofs.ComparisonAlgebraInstances\n'
                     'import ModalityInference.Proofs.ComparisonAlgebraPreparation\n'
+                    'import ModalityInference.Proofs.ComparisonAlgebraOrder\n'
                     'import ModalityInference.Proofs.ComparisonSkeleton\n'
                     'import ModalityInference.Proofs.ComparisonPartialModes\n'
                     'import ModalityInference.Proofs.ComparisonBody\n'
@@ -2276,6 +2300,9 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonAbsorption\n'
                     'import ModalityInference.Proofs.ComparisonContext\n'
                     'import ModalityInference.Proofs.ComparisonExactContext\n'
+                    'import ModalityInference.Proofs.ComparisonContextWitnesses\n'
+                    'import ModalityInference.Proofs.ComparisonReduction\n'
+                    'import ModalityInference.Proofs.ComparisonChecker\n'
                     'import ModalityInference.Proofs.ComparisonPartial\n'
                     'import ModalityInference.Proofs.ComparisonInterpolation\n'
                     'import ModalityInference.Proofs.ComparisonPreparation\n'
