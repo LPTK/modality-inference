@@ -17,6 +17,7 @@ import ModalityInference.Inference
 import ModalityInference.SchemeSubsumption
 import ModalityInference.SchemePreparation
 import ModalityInference.ComparisonTypes
+import ModalityInference.ComparisonShapes
 import ModalityInference.ComparisonInterpolation
 import ModalityInference.ComparisonPreparation
 

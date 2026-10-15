@@ -94,13 +94,14 @@ and have not replaced the checker's type search. Modality-image assembly is
 used with the general uniform synthesis procedure.
 
 `CompareTy` is a separate finite witness language with binary joins and meets.
-`CompareSubsumes` uses it for comparison instantiations; public `Ty` and `Scheme`
-remain join-free. The original subtype and scheme relations embed into the new
-relation. `ComparisonInterpolation.witness` reconstructs an isolated variable
+`ShapedSubsumes` restricts its instantiations and intermediate subtype derivations
+to compatible shapes under the declared assumptions; public `Ty` and `Scheme`
+remain join-free. The original subtype and scheme relations embed into it.
+`ComparisonInterpolation.witness` reconstructs an isolated variable
 from its lower or upper endpoints, with an exact crossed-bound criterion and
-preservation of written guards. It does not yet handle structural or modalized
-occurrences. The source typing and semantic theorems still use the original
-scheme relation.
+preservation of written guards in the unrestricted comparison relation. Its
+shape-restricted lift and structural/modalized occurrences remain separate work.
+The source typing and semantic theorems still use the original scheme relation.
 
 ## Constraint solving
 
@@ -229,9 +230,11 @@ The comparison witness for crossed rigid bounds can use an internal join;
 isolated lower/upper bounds. Global reduction must also handle structural cycles
 and modalized occurrences without assuming constructor or modality distribution
 laws absent from `CompareSubtype`. Returning unresolved constraints is a reduction
-API, not a successful comparison decision. `ComparisonBoundary` proves that
-unrestricted mixed-constructor joins do not preserve the core's ordinary scheme interpretation. A compatibility condition
-or a changed semantic interpretation is required before signature integration.
+API, not a successful comparison decision. `ShapedSubtype` and `ShapedSubsumes`
+require joins/meets to have compatible shapes under the declared assumptions,
+including all intermediate comparison types. Ordinary derivations embed, shape
+preservation is proved, and mixed-constructor witnesses are excluded. The ground
+semantic bridge and complete structural reduction remain separate obligations.
 
 The current checker can also instantiate unquantified flexible identifiers,
 omits expansion of target assumptions, and requires body definedness beyond

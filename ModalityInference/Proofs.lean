@@ -110,6 +110,7 @@ import ModalityInference.Proofs.SchemePreparedScope
 import ModalityInference.Proofs.SchemeReconstruction
 import ModalityInference.Proofs.SchemeReconstructionClosed
 import ModalityInference.Proofs.ComparisonTypes
+import ModalityInference.Proofs.ComparisonShapes
 import ModalityInference.Proofs.ComparisonInterpolation
 import ModalityInference.Proofs.ComparisonPreparation
 import ModalityInference.Proofs.SymbolicCNF

@@ -1917,6 +1917,34 @@ constants += [
     'ModalityInference.ComparisonBoundary.target_not_resource_credit',
     'ModalityInference.ComparisonBoundary.resource_semantic_preservation_fails',
     'ModalityInference.ComparisonBoundary.closed_join_comparison',
+    'ModalityInference.CompareTy.shape_ofTy',
+    'ModalityInference.CompareTy.wellShaped_ofTy',
+    'ModalityInference.ShapedSubtype.to_compare',
+    'ModalityInference.ShapedSubtype.shape_invariant',
+    'ModalityInference.ShapedSubtype.wellShaped_left',
+    'ModalityInference.ShapedSubtype.wellShaped_right',
+    'ModalityInference.ShapedSubtype.shape_equivalent',
+    'ModalityInference.Subtype.to_shaped',
+    'ModalityInference.Entails.to_shaped',
+    'ModalityInference.EntailsAll.to_shaped',
+    'ModalityInference.CompareSubstitution.wellShaped_ofSubstitution',
+    'ModalityInference.Subsumes.to_shaped',
+    'ModalityInference.ShapedEntails.to_compare',
+    'ModalityInference.ShapedEntailsAll.to_compare',
+    'ModalityInference.ShapedSubsumes.to_compare',
+    'ModalityInference.ComparisonShape.Equivalent.refl',
+    'ModalityInference.ComparisonShape.Equivalent.symm',
+    'ModalityInference.ComparisonShape.Equivalent.trans',
+    'ModalityInference.ComparisonShape.Equivalent.of_sub',
+    'ModalityInference.CompareTy.not_wellShaped_unit_join_credit',
+    'ModalityInference.CompareTy.not_wellShaped_unit_meet_credit',
+    'ModalityInference.ShapedSubtype.no_unit_credit_upper',
+    'ModalityInference.ShapedSubtype.join_interpolant',
+    'ModalityInference.ShapedSubsumes.bowtie',
+    'ModalityInference.ShapedSubsumes.not_mixed_unit_credit',
+    'ModalityInference.ShapedSubtype.fn_congr',
+    'ModalityInference.ShapedSubtype.prod_congr',
+    'ModalityInference.ShapedSubsumes.closed_bowtie',
 ]
 if args.semantic:
     constants = [
@@ -1966,6 +1994,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SchemeReconstruction\n'
                     'import ModalityInference.Proofs.SchemeReconstructionClosed\n'
                     'import ModalityInference.Proofs.ComparisonTypes\n'
+                    'import ModalityInference.Proofs.ComparisonShapes\n'
                     'import ModalityInference.Proofs.ComparisonInterpolation\n'
                     'import ModalityInference.Proofs.ComparisonPreparation\n'
                     'import ModalityInference.Proofs.SymbolicCNF\n'
