@@ -87,41 +87,42 @@ theorem step_sound {Δ : Bounds} {σ : CompareSubstitution} {s next : State}
         exact .refl (σ.ty_wellShaped hσ _)
       · exact hassumptions _ _ (List.contains_iff_mem.mp he)
     · split at hstep
-      · next pair hshared =>
+      ·
         cases hstep
         simp only [List.forall_mem_cons] at hnext
-        refine ⟨⟨?_, hnext.1.2⟩, hnext.2⟩
-        split at hshared
-        · exact stripShared_algebra hσ _ htotal hshared hnext.1.1
-        · contradiction
+        refine ⟨⟨?_, hnext.1⟩, hnext.2.1, hnext.2.2.1, hnext.2.2.2.2⟩
+        exact (bareVariable_algebra hσ _ ‹bareVariable s.bareVariables left = some _›).1.trans
+          hnext.2.2.2.1
+      ·
+        cases hstep
+        simp only [List.forall_mem_cons] at hnext
+        refine ⟨⟨?_, hnext.1⟩, hnext.2.1, hnext.2.2.1, hnext.2.2.2.2⟩
+        exact AlgebraSubtype.trans hnext.2.2.2.1
+          (bareVariable_algebra hσ _ ‹bareVariable s.bareVariables right = some _›).2
       · split at hstep
-        · next he =>
+        · next step hshared =>
           cases hstep
-          refine ⟨⟨?_, hnext.1⟩, hnext.2⟩
-          exact (normalizeOuter_algebra hσ left).1.trans
-            (by simpa only [beq_iff_eq.mp he] using (normalizeOuter_algebra hσ right).2)
+          simp only [List.forall_mem_cons, CompareSubstitution.bounds,
+            List.map_cons, algebraEntailsAll_cons] at hnext
+          refine ⟨⟨?_, hnext.1.2⟩, hnext.2.1, hnext.2.2.1.2, hnext.2.2.2⟩
+          split at hshared
+          · exact stripTotal_algebra hσ _ htotal hshared hnext.1.1 hnext.2.2.1.1
+          · contradiction
         · split at hstep
-          · next m n hsuffix =>
+          · next he =>
             cases hstep
-            simp only [CompareSubstitution.bounds, List.map_cons,
-              algebraEntailsAll_cons] at hnext
-            refine ⟨⟨?_, hnext.1⟩, hnext.2.1, hnext.2.2.1.2, hnext.2.2.2⟩
-            split at hsuffix
-            · exact suffixGoal_algebra hσ _ htotal hsuffix hnext.2.2.1.1
-            · contradiction
+            refine ⟨⟨?_, hnext.1⟩, hnext.2⟩
+            exact (normalizeOuter_algebra hσ left).1.trans
+              (by simpa only [beq_iff_eq.mp he] using (normalizeOuter_algebra hσ right).2)
           · split at hstep
-            ·
+            · next m n hsuffix =>
               cases hstep
-              simp only [List.forall_mem_cons] at hnext
-              refine ⟨⟨?_, hnext.1⟩, hnext.2.1, hnext.2.2.1, hnext.2.2.2.2⟩
-              exact (bareVariable_algebra hσ _ ‹bareVariable s.bareVariables left = some _›).1.trans
-                hnext.2.2.2.1
-            ·
-              cases hstep
-              simp only [List.forall_mem_cons] at hnext
-              refine ⟨⟨?_, hnext.1⟩, hnext.2.1, hnext.2.2.1, hnext.2.2.2.2⟩
-              exact AlgebraSubtype.trans hnext.2.2.2.1
-                (bareVariable_algebra hσ _ ‹bareVariable s.bareVariables right = some _›).2
+              simp only [CompareSubstitution.bounds, List.map_cons,
+                algebraEntailsAll_cons] at hnext
+              refine ⟨⟨?_, hnext.1⟩, hnext.2.1, hnext.2.2.1.2, hnext.2.2.2⟩
+              split at hsuffix
+              · exact suffixGoal_algebra hσ _ htotal hsuffix hnext.2.2.1.1
+              · contradiction
             · split at hstep
               all_goals try contradiction
               all_goals cases hstep

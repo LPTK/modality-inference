@@ -37,13 +37,45 @@ private theorem recompose_correct (Δ : Bounds) (ms : List ModExpr) (a : Ty) :
     exact ⟨Subtype.compose.trans ih.1, ih.2.trans .composeRev⟩
 termination_by ms.length
 
+theorem peelFuel_recompose_correct {Δ : Bounds} (total : ModExpr → Bool)
+    (htotal : ∀ m, total m = true → Submode Δ m m) (fuel : Nat) (t : Ty) :
+    let result := peelFuel total fuel t
+    Subtype Δ t (.modal result.base (ComparisonPartialModes.recompose result.labels)) ∧
+      Subtype Δ (.modal result.base (ComparisonPartialModes.recompose result.labels)) t :=
+  ⟨(peelFuel_correct total htotal _ t).1.trans (recompose_correct Δ _ _).1,
+    (recompose_correct Δ _ _).2.trans (peelFuel_correct total htotal _ t).2⟩
+
 theorem peel_correct {Δ : Bounds} (total : ModExpr → Bool)
     (htotal : ∀ m, total m = true → Submode Δ m m) (t : Ty) :
     let result := peel total t
     Subtype Δ t (.modal result.base (ComparisonPartialModes.recompose result.labels)) ∧
       Subtype Δ (.modal result.base (ComparisonPartialModes.recompose result.labels)) t :=
-  ⟨(peelFuel_correct total htotal _ t).1.trans (recompose_correct Δ _ _).1,
-    (recompose_correct Δ _ _).2.trans (peelFuel_correct total htotal _ t).2⟩
+  peelFuel_recompose_correct total htotal _ t
+
+theorem stripTotal_spec {total : ModExpr → Bool} {left right : Ty} {step : TotalStep}
+    (h : stripTotal total left right = some step) :
+    step.bases = ((peelFuel total 1 left).base, (peelFuel total 1 right).base) ∧
+      step.labels = (ComparisonPartialModes.recompose (peelFuel total 1 left).labels,
+        ComparisonPartialModes.recompose (peelFuel total 1 right).labels) := by
+  unfold stripTotal at h
+  dsimp only at h
+  split at h
+  · contradiction
+  · cases h
+    exact ⟨rfl, rfl⟩
+
+/-- Scalar suffix inequalities transport a bare base comparison without
+requiring either opaque base to be defined. -/
+theorem stripTotal_correct {Δ : Bounds} (total : ModExpr → Bool)
+    (htotal : ∀ m, total m = true → Submode Δ m m)
+    {left right : Ty} {step : TotalStep} (h : stripTotal total left right = some step)
+    (hab : Subtype Δ step.bases.1 step.bases.2)
+    (hmn : Submode Δ step.labels.1 step.labels.2) : Subtype Δ left right := by
+  obtain ⟨hb, hm⟩ := stripTotal_spec h
+  rw [hb] at hab
+  rw [hm] at hmn
+  exact (peelFuel_recompose_correct total htotal 1 left).1.trans
+    ((Subtype.congr hab hmn).trans (peelFuel_recompose_correct total htotal 1 right).2)
 
 theorem suffixGoal_correct {Δ : Bounds} (total : ModExpr → Bool)
     (htotal : ∀ m, total m = true → Submode Δ m m)

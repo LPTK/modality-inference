@@ -215,6 +215,12 @@ def global (t : Ty) : Ty := .modal t (.const Mode.global)
   { bounds := [.sub (global (head 0)) (global (head 1))]
     body := .fn (global (head 0)) (global (head 1)) }).isSuccess
 
+-- Impossible scalar bounds do not reverse the modality-unaffected rigid order.
+#guard rejected (compare (.mono (head 1))
+  { bounds := [.sub (head 0) (head 1), .mode .top .bottom], body := head 0 })
+#guard (compare (.mono (head 0))
+  { bounds := [.sub (head 0) (head 1), .mode .top .bottom], body := head 1 }).isSuccess
+
 -- Cycles are handled by propagation; an unused source variable is instantiated.
 #guard (compare
   { typeParams := [0, 1, 2]

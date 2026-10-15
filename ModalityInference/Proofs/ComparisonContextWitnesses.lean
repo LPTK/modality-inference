@@ -134,10 +134,45 @@ theorem defined_mixed_meet_witness : AlgebraSubsumes [] definedMixedSource mixed
     CompareSubstitution.constraint, meetWitness, CompareSubstitution.mode,
     ModExpr.subst, ModExpr.epsilon, ModExpr.WellFormed, ModExpr.eval]
 
+def combinedSource : Scheme :=
+  { typeParams := [0], modParams := [0, 1]
+    body := .prod (.prod (.var (.flex 0)) (.modal (.var (.flex 0)) (.var (.flex 0))))
+      (.prod (.modal (.var (.rigid 2)) (.close (.var (.flex 1)))) .unit) }
+
+def combinedTarget : Scheme :=
+  { bounds := meetBounds
+    body := .prod (.prod (.modal h bad) (.modal (.var (.rigid 1)) bad))
+      (.prod (.modal (.var (.rigid 2)) (.close bad)) (.modal .unit .top)) }
+
+def combinedWitness : CompareSubstitution :=
+  { types := [(0, meetImage)], modes := [(0, .epsilon), (1, bad)] }
+
+theorem combined_shaped_witness : ShapedSubsumes [] combinedSource combinedTarget := by
+  refine ⟨combinedWitness, ?_, ?_, ?_, ?_⟩
+  · simp [CompareInstantiates, combinedSource, combinedWitness]
+  · change combinedWitness.WellShaped meetBounds
+    simpa [CompareSubstitution.WellShaped, combinedWitness] using meetImage_wellShaped
+  · simp [combinedSource, combinedWitness, ShapedEntailsAll, CompareSubstitution.bounds]
+  · change ShapedSubtype meetBounds
+      (.prod (.prod meetImage (.modal meetImage .epsilon))
+        (.prod (.modal (.var (.rigid 2)) (.close bad)) .unit))
+      (.prod (.prod (.modal (.var (.rigid 0)) bad) (.modal (.var (.rigid 1)) bad))
+        (.prod (.modal (.var (.rigid 2)) (.close bad)) (.modal .unit .top)))
+    exact ShapedSubtype.prod_congr
+      (.prod_congr (.meetLeft meetImage_wellShaped)
+        ((ShapedSubtype.identity meetImage_wellShaped).trans (.meetRight meetImage_wellShaped)))
+      (.prod_congr (.refl trivial)
+        ((ShapedSubtype.identityRev (a := .unit) trivial).trans (.congr (.refl trivial)
+          (.valid fun _ _ => ⟨Mode.identity, Mode.top, rfl, rfl, by decide⟩))))
+
+theorem combined_algebra_witness : AlgebraSubsumes [] combinedSource combinedTarget :=
+  combined_shaped_witness.to_algebra
+
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 16000000 in
 #guard [ (source, target), (sharedSource, sharedTarget), (mixedSource, mixedTarget),
-    (mixedSource, mixedMeetTarget), (definedMixedSource, mixedMeetTarget) ].all
+    (mixedSource, mixedMeetTarget), (definedMixedSource, mixedMeetTarget),
+    (combinedSource, combinedTarget) ].all
   fun (a, b) => (ComparisonChecker.run 20000 a b).isSuccess
 
 set_option maxRecDepth 100000 in

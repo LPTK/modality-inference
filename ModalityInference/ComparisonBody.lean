@@ -65,28 +65,6 @@ def traversalSize : Ty → Nat
   | .prod a b | .sum a b | .fn a b => traversalSize a + traversalSize b + 1
   | .modal a m => traversalSize a + ComparisonPartialModes.expressionSize m + 1
 
-def pairedOccurrencesFuel (name : Nat) (total : ModExpr → Bool) : Nat → Ty → Ty → Bool
-  | 0, left, right => ComparisonPartial.bareOccurrences name false left &&
-      ComparisonPartial.bareOccurrences name false right
-  | fuel + 1, left, right =>
-    match stripShared total left right with
-    | some (a, b) => pairedOccurrencesFuel name total fuel a b
-    | none => match left, right with
-      | .prod a b, .prod c d | .sum a b, .sum c d =>
-        pairedOccurrencesFuel name total fuel a c && pairedOccurrencesFuel name total fuel b d
-      | .fn a b, .fn c d =>
-        pairedOccurrencesFuel name total fuel c a && pairedOccurrencesFuel name total fuel b d
-      | _, _ => ComparisonPartial.bareOccurrences name false left &&
-          ComparisonPartial.bareOccurrences name false right
-
-def pairedOccurrences (name : Nat) (total : ModExpr → Bool) (left right : Ty) : Bool :=
-  pairedOccurrencesFuel name total (traversalSize left + traversalSize right + 1) left right
-
-def eligible (p : SchemePreparation.Prepared) (total : ModExpr → Bool) : List Nat :=
-  (List.range' p.firstType (p.nextType - p.firstType)).filter fun name =>
-    ComparisonPartial.absentFromBounds name p.sourceBounds &&
-      pairedOccurrences name total p.sourceType p.targetType
-
 structure Suffix where
   base : Ty
   labels : List ModExpr
@@ -106,6 +84,43 @@ def peelFuel (total : ModExpr → Bool) : Nat → Ty → Suffix
 
 def peel (total : ModExpr → Bool) (t : Ty) : Suffix :=
   peelFuel total (traversalSize t + 1) t
+
+/-- A sufficient decomposition separates opaque bases from one total outer label
+per endpoint. The scalar comparison is retained as an obligation rather than
+cancelled; inner labels remain available as parts of a fresh type's image. -/
+structure TotalStep where
+  bases : Ty × Ty
+  labels : ModExpr × ModExpr
+  deriving Repr, DecidableEq
+
+def stripTotal (total : ModExpr → Bool) (left right : Ty) : Option TotalStep :=
+  let a := peelFuel total 1 left
+  let b := peelFuel total 1 right
+  if a.base == left && b.base == right then none
+  else some ⟨(a.base, b.base),
+    (ComparisonPartialModes.recompose a.labels, ComparisonPartialModes.recompose b.labels)⟩
+
+def pairedOccurrencesFuel (name : Nat) (total : ModExpr → Bool) : Nat → Ty → Ty → Bool
+  | 0, left, right => ComparisonPartial.bareOccurrences name false left &&
+      ComparisonPartial.bareOccurrences name false right
+  | fuel + 1, left, right =>
+    match stripTotal total left right with
+    | some step => pairedOccurrencesFuel name total fuel step.bases.1 step.bases.2
+    | none => match left, right with
+      | .prod a b, .prod c d | .sum a b, .sum c d =>
+        pairedOccurrencesFuel name total fuel a c && pairedOccurrencesFuel name total fuel b d
+      | .fn a b, .fn c d =>
+        pairedOccurrencesFuel name total fuel c a && pairedOccurrencesFuel name total fuel b d
+      | _, _ => ComparisonPartial.bareOccurrences name false left &&
+          ComparisonPartial.bareOccurrences name false right
+
+def pairedOccurrences (name : Nat) (total : ModExpr → Bool) (left right : Ty) : Bool :=
+  pairedOccurrencesFuel name total (traversalSize left + traversalSize right + 1) left right
+
+def eligible (p : SchemePreparation.Prepared) (total : ModExpr → Bool) : List Nat :=
+  (List.range' p.firstType (p.nextType - p.firstType)).filter fun name =>
+    ComparisonPartial.absentFromBounds name p.sourceBounds &&
+      pairedOccurrences name total p.sourceType p.targetType
 
 /-- Compare only certified total suffixes above the same opaque base. The
 partial annotations inside that base produce no new definedness obligation. -/

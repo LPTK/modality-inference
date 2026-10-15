@@ -31,11 +31,20 @@ theorem variants_evidence {fuel p shapes before e}
     case success => cases h; exact propagate_evidence hq
     all_goals contradiction
 
+theorem refineContexts_evidence {fuel p shapes before e}
+    (h : refineContexts fuel p shapes before = .success e) : PreparedEvidence p e := by
+  cases hv : variants fuel p shapes before <;> simp only [refineContexts, hv] at h
+  case success => cases h; exact variants_evidence hv
+  case exhausted => contradiction
+  case rejected =>
+    simp only [bind, RunResult.bind] at h
+    repeat' first | contradiction | exact variants_evidence h | split at h
+
 theorem run_evidence {fuel source target e}
     (h : run fuel source target = .success e) :
     PreparedEvidence (SchemePreparation.prepare [] source target) e := by
   simp only [run, bind, pure, RunResult.bind] at h
-  repeat' first | contradiction | exact variants_evidence h | split at h
+  repeat' first | contradiction | exact refineContexts_evidence h | split at h
   cases h
   refine ⟨_, rfl, rfl, rfl, rfl, ?_⟩
   rename_i result hi

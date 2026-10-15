@@ -79,6 +79,34 @@ def variants (fuel : Nat) (p : SchemePreparation.Prepared)
       | .rejected _ => .rejected reason
   | result => result
 
+/-- Refine exact partial contexts on the current specialization, then compose
+with the earlier action. Every branch rechecks the original prepared input. -/
+def refineContexts (fuel : Nat) (p : SchemePreparation.Prepared)
+    (shapes : ComparisonShapeSolver.Solved) (before : Substitution := {}) : RunResult Evidence :=
+  match variants fuel p shapes before with
+  | .rejected reason => do
+      let input := ComparisonExactContext.rewrite p before
+      let known ← ComparisonBody.knownTotal fuel input.assumptions
+        (ComparisonAnnotations.expressions input.sourceType ++
+          ComparisonAnnotations.expressions input.targetType)
+      let absorption := ComparisonAbsorption.plan input (ComparisonBody.isTotal known)
+      let context := { input with sourceType := absorption.body }
+      let modes : RunResult Evidence :=
+        match ComparisonContext.prepare context (ComparisonBody.isTotal known) with
+        | some selected =>
+            if selected.modes.isEmpty then .rejected reason
+            else variants fuel p shapes (selected.compose before)
+        | none => .rejected reason
+      match modes with
+      | .rejected _ =>
+          match ComparisonExactContext.prepare context (ComparisonBody.isTotal known) with
+          | some selected =>
+              if selected.types.isEmpty && selected.modes.isEmpty then .rejected reason
+              else variants fuel p shapes (selected.compose before)
+          | none => .rejected reason
+      | result => result
+  | result => result
+
 def run (fuel : Nat) (source target : Scheme) : RunResult Evidence := do
   let p := SchemePreparation.prepare [] source target
   if let some result ← ComparisonInstance.attempt fuel p then
@@ -96,34 +124,11 @@ def run (fuel : Nat) (source target : Scheme) : RunResult Evidence := do
   | .infeasibleAssumptions =>
       .rejected "declared shape equations are infeasible; outside residual-target comparison"
   | .solved shapes =>
-    match variants fuel p shapes with
+    match refineContexts fuel p shapes with
     | .rejected reason =>
-        let known ← ComparisonBody.knownTotal fuel p.assumptions
-          (ComparisonAnnotations.expressions p.sourceType ++
-            ComparisonAnnotations.expressions p.targetType)
-        let absorption := ComparisonAbsorption.plan p (ComparisonBody.isTotal known)
-        let context := { p with sourceType := absorption.body }
-        let modes : RunResult Evidence :=
-          match ComparisonContext.prepare context (ComparisonBody.isTotal known) with
-          | some before =>
-              if before.modes.isEmpty then .rejected reason
-              else variants fuel p shapes before
-          | none => .rejected reason
-        match modes with
-        | .rejected _ =>
-            let exact : RunResult Evidence :=
-              match ComparisonExactContext.prepare context (ComparisonBody.isTotal known) with
-              | some before =>
-                  if before.types.isEmpty && before.modes.isEmpty then .rejected reason
-                  else variants fuel p shapes before
-              | none => .rejected reason
-            match exact with
-            | .rejected _ =>
-                let before := ComparisonExactContext.neutral p
-                if before.modes.isEmpty then .rejected reason
-                else variants fuel p shapes before
-            | result => result
-        | result => result
+        let before := ComparisonExactContext.neutral p
+        if before.modes.isEmpty then .rejected reason
+        else refineContexts fuel p shapes before
     | result => result
 
 end ModalityInference.ComparisonChecker

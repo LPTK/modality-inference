@@ -41,10 +41,18 @@ def step (s : State) : RunResult State :=
   | (left, right) :: rest =>
     let s := { s with pending := rest }
     if left == right || s.assumptions.contains (.sub left right) then .success s else
+    match bareVariable s.bareVariables left, bareVariable s.bareVariables right with
+    | some n, _ => .success
+        { s with bareBounds := ⟨n, right, false⟩ :: s.bareBounds }
+    | _, some n => .success
+        { s with bareBounds := ⟨n, left, true⟩ :: s.bareBounds }
+    | none, none =>
     let total := ComparisonBody.isTotal s.totalModes
-    let shared := if s.shared then ComparisonBody.stripShared total left right else none
+    let shared := if s.shared then ComparisonBody.stripTotal total left right else none
     match shared with
-    | some pair => .success { s with pending := pair :: rest }
+    | some step => .success
+        { s with pending := step.bases :: rest
+                 modes := .mode step.labels.1 step.labels.2 :: s.modes }
     | none =>
     let normalizedLeft := ComparisonPartialModes.normalizeOuter left
     let normalizedRight := ComparisonPartialModes.normalizeOuter right
@@ -55,12 +63,6 @@ def step (s : State) : RunResult State :=
     match suffix with
     | some (m, n) => .success { s with modes := .mode m n :: s.modes }
     | none =>
-    match bareVariable s.bareVariables left, bareVariable s.bareVariables right with
-    | some n, _ => .success
-        { s with bareBounds := ⟨n, right, false⟩ :: s.bareBounds }
-    | _, some n => .success
-        { s with bareBounds := ⟨n, left, true⟩ :: s.bareBounds }
-    | none, none =>
     let (a, l) := left.outer
     let (b, r) := right.outer
     match a, b with

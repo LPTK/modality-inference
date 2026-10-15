@@ -76,9 +76,11 @@ def group (fuel : Nat) (assumptions required : Bounds) (g : ComparisonGroups.Gro
   let action := fun label => (actions.lookup label).getD ⟨[[]], []⟩
   let count := basis.types.length
   let mut theory ← controlsTheory fuel basis
+  let unaffected := BoolExpr.and (.imp (.atom count) (.const false))
+    (.imp (.atom (count + 1)) (.const false))
   let guards ← CompactCNF.toCNF fuel true
-    (SymbolicCNF.substitute (fun i => .atom (count + 2 + i))
-      (.and (boundsModeFormula assumptions) (boundsModeFormula required)))
+    (.or unaffected (SymbolicCNF.substitute (fun i => .atom (count + 2 + i))
+      (.and (boundsModeFormula assumptions) (boundsModeFormula required))))
   theory := meet theory guards
   for pair in g.assumptions do
     let a ← endpoint basis [] pair.1

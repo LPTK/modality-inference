@@ -289,6 +289,19 @@ private theorem recompose_algebra (ms : List ModExpr) (a : CompareTy)
       ih.2.trans (.composeRev (act_wellShaped ha ms))⟩
 termination_by ms.length
 
+theorem peelFuel_recompose_algebra (hσ : σ.WellShaped Δ) (total : ModExpr → Bool)
+    (htotal : ∀ m, total m = true → Submode Δ (m.subst σ.mode) (m.subst σ.mode))
+    (fuel : Nat) (t : Ty) :
+    let result := ComparisonBody.peelFuel total fuel t
+    AlgebraSubtype Δ (σ.ty t) (.modal (σ.ty result.base)
+        ((ComparisonPartialModes.recompose result.labels).subst σ.mode)) ∧
+      AlgebraSubtype Δ (.modal (σ.ty result.base)
+        ((ComparisonPartialModes.recompose result.labels).subst σ.mode)) (σ.ty t) :=
+  ⟨(peelFuel_algebra hσ total htotal fuel t).1.trans
+      (recompose_algebra _ _ (σ.ty_wellShaped hσ _)).1,
+    (recompose_algebra _ _ (σ.ty_wellShaped hσ _)).2.trans
+      (peelFuel_algebra hσ total htotal fuel t).2⟩
+
 theorem peel_algebra (hσ : σ.WellShaped Δ) (total : ModExpr → Bool)
     (htotal : ∀ m, total m = true → Submode Δ (m.subst σ.mode) (m.subst σ.mode)) (t : Ty) :
     let result := ComparisonBody.peel total t
@@ -300,6 +313,19 @@ theorem peel_algebra (hσ : σ.WellShaped Δ) (total : ModExpr → Bool)
       (recompose_algebra _ _ (σ.ty_wellShaped hσ _)).1,
     (recompose_algebra _ _ (σ.ty_wellShaped hσ _)).2.trans
       (peelFuel_algebra hσ total htotal _ t).2⟩
+
+theorem stripTotal_algebra (hσ : σ.WellShaped Δ) (total : ModExpr → Bool)
+    (htotal : ∀ m, total m = true → Submode Δ (m.subst σ.mode) (m.subst σ.mode))
+    {left right : Ty} {step : ComparisonBody.TotalStep}
+    (h : ComparisonBody.stripTotal total left right = some step)
+    (hab : AlgebraSubtype Δ (σ.ty step.bases.1) (σ.ty step.bases.2))
+    (hmn : Submode Δ (step.labels.1.subst σ.mode) (step.labels.2.subst σ.mode)) :
+    AlgebraSubtype Δ (σ.ty left) (σ.ty right) := by
+  obtain ⟨hb, hm⟩ := ComparisonBody.stripTotal_spec h
+  rw [hb] at hab
+  rw [hm] at hmn
+  exact (peelFuel_recompose_algebra hσ total htotal 1 left).1.trans
+    ((AlgebraSubtype.congr hab hmn).trans (peelFuel_recompose_algebra hσ total htotal 1 right).2)
 
 theorem suffixGoal_algebra (hσ : σ.WellShaped Δ) (total : ModExpr → Bool)
     (htotal : ∀ m, total m = true → Submode Δ (m.subst σ.mode) (m.subst σ.mode))

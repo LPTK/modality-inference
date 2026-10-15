@@ -84,6 +84,22 @@ theorem Scoped.expr_fixed {p : Prepared} {action : Substitution} (h : Scoped p a
   simpa only [ModExpr.subst_id] using
     (ModExpr.subst_congr m (fun v hv => h.mode_fixed v (hm v hv)))
 
+/-- Fixed images remain fixed under later source refinements. -/
+theorem Scoped.compose {p : Prepared} {before after : Substitution}
+    (hb : Scoped p before) (ha : Scoped p after) : Scoped p (after.compose before) := by
+  constructor <;> intro name image hi
+  all_goals simp only [Substitution.compose, List.mem_append, List.mem_map, List.mem_filter] at hi
+  · rcases hi with ⟨⟨n, t⟩, ht, he⟩ | ⟨hi, _⟩
+    · cases he
+      have ht := hb.1 n t ht
+      simpa only [ha.ty_fixed t ht.2.1 ht.2.2] using ht
+    · exact ha.1 name image hi
+  · rcases hi with ⟨⟨n, m⟩, hm, he⟩ | ⟨hi, _⟩
+    · cases he
+      have hm := hb.2 n m hm
+      simpa only [ha.expr_fixed m hm.2] using hm
+    · exact ha.2 name image hi
+
 theorem prepare_target_fixed {p : Prepared} {total : ModExpr → Bool} {action : Substitution}
     (h : prepare p total = some action) : action.ty p.targetType = p.targetType := by
   suffices he : p.targetType.subst action.type action.mode =
