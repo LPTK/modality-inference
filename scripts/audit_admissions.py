@@ -74,6 +74,41 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonReduction.step_forward',
+    'ModalityInference.ComparisonReduction.run_forward',
+    'ModalityInference.ComparisonReduction.run_complete_ordinary',
+    'ModalityInference.ComparisonReduction.prepare_complete_ordinary',
+    'ModalityInference.ComparisonSkeleton.preparedForest_opaque',
+    'ModalityInference.ComparisonReduction.initial_ordinary_holds',
+    'ModalityInference.ComparisonChecker.prepared_reduction_complete',
+    'ModalityInference.ComparisonChecker.prepared_ordinary_reduction_complete',
+    'ModalityInference.ComparisonJointAxisSummary.compile_sound',
+    'ModalityInference.ComparisonJointAxisSummary.compile_iff',
+    'ModalityInference.ComparisonJointAxisSummary.coordinateState_uniform',
+    'ModalityInference.ComparisonJointAxisSummary.coordinateState_valid',
+    'ModalityInference.ComparisonJointAxisSummary.coordinateState_boundary',
+    'ModalityInference.ComparisonJointGroup.prepare_nominal_atoms',
+    'ModalityInference.ComparisonJointGroup.prepare_witness',
+    'ModalityInference.ComparisonJointGroup.prepare_axis_witness',
+    'ModalityInference.ComparisonJointGroup.axisValues_uniform',
+    'ModalityInference.ComparisonJointGroup.nominalStore_correct',
+    'ModalityInference.ComparisonJointGroup.nominalStore_polynomial',
+    'ModalityInference.ComparisonJointAssembly.input_supported',
+    'ModalityInference.ComparisonJointAssembly.scalarClauses_correct',
+    'ModalityInference.ComparisonJointAssembly.oppositeClauses_correct',
+    'ModalityInference.ComparisonJointAssembly.run_compiled',
+    'ModalityInference.ComparisonJointAssembly.run_coordinates',
+    'ModalityInference.ComparisonJointAssembly.run_coordinate_clauses',
+    'ModalityInference.ComparisonJointAssembly.nominalProgram_guarded_iff',
+    'ModalityInference.ComparisonJointAssembly.run_group_input',
+    'ModalityInference.ComparisonJointAssembly.run_group_sound',
+    'ModalityInference.ComparisonJointAssembly.run_compatible',
+    'ModalityInference.ComparisonJointAssemblyReification.group_leaf_complete',
+    'ModalityInference.ComparisonJointAssemblyReification.group_leaf_properties',
+    'ModalityInference.ComparisonJointAssemblyReification.projectElimination_substitute',
+    'ModalityInference.ComparisonJointAssemblyReification.projectElimination_atoms',
+    'ModalityInference.ComparisonJointAssemblyReification.projectElimination_flexible',
+    'ModalityInference.ComparisonJointAssemblyReification.projectElimination_allowed',
     'ModalityInference.SchemePreparation.prepare_binderGuards',
     'ModalityInference.ComparisonChecker.prepared_ordinary_template_under',
     'ModalityInference.ComparisonChecker.algebra_ordinary_template_complete',
@@ -3259,6 +3294,17 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonJointGroupSupport\n'
                     'import ModalityInference.Proofs.ComparisonJointProgram\n'
                     'import ModalityInference.Proofs.ComparisonJointProgramSupport\n'
+                    'import ModalityInference.Proofs.ComparisonReductionForward\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedReductionSetup\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedReductionWitness\n'
+                    'import ModalityInference.Proofs.ComparisonJointAxisSummary\n'
+                    'import ModalityInference.Proofs.ComparisonJointAxisStates\n'
+                    'import ModalityInference.Proofs.ComparisonJointGroupStateSupport\n'
+                    'import ModalityInference.Proofs.ComparisonJointGroupWitness\n'
+                    'import ModalityInference.Proofs.ComparisonJointAssembly\n'
+                    'import ModalityInference.Proofs.ComparisonJointAssemblyNominal\n'
+                    'import ModalityInference.Proofs.ComparisonJointAssemblyGroup\n'
+                    'import ModalityInference.Proofs.ComparisonJointAssemblyReification\n'
                     'import ModalityInference.Proofs.Evaluation\n'
                     'import ModalityInference.Proofs.Interpretation\n'
                     'import ModalityInference.Proofs.Erasure\n'

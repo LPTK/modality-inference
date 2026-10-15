@@ -250,8 +250,13 @@ retained through structural reduction. Connecting these components to the actual
 group query now includes exact four-coordinate group compilation, finite atom
 provenance, uniform scalar-component separation, and supported propagation-program
 compilation under fixed parameter assignments. Defined witnesses also survive
-the actual ordinary checker setup with their original shared mode images.
-Boundary-summary assembly and public checker completeness remain unfinished. Non-residual
+the actual ordinary checker setup and both structural reduction passes with
+their original shared mode images. The assembled single-group solver now proves
+all original coordinate obligations, scalar guards, and compatibility conditions
+on success. Its actual reconstructed leaf types have the supplied shape,
+definedness, and identifier support; all observations use the same projected
+scalar valuation. Eventual success of this assembly, shared modality synthesis
+across groups, and public checker completeness remain unfinished. Non-residual
 declared bounds also lack a complete general procedure.
 See [TODO.md](../TODO.md) and [LEAN_PROOF_HANDOFF.md](../LEAN_PROOF_HANDOFF.md).
 
