@@ -74,6 +74,37 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonGroups.collect_all_leaves_nodup',
+    'ModalityInference.ComparisonJointBatchReification.assemble_leaf',
+    'ModalityInference.ComparisonJointBatchReification.assemble_origin',
+    'ModalityInference.ComparisonJointBatchReification.assemble_types_defined',
+    'ModalityInference.ComparisonJointBatchReification.assemble_types_support',
+    'ModalityInference.ComparisonJointBatchReification.assemble_wellShaped',
+    'ModalityInference.ComparisonJointBatchReification.assemble_wellFormed',
+    'ModalityInference.ComparisonJointBatchReification.assemble_mode_fixed',
+    'ModalityInference.ComparisonJointBatchReification.assemble_type_fixed',
+    'ModalityInference.ComparisonJointBatchReification.assemble_mode_support',
+    'ModalityInference.ComparisonJointBatchReification.assemble_mode_eval',
+    'ModalityInference.ComparisonJointBatchReification.assemble_type_modes_fixed',
+    'ModalityInference.ComparisonJointGroupAtoms.group_sound',
+    'ModalityInference.ComparisonJointGroupAtoms.collected_assumptions',
+    'ModalityInference.ComparisonJointGroupAtoms.collected_labels_defined',
+    'ModalityInference.ComparisonJointGroupAtoms.projected_assemble_supported',
+    'ModalityInference.ComparisonJointElimination.run_domainsAbove',
+    'ModalityInference.ComparisonJointElimination.setup_run_prepared_fixed',
+    'ModalityInference.ComparisonJointElimination.Trace.leaves_nodup',
+    'ModalityInference.ComparisonJointElimination.Trace.groups_sound',
+    'ModalityInference.ComparisonJointElimination.Trace.sound',
+    'ModalityInference.ComparisonJointChecker.propagate_trace',
+    'ModalityInference.ComparisonJointChecker.run_trace',
+    'ModalityInference.ComparisonJointChecker.run_domain',
+    'ModalityInference.ComparisonJointChecker.run_exact_domains',
+    'ModalityInference.ComparisonJointChecker.collection_mode_scope',
+    'ModalityInference.ComparisonJointChecker.PropagateTrace.sound',
+    'ModalityInference.ComparisonJointChecker.RunTrace.guarded_result',
+    'ModalityInference.ComparisonJointChecker.run_result',
+    'ModalityInference.ComparisonJointChecker.run_algebra_subsumesUnder',
+    'ModalityInference.ComparisonJointChecker.run_instantiatesUnder',
     'ModalityInference.ComparisonChecker.prepared_batch_complete',
     'ModalityInference.ComparisonChecker.algebra_joint_batch_complete',
     'ModalityInference.ComparisonJointBatchReification.local_correct',
@@ -3420,6 +3451,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonJointRestoration\n'
                     'import ModalityInference.Proofs.ComparisonJointCheckerCompleteness\n'
                     'import ModalityInference.Proofs.ComparisonJointCheckerTermination\n'
+                    'import ModalityInference.Proofs.ComparisonJointCheckerSoundness\n'
                     'import ModalityInference.Proofs.Evaluation\n'
                     'import ModalityInference.Proofs.Interpretation\n'
                     'import ModalityInference.Proofs.Erasure\n'
