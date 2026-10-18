@@ -74,6 +74,24 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonNestedAnchors.attempt_sound',
+    'ModalityInference.ComparisonNestedAnchors.run_result',
+    'ModalityInference.ComparisonNestedAnchors.run_algebra_subsumesUnder',
+    'ModalityInference.ComparisonNestedAnchors.run_settles',
+    'ModalityInference.ComparisonNestedAnchors.Context.matchTypes_exact',
+    'ModalityInference.ComparisonNestedAnchors.Context.requests_lift',
+    'ModalityInference.ComparisonNestedAnchors.Context.after_declared',
+    'ModalityInference.ComparisonNestedAnchors.Context.before_declared',
+    'ModalityInference.ComparisonNestedAnchors.attempt_seeded_complete',
+    'ModalityInference.checkSubsumption_nested_seeded_complete',
+    'ModalityInference.ComparisonNestedDeclaredWitness.instance_defined',
+    'ModalityInference.ComparisonNestedDeclaredWitness.subsumes',
+    'ModalityInference.ComparisonNestedDeclaredWitness.no_finite_shape_model',
+    'ModalityInference.ComparisonSignedBranchCalls.resolve_spec',
+    'ModalityInference.ComparisonSignedBranchCalls.compile_correct',
+    'ModalityInference.ComparisonSignedBranchCalls.compile_complete',
+    'ModalityInference.ComparisonSignedBranchCalls.compile_allowed',
+    'ModalityInference.ComparisonSignedBranchCalls.compile_binary',
     'ModalityInference.ComparisonSignedBranchImages.locate_basis',
     'ModalityInference.ComparisonSignedBranchImages.pick_complete',
     'ModalityInference.ComparisonSignedBranchImages.pick_reifyImage',
@@ -3904,6 +3922,12 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonStructuralTrace\n'
                     'import ModalityInference.Proofs.ComparisonStructuralEndpointTheory\n'
                     'import ModalityInference.Proofs.ComparisonReifiedEndpointTheory\n'
+                    'import ModalityInference.Proofs.ComparisonNestedAnchors\n'
+                    'import ModalityInference.Proofs.ComparisonNestedAnchorsTermination\n'
+                    'import ModalityInference.Proofs.ComparisonNestedAnchorContexts\n'
+                    'import ModalityInference.Proofs.ComparisonNestedAnchorAcceptance\n'
+                    'import ModalityInference.Proofs.ComparisonNestedDeclaredWitness\n'
+                    'import ModalityInference.Proofs.ComparisonSignedBranchCalls\n'
                     'import ModalityInference.Proofs.ComparisonSignedBranchImages\n'
                     'import ModalityInference.Proofs.ComparisonLayoutModePullback\n'
                     'import ModalityInference.Proofs.GuardedSourceTyping\n'

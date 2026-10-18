@@ -2,6 +2,7 @@ import ModalityInference.Proofs.ComparisonSubsumption
 import ModalityInference.Proofs.ComparisonPropagationSoundness
 import ModalityInference.Proofs.ComparisonJointCheckerSoundness
 import ModalityInference.Proofs.ComparisonDeclaredAnchors
+import ModalityInference.Proofs.ComparisonNestedAnchors
 import ModalityInference.Proofs.ComparisonDefinedInstances
 
 /-! The actual substitution returned by successful public comparison has defined
@@ -47,7 +48,11 @@ private theorem fallback_result {fuel : Nat} {source target : Scheme}
   cases hj : ComparisonJointChecker.run fuel source target <;>
     simp only [comparisonFallback, hj] at h
   case success result => cases h; exact ComparisonJointChecker.run_result hj
-  case rejected reason => exact ComparisonDeclaredAnchors.run_result h
+  case rejected reason =>
+    cases ha : ComparisonDeclaredAnchors.run fuel source target <;> simp only [ha] at h
+    case success result => cases h; exact ComparisonDeclaredAnchors.run_result ha
+    case rejected reason => exact ComparisonNestedAnchors.run_result h
+    case exhausted => contradiction
   case exhausted => contradiction
 
 /-- Every public comparison phase certifies its actual returned substitution,

@@ -1,6 +1,7 @@
 import ModalityInference.ComparisonChecker
 import ModalityInference.ComparisonJointChecker
 import ModalityInference.ComparisonDeclaredAnchors
+import ModalityInference.ComparisonNestedAnchors
 import ModalityInference.SchemeInstance
 
 /-! Scheme comparison uses fresh shape templates, symbolic lattice propagation,
@@ -28,7 +29,10 @@ def jointSubsumptionEvidence (source target : Scheme) (action : CompareSubstitut
 rejects. Completed positive results and exhaustion keep their original meaning. -/
 def comparisonFallback (fuel : Nat) (source target : Scheme) : RunResult CompareSubstitution :=
   match ComparisonJointChecker.run fuel source target with
-  | .rejected _ => ComparisonDeclaredAnchors.run fuel source target
+  | .rejected _ =>
+      match ComparisonDeclaredAnchors.run fuel source target with
+      | .rejected _ => ComparisonNestedAnchors.run fuel source target
+      | result => result
   | result => result
 
 def checkSubsumption (fuel : Nat) (inferred declared : Scheme) :

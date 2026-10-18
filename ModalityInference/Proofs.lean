@@ -483,5 +483,11 @@ import ModalityInference.Proofs.ComparisonStructuralEndpointTheory
 import ModalityInference.Proofs.ComparisonReifiedEndpointTheory
 import ModalityInference.Proofs.ComparisonSignedBranchImages
 import ModalityInference.Proofs.ComparisonLayoutModePullback
+import ModalityInference.Proofs.ComparisonNestedAnchors
+import ModalityInference.Proofs.ComparisonNestedAnchorsTermination
+import ModalityInference.Proofs.ComparisonNestedAnchorContexts
+import ModalityInference.Proofs.ComparisonNestedAnchorAcceptance
+import ModalityInference.Proofs.ComparisonNestedDeclaredWitness
+import ModalityInference.Proofs.ComparisonSignedBranchCalls
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
