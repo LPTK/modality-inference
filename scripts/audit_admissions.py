@@ -74,6 +74,43 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonCoordinateTransition.transition_absorption',
+    'ModalityInference.ComparisonCoordinateTransition.transition_profile',
+    'ModalityInference.ComparisonCoordinateTransition.supported_agree_on',
+    'ModalityInference.ComparisonCoordinateTransition.child_action_of_generators',
+    'ModalityInference.ComparisonDeclaredBoundary.Walk.simple',
+    'ModalityInference.ComparisonDeclaredBoundary.Walk.restrict',
+    'ModalityInference.ComparisonDeclaredBoundary.pathBudget_eq',
+    'ModalityInference.ComparisonDeclaredBoundary.Subtype.finite_walk',
+    'ModalityInference.ComparisonDeclaredBoundary.subtype_iff_finite_walk',
+    'ModalityInference.ComparisonFiniteGraphLimitation.bounds_defined',
+    'ModalityInference.ComparisonFiniteGraphLimitation.no_finite_fixed_point',
+    'ModalityInference.ComparisonFiniteGraphLimitation.finite_interval_solution',
+    'ModalityInference.ComparisonFiniteGraphLimitation.finite_candidate',
+    'ModalityInference.ComparisonObserverPorts.pattern_iff_no_obstruction',
+    'ModalityInference.ComparisonObserverPorts.carrier_pattern_iff_no_obstruction',
+    'ModalityInference.ComparisonObserverPorts.boolean_pattern_iff_no_obstruction',
+    'ModalityInference.ComparisonSignedGraph.Graph.reaches_contrapose',
+    'ModalityInference.ComparisonSignedGraph.Graph.canonical_model',
+    'ModalityInference.ComparisonSignedGraph.Graph.model_iff',
+    'ModalityInference.ComparisonSignedGraph.Graph.canonical_iff',
+    'ModalityInference.ComparisonSignedImplications.System.Valid.model',
+    'ModalityInference.ComparisonSignedImplications.System.Model.valid',
+    'ModalityInference.ComparisonSignedImplications.System.valid_iff',
+    'ModalityInference.ComparisonStructuralCoherence.rangeClause_transfer_iff',
+    'ModalityInference.ComparisonStructuralCoherence.closedRange_iff',
+    'ModalityInference.ComparisonStructuralCoherence.rangeClosure_correct',
+    'ModalityInference.ComparisonStructuralCoherence.rangeInclusion_correct',
+    'ModalityInference.ComparisonStructuralCoherence.headCoherence_correct',
+    'ModalityInference.ComparisonStructuralCoherence.headCoherence_observer',
+    'ModalityInference.ComparisonStructuralCoherence.Realized.theory',
+    'ModalityInference.ComparisonStructuralCoherence.run_correct',
+    'ModalityInference.ComparisonStructuralCoherence.run_realized',
+    'ModalityInference.ComparisonStructuralCoherence.selected_run_complete',
+    'ModalityInference.ComparisonStructuralEndpoints.NormalizedList.at_subtype',
+    'ModalityInference.ComparisonStructuralEndpoints.NormalizedList.layout_complete',
+    'ModalityInference.ComparisonStructuralEndpoints.prepared_layout_complete',
+    'ModalityInference.ComparisonStructuralNormalization.run_value',
     'ModalityInference.ComparisonSelectedBases.inputAction_prepared',
     'ModalityInference.ComparisonSelectedBases.inputAction_supported',
     'ModalityInference.ComparisonSelectedBases.inputAction_modesIdempotent',
@@ -3650,6 +3687,15 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonStructuralEndpoints\n'
                     'import ModalityInference.Proofs.ComparisonStructuralLayout\n'
                     'import ModalityInference.Proofs.ComparisonShapedObserverGluing\n'
+                    'import ModalityInference.Proofs.ComparisonCoordinateTransition\n'
+                    'import ModalityInference.Proofs.ComparisonDeclaredPaths\n'
+                    'import ModalityInference.Proofs.ComparisonFiniteGraphLimitation\n'
+                    'import ModalityInference.Proofs.ComparisonObserverPorts\n'
+                    'import ModalityInference.Proofs.ComparisonSignedGraph\n'
+                    'import ModalityInference.Proofs.ComparisonSignedImplications\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralCoherence\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralEndpointQuery\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralNormalizationValues\n'
                     'import ModalityInference.Proofs.GuardedSourceTyping\n'
                     'import ModalityInference.Proofs.GuardedSourceSoundness\n'
                     'import ModalityInference.Proofs.GuardedContexts\n'
