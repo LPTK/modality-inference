@@ -306,6 +306,20 @@ as well as the arbitrary-ambient-context bridge.
 unconditional successful-result soundness, termination, and fuel stability.
 Complete acceptance under raw partial ambient bounds still requires preserving
 their partial endpoints without demanding additional guards.
+Finite observer machines decide fixed defined-endpoint comparisons
+under defined type bounds without a finite shape model. Their boundary and state
+bound are computed from those endpoints, and finite coordinate certificates have
+an exact symbolic encoding connected to the validity backend, with proved
+positive/negative correctness and eventual stable return. This does not bound
+unknown scheme-image syntax.
+Finite forgetting-machine criteria preserve shared outputs, monotonicity, and
+constant boundaries; general comparison still requires a complete bound on the
+machines synthesized from the input. Exact raw-token abstraction preserves the
+same admissible substitution and original guards for partial ambient bounds.
+`ComparisonNormalizedAmbientDriver` conservatively removes reflexive ambient
+edges while preserving names and fresh indices. Its results are certified under
+the original context; an unused partial annotation no longer prevents the
+reflexive ambient comparison from succeeding.
 See [TODO.md](../TODO.md) and [LEAN_PROOF_HANDOFF.md](../LEAN_PROOF_HANDOFF.md).
 
 `runSolver_correspondence` and `principal_factorization` establish the exact
