@@ -112,6 +112,18 @@ fixed lower endpoints or meets of fixed upper endpoints and certifies every
 original obligation against whole declared edges. This accepts structured
 declared bounds without treating them as component inequalities. Its returned
 substitution has the same soundness, definedness, and fuel-stability guarantees.
+If declared shape equations have no finite model, their shape-compatibility
+conditions hold vacuously; this phase still requires subtype certificates and
+all scalar guards. Thus it accepts a declared cyclic edge without treating
+shape inconsistency as a proof of arbitrary subtyping.
+
+For finite declared shape models, `Proofs/ComparisonStructuralBasis` gives
+defined type images finite lattice normal forms at their resolved image shapes.
+The bases retain fixed names at compound shapes and include constructor
+combinations and signed modality controls. `ComparisonStructuralPrepared`
+connects these forms to supported admissible witnesses under arbitrary ambient
+bounds. This normalization does not yet bound unconstrained source shapes from
+the input or complete the public checker beyond residual declared bounds.
 
 ## Constraint solving
 

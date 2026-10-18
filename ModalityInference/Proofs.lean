@@ -404,5 +404,7 @@ import ModalityInference.Proofs.SolverRewriting
 import ModalityInference.Proofs.SymbolicPrincipality
 import ModalityInference.Proofs.ComparisonDeclaredAnchors
 import ModalityInference.Proofs.SubsumptionCost
+import ModalityInference.Proofs.ComparisonCyclicDeclaredWitness
+import ModalityInference.Proofs.ComparisonStructuralPrepared
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

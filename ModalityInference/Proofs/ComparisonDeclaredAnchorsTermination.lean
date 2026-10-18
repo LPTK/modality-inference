@@ -7,7 +7,7 @@ namespace ModalityInference.ComparisonDeclaredAnchors
 
 open ComparisonPartialPropagation ComparisonPartialPropagation.Fuel
 
-theorem checkPair_settles (p : SchemePreparation.Prepared) (shapes : ComparisonShapeSolver.Solved)
+theorem checkPair_settles (p : SchemePreparation.Prepared) (shapes : ComparisonShapeSolver.Result)
     (edges : List (ModExpr × ModExpr)) (graph : Graph) (pair : CompareTy × CompareTy) :
     Settles (fun fuel => checkPair fuel p shapes edges graph pair) := by
   unfold checkPair
@@ -15,7 +15,7 @@ theorem checkPair_settles (p : SchemePreparation.Prepared) (shapes : ComparisonS
   intro candidate
   cases candidate <;> exact Settles.pure _
 
-theorem checkPairs_settles (p : SchemePreparation.Prepared) (shapes : ComparisonShapeSolver.Solved)
+theorem checkPairs_settles (p : SchemePreparation.Prepared) (shapes : ComparisonShapeSolver.Result)
     (edges : List (ModExpr × ModExpr)) (graph : Graph) (pairs : List (CompareTy × CompareTy)) :
     Settles (fun fuel => checkPairs fuel p shapes edges graph pairs) := by
   induction pairs with
@@ -34,22 +34,19 @@ theorem attempt_settles (p : SchemePreparation.Prepared) :
   split
   · exact Settles.pure _
   · apply Settles.bind ⟨shapePrepare_stable _, ComparisonShapeSolver.prepare_eventually _⟩
-    intro solved
-    cases solved with
-    | infeasibleAssumptions => exact Settles.pure _
-    | solved shapes =>
-        dsimp only
-        split
-        · exact Settles.pure _
-        · apply Settles.bind ⟨modeEdges_fuel_stable _ _, modeEdges_fuel_terminates _ _⟩
-          intro edges
-          apply Settles.bind (backend_settles _)
-          intro report
-          split
-          · exact Settles.pure _
-          · apply Settles.bind (checkPairs_settles _ _ _ _ _)
-            intro ok
-            cases ok <;> exact Settles.pure _
+    intro shapes
+    dsimp only
+    split
+    · exact Settles.pure _
+    · apply Settles.bind ⟨modeEdges_fuel_stable _ _, modeEdges_fuel_terminates _ _⟩
+      intro edges
+      apply Settles.bind (backend_settles _)
+      intro report
+      split
+      · exact Settles.pure _
+      · apply Settles.bind (checkPairs_settles _ _ _ _ _)
+        intro ok
+        cases ok <;> exact Settles.pure _
 
 theorem run_settles (source target : Scheme) :
     Settles (fun fuel => run fuel source target) := by

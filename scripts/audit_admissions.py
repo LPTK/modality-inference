@@ -74,6 +74,18 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.CompareTy.wellShaped_of_no_models',
+    'ModalityInference.ComparisonShapeSolver.prepare_infeasible_wellShaped',
+    'ModalityInference.ComparisonDeclaredAnchors.shapeCheck_sound',
+    'ModalityInference.ComparisonCyclicDeclaredWitness.algebra_subsumes',
+    'ModalityInference.ComparisonCyclicDeclaredWitness.no_finite_shape_model',
+    'ModalityInference.ComparisonControls.Generated.lattice_normal',
+    'ModalityInference.ComparisonControls.Basis.types_generated',
+    'ModalityInference.ComparisonStructuralLattice.Kind.lattice',
+    'ModalityInference.ComparisonStructuralBasis.normal_of_supported',
+    'ModalityInference.ComparisonWitnessRestriction.prepared_supported_under',
+    'ModalityInference.ComparisonStructuralBasis.prepared_normal_forms',
+    'ModalityInference.ComparisonStructuralBasis.algebra_normal_forms',
     'RightExpr.updateAccum_eq',
     'RightExpr.updateLinear_eq',
     'RightExpr.iterateLinear_eq',
@@ -3441,6 +3453,8 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SymbolicPrincipality\n'
                     'import ModalityInference.Proofs.ComparisonDeclaredAnchors\n'
                     'import ModalityInference.Proofs.SubsumptionCost\n'
+                    'import ModalityInference.Proofs.ComparisonCyclicDeclaredWitness\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralPrepared\n'
                     'import ModalityInference.Proofs.GuardedSourceTyping\n'
                     'import ModalityInference.Proofs.GuardedSourceSoundness\n'
                     'import ModalityInference.Proofs.GuardedContexts\n'

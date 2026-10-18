@@ -2,6 +2,7 @@ import ModalityInference.ComparisonDeclaredAnchors
 import ModalityInference.Proofs.ComparisonPartialPropagation
 import ModalityInference.Proofs.ComparisonDefinedInstances
 import ModalityInference.Proofs.ComparisonCheckerSolution
+import ModalityInference.Proofs.ComparisonInfeasibleShapes
 
 /-! Checked whole-type anchor propagation preserves the original declared
 assumptions and all source instance guards. -/
@@ -9,10 +10,18 @@ namespace ModalityInference.ComparisonDeclaredAnchors
 
 open ComparisonPartialPropagation
 
+theorem shapeCheck_sound {fuel : Nat} {p : SchemePreparation.Prepared}
+    {shapes : ComparisonShapeSolver.Result} {a : CompareTy}
+    (hs : ComparisonShapeSolver.prepare fuel p = .success shapes)
+    (ha : shapeCheck shapes a = true) : a.WellShaped p.assumptions := by
+  cases shapes with
+  | infeasibleAssumptions => exact ComparisonShapeSolver.prepare_infeasible_wellShaped hs a
+  | solved shapes => exact wellShaped_prepared hs ha
+
 theorem checkPair_sound {fuel : Nat} {p : SchemePreparation.Prepared}
-    {shapes : ComparisonShapeSolver.Solved} {edges : List (ModExpr × ModExpr)}
+    {shapes : ComparisonShapeSolver.Result} {edges : List (ModExpr × ModExpr)}
     {graph : Graph} {pair : CompareTy × CompareTy}
-    (hs : ComparisonShapeSolver.prepare fuel p = .success (.solved shapes))
+    (hs : ComparisonShapeSolver.prepare fuel p = .success shapes)
     (hm : ∀ a b, (a, b) ∈ edges → Submode p.assumptions a b)
     (h : checkPair fuel p shapes edges graph pair = .success true) :
     AlgebraSubtype p.assumptions pair.1 pair.2 := by
@@ -24,14 +33,14 @@ theorem checkPair_sound {fuel : Nat} {p : SchemePreparation.Prepared}
       | none => rw [hc] at h; cases h
       | some c =>
           simp only [hc, RunResult.success.injEq, Bool.and_eq_true, beq_iff_eq, and_assoc] at h
-          have hh := Certificate.check_sound (fun t ht => wellShaped_prepared hs ht)
+          have hh := Certificate.check_sound (fun t ht => shapeCheck_sound hs ht)
             (fun a b hab => hm a b (by simpa only [List.contains_iff] using hab)) h.2.2
           simpa only [h.1, h.2.1] using hh
 
 theorem checkPairs_sound {fuel : Nat} {p : SchemePreparation.Prepared}
-    {shapes : ComparisonShapeSolver.Solved} {edges : List (ModExpr × ModExpr)}
+    {shapes : ComparisonShapeSolver.Result} {edges : List (ModExpr × ModExpr)}
     {graph : Graph} {pairs : List (CompareTy × CompareTy)}
-    (hs : ComparisonShapeSolver.prepare fuel p = .success (.solved shapes))
+    (hs : ComparisonShapeSolver.prepare fuel p = .success shapes)
     (hm : ∀ a b, (a, b) ∈ edges → Submode p.assumptions a b)
     (h : checkPairs fuel p shapes edges graph pairs = .success true) :
     ∀ pair ∈ pairs, AlgebraSubtype p.assumptions pair.1 pair.2 := by
@@ -58,9 +67,9 @@ theorem constraint_sound {Δ : Bounds} {c : CompareConstraint}
 
 structure AttemptSpec (fuel : Nat) (p : SchemePreparation.Prepared) (r : Result) : Prop where
   modeRange : p.firstMode = p.nextMode
-  shapes : ComparisonShapeSolver.prepare fuel p = .success (.solved r.shapes)
+  shapes : ComparisonShapeSolver.prepare fuel p = .success r.shapes
   action_eq : r.action = action p
-  imageShapes : ∀ entry ∈ r.action.types, wellShaped r.shapes.fixedShapes entry.2 = true
+  imageShapes : ∀ entry ∈ r.action.types, shapeCheck r.shapes entry.2 = true
   backend : ConcreteBackend.entails fuel p.assumptions
     (r.scalarEdges.map (fun (a, b) => Constraint.mode a b) ++
       (obligations p r.action).flatMap guards) = .success r.backend
@@ -77,45 +86,42 @@ theorem attempt_spec {fuel : Nat} {p : SchemePreparation.Prepared} {r : Result}
   next hmode =>
     cases hs : ComparisonShapeSolver.prepare fuel p with
     | rejected reason | exhausted => rw [hs] at h; cases h
-    | success solved =>
-        cases solved with
-        | infeasibleAssumptions => rw [hs] at h; cases h
-        | solved shapes =>
-            simp only [hs] at h
-            split at h
-            · cases h
-            next himages =>
-              cases he : modeEdges fuel p.assumptions (modeLabels (vertices p (action p))) with
-              | rejected reason | exhausted => rw [he] at h; cases h
-              | success edges =>
-                  simp only [he] at h
-                  cases hb : ConcreteBackend.entails fuel p.assumptions
-                      (edges.map (fun (a, b) => Constraint.mode a b) ++
-                        (obligations p (action p)).flatMap guards) with
-                  | rejected reason | exhausted => rw [hb] at h; cases h
-                  | success report =>
-                      simp only [hb] at h
-                      split at h
-                      · cases h
-                      next hvalid =>
-                        cases hp : checkPairs fuel p shapes edges
-                            (initialGraph p.assumptions (vertices p (action p)))
-                            ((obligations p (action p)).flatMap comparisons) with
-                        | rejected reason | exhausted => rw [hp] at h; cases h
-                        | success ok =>
-                            cases ok
-                            · rw [hp] at h; cases h
-                            · simp only [hp, Bool.not_true, Bool.false_eq_true, ↓reduceIte,
-                                RunResult.success.injEq, Option.some.injEq] at h
-                              subst r
-                              exact
-                                { modeRange := by simpa using hmode
-                                  shapes := hs
-                                  action_eq := rfl
-                                  imageShapes := by simpa using himages
-                                  backend := hb
-                                  valid := by simpa using hvalid
-                                  checked := hp }
+    | success shapes =>
+        simp only [hs] at h
+        split at h
+        · cases h
+        next himages =>
+          cases he : modeEdges fuel p.assumptions (modeLabels (vertices p (action p))) with
+          | rejected reason | exhausted => rw [he] at h; cases h
+          | success edges =>
+              simp only [he] at h
+              cases hb : ConcreteBackend.entails fuel p.assumptions
+                  (edges.map (fun (a, b) => Constraint.mode a b) ++
+                    (obligations p (action p)).flatMap guards) with
+              | rejected reason | exhausted => rw [hb] at h; cases h
+              | success report =>
+                  simp only [hb] at h
+                  split at h
+                  · cases h
+                  next hvalid =>
+                    cases hp : checkPairs fuel p shapes edges
+                        (initialGraph p.assumptions (vertices p (action p)))
+                        ((obligations p (action p)).flatMap comparisons) with
+                    | rejected reason | exhausted => rw [hp] at h; cases h
+                    | success ok =>
+                        cases ok
+                        · rw [hp] at h; cases h
+                        · simp only [hp, Bool.not_true, Bool.false_eq_true, ↓reduceIte,
+                            RunResult.success.injEq, Option.some.injEq] at h
+                          subst r
+                          exact
+                            { modeRange := by simpa using hmode
+                              shapes := hs
+                              action_eq := rfl
+                              imageShapes := by simpa using himages
+                              backend := hb
+                              valid := by simpa using hvalid
+                              checked := hp }
 
 theorem attempt_sound {fuel : Nat} {p : SchemePreparation.Prepared} {r : Result}
     (h : attempt fuel p = .success (some r)) :
@@ -136,7 +142,7 @@ theorem attempt_sound {fuel : Nat} {p : SchemePreparation.Prepared} {r : Result}
       exact hp pair (List.mem_flatMap.mpr ⟨c, hc, hpair⟩)
     · intro η hη g hg
       exact hmodels η hη g (List.mem_append_right _ (List.mem_flatMap.mpr ⟨c, hc, hg⟩))
-  exact ⟨fun entry he => wellShaped_prepared hs.shapes (hs.imageShapes entry he),
+  exact ⟨fun entry he => shapeCheck_sound hs.shapes (hs.imageShapes entry he),
     fun c hc' => hc c (List.mem_append_left _ hc'),
     (hc (.sub (r.action.ty p.sourceType) (.ofTy p.targetType))
       (List.mem_append_right _ (List.mem_singleton_self _))).1⟩

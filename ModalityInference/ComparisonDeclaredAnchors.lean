@@ -49,16 +49,20 @@ def vertices (p : SchemePreparation.Prepared) (σ : CompareSubstitution) : List 
     (fun (a, b) => expose a .epsilon ++ expose b .epsilon) ++
     (anchors p).flatMap (fun t => expose (.ofTy t) .epsilon)).dedup
 
+def shapeCheck : ComparisonShapeSolver.Result → CompareTy → Bool
+  | .infeasibleAssumptions, _ => true
+  | .solved shapes, a => wellShaped shapes.fixedShapes a
+
 def checkPair (fuel : Nat) (p : SchemePreparation.Prepared)
-    (shapes : ComparisonShapeSolver.Solved) (edges : List (ModExpr × ModExpr))
+    (shapes : ComparisonShapeSolver.Result) (edges : List (ModExpr × ModExpr))
     (graph : Graph) (pair : CompareTy × CompareTy) : RunResult Bool := do
   let mode := fun a b => edges.contains (a, b)
   let some c ← saturate mode pair.1 pair.2 fuel graph | return false
   return c.left == pair.1 && c.right == pair.2 &&
-    c.check (wellShaped shapes.fixedShapes) mode p.assumptions
+    c.check (shapeCheck shapes) mode p.assumptions
 
 def checkPairs (fuel : Nat) (p : SchemePreparation.Prepared)
-    (shapes : ComparisonShapeSolver.Solved) (edges : List (ModExpr × ModExpr))
+    (shapes : ComparisonShapeSolver.Result) (edges : List (ModExpr × ModExpr))
     (graph : Graph) : List (CompareTy × CompareTy) → RunResult Bool
   | [] => .success true
   | pair :: rest => do
@@ -66,7 +70,7 @@ def checkPairs (fuel : Nat) (p : SchemePreparation.Prepared)
       checkPairs fuel p shapes edges graph rest
 
 structure Result where
-  shapes : ComparisonShapeSolver.Solved
+  shapes : ComparisonShapeSolver.Result
   action : CompareSubstitution
   scalarEdges : List (ModExpr × ModExpr)
   backend : ConcreteBackend.Report
@@ -77,10 +81,9 @@ of every fixed lower endpoint, or the meet of all fixed upper endpoints when
 there is no lower endpoint. Source bounds and the whole body certify it. -/
 def attempt (fuel : Nat) (p : SchemePreparation.Prepared) : RunResult (Option Result) := do
   if p.firstMode != p.nextMode then return none
-  let solved ← ComparisonShapeSolver.prepare fuel p
-  let .solved shapes := solved | return none
+  let shapes ← ComparisonShapeSolver.prepare fuel p
   let σ := action p
-  if !σ.types.all (fun entry => wellShaped shapes.fixedShapes entry.2) then return none
+  if !σ.types.all (fun entry => shapeCheck shapes entry.2) then return none
   let nodes := vertices p σ
   let edges ← modeEdges fuel p.assumptions (modeLabels nodes)
   let goals := obligations p σ
