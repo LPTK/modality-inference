@@ -418,5 +418,9 @@ import ModalityInference.Proofs.ComparisonSelectedBranchWitness
 import ModalityInference.Proofs.ComparisonStructuralSharedWorld
 import ModalityInference.Proofs.ComparisonDefinedRoot
 import ModalityInference.Proofs.ComparisonObserverActions
+import ModalityInference.Proofs.ComparisonSelectedPlan
+import ModalityInference.Proofs.ComparisonStructuralNode
+import ModalityInference.Proofs.ComparisonObserverExtraction
+import ModalityInference.Proofs.ComparisonSelectedReification
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
