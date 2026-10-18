@@ -1,5 +1,6 @@
 import ModalityInference.ComparisonChecker
 import ModalityInference.ComparisonJointChecker
+import ModalityInference.ComparisonDeclaredAnchors
 import ModalityInference.SchemeInstance
 
 /-! Scheme comparison uses fresh shape templates, symbolic lattice propagation,
@@ -10,7 +11,7 @@ namespace ModalityInference
 
 abbrev SubsumptionEvidence := ComparisonChecker.Evidence
 
-/-- The joint solver returns an action in the original quantified namespace.
+/-- Certified phases return an action in the original quantified namespace.
 Its obligations retain every source bound and instance-definedness guard. -/
 def jointSubsumptionEvidence (source target : Scheme) (action : CompareSubstitution) :
     SubsumptionEvidence :=
@@ -23,11 +24,18 @@ def jointSubsumptionEvidence (source target : Scheme) (action : CompareSubstitut
     query := .const true
     backend := ⟨[], [], true⟩ }
 
+/-- Whole declared edges remain available after an ordinary structural solve
+rejects. Completed positive results and exhaustion keep their original meaning. -/
+def comparisonFallback (fuel : Nat) (source target : Scheme) : RunResult CompareSubstitution :=
+  match ComparisonJointChecker.run fuel source target with
+  | .rejected _ => ComparisonDeclaredAnchors.run fuel source target
+  | result => result
+
 def checkSubsumption (fuel : Nat) (inferred declared : Scheme) :
     RunResult SubsumptionEvidence :=
   match ComparisonChecker.run fuel inferred.requireDefinedInstances declared with
   | .rejected _ => do
-      let action ← ComparisonJointChecker.run fuel inferred declared
+      let action ← comparisonFallback fuel inferred declared
       return jointSubsumptionEvidence inferred declared action
   | result => result
 

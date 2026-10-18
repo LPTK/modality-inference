@@ -399,5 +399,10 @@ import ModalityInference.Proofs.ComparisonSliceCNFCore
 import ModalityInference.Proofs.ComparisonSliceCNF
 import ModalityInference.Proofs.ComparisonSliceCNFSupport
 import ModalityInference.Proofs.ComparisonJointFallbackWitness
+import ModalityInference.Proofs.RewriteEntailment
+import ModalityInference.Proofs.SolverRewriting
+import ModalityInference.Proofs.SymbolicPrincipality
+import ModalityInference.Proofs.ComparisonDeclaredAnchors
+import ModalityInference.Proofs.SubsumptionCost
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

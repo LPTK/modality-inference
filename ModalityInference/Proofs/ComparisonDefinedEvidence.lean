@@ -1,6 +1,7 @@
 import ModalityInference.Proofs.ComparisonSubsumption
 import ModalityInference.Proofs.ComparisonPropagationSoundness
 import ModalityInference.Proofs.ComparisonJointCheckerSoundness
+import ModalityInference.Proofs.ComparisonDeclaredAnchors
 import ModalityInference.Proofs.ComparisonDefinedInstances
 
 /-! The actual substitution returned by successful public comparison has defined
@@ -35,7 +36,21 @@ private theorem certificate_result {fuel : Nat} {source target : Scheme}
     simp only [SchemePreparation.prepare, Scheme.requireDefinedInstances_subsumptionIndices]
   exact ⟨⟨hi, ha ▸ hw, ha ▸ hd⟩, ha ▸ hs.1, ha ▸ hb.1, by simpa only [ha, ht] using hs.2.2⟩
 
-/-- Both public comparison paths certify their actual returned substitution,
+private theorem fallback_result {fuel : Nat} {source target : Scheme}
+    {action : CompareSubstitution}
+    (h : comparisonFallback fuel source target = .success action) :
+    let p := SchemePreparation.prepare [] source target
+    CompareInstantiatesUnder p.assumptions source action ∧
+      action.WellShaped p.assumptions ∧
+      AlgebraEntailsAll p.assumptions (action.bounds source.bounds) ∧
+      AlgebraSubtype p.assumptions (action.ty source.body) (.ofTy p.targetType) := by
+  cases hj : ComparisonJointChecker.run fuel source target <;>
+    simp only [comparisonFallback, hj] at h
+  case success result => cases h; exact ComparisonJointChecker.run_result hj
+  case rejected reason => exact ComparisonDeclaredAnchors.run_result h
+  case exhausted => contradiction
+
+/-- Every public comparison phase certifies its actual returned substitution,
 including original source bounds and every instance-definedness obligation. -/
 theorem checkSubsumption_evidence_result {fuel : Nat} {source target : Scheme}
     {evidence : SubsumptionEvidence}
@@ -47,7 +62,7 @@ theorem checkSubsumption_evidence_result {fuel : Nat} {source target : Scheme}
       AlgebraSubtype p.assumptions (evidence.substitution.ty source.body) (.ofTy p.targetType) := by
   rcases checkSubsumption_success_cases h with hc | ⟨action, hj, rfl⟩
   · exact certificate_result hc
-  · exact ComparisonJointChecker.run_result hj
+  · exact fallback_result hj
 
 theorem checkSubsumption_evidence_instantiatesUnder {fuel : Nat} {source target : Scheme}
     {evidence : SubsumptionEvidence}

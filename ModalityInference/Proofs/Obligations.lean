@@ -7,12 +7,12 @@ import ModalityInference.ComparisonAlgebra
 These definitions preserve the stated contracts and their side conditions.
 A theorem proving a contract establishes the named proposition itself.
 
-Principality remains required for the paper's completeness-and-principality claim;
-successful inference on every typable term alone does not establish it. The symbolic
-factorization statement below is one proposed route to that claim. Solver
-correspondence is a possible supporting lemma. Scheme-checker soundness is proved
-in `ComparisonSoundness`; checker completeness remains a separate verification
-task, and closed-term substitution is optional metatheory.
+Ground principality and completeness are proved for solving and closed inference.
+The symbolic factorization statement below expresses the corresponding stronger
+property under residual ambient bounds. `WorklistCorrespondence` proves the exact
+solver correspondence contract. `ComparisonSoundness` and
+`ComparisonSubsumptionCompleteness` prove the scheme-checker contracts;
+closed-term substitution is optional syntactic metatheory.
 -/
 namespace ModalityInference.Obligations
 
@@ -26,9 +26,8 @@ def ClosedTermSubstitution : Prop :=
         EntailsAll Δ (θ.bounds s.bounds) → RawTyping Δ [] (σ i) (θ.ty s.body)) →
       RawTyping Δ [] (t.subst σ) a
 
-/-- Possible bridge to abstract solution preservation, formerly
-`Deferred.runSolver_correspondence`. Complete substitution simulation remains
-unproved; cache and transport prerequisites are established separately. -/
+/-- Every successful initialized worklist run is an abstract rewriting
+derivation, including substitution, cached obligations, and definedness guards. -/
 def RunSolverCorrespondence : Prop :=
   ∀ {fuel : Nat} {s t : SolverState},
     (∀ v ∈ (s.pending ++ s.bounds).typeVariables, v.index < s.nextType) →
@@ -38,12 +37,10 @@ def RunSolverCorrespondence : Prop :=
     RewriteStar ⟨s.pending, s.bounds, s.substitution⟩
       ⟨t.pending, t.bounds, t.substitution⟩
 
-/-- Unproved symbolic principality contract, formerly
-`Deferred.principal_factorization`. Every original solution must factor through
+/-- Symbolic principality: every original solution factors through
 the returned substitution and residual bounds, modulo mutual subtyping/submoding.
-The residual ambient grammar is essential: `PrincipalAmbient` refutes the former
-unrestricted statement. Proving this contract, or a suitable ground replacement,
-remains part of establishing the paper's principality claim. -/
+The residual ambient grammar supplies structural inversion; images remain
+symbolic and are defined under those same ambient bounds. -/
 def PrincipalFactorization : Prop :=
   ∀ {fuel : Nat} {cs : Bounds} {result : Solved} {Δ : Bounds} {θ : Substitution},
     Residual Δ → solve fuel cs = .success result → Solution cs Δ θ → θ.WellFormedUnder Δ →

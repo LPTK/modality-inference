@@ -3,6 +3,12 @@ import ModalityInference.Proofs.RewriteScope
 
 namespace ModalityInference.Deferred
 
+private theorem ground_typeGuards {ρ c} (h : GroundSatisfies ρ c) :
+    GroundModels ρ c.typeGuards := by
+  intro d hd
+  apply Constraint.assumptions_ground h d
+  cases c <;> simp_all [Constraint.typeGuards, Constraint.assumptions]
+
 theorem Rewrites.configModels {s t scope} (h : Rewrites s t)
     (ht : scope.types ⊆ s.typeVars) (hm : scope.modes ⊆ s.modVars) (ρ) :
     ConfigModels scope s ρ ↔ ConfigModels scope t ρ := by
@@ -44,17 +50,27 @@ theorem Rewrites.configModels {s t scope} (h : Rewrites s t)
     simpa only [RewriteConfig.constraints, GroundModels, List.mem_append, or_imp, forall_and] using
       and_congr (and_congr (hr.groundModels (ρ := η))
         (Iff.rfl (a := GroundModels η s.pending))) (Iff.rfl (a := GroundModels η s.bounds))
-  case record c s hc =>
+  case record c s hr hc =>
     apply ConfigModels.congr
     · rfl
     intro η
-    simp [RewriteConfig.constraints, GroundModels, List.mem_append, or_imp, forall_and,
-      and_left_comm]
+    change GroundModels η (c :: s.constraints) ↔
+      GroundModels η ((c.typeGuards ++ s.pending) ++ c :: s.bounds)
+    simp only [GroundModels, RewriteConfig.constraints, List.mem_cons, List.mem_append,
+      or_imp, forall_and, forall_eq]
+    exact ⟨fun h => ⟨⟨ground_typeGuards h.1, h.2.1⟩, h.1, h.2.2⟩,
+      fun h => ⟨h.2.1, h.1.2, h.2.2⟩⟩
   case discharge c hc =>
     exact ConfigModels.redundant fun η hη => hc.groundSatisfies
       (fun d hd => hη d (List.mem_append_right _ hd))
-  case hyp c hc =>
-    exact ConfigModels.redundant fun η hη => hη c (List.mem_append_right _ hc)
+  case hyp c s hr hc =>
+    apply ConfigModels.congr
+    · rfl
+    intro η
+    simp only [GroundModels, RewriteConfig.constraints, List.mem_cons, List.mem_append,
+      or_imp, forall_and, forall_eq]
+    exact ⟨fun h => ⟨⟨ground_typeGuards h.1.1, h.1.2⟩, h.2⟩,
+      fun h => ⟨⟨h.2 c hc, h.1.2⟩, h.2⟩⟩
   case propagate a b c hab hbc hf =>
     apply Iff.symm
     apply ConfigModels.redundant

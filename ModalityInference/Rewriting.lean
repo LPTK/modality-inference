@@ -34,6 +34,19 @@ def FreshFor (old : Constraint) (fresh : Ty) (s : RewriteConfig) : Prop :=
   (∀ v ∈ fresh.typeVars, v ∉ old.typeVars ∪ s.typeVars) ∧
   (∀ v ∈ fresh.modVars, v ∉ old.modVars ∪ s.modVars)
 
+/-- Residual form includes well-formedness and projected modality obligations. -/
+def Residual : Bounds → Prop := List.Forall fun c => match c with
+  | .sub a b => ∃ x y m n, a.outer = (.var x, m) ∧ b.outer = (.var y, n)
+  | .mode _ _ | .defined _ => True
+  | _ => False
+
+/-- Recording a type bound retains the definedness obligations of its operands.
+Modality inequalities and explicit guards already assert their own definedness. -/
+def Constraint.typeGuards : Constraint → Bounds
+  | .sub a b | .equiv a b => a.wellFormedBounds ++ b.wellFormedBounds
+  | .equal _ a => a.wellFormedBounds
+  | _ => []
+
 inductive Rewrites : RewriteConfig → RewriteConfig → Prop where
   | equivalence {cs ds : Bounds} {s : RewriteConfig} :
       (∀ Δ, EntailsAll Δ cs ↔ EntailsAll Δ ds) →
@@ -42,9 +55,12 @@ inductive Rewrites : RewriteConfig → RewriteConfig → Prop where
       Rewrites {s with pending := c :: s.pending} s
   | reduce {cs ds : Bounds} {s : RewriteConfig} : ConstraintReduction cs ds →
       Rewrites {s with pending := cs ++ s.pending} {s with pending := ds ++ s.pending}
-  | record {c : Constraint} {s : RewriteConfig} : c ∉ s.bounds →
-      Rewrites {s with pending := c :: s.pending} {s with bounds := c :: s.bounds}
-  | hyp {c : Constraint} {s : RewriteConfig} : c ∈ s.bounds → Rewrites {s with pending := c :: s.pending} s
+  | record {c : Constraint} {s : RewriteConfig} : Residual [c] → c ∉ s.bounds →
+      Rewrites {s with pending := c :: s.pending}
+        {s with pending := c.typeGuards ++ s.pending, bounds := c :: s.bounds}
+  | hyp {c : Constraint} {s : RewriteConfig} : Residual [c] → c ∈ s.bounds →
+      Rewrites {s with pending := c :: s.pending}
+        {s with pending := c.typeGuards ++ s.pending}
   | expandLeft {v t shape m n} {s : RewriteConfig} : Shape t shape →
       FreshFor (.sub (.modal (.var (.flex v)) m) (.modal t n)) shape s →
       Rewrites {s with pending := .sub (.modal (.var (.flex v)) m) (.modal t n) :: s.pending}
@@ -68,11 +84,5 @@ inductive Rewrites : RewriteConfig → RewriteConfig → Prop where
 inductive RewriteStar : RewriteConfig → RewriteConfig → Prop where
   | refl {s} : RewriteStar s s
   | step {s t u} : Rewrites s t → RewriteStar t u → RewriteStar s u
-
-/-- Residual form includes well-formedness and projected modality obligations. -/
-def Residual : Bounds → Prop := List.Forall fun c => match c with
-  | .sub a b => ∃ x y m n, a.outer = (.var x, m) ∧ b.outer = (.var y, n)
-  | .mode _ _ | .defined _ => True
-  | _ => False
 
 end ModalityInference

@@ -47,6 +47,7 @@ theorem target_not_residual : ¬ Residual target.bounds := by
   cases ha
 
 #guard match checkSubsumption 20000 source target with
- | .rejected _ => true
+ | .success result => result.substitution.types.map Prod.fst == [0] &&
+     result.substitution.modes.isEmpty
  | _ => false
 end ModalityInference.ComparisonDefinedStructuralBoundary

@@ -1,5 +1,6 @@
 import ModalityInference.SchemeSubsumption
 import ModalityInference.Proofs.ComparisonJointCheckerTermination
+import ModalityInference.Proofs.ComparisonDeclaredAnchorsTermination
 
 /-! Fuel stability and eventual completion of the public scheme comparison
 interface, including its shared type and modality fallback. -/
@@ -7,14 +8,22 @@ namespace ModalityInference
 
 open ComparisonPartialPropagation.Fuel
 
+theorem comparisonFallback_settles (source target : Scheme) :
+    Settles (fun fuel => comparisonFallback fuel source target) := by
+  refine Settles.congr (Settles.recover (ComparisonJointChecker.run_settles source target)
+    (fun _ => ComparisonDeclaredAnchors.run_settles source target)) ?_
+  intro fuel
+  unfold comparisonFallback
+  cases ComparisonJointChecker.run fuel source target <;> rfl
+
 theorem checkSubsumption_settles (source target : Scheme) :
     Settles (fun fuel => checkSubsumption fuel source target) := by
   refine Settles.congr (Settles.recover (g := fun fuel _ => do
-    let action ← ComparisonJointChecker.run fuel source target
+    let action ← comparisonFallback fuel source target
     pure (jointSubsumptionEvidence source target action))
     (ComparisonChecker.run_settles source.requireDefinedInstances target) ?_) ?_
   · intro _
-    exact Settles.bind (ComparisonJointChecker.run_settles source target)
+    exact Settles.bind (comparisonFallback_settles source target)
       (fun action => Settles.pure (jointSubsumptionEvidence source target action))
   · intro fuel
     unfold checkSubsumption

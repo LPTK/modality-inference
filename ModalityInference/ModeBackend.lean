@@ -1,5 +1,5 @@
 import ModalityInference.Core.Syntax
-import ModalityInference.Subsumption
+import ModalityInference.SubsumptionLinear
 import Mathlib.Order.BooleanAlgebra.Basic
 
 /-! Reduction of the concrete three-axis algebra to the existing verified solver.

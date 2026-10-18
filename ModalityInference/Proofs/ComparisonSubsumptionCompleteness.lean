@@ -21,7 +21,8 @@ theorem checkSubsumption_complete {source target : Scheme}
   | exhausted => exact False.elim (hr rfl)
   | rejected reason =>
     obtain ⟨action, ha⟩ := hm fuel ((Nat.le_max_right n m).trans hf)
-    exact ⟨jointSubsumptionEvidence source target action, by simp [ha, bind, pure, RunResult.bind]⟩
+    exact ⟨jointSubsumptionEvidence source target action, by
+      simp [comparisonFallback, ha, bind, pure, RunResult.bind]⟩
 
 /-- The public implementation satisfies the unchanged scheme-comparison
 completeness obligation. -/

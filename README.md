@@ -107,6 +107,11 @@ controls supply positive basis representations for supported modality actions.
 assignment, reconstructs compatible finite type images, and restores the complete
 source obligations and body. The public interface preserves successful direct
 certificates and invokes this joint driver when they reject.
+If the joint driver rejects, `ComparisonDeclaredAnchors` constructs joins of
+fixed lower endpoints or meets of fixed upper endpoints and certifies every
+original obligation against whole declared edges. This accepts structured
+declared bounds without treating them as component inequalities. Its returned
+substitution has the same soundness, definedness, and fuel-stability guarantees.
 
 ## Constraint solving
 
@@ -116,6 +121,11 @@ forced type shapes with fresh variables, eliminates type equalities, and orients
 residual and closure transformations by variable order. It retains symbolic
 bounds and every required partial-expression definedness guard. Proved cache and
 substitution invariants justify duplicate discharge and updates to saved images.
+`runSolver_correspondence` proves that the actual worklist produces an abstract
+guarded-rewriting derivation. Every completed derivation entails its substituted
+input and has defined substitution images. Under residual ambient bounds,
+`principal_factorization` proves that every defined symbolic solution factors
+through the result, preserving any finite observed scope reserved before solving.
 
 `ModeConsistency.solve`, exported as `satisfiableModes`, then checks modality
 consistency by deterministic propagation:
@@ -151,6 +161,14 @@ variables by this concrete witness. The optional DPLL oracle is
 `searchSatisfiableModes`; normal `solve` and `infer` do not call it. The original
 generic solver in `Subsumption.lean` is unchanged and remains independently
 available through `import ModalityInference.Subsumption`.
+
+`SubsumptionLinear` supplies an equivalent synchronous implementation used by
+the compiled modality backend. Every antecedent reads the pass's input while
+conclusions accumulate with one scalar join per variable occurrence.
+`Equation.decideLinear_operation_bound` proves a bound of
+`(n + 1) * rightSize R + 6 * leftSize L + 1` primitive Heyting operations,
+including the final order test. Expression sizes include implication antecedents;
+the bound counts algebra operations, not valuation lookup or storage costs.
 
 ## Representation and semantic conditions
 
@@ -202,6 +220,9 @@ of aliased references as well as owned ones.
 | Every declaratively typable closed source term is accepted with sufficiently large fuel; every successful result covers all its valid ground result instances up to subtyping | `Proofs/InferenceCompleteness`, `Proofs/SourceInference` |
 | Solver output entails the original constraints after substitution and preserves acyclicity and definedness; flexible inputs have a ground model using the returned witness | `Proofs/SolverSoundness`, `Proofs/SolverImages`, `Proofs/ResidualModels` |
 | Initialized solving terminates on every input; on flexible inputs it eventually accepts every satisfiable input and factors every original ground solution through every successful result | `Proofs/SolverTermination`, `Proofs/SolverCompleteness` |
+| Actual worklist runs produce abstract rewriting derivations; completed derivations entail their input and preserve definedness | `Proofs/WorklistCorrespondence`, `Proofs/SolverRewriting`, `Proofs/RewriteEntailment` |
+| Every defined symbolic solution under residual ambient bounds factors through the returned solver result, including every reserved observed identifier | `Proofs/SymbolicPrincipality` |
+| The compiled synchronous modality decision worker equals the generic decision procedure and has a measured primitive-algebra operation bound | `SubsumptionLinear`, `Proofs/SubsumptionCost` |
 | Actual generation and rewriting preserve the direct Horn domain; both consistency paths are sound, complete, terminating, and preserve successful results at larger budgets | `Proofs/PolarizedConstraints`, `Proofs/HornPropagation`, `Proofs/CNFPropagation`, `Proofs/ModeConsistency` |
 | Symbolic Horn elimination has an exact accepted grammar, a uniform expression witness, an equivalent residual query, and no selected flexible atoms; supported modality images reify and assemble with the specified domain and definedness | `Proofs/SymbolicModes`, `Proofs/SymbolicSchemeModes` |
 | Scheme preparation preserves scope and provides fresh source and target ranges; a solution of its prepared goals reconstructs an instantiation with exactly the source quantifier domain | `Proofs/SchemePreparation`, `Proofs/SchemePreparedScope` |
@@ -209,8 +230,8 @@ of aliased references as well as owned ones.
 `SourceTyping.resource_semantic` retains the full interpreted open environment
 and every admissible polymorphic instance. `inference_source_semantic` connects
 the actual inferred term to that theorem under modeled residual bounds and an
-interpreted substituted context. Ground principality concerns ground solutions;
-it does not establish symbolic factorization under arbitrary residual assumptions.
+interpreted substituted context. Symbolic principality additionally covers
+solutions with defined images under residual ambient bounds.
 
 `import ModalityInference` provides definitions and executables.
 `import ModalityInference.Proofs` adds established proofs and the explicit
@@ -251,15 +272,12 @@ appearing only inside a bound remain covered. Non-residual declared bounds are
 outside this completeness theorem and remain separate work.
 See [TODO.md](../TODO.md) and [LEAN_PROOF_HANDOFF.md](../LEAN_PROOF_HANDOFF.md).
 
-`Obligations.RunSolverCorrespondence`, relating the complete structural worklist
-to the abstract rewrite relation, and `Obligations.PrincipalFactorization`, the
-stronger symbolic factorization theorem under residual ambient assumptions,
-remain unproved. Local rewriting preservation and the executable solver results
-above do not supply these missing statements. Optional closed-term syntactic
+`runSolver_correspondence` and `principal_factorization` establish the exact
+named contracts in `Obligations`. Optional closed-term syntactic
 substitution also remains an unproved contract; semantic soundness uses environments.
 
 The development does not prove an operation-count bound for the whole pipeline
-or that its complete schedule is the paper's schedule. Borrowing, references as
+outside its verified concrete modality phase. Borrowing, references as
 language constructs, concurrency, local let-polymorphism, a parser, and compiler
 integration are outside this core. Current proof tasks and interfaces are tracked
 in [TODO.md](../TODO.md) and [LEAN_PROOF_HANDOFF.md](../LEAN_PROOF_HANDOFF.md).

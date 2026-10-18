@@ -74,6 +74,25 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'RightExpr.updateAccum_eq',
+    'RightExpr.updateLinear_eq',
+    'RightExpr.iterateLinear_eq',
+    'RightExpr.hornSolveLinear_eq',
+    'Equation.decideLinear_correct',
+    'Equation.decide_eq_decideLinear',
+    'Equation.decideLinear_operation_bound',
+    'ModalityInference.principal_factorization',
+    'ModalityInference.solveFrom_symbolic_factorization',
+    'ModalityInference.RewriteStar.sound',
+    'ModalityInference.RewriteStar.substitution_wellFormed',
+    'ModalityInference.runSolver_correspondence',
+    'ModalityInference.solve_rewriteStar',
+    'ModalityInference.solveFrom_rewriteStar',
+    'ModalityInference.solve_rewriting_complete',
+    'ModalityInference.solveFrom_rewriting_complete',
+    'ModalityInference.ComparisonDeclaredAnchors.run_result',
+    'ModalityInference.ComparisonDeclaredAnchors.run_algebra_subsumesUnder',
+    'ModalityInference.ComparisonDeclaredAnchors.run_settles',
     'ModalityInference.ComparisonResolution.eliminate_correct',
     'ModalityInference.ComparisonResolution.eliminate_literal',
     'ModalityInference.ComparisonResolution.eliminate_atoms',
@@ -3417,6 +3436,11 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
     path = Path(directory) / 'Audit.lean'
     path.write_text((f'import {SEMANTIC_ROOT}\n' if args.semantic else
                     'import ModalityInference\nimport ModalityInference.Proofs.SourceInference\n'
+                    'import ModalityInference.Proofs.RewriteEntailment\n'
+                    'import ModalityInference.Proofs.SolverRewriting\n'
+                    'import ModalityInference.Proofs.SymbolicPrincipality\n'
+                    'import ModalityInference.Proofs.ComparisonDeclaredAnchors\n'
+                    'import ModalityInference.Proofs.SubsumptionCost\n'
                     'import ModalityInference.Proofs.GuardedSourceTyping\n'
                     'import ModalityInference.Proofs.GuardedSourceSoundness\n'
                     'import ModalityInference.Proofs.GuardedContexts\n'
