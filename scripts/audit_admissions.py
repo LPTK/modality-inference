@@ -74,6 +74,45 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonWorldModes.query_iff',
+    'ModalityInference.ComparisonWorldModes.separated_iff',
+    'ModalityInference.ComparisonWorldModes.witness_sound',
+    'ModalityInference.ComparisonWorldModes.witness_assembles',
+    'ModalityInference.ComparisonSignedWorlds.query_correct',
+    'ModalityInference.ComparisonSignedWorlds.query_selectors_iff',
+    'ModalityInference.ComparisonSignedPoints.abstract_valid',
+    'ModalityInference.ComparisonSignedStrategySynthesis.query_iff',
+    'ModalityInference.ComparisonSignedStrategySynthesis.modes_sound',
+    'ModalityInference.ComparisonSignedStrategySynthesis.modes_uniform',
+    'ModalityInference.ComparisonSignedStrategySynthesis.modes_assembles',
+    'ModalityInference.ComparisonSignedNominal.prepare_complete',
+    'ModalityInference.ComparisonSignedNominal.prepare_correct',
+    'ModalityInference.ComparisonSignedNominal.prepare_binary',
+    'ModalityInference.ComparisonSignedNominal.prepare_allowed',
+    'ModalityInference.ComparisonSignedNominal.guardDecode_value',
+    'ModalityInference.ComparisonSignedNominal.payload_value',
+    'ModalityInference.ComparisonSignedEdges.compile_complete',
+    'ModalityInference.ComparisonSignedEdges.compile_correct',
+    'ModalityInference.ComparisonSignedEdges.compile_valid_iff',
+    'ModalityInference.ComparisonSignedEdges.compile_depends',
+    'ModalityInference.ComparisonSignedEdges.compile_contrapose',
+    'ModalityInference.ComparisonSignedEdges.compile_feasible_iff',
+    'ModalityInference.ComparisonSignedEdges.prepare_complete',
+    'ModalityInference.ComparisonSignedEdges.prepare_valid_iff',
+    'ModalityInference.ComparisonSignedEdges.callValue_tuple',
+    'ModalityInference.ComparisonLayoutWorlds.routeCode_injective',
+    'ModalityInference.ComparisonLayoutWorlds.rawValue_apply',
+    'ModalityInference.ComparisonLayoutWorlds.interpret_strategy',
+    'ModalityInference.ComparisonLayoutWorlds.endpoint_selectors_iff',
+    'ModalityInference.ComparisonSignedSynthesis.Input.reconstruct_complete',
+    'ModalityInference.ComparisonSignedSynthesis.Input.reconstruct_spec',
+    'ModalityInference.ComparisonSignedSynthesis.Family.respects',
+    'ModalityInference.ComparisonSignedSynthesis.Family.consistent',
+    'ModalityInference.ComparisonSignedSynthesis.polynomial_family',
+    'ModalityInference.ComparisonSignedSynthesis.Input.graph_family',
+    'ModalityInference.ComparisonSignedSynthesis.Input.compiled_consistent_iff',
+    'ModalityInference.ComparisonSignedSynthesis.Input.reconstruct_value',
+    'ModalityInference.ComparisonSignedSynthesis.Input.compiled_imageValue',
     'ModalityInference.ComparisonSignedCanonical.assignment_canonical',
     'ModalityInference.ComparisonSignedCanonical.consistent_graph',
     'ModalityInference.ComparisonSignedCanonical.assignment_model',
@@ -3790,6 +3829,17 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonSignedEndpointAlignment\n'
                     'import ModalityInference.Proofs.ComparisonSignedPreparedEndpoints\n'
                     'import ModalityInference.Proofs.ComparisonSignedPolynomials\n'
+                    'import ModalityInference.Proofs.ComparisonWorldModes\n'
+                    'import ModalityInference.Proofs.ComparisonSignedWorlds\n'
+                    'import ModalityInference.Proofs.ComparisonSignedPoints\n'
+                    'import ModalityInference.Proofs.ComparisonSignedStrategySynthesis\n'
+                    'import ModalityInference.Proofs.ComparisonSignedNominal\n'
+                    'import ModalityInference.Proofs.ComparisonSignedEdgeProjection\n'
+                    'import ModalityInference.Proofs.ComparisonSignedEdges\n'
+                    'import ModalityInference.Proofs.ComparisonLayoutWorlds\n'
+                    'import ModalityInference.Proofs.ComparisonLayoutStrategy\n'
+                    'import ModalityInference.Proofs.ComparisonSignedSynthesis\n'
+                    'import ModalityInference.Proofs.ComparisonSignedFamily\n'
                     'import ModalityInference.Proofs.GuardedSourceTyping\n'
                     'import ModalityInference.Proofs.GuardedSourceSoundness\n'
                     'import ModalityInference.Proofs.GuardedContexts\n'

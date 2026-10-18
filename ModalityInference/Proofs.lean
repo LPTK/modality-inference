@@ -457,5 +457,16 @@ import ModalityInference.Proofs.ComparisonSignedCanonicalSupport
 import ModalityInference.Proofs.ComparisonSignedEndpointAlignment
 import ModalityInference.Proofs.ComparisonSignedPreparedEndpoints
 import ModalityInference.Proofs.ComparisonSignedPolynomials
+import ModalityInference.Proofs.ComparisonWorldModes
+import ModalityInference.Proofs.ComparisonSignedWorlds
+import ModalityInference.Proofs.ComparisonSignedPoints
+import ModalityInference.Proofs.ComparisonSignedStrategySynthesis
+import ModalityInference.Proofs.ComparisonSignedNominal
+import ModalityInference.Proofs.ComparisonSignedEdgeProjection
+import ModalityInference.Proofs.ComparisonSignedEdges
+import ModalityInference.Proofs.ComparisonLayoutWorlds
+import ModalityInference.Proofs.ComparisonLayoutStrategy
+import ModalityInference.Proofs.ComparisonSignedSynthesis
+import ModalityInference.Proofs.ComparisonSignedFamily
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
