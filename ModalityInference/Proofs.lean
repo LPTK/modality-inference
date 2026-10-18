@@ -422,5 +422,15 @@ import ModalityInference.Proofs.ComparisonSelectedPlan
 import ModalityInference.Proofs.ComparisonStructuralNode
 import ModalityInference.Proofs.ComparisonObserverExtraction
 import ModalityInference.Proofs.ComparisonSelectedReification
+import ModalityInference.Proofs.ComparisonInputAction
+import ModalityInference.Proofs.ComparisonSelectedAction
+import ModalityInference.Proofs.ComparisonSelectedActionComplete
+import ModalityInference.Proofs.ComparisonObserverProfiles
+import ModalityInference.Proofs.ComparisonObserverProfileExtension
+import ModalityInference.Proofs.ComparisonConstructorNormalization
+import ModalityInference.Proofs.ComparisonStructuralNormalization
+import ModalityInference.Proofs.ComparisonStructuralEndpoints
+import ModalityInference.Proofs.ComparisonStructuralLayout
+import ModalityInference.Proofs.ComparisonShapedObserverGluing
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

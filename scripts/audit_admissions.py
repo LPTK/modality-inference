@@ -74,6 +74,51 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonSelectedBases.inputAction_prepared',
+    'ModalityInference.ComparisonSelectedBases.inputAction_supported',
+    'ModalityInference.ComparisonSelectedBases.inputAction_modesIdempotent',
+    'ModalityInference.ComparisonSelectedBases.inputAction_key_scope',
+    'ModalityInference.ComparisonSelectedBases.reifyEntries_spec',
+    'ModalityInference.ComparisonSelectedBases.reifyEntries_complete',
+    'ModalityInference.ComparisonSelectedBases.reifyAction_spec',
+    'ModalityInference.ComparisonSelectedBases.reifyAction_replacement',
+    'ModalityInference.ComparisonSelectedBases.BranchPolynomials.reifyAction',
+    'ModalityInference.ComparisonSelectedBases.algebra_reifyAction',
+    'ModalityInference.ComparisonObserverProfiles.normal_generated',
+    'ModalityInference.ComparisonObserverProfiles.normal_eval',
+    'ModalityInference.ComparisonObserverProfiles.profile_supported',
+    'ModalityInference.ComparisonObserverProfiles.profile_restricted',
+    'ModalityInference.ComparisonObserverProfileExtension.childProfile_range',
+    'ModalityInference.ComparisonObserverProfileExtension.childProfile_action',
+    'ModalityInference.ComparisonObserverProfileExtension.finite_profile_extension',
+    'ModalityInference.ComparisonObserverProfileExtension.extracted_finite_profile_extension',
+    'ModalityInference.ComparisonConstructorNormalization.right_complete',
+    'ModalityInference.ComparisonConstructorNormalization.lift_complete',
+    'ModalityInference.ComparisonStructuralNormalization.run_complete',
+    'ModalityInference.ComparisonStructuralNormalization.run_correct',
+    'ModalityInference.ComparisonStructuralNormalization.run_monotone',
+    'ModalityInference.ComparisonStructuralEndpoints.normalizePair_correct',
+    'ModalityInference.ComparisonStructuralEndpoints.Normalized.subtype_iff',
+    'ModalityInference.ComparisonStructuralEndpoints.normalizeList_complete',
+    'ModalityInference.ComparisonStructuralEndpoints.prepared_run_complete',
+    'ModalityInference.ComparisonStructuralEndpoints.Normalized.selected_shape',
+    'ModalityInference.ComparisonStructuralLayout.query_realized',
+    'ModalityInference.ComparisonStructuralLayout.build_complete',
+    'ModalityInference.ComparisonStructuralLayout.Based.valid',
+    'ModalityInference.ComparisonStructuralLayout.run_complete',
+    'ModalityInference.ComparisonStructuralLayout.run_correct',
+    'ModalityInference.ComparisonStructuralLayout.run_atoms',
+    'ModalityInference.ComparisonStructuralLayout.run_realized',
+    'ModalityInference.ComparisonStructuralLayout.selected_run_complete',
+    'ModalityInference.ComparisonStructuralLayout.atom_namespaces',
+    'ModalityInference.ComparisonStructuralLayout.local_namespaces',
+    'ModalityInference.ComparisonStructuralLayout.shared_strategy_eval',
+    'ModalityInference.ComparisonShapedObserverGluing.resolved_of_normalizer',
+    'ModalityInference.ComparisonShapedObserverGluing.Coherent.pair_step',
+    'ModalityInference.ComparisonShapedObserverGluing.Coherent.fn_step',
+    'ModalityInference.ComparisonShapedObserverGluing.Data.trace_mono',
+    'ModalityInference.ComparisonShapedObserverGluing.Data.subtype_mono',
+    'ModalityInference.ComparisonShapedObserverGluing.Data.observer_value',
     'ModalityInference.ComparisonShapeSelectors.Layout.matches_decoded',
     'ModalityInference.ComparisonShapeSelectors.Layout.matches_encoded',
     'ModalityInference.ComparisonShapeSelectors.Layout.matchTheory_correct',
@@ -3595,6 +3640,16 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonStructuralNode\n'
                     'import ModalityInference.Proofs.ComparisonObserverExtraction\n'
                     'import ModalityInference.Proofs.ComparisonSelectedReification\n'
+                    'import ModalityInference.Proofs.ComparisonInputAction\n'
+                    'import ModalityInference.Proofs.ComparisonSelectedAction\n'
+                    'import ModalityInference.Proofs.ComparisonSelectedActionComplete\n'
+                    'import ModalityInference.Proofs.ComparisonObserverProfiles\n'
+                    'import ModalityInference.Proofs.ComparisonObserverProfileExtension\n'
+                    'import ModalityInference.Proofs.ComparisonConstructorNormalization\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralNormalization\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralEndpoints\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralLayout\n'
+                    'import ModalityInference.Proofs.ComparisonShapedObserverGluing\n'
                     'import ModalityInference.Proofs.GuardedSourceTyping\n'
                     'import ModalityInference.Proofs.GuardedSourceSoundness\n'
                     'import ModalityInference.Proofs.GuardedContexts\n'
