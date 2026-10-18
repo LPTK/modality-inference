@@ -74,6 +74,60 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonStructuralTheory.compiled_subtype_iff',
+    'ModalityInference.ComparisonStructuralTheory.prepared_compiled_subtype_iff',
+    'ModalityInference.ComparisonStructuralTheory.compile_declared_complete',
+    'ModalityInference.ComparisonObserverPortProfiles.pattern_iff',
+    'ModalityInference.ComparisonObserverPortProfiles.realize_exact',
+    'ModalityInference.ComparisonObserverPortProfiles.child_replacement',
+    'ModalityInference.ComparisonObserverRootCut.Admissible.realize',
+    'ModalityInference.ComparisonObserverRootCut.observer_iff_pattern',
+    'ModalityInference.ComparisonObserverRootCut.not_subtype_iff_cut',
+    'ModalityInference.ComparisonObserverRootCut.subtype_iff_cut',
+    'ModalityInference.ComparisonSignedEndpoints.observe_correct',
+    'ModalityInference.ComparisonSignedEndpoints.compile_correct',
+    'ModalityInference.ComparisonSignedEndpoints.compile_binary',
+    'ModalityInference.ComparisonSignedEndpoints.compile_shared',
+    'ModalityInference.ComparisonSignedEndpoints.compileGuards_correct',
+    'ModalityInference.ComparisonSignedEndpoints.compileGuards_complete',
+    'ModalityInference.ComparisonSignedEndpoints.compiled_correct',
+    'ModalityInference.ComparisonSignedEndpoints.compiled_binary',
+    'ModalityInference.ComparisonSignedEndpoints.compiled_allowed',
+    'ModalityInference.ComparisonSignedObservation.Endpoint.interpret_value',
+    'ModalityInference.ComparisonSignedObservation.compiled_observed',
+    'ModalityInference.ComparisonSignedObservation.polynomialImages_reads_of_bases',
+    'ModalityInference.ComparisonSignedObservation.compiled_basis_family',
+    'ModalityInference.ComparisonStructuralEndpoints.normalizePair_values',
+    'ModalityInference.ComparisonStructuralEndpoints.declared_boundsHold',
+    'ModalityInference.ComparisonStructuralEndpoints.run_boundsHold',
+    'ModalityInference.ComparisonStructuralEndpoints.prepared_run_boundsHold',
+    'ModalityInference.ComparisonStructuralWorld.nodeTheory_view',
+    'ModalityInference.ComparisonStructuralWorld.View.basis_value',
+    'ModalityInference.ComparisonStructuralWorld.sharedModes_equal',
+    'ModalityInference.ComparisonStructuralWorld.View.closed_range',
+    'ModalityInference.ComparisonStructuralWorld.nodeTheory_values',
+    'ModalityInference.ComparisonStructuralRealization.data_realizes',
+    'ModalityInference.ComparisonStructuralRealization.fork_left_coherent',
+    'ModalityInference.ComparisonStructuralRealization.fork_right_coherent',
+    'ModalityInference.ComparisonStructuralRealization.leaf_coherent',
+    'ModalityInference.ComparisonStructuralRealization.prepared_node_realizes',
+    'ModalityInference.ComparisonStructuralQuerySoundness.build_ready',
+    'ModalityInference.ComparisonStructuralQuerySoundness.Ready.query_realizes',
+    'ModalityInference.ComparisonStructuralQuerySoundness.run_realizes',
+    'ModalityInference.ComparisonStructuralQuerySoundness.selected_run_realizes',
+    'ModalityInference.ComparisonStructuralQuerySoundness.prepared_run_realizes',
+    'ModalityInference.ComparisonWorldClauses.independent_clauses',
+    'ModalityInference.ComparisonWorldClauses.shared_clause_separation',
+    'ModalityInference.ComparisonWorldClauses.selected_correct',
+    'ModalityInference.ComparisonWorldClauses.selectors_complete',
+    'ModalityInference.ComparisonWorldClauses.selectors_sound',
+    'ModalityInference.ComparisonWorldClauses.selectors_iff',
+    'ModalityInference.ComparisonSignedRelations.compose_correct',
+    'ModalityInference.ComparisonSignedRelations.depends_of_atoms',
+    'ModalityInference.ComparisonSignedRelations.saturate_eq_iterate',
+    'ModalityInference.ComparisonSignedRelations.reach_iff',
+    'ModalityInference.ComparisonSignedRelations.closure_correct',
+    'ModalityInference.ComparisonSignedRelations.closure_correct_of_atoms',
     'ModalityInference.ComparisonCoordinateTransition.transition_absorption',
     'ModalityInference.ComparisonCoordinateTransition.transition_profile',
     'ModalityInference.ComparisonCoordinateTransition.supported_agree_on',
@@ -3696,6 +3750,17 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonStructuralCoherence\n'
                     'import ModalityInference.Proofs.ComparisonStructuralEndpointQuery\n'
                     'import ModalityInference.Proofs.ComparisonStructuralNormalizationValues\n'
+                    'import ModalityInference.Proofs.ComparisonObserverPortProfiles\n'
+                    'import ModalityInference.Proofs.ComparisonObserverRootCut\n'
+                    'import ModalityInference.Proofs.ComparisonSignedEndpoints\n'
+                    'import ModalityInference.Proofs.ComparisonSignedObservation\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralEndpointValues\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralWorld\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralRealization\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralQuerySoundness\n'
+                    'import ModalityInference.Proofs.ComparisonWorldClauses\n'
+                    'import ModalityInference.Proofs.ComparisonSignedRelations\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralTheory\n'
                     'import ModalityInference.Proofs.GuardedSourceTyping\n'
                     'import ModalityInference.Proofs.GuardedSourceSoundness\n'
                     'import ModalityInference.Proofs.GuardedContexts\n'
