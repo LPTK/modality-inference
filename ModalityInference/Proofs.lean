@@ -468,5 +468,20 @@ import ModalityInference.Proofs.ComparisonLayoutWorlds
 import ModalityInference.Proofs.ComparisonLayoutStrategy
 import ModalityInference.Proofs.ComparisonSignedSynthesis
 import ModalityInference.Proofs.ComparisonSignedFamily
+import ModalityInference.Proofs.ComparisonWorldOffsets
+import ModalityInference.Proofs.ComparisonSignedNominalEdges
+import ModalityInference.Proofs.ComparisonIndexedWorldClauses
+import ModalityInference.Proofs.ComparisonSignedQueries
+import ModalityInference.Proofs.ComparisonSignedQuerySolver
+import ModalityInference.Proofs.ComparisonSignedEndpointQueries
+import ModalityInference.Proofs.ComparisonObserverCompactness
+import ModalityInference.Proofs.ComparisonObserverChains
+import ModalityInference.Proofs.ComparisonObserverModePullback
+import ModalityInference.Proofs.ComparisonObserverModeModel
+import ModalityInference.Proofs.ComparisonStructuralTrace
+import ModalityInference.Proofs.ComparisonStructuralEndpointTheory
+import ModalityInference.Proofs.ComparisonReifiedEndpointTheory
+import ModalityInference.Proofs.ComparisonSignedBranchImages
+import ModalityInference.Proofs.ComparisonLayoutModePullback
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

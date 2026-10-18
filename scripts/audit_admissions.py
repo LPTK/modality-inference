@@ -74,6 +74,57 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonSignedBranchImages.locate_basis',
+    'ModalityInference.ComparisonSignedBranchImages.pick_complete',
+    'ModalityInference.ComparisonSignedBranchImages.pick_reifyImage',
+    'ModalityInference.ComparisonSignedBranchImages.select_spec',
+    'ModalityInference.ComparisonSignedBranchImages.select_complete',
+    'ModalityInference.ComparisonSignedBranchImages.select_defined',
+    'ModalityInference.ComparisonLayoutModePullback.endpoint_sound',
+    'ModalityInference.ComparisonWorldOffsets.nominal_append',
+    'ModalityInference.ComparisonWorldOffsets.scalar_append',
+    'ModalityInference.ComparisonWorldOffsets.choices_append',
+    'ModalityInference.ComparisonWorldOffsets.selector_ranges_disjoint',
+    'ModalityInference.ComparisonSignedNominalEdges.prepare_complete',
+    'ModalityInference.ComparisonSignedNominalEdges.prepare_origin',
+    'ModalityInference.ComparisonSignedNominalEdges.run_complete',
+    'ModalityInference.ComparisonSignedNominalEdges.run_valid_iff',
+    'ModalityInference.ComparisonSignedNominalEdges.run_strategy_iff',
+    'ModalityInference.ComparisonIndexedWorldClauses.selectors_iff',
+    'ModalityInference.ComparisonIndexedWorldClauses.batch_query_iff',
+    'ModalityInference.ComparisonSignedQueries.compile_complete',
+    'ModalityInference.ComparisonSignedQueries.compile_correct',
+    'ModalityInference.ComparisonSignedQueries.consistent_iff',
+    'ModalityInference.ComparisonSignedQueries.imageValue_valid',
+    'ModalityInference.ComparisonSignedQueries.reconstruct_complete',
+    'ModalityInference.ComparisonSignedQuerySolver.condition_correct',
+    'ModalityInference.ComparisonSignedQuerySolver.run_sound',
+    'ModalityInference.ComparisonSignedQuerySolver.run_complete_stable',
+    'ModalityInference.ComparisonSignedQuerySolver.run_success_iff',
+    'ModalityInference.ComparisonSignedQuerySolver.run_terminates',
+    'ModalityInference.ComparisonSignedQuerySolver.run_stable',
+    'ModalityInference.ComparisonSignedEndpointQueries.prepare_valid_iff',
+    'ModalityInference.ComparisonSignedEndpointQueries.feasible_iff',
+    'ModalityInference.ComparisonSignedEndpointQueries.run_sound',
+    'ModalityInference.ComparisonSignedEndpointQueries.run_success_iff',
+    'ModalityInference.ComparisonSignedEndpointQueries.run_complete_stable',
+    'ModalityInference.ComparisonSignedEndpointQueries.run_terminates',
+    'ModalityInference.ComparisonSignedEndpointQueries.run_stable',
+    'ModalityInference.ComparisonObserverCompactness.compact',
+    'ModalityInference.ComparisonObserverChains.System.finite_consistent_iff',
+    'ModalityInference.ComparisonObserverChains.finite_reify',
+    'ModalityInference.ComparisonObserverChains.Constraints.solvable_iff_chain',
+    'ModalityInference.ComparisonObserverChains.Constraints.carriers_iff_chain',
+    'ModalityInference.ComparisonObserverModePullback.observer_value',
+    'ModalityInference.ComparisonObserverModePullback.world_eval',
+    'ModalityInference.ComparisonObserverModePullback.world_models',
+    'ModalityInference.ComparisonObserverModePullback.model',
+    'ModalityInference.ComparisonStructuralTrace.query_trace',
+    'ModalityInference.ComparisonStructuralTrace.run_trace',
+    'ModalityInference.ComparisonStructuralTrace.interpret_trace',
+    'ModalityInference.ComparisonStructuralEndpointTheory.endpoint_subtype_iff',
+    'ModalityInference.ComparisonReifiedEndpointTheory.reify_support',
+    'ModalityInference.ComparisonReifiedEndpointTheory.endpoint_subtype_iff',
     'ModalityInference.ComparisonWorldModes.query_iff',
     'ModalityInference.ComparisonWorldModes.separated_iff',
     'ModalityInference.ComparisonWorldModes.witness_sound',
@@ -3840,6 +3891,21 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonLayoutStrategy\n'
                     'import ModalityInference.Proofs.ComparisonSignedSynthesis\n'
                     'import ModalityInference.Proofs.ComparisonSignedFamily\n'
+                    'import ModalityInference.Proofs.ComparisonWorldOffsets\n'
+                    'import ModalityInference.Proofs.ComparisonSignedNominalEdges\n'
+                    'import ModalityInference.Proofs.ComparisonIndexedWorldClauses\n'
+                    'import ModalityInference.Proofs.ComparisonSignedQueries\n'
+                    'import ModalityInference.Proofs.ComparisonSignedQuerySolver\n'
+                    'import ModalityInference.Proofs.ComparisonSignedEndpointQueries\n'
+                    'import ModalityInference.Proofs.ComparisonObserverCompactness\n'
+                    'import ModalityInference.Proofs.ComparisonObserverChains\n'
+                    'import ModalityInference.Proofs.ComparisonObserverModePullback\n'
+                    'import ModalityInference.Proofs.ComparisonObserverModeModel\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralTrace\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralEndpointTheory\n'
+                    'import ModalityInference.Proofs.ComparisonReifiedEndpointTheory\n'
+                    'import ModalityInference.Proofs.ComparisonSignedBranchImages\n'
+                    'import ModalityInference.Proofs.ComparisonLayoutModePullback\n'
                     'import ModalityInference.Proofs.GuardedSourceTyping\n'
                     'import ModalityInference.Proofs.GuardedSourceSoundness\n'
                     'import ModalityInference.Proofs.GuardedContexts\n'
