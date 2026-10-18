@@ -67,7 +67,7 @@ All public functions below are in namespace `ModalityInference` and return
 | `solve fuel constraints` | Substitution, residual bounds, concrete consistency witness, fresh counters, and trace |
 | `satisfiableModes fuel constraints` | A concrete modality assignment modeling the modality constraints |
 | `Runtime.evalFuel fuel supplies environment term` | A runtime value |
-| `checkSubsumption fuel inferred declared` | Internal comparison substitution and residual validity evidence; soundness, termination, and completeness under residual declared bounds |
+| `checkSubsumption fuel inferred declared` | Internal comparison substitution and residual validity evidence; soundness, termination, and completeness under residual declared bounds or a finite declared-shape model |
 
 Exhaustion is not rejection. Increasing fuel permits deeper recursion and more
 worklist or normalization steps. The Horn check's `requiredFuel` is a threshold
@@ -128,9 +128,16 @@ bounds. `ComparisonShapeSelection` obtains valid local shape cuts from finite
 input anchors. Retraction preserves algebraic order and guarded modality
 actions, while leaving retained subtrees literal. `ComparisonStructuralMatrix`
 compiles finite constructor tables and proves their exact interpretation on
-reconstructed child polynomials. Connecting these components to one shared
-prepared witness and the complete checker remains separate from the established
-residual-bound completeness theorem.
+reconstructed child polynomials. `ComparisonPreparedDriver` connects these
+components to one shared prepared comparison: guarded shape alternatives, all
+original endpoint queries, and scalar obligations use one type image family and
+one modality strategy. A necessary scalar preflight rejects infeasible guards
+before structural compilation; its witness is discarded. Actual reconstruction
+is sound, terminates, and preserves completed results.
+`checkSubsumption_finite_shape_complete` proves eventual public acceptance of
+every admissible comparison with distinct source binders and a finite declared
+shape model. Support, mode idempotence, and all solver side conditions are
+derived from the original witness.
 
 ## Constraint solving
 
@@ -287,8 +294,14 @@ coordinates reconstruct one finite type per leaf with proved shape, definedness,
 and identifier support; restoration establishes the complete original body and
 source bounds. The returned substitution has exactly the quantified domain.
 Annotation classification includes source-bound operands, so guarded residuals
-appearing only inside a bound remain covered. Non-residual declared bounds are
-outside this completeness theorem and remain separate work.
+appearing only inside a bound remain covered.
+`checkSubsumption_finite_shape_complete` additionally covers structured declared
+bounds admitting a finite shape model, with the same admissibility requirements.
+For contexts without such a model, `ComparisonRankedBasis` and
+`ComparisonRankedWitness` give finite generated-basis normal forms at a common
+constructor rank for every admissible witness. The general terminating
+comparison algorithm still needs an effective bound or decision for those ranks,
+as well as the arbitrary-ambient-context bridge.
 See [TODO.md](../TODO.md) and [LEAN_PROOF_HANDOFF.md](../LEAN_PROOF_HANDOFF.md).
 
 `runSolver_correspondence` and `principal_factorization` establish the exact

@@ -2,6 +2,7 @@ import ModalityInference.SchemeSubsumption
 import ModalityInference.Proofs.ComparisonJointCheckerTermination
 import ModalityInference.Proofs.ComparisonDeclaredAnchorsTermination
 import ModalityInference.Proofs.ComparisonNestedAnchorsTermination
+import ModalityInference.Proofs.ComparisonPreparedDriverTermination
 
 /-! Fuel stability and eventual completion of the public scheme comparison
 interface, including its shared type and modality fallback. -/
@@ -11,13 +12,21 @@ open ComparisonPartialPropagation.Fuel
 
 theorem comparisonFallback_settles (source target : Scheme) :
     Settles (fun fuel => comparisonFallback fuel source target) := by
+  have hprepared (reason : String) : Settles (fun fuel =>
+      if residualBounds target.bounds then .rejected reason
+      else ComparisonPreparedDriver.run fuel source target) := by
+    cases residualBounds target.bounds
+    · exact ComparisonPreparedDriver.run_settles source target
+    · exact Settles.rejected reason
   refine Settles.congr (Settles.recover (ComparisonJointChecker.run_settles source target)
     (fun _ => Settles.recover (ComparisonDeclaredAnchors.run_settles source target)
-      (fun _ => ComparisonNestedAnchors.run_settles source target))) ?_
+      (fun _ => Settles.recover (ComparisonNestedAnchors.run_settles source target)
+        hprepared))) ?_
   intro fuel
   unfold comparisonFallback
   cases ComparisonJointChecker.run fuel source target <;> try rfl
-  cases ComparisonDeclaredAnchors.run fuel source target <;> rfl
+  cases ComparisonDeclaredAnchors.run fuel source target <;> try rfl
+  cases ComparisonNestedAnchors.run fuel source target <;> rfl
 
 theorem checkSubsumption_settles (source target : Scheme) :
     Settles (fun fuel => checkSubsumption fuel source target) := by

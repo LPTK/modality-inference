@@ -2,6 +2,8 @@ import ModalityInference.ComparisonChecker
 import ModalityInference.ComparisonJointChecker
 import ModalityInference.ComparisonDeclaredAnchors
 import ModalityInference.ComparisonNestedAnchors
+import ModalityInference.ComparisonPreparedDriver
+import ModalityInference.ComparisonResidualBounds
 import ModalityInference.SchemeInstance
 
 /-! Scheme comparison uses fresh shape templates, symbolic lattice propagation,
@@ -25,13 +27,19 @@ def jointSubsumptionEvidence (source target : Scheme) (action : CompareSubstitut
     query := .const true
     backend := ⟨[], [], true⟩ }
 
-/-- Whole declared edges remain available after an ordinary structural solve
-rejects. Completed positive results and exhaustion keep their original meaning. -/
+/-- Certified comparison phases retain completed positive results and
+exhaustion. Residual declared bounds are decided by the joint phase; additional
+prepared structural queries handle the remaining declared-bound forms. -/
 def comparisonFallback (fuel : Nat) (source target : Scheme) : RunResult CompareSubstitution :=
   match ComparisonJointChecker.run fuel source target with
   | .rejected _ =>
       match ComparisonDeclaredAnchors.run fuel source target with
-      | .rejected _ => ComparisonNestedAnchors.run fuel source target
+      | .rejected _ =>
+          match ComparisonNestedAnchors.run fuel source target with
+          | .rejected reason =>
+              if residualBounds target.bounds then .rejected reason
+              else ComparisonPreparedDriver.run fuel source target
+          | result => result
       | result => result
   | result => result
 

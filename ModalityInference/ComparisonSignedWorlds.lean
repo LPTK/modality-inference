@@ -29,4 +29,20 @@ def query (decode : Nat → Nat × Nat) (theory : CNF)
     (ComparisonPropagation.implies theory [clause.guard]).map fun guard =>
       rawClause decode guard ++ imageClause (calls clauses) clause.literals
 
+/-- Shared antecedent negation and call indexing are computed once for the batch. -/
+def queryCached (decode : Nat → Nat × Nat) (theory : CNF)
+    (clauses : List CompiledClause) : List WorldClause :=
+  match clauses with
+  | [] => []
+  | _::_ =>
+      let opposite := ComparisonPropagation.negate theory
+      let names := calls clauses
+      clauses.flatMap fun clause =>
+        (ComparisonPropagation.join opposite [clause.guard]).map fun guard =>
+          rawClause decode guard ++ imageClause names clause.literals
+
+@[csimp] theorem query_eq_queryCached : @query = @queryCached := by
+  funext decode theory clauses
+  cases clauses <;> rfl
+
 end ModalityInference.ComparisonSignedWorlds

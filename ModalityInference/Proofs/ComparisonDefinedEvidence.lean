@@ -3,6 +3,7 @@ import ModalityInference.Proofs.ComparisonPropagationSoundness
 import ModalityInference.Proofs.ComparisonJointCheckerSoundness
 import ModalityInference.Proofs.ComparisonDeclaredAnchors
 import ModalityInference.Proofs.ComparisonNestedAnchors
+import ModalityInference.Proofs.ComparisonPreparedDriver
 import ModalityInference.Proofs.ComparisonDefinedInstances
 
 /-! The actual substitution returned by successful public comparison has defined
@@ -51,7 +52,14 @@ private theorem fallback_result {fuel : Nat} {source target : Scheme}
   case rejected reason =>
     cases ha : ComparisonDeclaredAnchors.run fuel source target <;> simp only [ha] at h
     case success result => cases h; exact ComparisonDeclaredAnchors.run_result ha
-    case rejected reason => exact ComparisonNestedAnchors.run_result h
+    case rejected reason =>
+      cases hn : ComparisonNestedAnchors.run fuel source target <;> simp only [hn] at h
+      case success result => cases h; exact ComparisonNestedAnchors.run_result hn
+      case rejected reason =>
+        split at h
+        · cases h
+        · exact ComparisonPreparedDriver.run_result h
+      case exhausted => contradiction
     case exhausted => contradiction
   case exhausted => contradiction
 
