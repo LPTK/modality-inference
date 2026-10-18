@@ -74,6 +74,68 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonObserverMachine.value_constructor',
+    'ModalityInference.ComparisonPreparedDriver.Execution.ambient_assumptions_defined',
+    'ModalityInference.ComparisonPreparedDriver.Execution.prepared_ambient_of_support',
+    'ModalityInference.ComparisonPreparedDriver.Execution.prepared_ambient',
+    'ModalityInference.ComparisonPreparedDriver.propagate_ambient_sound',
+    'ModalityInference.ComparisonAmbientDriver.run_spec',
+    'ModalityInference.ComparisonAmbientDriver.run_result',
+    'ModalityInference.ComparisonAmbientDriver.run_algebra_subsumesUnder',
+    'ModalityInference.ComparisonAmbientDriver.run_assumptions_defined',
+    'ModalityInference.ComparisonAmbientDriver.run_settles',
+    'ModalityInference.ComparisonAmbientDriver.run_terminates',
+    'ModalityInference.ComparisonAmbientDriver.run_stable',
+    'ModalityInference.ComparisonObserverRepresentatives.finite_successors',
+    'ModalityInference.ComparisonObserverMachine.RangeClosed.value_mem',
+    'ModalityInference.ComparisonObserverMachine.Coherent.fn_step',
+    'ModalityInference.ComparisonObserverMachine.Coherent.pair_action',
+    'ModalityInference.ComparisonObserverMachine.Coherent.pair_step',
+    'ModalityInference.ComparisonObserverMachine.branch_diagonal',
+    'ModalityInference.ComparisonObserverMachine.equation_value',
+    'ModalityInference.ComparisonObserverMachine.trace_mono',
+    'ModalityInference.ComparisonObserverMachine.subtype_mono',
+    'ModalityInference.ComparisonObserverMachine.observer_value',
+    'ModalityInference.ComparisonObserverMachine.Certified.observer_value',
+    'ModalityInference.ComparisonObserverRepresentatives.data_represents',
+    'ModalityInference.ComparisonObserverRepresentatives.data_coherent',
+    'ModalityInference.ComparisonObserverRepresentatives.data_bounds',
+    'ModalityInference.ComparisonObserverRepresentatives.data_range',
+    'ModalityInference.ComparisonObserverRepresentatives.key_profile',
+    'ModalityInference.ComparisonObserverRepresentatives.key_card',
+    'ModalityInference.ComparisonObserverRepresentatives.representative_key',
+    'ModalityInference.ComparisonObserverRepresentatives.representatives_card',
+    'ModalityInference.ComparisonObserverRepresentatives.representatives_cover',
+    'ModalityInference.ComparisonObserverRepresentatives.restrict_mode_fixed',
+    'ModalityInference.ComparisonObserverRepresentatives.restrict_mode_idempotent',
+    'ModalityInference.ComparisonObserverRepresentatives.restrictedType_idempotent',
+    'ModalityInference.ComparisonObserverRepresentatives.restrictedChild_transfer_fixed',
+    'ModalityInference.ComparisonObserverRepresentatives.restrictedChild_value_idempotent',
+    'ModalityInference.ComparisonObserverRepresentatives.restrictedChild_range_idempotent',
+    'ModalityInference.ComparisonObserverRepresentatives.representatives_transfer_fixed',
+    'ModalityInference.ComparisonObserverRepresentatives.representatives_range_fixed',
+    'ModalityInference.ComparisonPreparedScalar.required_typeBoundsDefined',
+    'ModalityInference.ComparisonTotalDerivation.Derivation.root',
+    'ModalityInference.ComparisonTotalDerivation.Derivation.subtype',
+    'ModalityInference.ComparisonTotalDerivation.Derivation.defined',
+    'ModalityInference.ComparisonTotalDerivation.Lift.refl',
+    'ModalityInference.ComparisonTotalDerivation.Lift.trans',
+    'ModalityInference.ComparisonTotalDerivation.Lift.modal',
+    'ModalityInference.ComparisonTotalDerivation.Lift.join_left',
+    'ModalityInference.ComparisonTotalDerivation.Lift.join_right',
+    'ModalityInference.ComparisonTotalDerivation.Lift.meet_left',
+    'ModalityInference.ComparisonTotalDerivation.Lift.meet_right',
+    'ModalityInference.ComparisonTotalDerivation.Lift.join_least',
+    'ModalityInference.ComparisonTotalDerivation.Lift.meet_greatest',
+    'ModalityInference.ComparisonTotalDerivation.normal_fn',
+    'ModalityInference.ComparisonTotalDerivation.normal_identity',
+    'ModalityInference.ComparisonTotalDerivation.normal_compose',
+    'ModalityInference.ComparisonTotalDerivation.normal_prod',
+    'ModalityInference.ComparisonTotalDerivation.normal_sum',
+    'ModalityInference.ComparisonTotalDerivation.normal_shaped',
+    'ModalityInference.ComparisonTotalDerivation.normal_derivation',
+    'ModalityInference.ComparisonTotalDerivation.derivation',
+    'ModalityInference.ComparisonTotalDerivation.derivation_iff',
     'ModalityInference.ComparisonObserverChains.finite_reify_property',
     'ModalityInference.ComparisonObserverChains.Constraints.finite_model_reify_property',
     'ModalityInference.ComparisonObserverChains.LatticeGenerated.observer_mono',
@@ -4284,6 +4346,14 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonObserverGenerated\n'
                     'import ModalityInference.Proofs.ComparisonRankedCertificates\n'
                     'import ModalityInference.Proofs.ComparisonResidualBounds\n'
+                    'import ModalityInference.Proofs.ComparisonAmbientDriver\n'
+                    'import ModalityInference.Proofs.ComparisonObserverFiniteSuccessors\n'
+                    'import ModalityInference.Proofs.ComparisonObserverMachine\n'
+                    'import ModalityInference.Proofs.ComparisonObserverRepresentativeData\n'
+                    'import ModalityInference.Proofs.ComparisonObserverRepresentatives\n'
+                    'import ModalityInference.Proofs.ComparisonObserverRestriction\n'
+                    'import ModalityInference.Proofs.ComparisonPreparedAmbientGuards\n'
+                    'import ModalityInference.Proofs.ComparisonTotalDerivation\n'
                     'import ModalityInference.Proofs.ComparisonNestedAnchors\n'
                     'import ModalityInference.Proofs.ComparisonNestedAnchorsTermination\n'
                     'import ModalityInference.Proofs.ComparisonNestedAnchorContexts\n'

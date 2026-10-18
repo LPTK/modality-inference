@@ -302,6 +302,10 @@ For contexts without such a model, `ComparisonRankedBasis` and
 constructor rank for every admissible witness. The general terminating
 comparison algorithm still needs an effective bound or decision for those ranks,
 as well as the arbitrary-ambient-context bridge.
+`ComparisonAmbientDriver.run` accepts explicit ambient bounds and proves
+unconditional successful-result soundness, termination, and fuel stability.
+Complete acceptance under raw partial ambient bounds still requires preserving
+their partial endpoints without demanding additional guards.
 See [TODO.md](../TODO.md) and [LEAN_PROOF_HANDOFF.md](../LEAN_PROOF_HANDOFF.md).
 
 `runSolver_correspondence` and `principal_factorization` establish the exact

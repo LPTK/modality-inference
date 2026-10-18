@@ -526,5 +526,13 @@ import ModalityInference.Proofs.ComparisonSubsumptionFiniteShapes
 import ModalityInference.Proofs.ComparisonObserverGenerated
 import ModalityInference.Proofs.ComparisonRankedCertificates
 import ModalityInference.Proofs.ComparisonResidualBounds
+import ModalityInference.Proofs.ComparisonAmbientDriver
+import ModalityInference.Proofs.ComparisonObserverFiniteSuccessors
+import ModalityInference.Proofs.ComparisonObserverMachine
+import ModalityInference.Proofs.ComparisonObserverRepresentativeData
+import ModalityInference.Proofs.ComparisonObserverRepresentatives
+import ModalityInference.Proofs.ComparisonObserverRestriction
+import ModalityInference.Proofs.ComparisonPreparedAmbientGuards
+import ModalityInference.Proofs.ComparisonTotalDerivation
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
