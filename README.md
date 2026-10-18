@@ -116,14 +116,21 @@ If declared shape equations have no finite model, their shape-compatibility
 conditions hold vacuously; this phase still requires subtype certificates and
 all scalar guards. Thus it accepts a declared cyclic edge without treating
 shape inconsistency as a proof of arbitrary subtyping.
+`checkSubsumption_declared_edge_complete` proves eventual public acceptance of
+every literal monomorphic declared subtype edge, including its original guards.
 
 For finite declared shape models, `Proofs/ComparisonStructuralBasis` gives
 defined type images finite lattice normal forms at their resolved image shapes.
 The bases retain fixed names at compound shapes and include constructor
 combinations and signed modality controls. `ComparisonStructuralPrepared`
 connects these forms to supported admissible witnesses under arbitrary ambient
-bounds. This normalization does not yet bound unconstrained source shapes from
-the input or complete the public checker beyond residual declared bounds.
+bounds. `ComparisonShapeSelection` obtains valid local shape cuts from finite
+input anchors. Retraction preserves algebraic order and guarded modality
+actions, while leaving retained subtrees literal. `ComparisonStructuralMatrix`
+compiles finite constructor tables and proves their exact interpretation on
+reconstructed child polynomials. Connecting these components to one shared
+prepared witness and the complete checker remains separate from the established
+residual-bound completeness theorem.
 
 ## Constraint solving
 

@@ -74,6 +74,22 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.checkSubsumption_declared_edge_complete',
+    'ModalityInference.ComparisonDeclaredAnchors.run_declared_edge',
+    'ModalityInference.ComparisonDeclaredBoundary.root_eq_or_exit',
+    'ModalityInference.ComparisonShape.select_preserves_template',
+    'ModalityInference.ComparisonShape.declared_unselected_zone',
+    'ModalityInference.ComparisonUnanchoredProjection.algebra_pairChild',
+    'ModalityInference.ComparisonUnanchoredProjection.algebra_fnChild',
+    'ModalityInference.ComparisonUnanchoredRoot.algebra_rootValue',
+    'ModalityInference.ComparisonShapeRetraction.Cut.retract_mono',
+    'ModalityInference.ComparisonShapeRetraction.Cut.retract_modal',
+    'ModalityInference.ComparisonShapeRetraction.Cut.ofTemplate_valid',
+    'ModalityInference.ComparisonShapeRetraction.normalizedRealizer_realizes',
+    'ModalityInference.ComparisonStructuralMatrix.compile_correct',
+    'ModalityInference.ComparisonStructuralMatrix.compile_complete',
+    'ModalityInference.ComparisonStructuralMatrix.observer_rectangular',
+    'ModalityInference.ComparisonStructuralMatrix.observer_apply',
     'ModalityInference.CompareTy.wellShaped_of_no_models',
     'ModalityInference.ComparisonShapeSolver.prepare_infeasible_wellShaped',
     'ModalityInference.ComparisonDeclaredAnchors.shapeCheck_sound',
@@ -3455,6 +3471,11 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.SubsumptionCost\n'
                     'import ModalityInference.Proofs.ComparisonCyclicDeclaredWitness\n'
                     'import ModalityInference.Proofs.ComparisonStructuralPrepared\n'
+                    'import ModalityInference.Proofs.ComparisonDeclaredEdgeCompleteness\n'
+                    'import ModalityInference.Proofs.ComparisonDeclaredBoundary\n'
+                    'import ModalityInference.Proofs.ComparisonShapeRetractionSyntax\n'
+                    'import ModalityInference.Proofs.ComparisonSelectedPreparation\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralMatrix\n'
                     'import ModalityInference.Proofs.GuardedSourceTyping\n'
                     'import ModalityInference.Proofs.GuardedSourceSoundness\n'
                     'import ModalityInference.Proofs.GuardedContexts\n'

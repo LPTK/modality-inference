@@ -406,5 +406,10 @@ import ModalityInference.Proofs.ComparisonDeclaredAnchors
 import ModalityInference.Proofs.SubsumptionCost
 import ModalityInference.Proofs.ComparisonCyclicDeclaredWitness
 import ModalityInference.Proofs.ComparisonStructuralPrepared
+import ModalityInference.Proofs.ComparisonDeclaredEdgeCompleteness
+import ModalityInference.Proofs.ComparisonDeclaredBoundary
+import ModalityInference.Proofs.ComparisonShapeRetractionSyntax
+import ModalityInference.Proofs.ComparisonSelectedPreparation
+import ModalityInference.Proofs.ComparisonStructuralMatrix
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
