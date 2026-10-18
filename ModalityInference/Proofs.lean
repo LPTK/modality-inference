@@ -452,5 +452,10 @@ import ModalityInference.Proofs.ComparisonStructuralQuerySoundness
 import ModalityInference.Proofs.ComparisonWorldClauses
 import ModalityInference.Proofs.ComparisonSignedRelations
 import ModalityInference.Proofs.ComparisonStructuralTheory
+import ModalityInference.Proofs.ComparisonSignedCanonical
+import ModalityInference.Proofs.ComparisonSignedCanonicalSupport
+import ModalityInference.Proofs.ComparisonSignedEndpointAlignment
+import ModalityInference.Proofs.ComparisonSignedPreparedEndpoints
+import ModalityInference.Proofs.ComparisonSignedPolynomials
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

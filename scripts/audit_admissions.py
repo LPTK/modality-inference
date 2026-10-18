@@ -74,6 +74,30 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonSignedCanonical.assignment_canonical',
+    'ModalityInference.ComparisonSignedCanonical.consistent_graph',
+    'ModalityInference.ComparisonSignedCanonical.assignment_model',
+    'ModalityInference.ComparisonSignedCanonical.closure_assignment_model',
+    'ModalityInference.ComparisonSignedCanonical.closure_consistent_iff',
+    'ModalityInference.ComparisonSignedCanonical.assignment_atoms',
+    'ModalityInference.ComparisonSignedCanonical.consistent_atoms',
+    'ModalityInference.ComparisonSignedCanonical.closure_assignment_atoms',
+    'ModalityInference.ComparisonSignedCanonical.closure_consistent_atoms',
+    'ModalityInference.ComparisonSignedObservation.build_endpoint',
+    'ModalityInference.ComparisonSignedObservation.annotation_defined',
+    'ModalityInference.ComparisonSignedObservation.build_endpoints',
+    'ModalityInference.ComparisonSignedObservation.prepared_guarded',
+    'ModalityInference.ComparisonSignedObservation.prepared_alignment',
+    'ModalityInference.ComparisonSignedObservation.branch_compiled_images',
+    'ModalityInference.ComparisonSignedPolynomials.specialize_correct',
+    'ModalityInference.ComparisonSignedPolynomials.model_monotone',
+    'ModalityInference.ComparisonSignedPolynomials.model_boundary',
+    'ModalityInference.ComparisonSignedPolynomials.polynomial_model',
+    'ModalityInference.ComparisonSignedPolynomials.reconstruct_model',
+    'ModalityInference.ComparisonSignedPolynomials.closure_reconstruct',
+    'ModalityInference.ComparisonSignedPolynomials.reconstruct_property',
+    'ModalityInference.ComparisonSignedPolynomials.edges_contrapose',
+    'ModalityInference.ComparisonSignedPolynomials.edges_depends',
     'ModalityInference.ComparisonStructuralTheory.compiled_subtype_iff',
     'ModalityInference.ComparisonStructuralTheory.prepared_compiled_subtype_iff',
     'ModalityInference.ComparisonStructuralTheory.compile_declared_complete',
@@ -3761,6 +3785,11 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonWorldClauses\n'
                     'import ModalityInference.Proofs.ComparisonSignedRelations\n'
                     'import ModalityInference.Proofs.ComparisonStructuralTheory\n'
+                    'import ModalityInference.Proofs.ComparisonSignedCanonical\n'
+                    'import ModalityInference.Proofs.ComparisonSignedCanonicalSupport\n'
+                    'import ModalityInference.Proofs.ComparisonSignedEndpointAlignment\n'
+                    'import ModalityInference.Proofs.ComparisonSignedPreparedEndpoints\n'
+                    'import ModalityInference.Proofs.ComparisonSignedPolynomials\n'
                     'import ModalityInference.Proofs.GuardedSourceTyping\n'
                     'import ModalityInference.Proofs.GuardedSourceSoundness\n'
                     'import ModalityInference.Proofs.GuardedContexts\n'
