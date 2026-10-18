@@ -74,6 +74,38 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonLatticeCompiler.compile_complete',
+    'ModalityInference.ComparisonLatticeCompiler.compile_polynomial',
+    'ModalityInference.ComparisonLatticeCompiler.compile_value',
+    'ModalityInference.ComparisonLatticeCompiler.compile_correct',
+    'ModalityInference.ComparisonStructuralBasis.prepared_image_normal_on',
+    'ModalityInference.ComparisonStructuralBasis.prepared_lattice_witness_on',
+    'ModalityInference.ComparisonStructuralBasis.prepared_selected_lattice_on',
+    'ModalityInference.ComparisonStructuralBasis.SelectedLatticeOn.polynomials',
+    'ModalityInference.ComparisonStructuralBasis.algebra_selected_polynomials',
+    'ModalityInference.ComparisonShapeSelectors.Layout.compile_correct',
+    'ModalityInference.ComparisonShapeSelectors.Layout.compile_complete',
+    'ModalityInference.ComparisonShapeSelectors.Layout.branches_decoded',
+    'ModalityInference.ComparisonShapeSelectors.Layout.branches_encoded',
+    'ModalityInference.ComparisonShapeSelectors.Layout.theory_atoms',
+    'ModalityInference.ComparisonSelectedBases.prepared_encoded_complete',
+    'ModalityInference.ComparisonSelectedBases.prepared_sound',
+    'ModalityInference.ComparisonSelectedBases.prepared_branch_polynomials',
+    'ModalityInference.ComparisonSelectedBases.algebra_branch_polynomials',
+    'ModalityInference.ComparisonStructuralObservers.observer_modal_congr',
+    'ModalityInference.ComparisonStructuralObservers.observer_factor_family',
+    'ModalityInference.ComparisonStructuralObservers.observer_child_family',
+    'ModalityInference.ComparisonStructuralObservers.pair_child_family',
+    'ModalityInference.ComparisonStructuralAlignment.transition_correct',
+    'ModalityInference.ComparisonStructuralAlignment.compile_correct',
+    'ModalityInference.ComparisonStructuralAlignment.compile_complete',
+    'ModalityInference.ComparisonStructuralAlignment.observer_global_realizable',
+    'ModalityInference.ComparisonStructuralAlignment.pair_profile_realizable',
+    'ModalityInference.ComparisonStructuralAlignment.pair_shared_profile',
+    'ModalityInference.ComparisonDefinedRoot.derivation',
+    'ModalityInference.ComparisonDefinedRoot.derivation_iff',
+    'ModalityInference.ComparisonObserverActions.observer_transition',
+    'ModalityInference.ComparisonObserverActions.Transition.clamp',
     'ModalityInference.ComparisonDeclaredBoundary.first_bound_cut',
     'ModalityInference.ComparisonDeclaredBoundary.last_bound_cut',
     'ModalityInference.ComparisonDeclaredBoundary.Segment.pairChild',
@@ -3502,6 +3534,10 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonDeclaredCuts\n'
                     'import ModalityInference.Proofs.ComparisonSelectedLatticeWitness\n'
                     'import ModalityInference.Proofs.ComparisonStructuralActions\n'
+                    'import ModalityInference.Proofs.ComparisonSelectedBranchWitness\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralSharedWorld\n'
+                    'import ModalityInference.Proofs.ComparisonDefinedRoot\n'
+                    'import ModalityInference.Proofs.ComparisonObserverActions\n'
                     'import ModalityInference.Proofs.GuardedSourceTyping\n'
                     'import ModalityInference.Proofs.GuardedSourceSoundness\n'
                     'import ModalityInference.Proofs.GuardedContexts\n'

@@ -414,5 +414,9 @@ import ModalityInference.Proofs.ComparisonStructuralMatrix
 import ModalityInference.Proofs.ComparisonDeclaredCuts
 import ModalityInference.Proofs.ComparisonSelectedLatticeWitness
 import ModalityInference.Proofs.ComparisonStructuralActions
+import ModalityInference.Proofs.ComparisonSelectedBranchWitness
+import ModalityInference.Proofs.ComparisonStructuralSharedWorld
+import ModalityInference.Proofs.ComparisonDefinedRoot
+import ModalityInference.Proofs.ComparisonObserverActions
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

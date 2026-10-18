@@ -201,15 +201,17 @@ theorem supported_type_of_key {p : SchemePreparation.Prepared} {σ : CompareSubs
 /-- All observed images are replaced together by finite lattice forms. The
 modality action, key lists, guarded source bounds, and original target judgment
 are preserved. -/
-theorem prepared_lattice_witness {p : SchemePreparation.Prepared} {σ : CompareSubstitution}
+theorem prepared_lattice_witness_on {p : SchemePreparation.Prepared} {σ : CompareSubstitution}
     {fuel : Nat} {shapes : ComparisonShapeSolver.Solved}
+    (names : List TypeVar) (modes : List ModVar)
+    (ht : ∀v, v∈names ↔ v∈inputTypes p) (hm : ∀v, v∈modes ↔ v∈inputModes p)
     (hs : ComparisonShapeSolver.prepare fuel p = .success (.solved shapes))
     (hw : PreparedWitnessUnder p σ) (hsp : Supported p σ) :
     ∃ τ, PreparedWitnessUnder p τ ∧
       τ.types.map Prod.fst = σ.types.map Prod.fst ∧ τ.modes = σ.modes ∧
       Supported p τ ∧ Replacement p.assumptions σ τ ∧
       ∀v∈inputTypes p, ∃b,
-        basis (inputTypes p).toList (inputModes p).toList shapes.fixedShapes
+        basis names modes shapes.fixedShapes
           ((σ.type v).shape.subst shapes.fixedShapes) = some b ∧
         LatticeForm b.types (τ.type v) ∧
         Representable p.assumptions ((σ.type v).shape.subst shapes.fixedShapes) (τ.type v) := by
@@ -217,14 +219,14 @@ theorem prepared_lattice_witness {p : SchemePreparation.Prepared} {σ : CompareS
   have hchoose : ∀v, ∃a, Equiv p.assumptions (σ.type v) a ∧
       a.DefinedUnder p.assumptions ∧
       (v∈inputTypes p → ∃b,
-        basis (inputTypes p).toList (inputModes p).toList shapes.fixedShapes
+        basis names modes shapes.fixedShapes
           ((σ.type v).shape.subst shapes.fixedShapes) = some b ∧
         LatticeForm b.types a ∧
         Representable p.assumptions ((σ.type v).shape.subst shapes.fixedShapes) a) ∧
       (v∉inputTypes p → a = σ.type v) := by
     intro v
     by_cases hv : v∈inputTypes p
-    · obtain ⟨b, hb, a, ha, har, hae⟩ := prepared_image_normal hs hw hsp hv
+    · obtain ⟨b, hb, a, ha, har, hae⟩ := prepared_image_normal_on names modes ht hm hs hw hsp hv
       exact ⟨a, hae, har.2.1, fun _ => ⟨b, hb, ha, har⟩, fun h => (h hv).elim⟩
     · exact ⟨σ.type v, .refl (hw.1.2.1.type v), hw.2.1.types v,
         fun h => (hv h).elim, fun _ => rfl⟩
@@ -254,7 +256,7 @@ theorem prepared_lattice_witness {p : SchemePreparation.Prepared} {σ : CompareS
     by_cases hv : TypeVar.flex n ∈ inputTypes p
     · obtain ⟨b, hb, hf, _⟩ := (hi (.flex n)).2.2.1 hv
       exact (lattice_support hf (basis_support hb)).mono
-        (fun _ h => Finset.mem_toList.mp h) (fun _ h => Finset.mem_toList.mp h)
+        (fun v h => (ht v).mp h) (fun v h => (hm v).mp h)
     · change Supports (·∈inputTypes p) (·∈inputModes p) (images (.flex n))
       rw [(hi (.flex n)).2.2.2 hv]
       exact supported_type_of_key hsp hn
@@ -268,8 +270,24 @@ theorem prepared_lattice_witness {p : SchemePreparation.Prepared} {σ : CompareS
     exact (hi v).2.2.1 hv
   · change ∃b : Basis, _ ∧ LatticeForm b.types ((ComparisonPartialCarrier.reimage σ images).type v) ∧ _
     rw [he.1, he.2]
-    apply variable_lattice _ _ _ _ (Finset.mem_toList.mpr hv)
+    apply variable_lattice _ _ _ _ ((ht v).mpr hv)
     intro w ρ hρ
     exact (ComparisonShapeSolver.unify_factor (ComparisonShapeSolver.prepare_solved_iff.mp hs).1 hρ w).symm
+
+
+theorem prepared_lattice_witness {p : SchemePreparation.Prepared} {σ : CompareSubstitution}
+    {fuel : Nat} {shapes : ComparisonShapeSolver.Solved}
+    (hs : ComparisonShapeSolver.prepare fuel p = .success (.solved shapes))
+    (hw : PreparedWitnessUnder p σ) (hsp : Supported p σ) :
+    ∃ τ, PreparedWitnessUnder p τ ∧
+      τ.types.map Prod.fst = σ.types.map Prod.fst ∧ τ.modes = σ.modes ∧
+      Supported p τ ∧ Replacement p.assumptions σ τ ∧
+      ∀v∈inputTypes p, ∃b,
+        basis (inputTypes p).toList (inputModes p).toList shapes.fixedShapes
+          ((σ.type v).shape.subst shapes.fixedShapes) = some b ∧
+        LatticeForm b.types (τ.type v) ∧
+        Representable p.assumptions ((σ.type v).shape.subst shapes.fixedShapes) (τ.type v) :=
+  prepared_lattice_witness_on (inputTypes p).toList (inputModes p).toList
+    (fun _ => Finset.mem_toList) (fun _ => Finset.mem_toList) hs hw hsp
 
 end ModalityInference.ComparisonStructuralBasis

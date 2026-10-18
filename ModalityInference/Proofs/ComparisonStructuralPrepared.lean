@@ -76,12 +76,14 @@ open ComparisonWitnessRestriction
 /-- The actual declared-shape unifier supplies the finite model and all shape
 equivalences needed to normalize each supported, defined image. The index of
 this normal form is the resolved image shape. -/
-theorem prepared_image_normal {p : SchemePreparation.Prepared} {action : CompareSubstitution}
+theorem prepared_image_normal_on {p : SchemePreparation.Prepared} {action : CompareSubstitution}
     {fuel : Nat} {shapes : ComparisonShapeSolver.Solved}
+    (names : List TypeVar) (modes : List ModVar)
+    (ht : ∀v, v∈names ↔ v∈inputTypes p) (hm : ∀v, v∈modes ↔ v∈inputModes p)
     (hs : ComparisonShapeSolver.prepare fuel p = .success (.solved shapes))
     (h : ComparisonPreparation.PreparedWitnessUnder p action) (hsp : Supported p action)
     {v : TypeVar} (hv : v ∈ inputTypes p) :
-    Normal p.assumptions (inputTypes p).toList (inputModes p).toList shapes.fixedShapes
+    Normal p.assumptions names modes shapes.fixedShapes
       ((action.type v).shape.subst shapes.fixedShapes) (action.type v) := by
   have hf := (ComparisonShapeSolver.prepare_solved_iff.mp hs).1
   apply normal_of_supported _ _ shapes.fixedShapes (ComparisonShapeSolver.unify_sound hf)
@@ -89,8 +91,18 @@ theorem prepared_image_normal {p : SchemePreparation.Prepared} {action : Compare
     exact (ComparisonShapeSolver.unify_factor hf hρ w).symm
   · exact action.type_wellShaped h.1.2.1 v
   · exact h.2.1.types v
-  · exact (hsp.type hv).mono (fun _ h => Finset.mem_toList.mpr h)
-      (fun _ h => Finset.mem_toList.mpr h)
+  · exact (hsp.type hv).mono (fun v h => (ht v).mpr h) (fun v h => (hm v).mpr h)
+
+
+theorem prepared_image_normal {p : SchemePreparation.Prepared} {action : CompareSubstitution}
+    {fuel : Nat} {shapes : ComparisonShapeSolver.Solved}
+    (hs : ComparisonShapeSolver.prepare fuel p = .success (.solved shapes))
+    (h : ComparisonPreparation.PreparedWitnessUnder p action) (hsp : Supported p action)
+    {v : TypeVar} (hv : v ∈ inputTypes p) :
+    Normal p.assumptions (inputTypes p).toList (inputModes p).toList shapes.fixedShapes
+      ((action.type v).shape.subst shapes.fixedShapes) (action.type v) :=
+  prepared_image_normal_on (inputTypes p).toList (inputModes p).toList
+    (fun _ => Finset.mem_toList) (fun _ => Finset.mem_toList) hs h hsp hv
 
 /-- Simultaneous input-name restriction retains the admissible prepared
 witness and its exact key lists. Every observed type image then has a finite

@@ -9,17 +9,48 @@ namespace ModalityInference.ComparisonStructuralBasis
 open ComparisonAlgebra ComparisonControls ComparisonStructuralLattice
 open ComparisonShapeRetraction ComparisonWitnessRestriction ComparisonPreparation
 
-def SelectedLattice (p : SchemePreparation.Prepared) (solved : ComparisonShapeSolver.Solved)
+def SelectedLatticeOn (names : List TypeVar) (modes : List ModVar) (p : SchemePreparation.Prepared) (solved : ComparisonShapeSolver.Solved)
     (ρ : TypeVar → ComparisonShape) (action : CompareSubstitution) : Prop :=
   ∀v∈inputTypes p, ∃b,
-    basis (inputTypes p).toList (inputModes p).toList solved.fixedShapes
+    basis names modes solved.fixedShapes
       (((solved.resolveAll v).subst ρ).subst solved.fixedShapes) = some b ∧
     LatticeForm b.types (action.type v) ∧
     Representable p.assumptions (((solved.resolveAll v).subst ρ).subst solved.fixedShapes)
       (action.type v)
 
+
+def SelectedLattice (p : SchemePreparation.Prepared) (solved : ComparisonShapeSolver.Solved)
+    (ρ : TypeVar → ComparisonShape) (action : CompareSubstitution) : Prop :=
+  SelectedLatticeOn (inputTypes p).toList (inputModes p).toList p solved ρ action
+
 /-- Finite source-shape selection and finite lattice normalization share a
 single admissible substitution and the original modality assignment. -/
+theorem prepared_selected_lattice_on {fuel : Nat} {ambient : Bounds} {source target : Scheme}
+    {solved : ComparisonShapeSolver.Solved} {σ : CompareSubstitution}
+    (names : List TypeVar) (modes : List ModVar)
+    (hn : ∀v, v∈names ↔ v∈inputTypes (SchemePreparation.prepare ambient source target))
+    (hm : ∀v, v∈modes ↔ v∈inputModes (SchemePreparation.prepare ambient source target))
+    (h : ComparisonShapeSolver.prepare fuel (SchemePreparation.prepare ambient source target) =
+      .success (.solved solved))
+    (hw : PreparedWitnessUnder (SchemePreparation.prepare ambient source target) σ)
+    (hsp : Supported (SchemePreparation.prepare ambient source target) σ) :
+    let p := SchemePreparation.prepare ambient source target
+    ∃τ ρ, PreparedWitnessUnder p τ ∧ Supported p τ ∧
+      τ.types.map Prod.fst = σ.types.map Prod.fst ∧ τ.modes = σ.modes ∧
+      (∀v, ρ v ∈ shapeChoices p solved) ∧
+      (∀v∈inputTypes p, ComparisonShape.Equivalent p.assumptions (τ.type v).shape
+        ((solved.resolveAll v).subst ρ)) ∧ SelectedLatticeOn names modes p solved ρ τ := by
+  obtain ⟨selected, ρ, hw', hsp', ht', hm', hc, hs⟩ := prepared_selected_shapes h hw hsp
+  obtain ⟨result, hw'', ht'', hm'', hsp'', hr, hl⟩ := prepared_lattice_witness_on names modes hn hm h hw' hsp'
+  refine ⟨result, ρ, hw'', hsp'', ht''.trans ht', hm''.trans hm', hc, ?_, ?_⟩
+  · intro v hv
+    exact (hr.images v).1.shape_equivalent.symm.trans (hs v hv)
+  · intro v hv
+    have he := hs v hv solved.fixedShapes
+      (ComparisonShapeSolver.unify_sound (ComparisonShapeSolver.prepare_solved_iff.mp h).1)
+    simpa only [he] using hl v hv
+
+
 theorem prepared_selected_lattice {fuel : Nat} {ambient : Bounds} {source target : Scheme}
     {solved : ComparisonShapeSolver.Solved} {σ : CompareSubstitution}
     (h : ComparisonShapeSolver.prepare fuel (SchemePreparation.prepare ambient source target) =
@@ -31,16 +62,9 @@ theorem prepared_selected_lattice {fuel : Nat} {ambient : Bounds} {source target
       τ.types.map Prod.fst = σ.types.map Prod.fst ∧ τ.modes = σ.modes ∧
       (∀v, ρ v ∈ shapeChoices p solved) ∧
       (∀v∈inputTypes p, ComparisonShape.Equivalent p.assumptions (τ.type v).shape
-        ((solved.resolveAll v).subst ρ)) ∧ SelectedLattice p solved ρ τ := by
-  obtain ⟨selected, ρ, hw', hsp', ht', hm', hc, hs⟩ := prepared_selected_shapes h hw hsp
-  obtain ⟨result, hw'', ht'', hm'', hsp'', hr, hl⟩ := prepared_lattice_witness h hw' hsp'
-  refine ⟨result, ρ, hw'', hsp'', ht''.trans ht', hm''.trans hm', hc, ?_, ?_⟩
-  · intro v hv
-    exact (hr.images v).1.shape_equivalent.symm.trans (hs v hv)
-  · intro v hv
-    have he := hs v hv solved.fixedShapes
-      (ComparisonShapeSolver.unify_sound (ComparisonShapeSolver.prepare_solved_iff.mp h).1)
-    simpa only [he] using hl v hv
+        ((solved.resolveAll v).subst ρ)) ∧ SelectedLattice p solved ρ τ :=
+  prepared_selected_lattice_on (inputTypes _).toList (inputModes _).toList
+    (fun _ => Finset.mem_toList) (fun _ => Finset.mem_toList) h hw hsp
 
 /-- Every admissible comparison with a finite declared shape model has one
 witness in the input-relative family of finite structural lattice bases. -/
