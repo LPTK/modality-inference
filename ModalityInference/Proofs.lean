@@ -411,5 +411,8 @@ import ModalityInference.Proofs.ComparisonDeclaredBoundary
 import ModalityInference.Proofs.ComparisonShapeRetractionSyntax
 import ModalityInference.Proofs.ComparisonSelectedPreparation
 import ModalityInference.Proofs.ComparisonStructuralMatrix
+import ModalityInference.Proofs.ComparisonDeclaredCuts
+import ModalityInference.Proofs.ComparisonSelectedLatticeWitness
+import ModalityInference.Proofs.ComparisonStructuralActions
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

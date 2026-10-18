@@ -1,3 +1,4 @@
+import ModalityInference.ComparisonSelectedPreparation
 import ModalityInference.Proofs.ComparisonShapeSelection
 import ModalityInference.Proofs.ComparisonStructuralPrepared
 
@@ -6,17 +7,6 @@ anchors. The target body is retained as a whole, including partial annotations. 
 namespace ModalityInference.ComparisonShapeRetraction
 
 open ComparisonShapeSolver ComparisonSkeleton ComparisonWitnessRestriction
-
-def anchorNames (p : SchemePreparation.Prepared) (solved : ComparisonShapeSolver.Solved) : List TypeVar :=
-  solved.fixed.map Prod.fst ++
-    (ComparisonShape.pairs p.assumptions ++ sourcePairs p).flatMap
-      (fun (a, b) => a.vars ++ b.vars)
-
-def anchorTemplates (p : SchemePreparation.Prepared) : List ComparisonShape :=
-  ComparisonShape.declaredTemplates p.assumptions ++ [ComparisonShape.ofTy p.targetType]
-
-def shapeChoices (p : SchemePreparation.Prepared) (solved : ComparisonShapeSolver.Solved) : List ComparisonShape :=
-  ComparisonShape.candidates (anchorNames p solved) solved.fixedShapes (anchorTemplates p)
 
 def normalizedRealizer (p : SchemePreparation.Prepared) (σ : CompareSubstitution)
     (solved : ComparisonShapeSolver.Solved) (v : TypeVar) : ComparisonShape :=

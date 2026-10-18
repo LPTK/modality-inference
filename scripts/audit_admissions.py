@@ -74,6 +74,29 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonDeclaredBoundary.first_bound_cut',
+    'ModalityInference.ComparisonDeclaredBoundary.last_bound_cut',
+    'ModalityInference.ComparisonDeclaredBoundary.Segment.pairChild',
+    'ModalityInference.ComparisonDeclaredBoundary.Segment.fnChild',
+    'ModalityInference.ComparisonShapeRetraction.selectedAction_prepared',
+    'ModalityInference.ComparisonShapeRetraction.selectedAction_supported',
+    'ModalityInference.ComparisonShapeRetraction.prepared_selected_shapes',
+    'ModalityInference.ComparisonShapeRetraction.algebra_selected_shapes',
+    'ModalityInference.ComparisonStructuralBasis.prepared_lattice_witness',
+    'ModalityInference.ComparisonStructuralBasis.prepared_selected_lattice',
+    'ModalityInference.ComparisonStructuralBasis.algebra_selected_lattice',
+    'ModalityInference.ComparisonStructuralFamily.matrixFormula_correct',
+    'ModalityInference.ComparisonStructuralFamily.family_realizable',
+    'ModalityInference.ComparisonStructuralFamily.family_sound',
+    'ModalityInference.ComparisonStructuralFamily.pair_family_sound',
+    'ModalityInference.ComparisonStructuralFamily.compileFamily_correct',
+    'ModalityInference.ComparisonStructuralFamily.compileFamily_complete',
+    'ModalityInference.ComparisonStructuralFamily.compileAbsorption_correct',
+    'ModalityInference.ComparisonStructuralFamily.compileAbsorption_complete',
+    'ModalityInference.ComparisonStructuralActions.Action.correct',
+    'ModalityInference.ComparisonStructuralActions.prepare_certified',
+    'ModalityInference.ComparisonStructuralActions.prepare_complete',
+    'ModalityInference.ComparisonStructuralActions.prepare_monotone',
     'ModalityInference.checkSubsumption_declared_edge_complete',
     'ModalityInference.ComparisonDeclaredAnchors.run_declared_edge',
     'ModalityInference.ComparisonDeclaredBoundary.root_eq_or_exit',
@@ -3476,6 +3499,9 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonShapeRetractionSyntax\n'
                     'import ModalityInference.Proofs.ComparisonSelectedPreparation\n'
                     'import ModalityInference.Proofs.ComparisonStructuralMatrix\n'
+                    'import ModalityInference.Proofs.ComparisonDeclaredCuts\n'
+                    'import ModalityInference.Proofs.ComparisonSelectedLatticeWitness\n'
+                    'import ModalityInference.Proofs.ComparisonStructuralActions\n'
                     'import ModalityInference.Proofs.GuardedSourceTyping\n'
                     'import ModalityInference.Proofs.GuardedSourceSoundness\n'
                     'import ModalityInference.Proofs.GuardedContexts\n'
