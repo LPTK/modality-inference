@@ -325,8 +325,16 @@ soundness, completeness, rejection correctness, termination, and completed-resul
 stability. `prepared_run_eventual` derives eventual acceptance at some rank from
 every admissible prepared witness under defined declared type bounds without a
 finite shape model, deriving endpoint guards from the original assumptions.
-This internal stage does not yet synthesize the modality substitution or decide
-when to stop increasing the rank, and is not the public scheme checker.
+`ComparisonRankedJoint.synthesize` now computes the observer bound, checks the
+original scalar obligations, and synthesizes both the shared type images and
+one common modality action. Under the same defined-bound, no-shape-model
+conditions, `synthesize_complete` derives eventual success at some rank from
+every admissible witness; `synthesize_sound` proves the actual returned action
+admissible under the original assumptions. `compare` restores exact source
+domains, including unused parameters, with all body and image guards.
+Each fixed-rank call terminates and completed results are fuel-stable. These
+internal interfaces do not yet decide when to stop increasing the rank, do not
+cover arbitrary partial ambient bounds, and are not the public scheme checker.
 Finite forgetting-machine criteria preserve shared outputs, monotonicity, and
 constant boundaries; general comparison still requires a complete bound on the
 machines synthesized from the input. Exact raw-token abstraction preserves the

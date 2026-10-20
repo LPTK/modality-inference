@@ -74,7 +74,58 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonRankedModes.prepare_valid',
+    'ModalityInference.ComparisonRankedModes.prepare_valid_witness',
+    'ModalityInference.ComparisonRankedModes.run_complete',
+    'ModalityInference.ComparisonRankedModes.machine_world',
+    'ModalityInference.ComparisonRankedModes.assemble_exists',
+    'ModalityInference.ComparisonRankedModes.assemble_domain',
+    'ModalityInference.ComparisonRankedModes.assemble_total',
+    'ModalityInference.ComparisonRankedModes.assemble_images',
+    'ModalityInference.ComparisonRankedModes.assemble_local_strategy',
+    'ModalityInference.ComparisonRankedModes.prepare_machine_of_assembled',
+    'ModalityInference.ComparisonRankedModes.synthesize_eventual',
+    'ModalityInference.ComparisonRankedModes.synthesize_sound',
+    'ModalityInference.ComparisonRankedModes.synthesize_modes',
+    'ModalityInference.ComparisonRankedModes.prepare_settles',
+    'ModalityInference.ComparisonRankedModes.run_settles',
+    'ModalityInference.ComparisonRankedModes.run_terminates',
+    'ModalityInference.ComparisonRankedModes.run_stable',
+    'ModalityInference.ComparisonRankedModes.synthesize_settles',
+    'ModalityInference.ComparisonRankedModes.synthesize_terminates',
+    'ModalityInference.ComparisonRankedModes.synthesize_stable',
+    'ModalityInference.ComparisonRankedJoint.normalize_fixed',
+    'ModalityInference.ComparisonRankedJoint.scalar_assembled',
+    'ModalityInference.ComparisonRankedJoint.machine_prepared',
+    'ModalityInference.ComparisonRankedJoint.prepared_complete',
+    'ModalityInference.ComparisonRankedJoint.synthesize_sound',
+    'ModalityInference.ComparisonRankedJoint.synthesize_complete',
+    'ModalityInference.ComparisonRankedJoint.synthesize_success_iff',
+    'ModalityInference.ComparisonRankedJoint.compare_sound',
+    'ModalityInference.ComparisonRankedJoint.compare_complete',
+    'ModalityInference.ComparisonRankedJoint.run_settles',
+    'ModalityInference.ComparisonRankedJoint.run_terminates',
+    'ModalityInference.ComparisonRankedJoint.run_stable',
+    'ModalityInference.ComparisonRankedJoint.synthesize_settles',
+    'ModalityInference.ComparisonRankedJoint.synthesize_terminates',
+    'ModalityInference.ComparisonRankedJoint.synthesize_stable',
+    'ModalityInference.ComparisonRankedJoint.compare_settles',
+    'ModalityInference.ComparisonRankedJoint.compare_terminates',
+    'ModalityInference.ComparisonRankedJoint.compare_stable',
+    'ModalityInference.ComparisonRankedPrepared.count_pos',
+    'ModalityInference.ComparisonRankedPrepared.run_sound',
+    'ModalityInference.ComparisonRankedPrepared.prepared_complete',
+    'ModalityInference.ComparisonRankedPrepared.prepared_success_iff',
+    'ModalityInference.ComparisonRankedPrepared.compare_sound',
+    'ModalityInference.ComparisonRankedPrepared.compare_complete',
+    'ModalityInference.ComparisonRankedPrepared.run_settles',
+    'ModalityInference.ComparisonRankedPrepared.run_terminates',
+    'ModalityInference.ComparisonRankedPrepared.run_stable',
+    'ModalityInference.ComparisonRankedPrepared.compare_settles',
+    'ModalityInference.ComparisonRankedPrepared.compare_terminates',
+    'ModalityInference.ComparisonRankedPrepared.compare_stable',
     'ModalityInference.ComparisonRelationalDeclaredWitness.ranked_run_eventual',
+    'ModalityInference.ComparisonRelationalDeclaredWitness.joint_compare_eventual',
     'ModalityInference.ComparisonRankedDecision.prepare_machine_iff',
     'ModalityInference.ComparisonRankedDecision.run_complete',
     'ModalityInference.ComparisonRankedDecision.run_sound',
@@ -4782,6 +4833,14 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonRankedTermination\n'
                     'import ModalityInference.Proofs.ComparisonRankedDecision\n'
                     'import ModalityInference.Proofs.ComparisonRankedEndpointReflection\n'
+                    'import ModalityInference.Proofs.ComparisonRankedPrepared\n'
+                    'import ModalityInference.Proofs.ComparisonRankedPreparedTermination\n'
+                    'import ModalityInference.Proofs.ComparisonRankedModes\n'
+                    'import ModalityInference.Proofs.ComparisonRankedModeRepresentation\n'
+                    'import ModalityInference.Proofs.ComparisonRankedModesReconstruction\n'
+                    'import ModalityInference.Proofs.ComparisonRankedModesTermination\n'
+                    'import ModalityInference.Proofs.ComparisonRankedJoint\n'
+                    'import ModalityInference.Proofs.ComparisonRankedJointTermination\n'
                     'import ModalityInference.Proofs.ComparisonNestedAnchors\n'
                     'import ModalityInference.Proofs.ComparisonNestedAnchorsTermination\n'
                     'import ModalityInference.Proofs.ComparisonNestedAnchorContexts\n'

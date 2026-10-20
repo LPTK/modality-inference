@@ -562,5 +562,13 @@ import ModalityInference.Proofs.ComparisonRawCarrierStructural
 import ModalityInference.Proofs.ComparisonRankedTermination
 import ModalityInference.Proofs.ComparisonRankedDecision
 import ModalityInference.Proofs.ComparisonRankedEndpointReflection
+import ModalityInference.Proofs.ComparisonRankedPrepared
+import ModalityInference.Proofs.ComparisonRankedPreparedTermination
+import ModalityInference.Proofs.ComparisonRankedModes
+import ModalityInference.Proofs.ComparisonRankedModeRepresentation
+import ModalityInference.Proofs.ComparisonRankedModesReconstruction
+import ModalityInference.Proofs.ComparisonRankedModesTermination
+import ModalityInference.Proofs.ComparisonRankedJoint
+import ModalityInference.Proofs.ComparisonRankedJointTermination
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

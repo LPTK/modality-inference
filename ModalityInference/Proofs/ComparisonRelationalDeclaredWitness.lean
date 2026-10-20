@@ -2,6 +2,7 @@ import ModalityInference.Proofs.ComparisonDefinedInstances
 import ModalityInference.Proofs.ComparisonInfeasibleShapes
 import ModalityInference.SchemeSubsumption
 import ModalityInference.Proofs.ComparisonRankedEndpointReflection
+import ModalityInference.Proofs.ComparisonRankedJoint
 /-! A relational declared-bound comparison with a fully defined shared image.
 The checked rejection records the remaining arbitrary-context completeness
 obligation: both sides of the source bound contain the same quantified name. -/
@@ -127,6 +128,17 @@ theorem ranked_run_eventual :
     (ComparisonObserverBoundary.sizeBound p.assumptions generators)
     ModExpr.var (ComparisonSignedObservation.endpoints p) (fun _ => .ofTy B) hi
     (ComparisonRankedDecision.machineValid_of_endpoints hΔ _ _ _ _ _ _ _ he)
+
+/-- The executable joint interface finds a finite common substitution without
+receiving a type image or modality action as input. -/
+theorem joint_compare_eventual :
+    ∃ n threshold result, ∀ fuel ≥ threshold,
+      ComparisonRankedJoint.compare fuel [] source target n = .success result := by
+  obtain ⟨σ, hw⟩ := ComparisonPreparation.prepare_algebra_under_complete algebra_subsumes
+  apply ComparisonRankedJoint.compare_complete (by exact no_finite_shape_model) (hw := hw)
+  change Bounds.TypeBoundsDefined [.sub B (F B)]
+  simp [Bounds.TypeBoundsDefined, B, F, TypeExpr.DefinedUnder,
+    TypeExpr.wellFormedBounds, ModeModels]
 
 #guard match checkSubsumption 100 source target with
   | .rejected _ => true
