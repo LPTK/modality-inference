@@ -1111,6 +1111,19 @@ constants = [
     'ModalityInference.ComparisonFiniteGraphLimitation.no_finite_fixed_point',
     'ModalityInference.ComparisonFiniteGraphLimitation.finite_interval_solution',
     'ModalityInference.ComparisonFiniteGraphLimitation.finite_candidate',
+    'ModalityInference.ComparisonSchemeMemory.bounds_defined',
+    'ModalityInference.ComparisonSchemeMemory.no_finite_shape_model',
+    'ModalityInference.ComparisonSchemeMemory.nodes_certified',
+    'ModalityInference.ComparisonSchemeMemory.action_relation',
+    'ModalityInference.ComparisonSchemeMemory.label_eq',
+    'ModalityInference.ComparisonSchemeMemory.action_outputs',
+    'ModalityInference.ComparisonSchemeMemory.no_output_transition',
+    'ModalityInference.ComparisonSchemeMemory.action_bounds',
+    'ModalityInference.ComparisonSchemeMemory.instance_defined',
+    'ModalityInference.ComparisonSchemeMemory.algebra_subsumes',
+    'ModalityInference.ComparisonSchemeMemory.witness_observations',
+    'ModalityInference.ComparisonSchemeMemory.memory_transition',
+    'ModalityInference.ComparisonSchemeMemory.memory_forgets',
     'ModalityInference.ComparisonObserverPorts.pattern_iff_no_obstruction',
     'ModalityInference.ComparisonObserverPorts.carrier_pattern_iff_no_obstruction',
     'ModalityInference.ComparisonObserverPorts.boolean_pattern_iff_no_obstruction',
@@ -4714,6 +4727,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonCoordinateTransition\n'
                     'import ModalityInference.Proofs.ComparisonDeclaredPaths\n'
                     'import ModalityInference.Proofs.ComparisonFiniteGraphLimitation\n'
+                    'import ModalityInference.Proofs.ComparisonSchemeMemory\n'
                     'import ModalityInference.Proofs.ComparisonObserverPorts\n'
                     'import ModalityInference.Proofs.ComparisonSignedGraph\n'
                     'import ModalityInference.Proofs.ComparisonSignedImplications\n'

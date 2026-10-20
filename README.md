@@ -337,7 +337,13 @@ internal interfaces do not yet decide when to stop increasing the rank, do not
 cover arbitrary partial ambient bounds, and are not the public scheme checker.
 Finite forgetting-machine criteria preserve shared outputs, monotonicity, and
 constant boundaries; general comparison still requires a complete bound on the
-machines synthesized from the input. Exact raw-token abstraction preserves the
+machines synthesized from the input. `ComparisonSchemeMemory` realizes an
+obstruction with actual join-free schemes: no admissible solution's image-output
+tuple alone determines transitions, even with the current declared-bound
+subterm observations available. Retaining one additional input-subterm bit
+repairs that example, with frontier forgetting after three steps. This does
+not establish or refute a general input-only state or rank bound.
+Exact raw-token abstraction preserves the
 same admissible substitution and original guards for partial ambient bounds.
 `ComparisonNormalizedAmbientDriver` conservatively removes reflexive ambient
 edges while preserving names and fresh indices. Its results are certified under

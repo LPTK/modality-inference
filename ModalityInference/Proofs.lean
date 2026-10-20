@@ -435,6 +435,7 @@ import ModalityInference.Proofs.ComparisonShapedObserverGluing
 import ModalityInference.Proofs.ComparisonCoordinateTransition
 import ModalityInference.Proofs.ComparisonDeclaredPaths
 import ModalityInference.Proofs.ComparisonFiniteGraphLimitation
+import ModalityInference.Proofs.ComparisonSchemeMemory
 import ModalityInference.Proofs.ComparisonObserverPorts
 import ModalityInference.Proofs.ComparisonSignedGraph
 import ModalityInference.Proofs.ComparisonSignedImplications
