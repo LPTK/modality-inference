@@ -74,6 +74,38 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonRelationalDeclaredWitness.ranked_run_eventual',
+    'ModalityInference.ComparisonRankedDecision.prepare_machine_iff',
+    'ModalityInference.ComparisonRankedDecision.run_complete',
+    'ModalityInference.ComparisonRankedDecision.run_sound',
+    'ModalityInference.ComparisonRankedDecision.run_success_iff',
+    'ModalityInference.ComparisonRankedDecision.run_rejects',
+    'ModalityInference.ComparisonRankedDecision.endpoints_iff_machines',
+    'ModalityInference.ComparisonRankedDecision.endpoints_iff_machineValid',
+    'ModalityInference.ComparisonRankedDecision.prepared_endpoints_support',
+    'ModalityInference.ComparisonRankedDecision.prepared_witness_endpoints',
+    'ModalityInference.ComparisonRankedDecision.machineValid_iff_machines',
+    'ModalityInference.ComparisonRankedDecision.machineValid_of_endpoints',
+    'ModalityInference.ComparisonRankedDecision.prepared_run_eventual',
+    'ModalityInference.ComparisonRankedDecision.prepare_settles',
+    'ModalityInference.ComparisonRankedDecision.prepare_stable',
+    'ModalityInference.ComparisonRankedDecision.run_settles',
+    'ModalityInference.ComparisonRankedDecision.run_terminates',
+    'ModalityInference.ComparisonRankedDecision.run_stable',
+    'ModalityInference.ComparisonRankedObservers.lattice_value',
+    'ModalityInference.ComparisonRankedObservers.bounded_polynomials',
+    'ModalityInference.ComparisonRankedObservers.bounded_rank',
+    'ModalityInference.ComparisonRankedObservers.counterexample_complete',
+    'ModalityInference.ComparisonRankedObservers.counterexample_correct',
+    'ModalityInference.ComparisonRankedObservers.subtype_iff_machines',
+    'ModalityInference.ComparisonRankedBasis.types_rank',
+    'ModalityInference.ComparisonRankedBasis.lattice_rank',
+    'ModalityInference.ComparisonRankedBasis.rank_ty',
+    'ModalityInference.ComparisonRankedBasis.rank_subst_ofTy',
+    'ModalityInference.ComparisonRankedBasis.prepared_ty_normal',
+    'ModalityInference.ComparisonRankedBasis.prepared_ranked_witness_lists',
+    'ModalityInference.ComparisonRankedBasis.prepared_ranked_lists_complete',
+    'ModalityInference.ComparisonPartialCarrier.Related.fn_general',
     'ModalityInference.ComparisonObserverDecision.counterexample_complete',
     'ModalityInference.ComparisonObserverDecision.counterexample_correct',
     'ModalityInference.ComparisonObserverDecision.query_valid',
@@ -4744,6 +4776,12 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonAmbientNormalization\n'
                     'import ModalityInference.Proofs.ComparisonNormalizedAmbientDriver\n'
                     'import ModalityInference.Proofs.ComparisonRawAmbientWitness\n'
+                    'import ModalityInference.Proofs.ComparisonRankedObservers\n'
+                    'import ModalityInference.Proofs.ComparisonRankedSubstitution\n'
+                    'import ModalityInference.Proofs.ComparisonRawCarrierStructural\n'
+                    'import ModalityInference.Proofs.ComparisonRankedTermination\n'
+                    'import ModalityInference.Proofs.ComparisonRankedDecision\n'
+                    'import ModalityInference.Proofs.ComparisonRankedEndpointReflection\n'
                     'import ModalityInference.Proofs.ComparisonNestedAnchors\n'
                     'import ModalityInference.Proofs.ComparisonNestedAnchorsTermination\n'
                     'import ModalityInference.Proofs.ComparisonNestedAnchorContexts\n'

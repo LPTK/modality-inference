@@ -1,5 +1,6 @@
 import ModalityInference.Proofs.ComparisonRankedBasis
 import ModalityInference.Proofs.ComparisonStructuralWitness
+import ModalityInference.Proofs.ComparisonSelectedBases
 
 /-! A single finite generator level represents an entire admissible comparison
 witness when the declared shape equations have no finite model. The replacement
@@ -12,24 +13,25 @@ open ComparisonInterpolation ComparisonWitnessRestriction ComparisonPreparation
 /-- Simultaneous normalization uses one finite generator level for all images.
 The level is derived from the given finite witness, not from a semantic fixed
 point or an input-only stopping bound. -/
-theorem prepared_ranked_witness {p : SchemePreparation.Prepared} {σ : CompareSubstitution}
+theorem prepared_ranked_witness_lists {p : SchemePreparation.Prepared} {σ : CompareSubstitution}
+    (names : List TypeVar) (modes : List ModVar)
+    (hns : ∀ v, v ∈ names ↔ v ∈ inputTypes p)
+    (hms : ∀ v, v ∈ modes ↔ v ∈ inputModes p)
     (hn : ¬∃ρ, ComparisonShape.Models p.assumptions ρ)
     (hw : PreparedWitnessUnder p σ) (hsp : Supported p σ) :
     ∃n τ, PreparedWitnessUnder p τ ∧
       τ.types.map Prod.fst = σ.types.map Prod.fst ∧ τ.modes = σ.modes ∧
       Supported p τ ∧ ComparisonStructuralBasis.Replacement p.assumptions σ τ ∧
       ∀v∈inputTypes p,
-        LatticeForm (basis (inputTypes p).toList (inputModes p).toList n).types (τ.type v) ∧
+        LatticeForm (basis names modes n).types (τ.type v) ∧
         Representable p.assumptions .unit (τ.type v) := by
   classical
-  let names := (inputTypes p).toList
-  let modes := (inputModes p).toList
   let n := (inputTypes p).sup (fun v => rank (σ.type v))
   have hnormal (v : TypeVar) (hv : v∈inputTypes p) :
       Normal p.assumptions names modes n (σ.type v) := by
     apply (normal_of_supported hn names modes (hw.2.1.types v)
-      ((hsp.type hv).mono (fun _ h => Finset.mem_toList.mpr h)
-        (fun _ h => Finset.mem_toList.mpr h))).mono
+      ((hsp.type hv).mono (fun v h => (hns v).mpr h)
+        (fun v h => (hms v).mpr h))).mono
     exact Finset.le_sup (f := fun v => rank (σ.type v)) hv
   have hchoose : ∀v, ∃a, Equiv p.assumptions (σ.type v) a ∧
       a.DefinedUnder p.assumptions ∧
@@ -68,7 +70,7 @@ theorem prepared_ranked_witness {p : SchemePreparation.Prepared} {σ : CompareSu
     by_cases hv : TypeVar.flex key∈inputTypes p
     · have hf := ((hi (.flex key)).2.2.1 hv).1
       exact (ComparisonStructuralBasis.lattice_support hf (types_support names modes n)).mono
-        (fun _ h => Finset.mem_toList.mp h) (fun _ h => Finset.mem_toList.mp h)
+        (fun v h => (hns v).mp h) (fun v h => (hms v).mp h)
     · change Supports (·∈inputTypes p) (·∈inputModes p) (images (.flex key))
       rw [(hi (.flex key)).2.2.2 hv]
       exact ComparisonStructuralBasis.supported_type_of_key hsp hk
@@ -84,9 +86,21 @@ theorem prepared_ranked_witness {p : SchemePreparation.Prepared} {σ : CompareSu
     rw [he.1, he.2]
     have hatom : CompareTy.var v∈(basis names modes 0).heads := by
       simp only [basis, Basis.heads, List.mem_cons, List.mem_map]
-      exact .inr (.inr ⟨v, Finset.mem_toList.mpr hv, rfl⟩)
+      exact .inr (.inr ⟨v, (hns v).mpr hv, rfl⟩)
     have ht := types_mono (names := names) (modes := modes) (Nat.zero_le n) (head_mem_types hatom)
     exact ⟨.atom ht, types_representable hn names modes n _ ht⟩
+
+theorem prepared_ranked_witness {p : SchemePreparation.Prepared} {σ : CompareSubstitution}
+    (hn : ¬∃ρ, ComparisonShape.Models p.assumptions ρ)
+    (hw : PreparedWitnessUnder p σ) (hsp : Supported p σ) :
+    ∃n τ, PreparedWitnessUnder p τ ∧
+      τ.types.map Prod.fst = σ.types.map Prod.fst ∧ τ.modes = σ.modes ∧
+      Supported p τ ∧ ComparisonStructuralBasis.Replacement p.assumptions σ τ ∧
+      ∀v∈inputTypes p,
+        LatticeForm (basis (inputTypes p).toList (inputModes p).toList n).types (τ.type v) ∧
+        Representable p.assumptions .unit (τ.type v) :=
+  prepared_ranked_witness_lists _ _ (fun _ => Finset.mem_toList)
+    (fun _ => Finset.mem_toList) hn hw hsp
 
 /-- No image-support hypothesis is imposed on an admissible witness: restriction
 to the finite input names is performed once, before simultaneous normalization.
@@ -102,6 +116,24 @@ theorem prepared_ranked_complete {p : SchemePreparation.Prepared} {σ : CompareS
         Representable p.assumptions .unit (τ.type v) := by
   obtain ⟨action, ha, ht, hm, hsp⟩ := prepared_supported_under hw
   obtain ⟨n, τ, hw, htypes, hmodes, hs, _, hnormal⟩ := prepared_ranked_witness hn ha hsp
+  exact ⟨n, τ, hw, htypes.trans ht, by simpa only [hmodes] using hm, hs, hnormal⟩
+
+/-- The same shared normalization uses the executable input-name lists,
+without choosing a runtime order for a finite set. -/
+theorem prepared_ranked_lists_complete {p : SchemePreparation.Prepared} {σ : CompareSubstitution}
+    (hn : ¬∃ρ, ComparisonShape.Models p.assumptions ρ)
+    (hw : PreparedWitnessUnder p σ) :
+    ∃n τ, PreparedWitnessUnder p τ ∧
+      τ.types.map Prod.fst = σ.types.map Prod.fst ∧
+      τ.modes.map Prod.fst = σ.modes.map Prod.fst ∧ Supported p τ ∧
+      ∀v∈inputTypes p,
+        LatticeForm (basis (ComparisonSelectedBases.inputNames p)
+          (ComparisonSelectedBases.inputModes p) n).types (τ.type v) ∧
+        Representable p.assumptions .unit (τ.type v) := by
+  obtain ⟨action, ha, ht, hm, hsp⟩ := prepared_supported_under hw
+  obtain ⟨n, τ, hw, htypes, hmodes, hs, _, hnormal⟩ :=
+    prepared_ranked_witness_lists _ _ (ComparisonSelectedBases.mem_inputNames p)
+      (ComparisonSelectedBases.mem_inputModes p) hn ha hsp
   exact ⟨n, τ, hw, htypes.trans ht, by simpa only [hmodes] using hm, hs, hnormal⟩
 
 /-- The common level exposes executable positive-CNF certificates for every

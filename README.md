@@ -311,7 +311,22 @@ under defined type bounds without a finite shape model. Their boundary and state
 bound are computed from those endpoints, and finite coordinate certificates have
 an exact symbolic encoding connected to the validity backend, with proved
 positive/negative correctness and eventual stable return. This does not bound
-unknown scheme-image syntax.
+the constructor rank of unknown scheme images.
+`ComparisonRankedObservers` extends the finite observer bound uniformly to every
+defined, supported endpoint at a fixed constructor rank, independently of its
+lattice-polynomial size. `ComparisonRankedSubstitution` bounds instantiated
+endpoint rank by the common image rank plus the written endpoint's constructor
+depth. These results supply a fixed-rank observer bound, not a stopping bound
+across ranks.
+`ComparisonRankedDecision.run` compiles all endpoint obligations over that finite
+observer family and synthesizes one shared family of finite lattice images for
+a supplied common modality substitution. Its exact machine contract proves
+soundness, completeness, rejection correctness, termination, and completed-result
+stability. `prepared_run_eventual` derives eventual acceptance at some rank from
+every admissible prepared witness under defined declared type bounds without a
+finite shape model, deriving endpoint guards from the original assumptions.
+This internal stage does not yet synthesize the modality substitution or decide
+when to stop increasing the rank, and is not the public scheme checker.
 Finite forgetting-machine criteria preserve shared outputs, monotonicity, and
 constant boundaries; general comparison still requires a complete bound on the
 machines synthesized from the input. Exact raw-token abstraction preserves the

@@ -103,11 +103,11 @@ def Represents (world : Nat → Bool) (images : Call → Bool)
   (∃b∈branches,b.guard.eval world=true) ∧
     ∀b∈branches,b.guard.eval world=true → b.view.eval world images=value
 
-private theorem Represents.base (world : Nat → Bool) (images : Call → Bool) (data : Data) :
+theorem Represents.base (world : Nat → Bool) (images : Call → Bool) (data : Data) :
     Represents world images [⟨.const true,.base data⟩] (data.eval world images) := by
   simp [Represents,BoolExpr.eval]
 
-private theorem Represents.choice {world : Nat → Bool} {images : Call → Bool}
+theorem Represents.choice {world : Nat → Bool} {images : Call → Bool}
     {left right : List Branch} {a b : Bool} (hl : Represents world images left a)
     (hr : Represents world images right b) (test : BoolExpr) :
     Represents world images (left.map (Branch.guarded test) ++ right.map (Branch.guarded (neg test)))
@@ -136,7 +136,7 @@ private theorem Represents.choice {world : Nat → Bool} {images : Call → Bool
       have ht' : test.eval world=false := by simpa using ht
       simpa [Branch.guarded,ht'] using hr.2 original ho hactive
 
-private theorem Represents.dual {world : Nat → Bool} {images : Call → Bool}
+theorem Represents.dual {world : Nat → Bool} {images : Call → Bool}
     {branches : List Branch} {a : Bool} (h : Represents world images branches a) :
     Represents world images (branches.map fun b=>⟨b.guard,b.view.dual⟩) (!a) := by
   constructor
@@ -146,7 +146,7 @@ private theorem Represents.dual {world : Nat → Bool} {images : Call → Bool}
     obtain ⟨original,ho,rfl⟩ := List.mem_map.mp hb
     simpa using congrArg Bool.not (h.2 original ho ha)
 
-private theorem Represents.act {world : Nat → Bool} {images : Call → Bool}
+theorem Represents.act {world : Nat → Bool} {images : Call → Bool}
     {branches : List Branch} {a : Bool} (h : Represents world images branches a)
     (lower upper : BoolExpr) :
     Represents world images (branches.map fun b=>⟨b.guard,b.view.act lower upper⟩)

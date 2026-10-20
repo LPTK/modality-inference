@@ -556,5 +556,11 @@ import ModalityInference.Proofs.ComparisonObserverDecision
 import ModalityInference.Proofs.ComparisonAmbientNormalization
 import ModalityInference.Proofs.ComparisonNormalizedAmbientDriver
 import ModalityInference.Proofs.ComparisonRawAmbientWitness
+import ModalityInference.Proofs.ComparisonRankedObservers
+import ModalityInference.Proofs.ComparisonRankedSubstitution
+import ModalityInference.Proofs.ComparisonRawCarrierStructural
+import ModalityInference.Proofs.ComparisonRankedTermination
+import ModalityInference.Proofs.ComparisonRankedDecision
+import ModalityInference.Proofs.ComparisonRankedEndpointReflection
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
