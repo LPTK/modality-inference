@@ -570,5 +570,10 @@ import ModalityInference.Proofs.ComparisonRankedModesReconstruction
 import ModalityInference.Proofs.ComparisonRankedModesTermination
 import ModalityInference.Proofs.ComparisonRankedJoint
 import ModalityInference.Proofs.ComparisonRankedJointTermination
+import ModalityInference.Proofs.ComparisonBalancedDerivation
+import ModalityInference.Proofs.ComparisonBalancedContext
+import ModalityInference.Proofs.ComparisonBalancedProjection
+import ModalityInference.Proofs.ComparisonBalancedDecision
+import ModalityInference.Proofs.ComparisonBalancedContextRegression
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

@@ -74,6 +74,71 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonBalancedDerivation.normal_public',
+    'ModalityInference.ComparisonBalancedDerivation.bound_lift',
+    'ModalityInference.ComparisonBalancedDerivation.derivation',
+    'ModalityInference.ComparisonBalancedDerivation.derivation_iff',
+    'ModalityInference.ComparisonBalancedDerivation.public_defined_right',
+    'ModalityInference.ComparisonBalancedDerivation.public_defined_left',
+    'ModalityInference.ComparisonBalancedDerivation.of_typeBoundsDefined',
+    'ModalityInference.ComparisonBalancedContext.Hom.total',
+    'ModalityInference.ComparisonBalancedContext.Hom.algebra',
+    'ModalityInference.ComparisonBalancedContext.Hom.entails',
+    'ModalityInference.ComparisonBalancedContext.Hom.witness',
+    'ModalityInference.ComparisonBalancedContext.prune_subset',
+    'ModalityInference.ComparisonBalancedContext.sub_mem_prune',
+    'ModalityInference.ComparisonBalancedContext.modeModels_prune',
+    'ModalityInference.ComparisonBalancedContext.prune_defined',
+    'ModalityInference.ComparisonBalancedContext.prune_hom',
+    'ModalityInference.ComparisonBalancedContext.unprune_hom',
+    'ModalityInference.ComparisonBalancedContext.algebra_prune_iff',
+    'ModalityInference.ComparisonBalancedProjection.pairs_shadow',
+    'ModalityInference.ComparisonBalancedProjection.mode_shapeFact',
+    'ModalityInference.ComparisonBalancedProjection.modeModels_shadow',
+    'ModalityInference.ComparisonBalancedProjection.sub_not_mem_shadow',
+    'ModalityInference.ComparisonBalancedProjection.sub_mem_project',
+    'ModalityInference.ComparisonBalancedProjection.modeModels_project',
+    'ModalityInference.ComparisonBalancedProjection.shapeModels_shadow',
+    'ModalityInference.ComparisonBalancedProjection.shapeModels_project',
+    'ModalityInference.ComparisonBalancedProjection.project_defined',
+    'ModalityInference.ComparisonBalancedProjection.project_hom',
+    'ModalityInference.ComparisonBalancedProjection.unproject_hom',
+    'ModalityInference.ComparisonBalancedProjection.algebra_project_iff',
+    'ModalityInference.ComparisonBalancedProjection.prepared_witness_iff',
+    'ModalityInference.ComparisonBalancedProjection.query_valid',
+    'ModalityInference.ComparisonBalancedProjection.run_correct',
+    'ModalityInference.ComparisonBalancedProjection.run_complete',
+    'ModalityInference.ComparisonBalancedContextRegression.bad_not_defined',
+    'ModalityInference.ComparisonBalancedContextRegression.partial_not_defined',
+    'ModalityInference.ComparisonBalancedContextRegression.scalar_model',
+    'ModalityInference.ComparisonBalancedContextRegression.balanced',
+    'ModalityInference.ComparisonBalancedContextRegression.not_all_defined',
+    'ModalityInference.ComparisonBalancedContextRegression.distinct',
+    'ModalityInference.ComparisonBalancedContextRegression.pruned',
+    'ModalityInference.ComparisonBalancedContextRegression.shapes',
+    'ModalityInference.ComparisonBalancedContextRegression.defined_comparison_iff',
+    'ModalityInference.ComparisonBalancedContextRegression.mixed_scalar_model',
+    'ModalityInference.ComparisonBalancedContextRegression.mixed_not_balanced',
+    'ModalityInference.ComparisonBalancedContextRegression.mixed_comparison',
+    'ModalityInference.ComparisonBalancedContextRegression.mixed_pruned',
+    'ModalityInference.ComparisonBalancedContextRegression.empty_rejects',
+    'ModalityInference.ComparisonBalancedContextRegression.shape_scalar_model',
+    'ModalityInference.ComparisonBalancedContextRegression.shape_balanced',
+    'ModalityInference.ComparisonBalancedContextRegression.shape_no_model',
+    'ModalityInference.ComparisonBalancedContextRegression.shape_comparison',
+    'ModalityInference.ComparisonBalancedContextRegression.shape_project_query_valid',
+    'ModalityInference.ComparisonBalancedContextRegression.empty_join_rejects',
+    'ModalityInference.ComparisonTotalDerivation.normal_shaped_of_bounds',
+    'ModalityInference.ComparisonTotalDerivation.normal_derivation_of_bounds',
+    'ModalityInference.ComparisonTotalDerivation.normal_bound',
+    'ModalityInference.ComparisonTotalDerivation.derivation_of_bounds',
+    'ModalityInference.ComparisonRawContext.Frame.equivalent',
+    'ModalityInference.ComparisonRawContext.Frame.wellShaped',
+    'ModalityInference.ComparisonRawContext.Frame.defined',
+    'ModalityInference.ComparisonRawContext.Frame.mode_defined',
+    'ModalityInference.ComparisonRawContext.Frame.submode',
+    'ModalityInference.ComparisonRawContext.Frame.compatible',
+    'ModalityInference.ComparisonRawContext.Frame.equation',
     'ModalityInference.ComparisonRankedModes.prepare_valid',
     'ModalityInference.ComparisonRankedModes.prepare_valid_witness',
     'ModalityInference.ComparisonRankedModes.run_complete',
@@ -4841,6 +4906,11 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonRankedModesTermination\n'
                     'import ModalityInference.Proofs.ComparisonRankedJoint\n'
                     'import ModalityInference.Proofs.ComparisonRankedJointTermination\n'
+                    'import ModalityInference.Proofs.ComparisonBalancedDerivation\n'
+                    'import ModalityInference.Proofs.ComparisonBalancedContext\n'
+                    'import ModalityInference.Proofs.ComparisonBalancedProjection\n'
+                    'import ModalityInference.Proofs.ComparisonBalancedDecision\n'
+                    'import ModalityInference.Proofs.ComparisonBalancedContextRegression\n'
                     'import ModalityInference.Proofs.ComparisonNestedAnchors\n'
                     'import ModalityInference.Proofs.ComparisonNestedAnchorsTermination\n'
                     'import ModalityInference.Proofs.ComparisonNestedAnchorContexts\n'

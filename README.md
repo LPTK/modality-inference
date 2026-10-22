@@ -306,6 +306,20 @@ as well as the arbitrary-ambient-context bridge.
 unconditional successful-result soundness, termination, and fuel stability.
 Complete acceptance under raw partial ambient bounds still requires preserving
 their partial endpoints without demanding additional guards.
+`ComparisonBalancedDerivation` extracts fully defined derivations when each
+declared subtype edge has either two defined endpoints or two partial endpoints.
+`ComparisonBalancedContext` supplies guarded context transport, and
+`ComparisonBalancedProjection` removes partial subtype edges while separately
+retaining every original shape equation. Defined comparisons and the same
+prepared substitution are preserved in both directions, with identical scalar
+models, exact domains, and body/image guards.
+`ComparisonBalancedDecision` connects this mathematical projection to the exact
+fixed-endpoint observer checker when the original context has no finite shape
+model. The projection is noncomputable as defined;
+these are internal transfer theorems, not an extension of the public driver.
+The regression module covers a non-reflexive partial edge, retention of shape
+information, and why bounds crossing between defined and partial endpoints
+cannot simply be deleted.
 Finite observer machines decide fixed defined-endpoint comparisons
 under defined type bounds without a finite shape model. Their boundary and state
 bound are computed from those endpoints, and finite coordinate certificates have
