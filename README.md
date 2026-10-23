@@ -345,14 +345,17 @@ body/image guards with a capsule boundary depending only on the prepared input.
 The restriction leaves defined constructor structure and partial lattice
 expressions unbounded; it does not yet supply an arbitrary-context order checker
 or the input-only rank bound needed for complete witness synthesis.
-`ComparisonRawCarrierTables` supplies ideal interpretations of partial
-constructor tables: the carrier need not contain every constructor application.
-The interpretations are monotone and reflect the original restricted comparison
-exactly at recorded input/output triples. Product and sum tables retain a common
-literal annotation, including a partial one, and allow an arbitrary predicate
-selecting output rows. This is a local lemma for a possible finite-head
-restriction; coherence with composition and ordering of modality actions remains
-unproved, so it does not establish that restriction or a finite checker.
+`ComparisonRawHeadLocality` strengthens this to a finite boundary of whole
+partial constructor heads for raw types and defined witnesses. Its independent
+restricted calculus explicitly checks constructor outputs. Indexed sparse tables
+synchronize ordered total controls, retain exact partial prefixes, and handle
+function-domain variance. The coordinate interpretation validates every original
+rule and reflects guarded endpoints; raw types and defined witnesses satisfy
+that guard automatically. `ComparisonRawHeadPrepared` preserves the same
+admissible substitution and original guards with an input-only head boundary.
+This is still not a finite checker: defined structure, partial lattice terms,
+and total modal/lattice alternation remain unbounded. A simultaneous finite
+quotient preserving mixed cuts against the defined subalgebra is still required.
 Finite observer machines decide fixed defined-endpoint comparisons
 under defined type bounds without a finite shape model. Their boundary and state
 bound are computed from those endpoints, and finite coordinate certificates have

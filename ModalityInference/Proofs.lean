@@ -588,5 +588,20 @@ import ModalityInference.Proofs.ComparisonRawCarrierLattice
 import ModalityInference.Proofs.ComparisonRawCarrierSoundness
 import ModalityInference.Proofs.ComparisonRawCarrierPrepared
 import ModalityInference.Proofs.ComparisonRawCarrierTables
+import ModalityInference.Proofs.ComparisonRawCarrierHeterogeneous
+import ModalityInference.Proofs.ComparisonRawCarrierSuffix
+import ModalityInference.Proofs.ComparisonRawHeadBoundary
+import ModalityInference.Proofs.ComparisonRawHeadFunctions
+import ModalityInference.Proofs.ComparisonRawHeadGuardedLattice
+import ModalityInference.Proofs.ComparisonRawHeadInterpretation
+import ModalityInference.Proofs.ComparisonRawHeadLocality
+import ModalityInference.Proofs.ComparisonRawHeadPrepared
+import ModalityInference.Proofs.ComparisonRawHeadReflection
+import ModalityInference.Proofs.ComparisonRawHeadReflectionLattice
+import ModalityInference.Proofs.ComparisonRawHeadRestriction
+import ModalityInference.Proofs.ComparisonRawHeadSoundness
+import ModalityInference.Proofs.ComparisonRawHeadStructural
+import ModalityInference.Proofs.ComparisonRawHeadSupport
+import ModalityInference.Proofs.ComparisonRawHeadTables
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
