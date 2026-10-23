@@ -1,4 +1,4 @@
-import ModalityInference.Proofs.ComparisonRawHeadRestriction
+import ModalityInference.Proofs.ComparisonRawHeadGuardedLattice
 
 /-! Finite partial-head support for a boundary term. Products and sums retain
 their whole head and pass the literal suffix to both operands. Total suffixes
@@ -111,8 +111,30 @@ theorem support_defined {Δ : Bounds} {a : CompareTy} (h : a.DefinedUnder Δ) :
         heads_defined h, ia hd.1, ib hd.2, Set.empty_union]
   | var | unit | credit => exact heads_defined h
 
-theorem carrier_of_support {Δ H a suffix} (h : support Δ a suffix ⊆ H) :
-    Carrier Δ H (suffix.apply a) := (heads_subset_support Δ a suffix).trans h
+theorem heads_nonLattice (Δ : Bounds) (a : CompareTy) :
+    ∀ h ∈ heads Δ a, NonLattice h := by
+  fun_induction heads Δ a with
+  | case1 _ _ _ ih | case2 _ _ _ _ ih => exact ih
+  | case3 => simp only [Set.mem_singleton_iff, forall_eq, NonLattice]
+  | case4 _ _ ia ib | case5 _ _ ia ib =>
+    intro x hx
+    exact hx.elim (ia x) (ib x)
+  | case6 => exact fun _ hx => False.elim hx
+  | case7 a _ _ hj hm _ =>
+    intro x hx
+    obtain rfl := Set.mem_singleton_iff.mp hx
+    cases x <;> first | trivial | exact False.elim (hj _ _ rfl) | exact False.elim (hm _ _ rfl)
+
+theorem generator_of_support {Δ H a suffix} (hg : GuardedLattice Δ a)
+    (h : support Δ a suffix ⊆ H) : Generator Δ H (suffix.apply a) := by
+  intro x hx
+  have hs : GuardedLattice Δ (suffix.apply a) := by cases suffix <;> exact hg
+  rw [oneHead_eq_heads hs] at hx
+  exact ⟨h ((heads_subset_support Δ a suffix) hx), heads_nonLattice Δ _ x hx⟩
+
+theorem carrier_of_support {Δ H a suffix} (hg : GuardedLattice Δ a)
+    (h : support Δ a suffix ⊆ H) : Carrier Δ H (suffix.apply a) :=
+  (generator_of_support hg h).carrier
 
 theorem support_prod_children {Δ H a b suffix}
     (h : support Δ (.prod a b) suffix ⊆ H) :
@@ -156,9 +178,9 @@ theorem boundarySupport_finite (Δ : Bounds) (boundary : List CompareTy) :
 theorem support_subset_boundary {Δ boundary a} (ha : a ∈ boundary) :
     support Δ a none ⊆ boundarySupport Δ boundary := fun _ h => ⟨a,ha,h⟩
 
-theorem carrier_boundary {Δ boundary a} (ha : a ∈ boundary) :
+theorem carrier_boundary {Δ boundary a} (ha : a ∈ boundary) (hg : GuardedLattice Δ a) :
     Carrier Δ (boundarySupport Δ boundary) a :=
-  carrier_of_support (suffix := none) (support_subset_boundary ha)
+  carrier_of_support (suffix := none) hg (support_subset_boundary ha)
 
 theorem support_total_subset_boundary {Δ boundary a suffix}
     (ha : a ∈ boundary) (hs : suffix.total Δ) :

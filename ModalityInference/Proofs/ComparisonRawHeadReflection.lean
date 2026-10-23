@@ -8,9 +8,9 @@ namespace ModalityInference.ComparisonRawHeadRestriction
 open ComparisonRawCarrierIdeals ComparisonRawCarrierSuffix
 open ComparisonPartialStructuredCapsule
 
-theorem carrier_apply_of_support {Δ H a} (s : Coordinate Δ)
+theorem carrier_apply_of_support {Δ H a} (s : Coordinate Δ) (hg : GuardedLattice Δ a)
     (h : support Δ a s.val.literal ⊆ H) : Carrier Δ H (s.val.apply a) :=
-  (carrier_modal_total s.property).mpr (carrier_of_support h)
+  (carrier_modal_total s.property).mpr (generator_of_support hg h)
 
 private theorem indexed_represents {Δ H Index p q}
     (T : IndexedBinaryTable (core Δ H) Index p q) {m a b c S U S' U'}
@@ -35,15 +35,15 @@ theorem denote_represents {Δ H a} (s : Coordinate Δ) (hg : GuardedLattice Δ a
     have hchild : support Δ a (s.prepend m).val.literal ⊆ H := by
       simpa only [Coordinate.prepend, support_prepend] using hc
     exact (ih (s.prepend m) hg hchild hs).equiv
-      (s.val.prepend_head_equivalent m s.property (carrier_apply_of_support s hc) hs).symm
+      (s.val.prepend_head_equivalent m s.property (carrier_apply_of_support s hg hc) hs).symm
   | prod a b ia ib =>
     obtain ⟨ha,hb⟩ := support_prod_children hc
     have hia := ia s hg.1 ha hs.1
     have hib := ib s hg.2 hb hs.2
     let T := indexedProdTable Δ H s.val.literal
     have ht : (T.table s.index).entry (s.val.apply a) (s.val.apply b) (s.val.apply (.prod a b)) :=
-      ⟨a,b,rfl,rfl,rfl,carrier_apply_of_support s ha,carrier_apply_of_support s hb,
-        carrier_apply_of_support s hc,(s.val.apply_wellShaped_iff).mpr hs.1,
+      ⟨a,b,rfl,rfl,rfl,carrier_apply_of_support s hg.1 ha,carrier_apply_of_support s hg.2 hb,
+        carrier_apply_of_support s hg hc,(s.val.apply_wellShaped_iff).mpr hs.1,
         (s.val.apply_wellShaped_iff).mpr hs.2,(s.val.apply_wellShaped_iff).mpr hs⟩
     exact indexed_represents T ht hia.1 hib.1 hia.2 hib.2
   | sum a b ia ib =>
@@ -52,8 +52,8 @@ theorem denote_represents {Δ H a} (s : Coordinate Δ) (hg : GuardedLattice Δ a
     have hib := ib s hg.2 hb hs.2
     let T := indexedSumTable Δ H s.val.literal
     have ht : (T.table s.index).entry (s.val.apply a) (s.val.apply b) (s.val.apply (.sum a b)) :=
-      ⟨a,b,rfl,rfl,rfl,carrier_apply_of_support s ha,carrier_apply_of_support s hb,
-        carrier_apply_of_support s hc,(s.val.apply_wellShaped_iff).mpr hs.1,
+      ⟨a,b,rfl,rfl,rfl,carrier_apply_of_support s hg.1 ha,carrier_apply_of_support s hg.2 hb,
+        carrier_apply_of_support s hg hc,(s.val.apply_wellShaped_iff).mpr hs.1,
         (s.val.apply_wellShaped_iff).mpr hs.2,(s.val.apply_wellShaped_iff).mpr hs⟩
     exact indexed_represents T ht hia.1 hib.1 hia.2 hib.2
   | fn a b ia ib =>
@@ -64,16 +64,16 @@ theorem denote_represents {Δ H a} (s : Coordinate Δ) (hg : GuardedLattice Δ a
     | none =>
       have hab : support Δ a none ⊆ H ∧ support Δ b none ⊆ H :=
         support_fn_children (by simp only [hp,Suffix.total]) hc
-      have hca := carrier_of_support (suffix := none) hab.1
-      have hcb := carrier_of_support (suffix := none) hab.2
+      have hca := generator_of_support (suffix := none) hg.1 hab.1
+      have hcb := generator_of_support (suffix := none) hg.2 hab.2
       have hia := (ia (identityCoordinate Δ) hg.1 hab.1 hs.1).equiv
         (HeadEquivalent.identity hca hs.1).symm
       have hib := (ib (identityCoordinate Δ) hg.2 hab.2 hs.2).equiv
         (HeadEquivalent.identity hcb hs.2).symm
       let T := indexedFnTable Δ H
       have ht : (T.table s.index).entry a b (s.val.apply (.fn a b)) :=
-        ⟨by simp only [Normalized.apply,hp,prefixApply,Coordinate.index],hca,hcb,carrier_apply_of_support s hc,
-          hs.1,hs.2,(s.val.apply_wellShaped_iff).mpr hs⟩
+        ⟨by simp only [Normalized.apply,hp,prefixApply,Coordinate.index],
+          hca.carrier,hcb.carrier,carrier_apply_of_support s hg hc,hs.1,hs.2,(s.val.apply_wellShaped_iff).mpr hs⟩
       simpa only [denote,hp] using indexed_represents T ht hia.2 hib.1 hia.1 hib.2
   | join a b ia ib =>
     cases hp : s.val.literal with
@@ -132,6 +132,8 @@ theorem Related.of_derivation {Δ H a b}
   have pa := denote_total_represents m hga ha h.shaped.1
   have pb := denote_total_represents m hgb hb h.shaped.2
   have hm := h.congr (Submode.refl m.property)
+    (carrier_apply_of_support (totalCoordinate m) hga ha)
+    (carrier_apply_of_support (totalCoordinate m) hgb hb)
   exact ⟨fun c hc => (pb.1 c).mpr (((pa.1 c).mp hc).trans hm),
     fun c hc => (pa.2 c).mpr (hm.trans ((pb.2 c).mp hc))⟩
 
@@ -141,11 +143,11 @@ theorem Related.derivation {Δ H a b}
     (sa : a.WellShaped Δ) (sb : b.WellShaped Δ)
     (h : Related Δ H a b) : Derivation Δ H a b := by
   let m : ComparisonRawCarrierRestriction.TotalIndex Δ := ⟨.epsilon,fun _ _ => rfl⟩
-  have hca := carrier_of_support (suffix := none) ha
-  have hcb := carrier_of_support (suffix := none) hb
+  have hca := generator_of_support (suffix := none) hga ha
+  have hcb := generator_of_support (suffix := none) hgb hb
   have pa := (denote_total_represents m hga ha sa).equiv (HeadEquivalent.identity hca sa).symm
   have pb := (denote_total_represents m hgb hb sb).equiv (HeadEquivalent.identity hcb sb).symm
-  exact (pb.1 a).mp ((h m).1 a ((pa.1 a).mpr (Derivation.refl hca sa)))
+  exact (pb.1 a).mp ((h m).1 a ((pa.1 a).mpr (Derivation.refl hca.carrier sa)))
 
 theorem Related.of_derivation_defined {Δ H a b} (ha : a.DefinedUnder Δ)
     (hb : b.DefinedUnder Δ) (h : Derivation Δ H a b) : Related Δ H a b :=

@@ -347,15 +347,21 @@ expressions unbounded; it does not yet supply an arbitrary-context order checker
 or the input-only rank bound needed for complete witness synthesis.
 `ComparisonRawHeadLocality` strengthens this to a finite boundary of whole
 partial constructor heads for raw types and defined witnesses. Its independent
-restricted calculus explicitly checks constructor outputs. Indexed sparse tables
+restricted calculus explicitly checks constructor and congruence outputs. Indexed sparse tables
 synchronize ordered total controls, retain exact partial prefixes, and handle
 function-domain variance. The coordinate interpretation validates every original
 rule and reflects guarded endpoints; raw types and defined witnesses satisfy
 that guard automatically. `ComparisonRawHeadPrepared` preserves the same
 admissible substitution and original guards with an input-only head boundary.
-This is still not a finite checker: defined structure, partial lattice terms,
-and total modal/lattice alternation remain unbounded. A simultaneous finite
-quotient preserving mixed cuts against the defined subalgebra is still required.
+The tightened carrier excludes total actions on naked partial lattice nodes;
+`ComparisonRawHeadModeOrbits` gives executable finite representatives for the
+supported total controls on partial heads. Optional-cut separation and the
+observer range product provide exact lower/upper shadow constraints, including
+contravariant function rows and empty cuts. `ComparisonRelativeIntervals` and
+the relative-table modules prove finite lattice and constructor extensions once
+a finite shadow diagram is supplied. Constructing that diagram and the coherent
+finite control interpretation remains necessary for a mixed-context checker;
+these results do not bound the rank of unknown witnesses.
 Finite observer machines decide fixed defined-endpoint comparisons
 under defined type bounds without a finite shape model. Their boundary and state
 bound are computed from those endpoints, and finite coordinate certificates have

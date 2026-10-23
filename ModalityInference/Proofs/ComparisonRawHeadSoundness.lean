@@ -8,8 +8,8 @@ namespace ModalityInference.ComparisonRawHeadRestriction
 theorem Related.bound {Δ H a b} (hc : Covers Δ H) (h : Constraint.sub a b ∈ Δ) :
     Related Δ H (.ofTy a) (.ofTy b) :=
   .of_derivation (hc a b h).1 (hc a b h).2 (GuardedLattice.ofTy Δ a) (GuardedLattice.ofTy Δ b)
-    (.atom (carrier_of_support (suffix := none) (hc a b h).1)
-      (carrier_of_support (suffix := none) (hc a b h).2) (.bound h))
+    (.atom (carrier_of_support (suffix := none) (GuardedLattice.ofTy Δ a) (hc a b h).1)
+      (carrier_of_support (suffix := none) (GuardedLattice.ofTy Δ b) (hc a b h).2) (.bound h))
 
 theorem Related.equation {Δ H a b} (h : ComparisonAlgebra.Equation Δ a b) :
     Related Δ H a b :=

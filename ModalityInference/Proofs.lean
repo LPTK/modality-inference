@@ -603,5 +603,16 @@ import ModalityInference.Proofs.ComparisonRawHeadSoundness
 import ModalityInference.Proofs.ComparisonRawHeadStructural
 import ModalityInference.Proofs.ComparisonRawHeadSupport
 import ModalityInference.Proofs.ComparisonRawHeadTables
+import ModalityInference.Proofs.ComparisonObserverCutSeparation
+import ModalityInference.Proofs.ComparisonObserverHeadCuts
+import ModalityInference.Proofs.ComparisonObserverRangeProduct
+import ModalityInference.Proofs.ComparisonObserverShadowRows
+import ModalityInference.Proofs.ComparisonRawHeadModeOrbits
+import ModalityInference.Proofs.ComparisonRelativeIntervals
+import ModalityInference.Proofs.ComparisonRelativeTables
+import ModalityInference.Proofs.ComparisonRelativeMixedRows
+
+import ModalityInference.Proofs.ComparisonObserverRangeTransfer
+
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

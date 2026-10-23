@@ -189,15 +189,19 @@ theorem HeadEquivalent.trans {Δ H a b c} (h : HeadEquivalent Δ H a b)
     (g : HeadEquivalent Δ H b c) : HeadEquivalent Δ H a c :=
   ⟨h.1.trans g.1,g.2.trans h.2⟩
 
-theorem HeadEquivalent.modal {Δ H a b m} (h : HeadEquivalent Δ H a b)
-    (hm : Entails Δ (.defined m)) : HeadEquivalent Δ H (.modal a m) (.modal b m) :=
-  ⟨h.1.congr (.refl hm),h.2.congr (.refl hm)⟩
+theorem HeadEquivalent.modal {Δ H a b p q m}
+    (h : HeadEquivalent Δ H (.modal a p) (.modal b q))
+    (hm : Entails Δ (.defined m)) :
+    HeadEquivalent Δ H (.modal (.modal a p) m) (.modal (.modal b q) m) :=
+  let ha := (ComparisonRawHeadRestriction.carrier_modal_outer_total hm).mpr h.1.carriers.1
+  let hb := (ComparisonRawHeadRestriction.carrier_modal_outer_total hm).mpr h.1.carriers.2
+  ⟨h.1.congr (.refl hm) ha hb,h.2.congr (.refl hm) hb ha⟩
 
-theorem HeadEquivalent.identity {Δ H a} (hc : ComparisonRawHeadRestriction.Carrier Δ H a)
+theorem HeadEquivalent.identity {Δ H a} (hc : ComparisonRawHeadRestriction.Generator Δ H a)
     (hs : a.WellShaped Δ) : HeadEquivalent Δ H a (.modal a .epsilon) :=
   let hc' := (ComparisonRawHeadRestriction.carrier_modal_total
     (m := .epsilon) (fun _ _ => rfl)).mpr hc
-  ⟨.atom hc hc' (.identityRev hs),.atom hc' hc (.identity hs)⟩
+  ⟨.atom hc.carrier hc' (.identityRev hs),.atom hc' hc.carrier (.identity hs)⟩
 
 theorem HeadEquivalent.compose {Δ H a m n}
     (hc : ComparisonRawHeadRestriction.Carrier Δ H (.modal (.modal a m) n))
@@ -239,11 +243,56 @@ theorem normalize_head_equivalent {Δ H m a}
     · exact HeadEquivalent.refl hc hs
     · exact HeadEquivalent.identity hc hs
 
+private def AlgebraEquivalent (Δ : Bounds) (a b : CompareTy) : Prop :=
+  AlgebraSubtype Δ a b ∧ AlgebraSubtype Δ b a
+
+private theorem AlgebraEquivalent.refl {Δ a} (hs : a.WellShaped Δ) :
+    AlgebraEquivalent Δ a a := ⟨.refl hs,.refl hs⟩
+
+private theorem AlgebraEquivalent.trans {Δ a b c} (h : AlgebraEquivalent Δ a b)
+    (g : AlgebraEquivalent Δ b c) : AlgebraEquivalent Δ a c :=
+  ⟨h.1.trans g.1,g.2.trans h.2⟩
+
+private theorem AlgebraEquivalent.modal {Δ a b m} (h : AlgebraEquivalent Δ a b)
+    (hm : Entails Δ (.defined m)) : AlgebraEquivalent Δ (.modal a m) (.modal b m) :=
+  ⟨h.1.congr (.refl hm),h.2.congr (.refl hm)⟩
+
+private theorem AlgebraEquivalent.compose {Δ a m n} (hs : a.WellShaped Δ) :
+    AlgebraEquivalent Δ (.modal (.modal a m) n) (.modal a (.compose m n)) :=
+  ⟨.shaped (.compose hs),.shaped (.composeRev hs)⟩
+
+private theorem AlgebraEquivalent.expand {Δ a m n} (hs : a.WellShaped Δ) :
+    AlgebraEquivalent Δ (.modal a (.compose m n)) (.modal (.modal a m) n) :=
+  ⟨.shaped (.composeRev hs),.shaped (.compose hs)⟩
+
 theorem normalize_algebra {Δ m a} (hs : a.WellShaped Δ) :
     AlgebraSubtype Δ (.modal a m) ((normalize Δ m).apply a) ∧
-      AlgebraSubtype Δ ((normalize Δ m).apply a) (.modal a m) :=
-  let h := normalize_head_equivalent (H := Set.univ) (Set.subset_univ _) hs
-  ⟨h.1.algebra,h.2.algebra⟩
+      AlgebraSubtype Δ ((normalize Δ m).apply a) (.modal a m) := by
+  change AlgebraEquivalent Δ (.modal a m) ((normalize Δ m).apply a)
+  induction m generalizing a with
+  | compose l r hl hr =>
+    by_cases h : Entails Δ (.defined (.compose l r))
+    · rw [normalize_total h]
+      exact AlgebraEquivalent.refl hs
+    · have he := (AlgebraEquivalent.expand (m := l) (n := r) hs).trans (hr hs)
+      cases hp : (normalize Δ r).literal with
+      | none =>
+        simp only [Normalized.apply, hp, prefixApply] at he
+        have hg := he.trans ((hl hs).modal (control_total Δ r))
+        have ht := hg.trans (AlgebraEquivalent.compose
+          (a := prefixApply (normalize Δ l).literal a) hg.1.wellShaped_right)
+        simpa only [normalize, if_neg h, hp, Normalized.apply] using ht
+      | some p =>
+        simp only [Normalized.apply, hp, prefixApply] at he
+        have ht := he.trans ((AlgebraEquivalent.compose (m := l) (n := p) hs).modal
+          (control_total Δ r))
+        simpa only [normalize, if_neg h, hp, Normalized.apply, prefixApply] using ht
+  | _ =>
+    simp only [normalize]
+    split
+    · exact AlgebraEquivalent.refl hs
+    · exact ⟨.shaped (.identityRev hs),.shaped (.identity hs)⟩
+
 
 theorem heads_literal (Δ : Bounds) (m : ModExpr) (a : CompareTy) :
     ComparisonRawHeadRestriction.heads Δ (.modal a m) =
@@ -273,10 +322,45 @@ theorem heads_normalize (Δ : Bounds) (m : ModExpr) (a : CompareTy) :
   rw [Normalized.apply, ComparisonRawHeadRestriction.heads_modal_total (control_total Δ m),
     ← heads_literal]
 
+theorem oneHead_compose (Δ : Bounds) (a : CompareTy) (m n : ModExpr) :
+    ComparisonRawHeadRestriction.oneHead Δ (.modal a (.compose m n)) =
+      ComparisonRawHeadRestriction.oneHead Δ (.modal (.modal a m) n) := by
+  rw [ComparisonRawHeadRestriction.oneHead]
+
+theorem oneHead_literal (Δ : Bounds) (m : ModExpr) (a : CompareTy) :
+    ComparisonRawHeadRestriction.oneHead Δ (.modal a m) =
+      ComparisonRawHeadRestriction.oneHead Δ (prefixApply (normalize Δ m).literal a) := by
+  induction m generalizing a with
+  | compose l r hl hr =>
+    by_cases h : Entails Δ (.defined (.compose l r))
+    · rw [normalize_total h]
+      exact ComparisonRawHeadRestriction.oneHead_modal_total h a
+    · cases hp : (normalize Δ r).literal with
+      | none =>
+        rw [oneHead_compose, hr]
+        simpa only [normalize, if_neg h, hp, prefixApply] using hl a
+      | some p =>
+        rw [oneHead_compose, hr]
+        simp only [normalize, if_neg h, hp, prefixApply]
+        exact (oneHead_compose Δ a l p).symm
+  | _ =>
+    simp only [normalize]
+    split
+    · exact ComparisonRawHeadRestriction.oneHead_modal_total ‹_› a
+    · rfl
+
+theorem oneHead_normalize (Δ : Bounds) (m : ModExpr) (a : CompareTy) :
+    ComparisonRawHeadRestriction.oneHead Δ ((normalize Δ m).apply a) =
+      ComparisonRawHeadRestriction.oneHead Δ (.modal a m) := by
+  rw [Normalized.apply, ComparisonRawHeadRestriction.oneHead_modal_total (control_total Δ m),
+    ← oneHead_literal]
+
 theorem carrier_normalize_iff {Δ H m a} :
     ComparisonRawHeadRestriction.Carrier Δ H ((normalize Δ m).apply a) ↔
       ComparisonRawHeadRestriction.Carrier Δ H (.modal a m) := by
-  simp only [ComparisonRawHeadRestriction.Carrier, heads_normalize]
+  simp only [Normalized.apply, ComparisonRawHeadRestriction.Carrier,
+    ComparisonRawHeadRestriction.Generator,
+    ComparisonRawHeadRestriction.oneHead_modal_total (control_total Δ m), ← oneHead_literal]
 
 theorem Normalized.apply_wellShaped_iff {Δ a} (s : Normalized) :
     (s.apply a).WellShaped Δ ↔ a.WellShaped Δ := by

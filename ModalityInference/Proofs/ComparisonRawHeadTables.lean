@@ -10,6 +10,19 @@ open ComparisonRawCarrierIdeals ComparisonRawCarrierRestriction
 theorem Derivation.refl {Δ H a} (hc : Carrier Δ H a) (hs : CompareTy.WellShaped Δ a) :
     Derivation Δ H a a := .atom hc hc (.refl hs)
 
+theorem Derivation.mode_order {Δ H a m n} (hc : Generator Δ H a)
+    (hs : CompareTy.WellShaped Δ a) (hmn : Submode Δ m n) :
+    Derivation Δ H (.modal a m) (.modal a n) :=
+  (Derivation.refl hc.carrier hs).congr hmn
+    ((carrier_modal_total hmn.defined.1).mpr hc)
+    ((carrier_modal_total hmn.defined.2).mpr hc)
+
+theorem Derivation.congr_modal {Δ H a b m n r s}
+    (h : Derivation Δ H (.modal a m) (.modal b n)) (hrs : Submode Δ r s) :
+    Derivation Δ H (.modal (.modal a m) r) (.modal (.modal b n) s) :=
+  h.congr hrs ((carrier_modal_outer_total hrs.defined.1).mpr h.carriers.1)
+    ((carrier_modal_outer_total hrs.defined.2).mpr h.carriers.2)
+
 theorem Derivation.flatten_modal {Δ H a b m n r s}
     (h : Derivation Δ H (.modal (.modal a m) n) (.modal (.modal b r) s)) :
     Derivation Δ H (.modal a (.compose m n)) (.modal b (.compose r s)) :=
@@ -27,11 +40,11 @@ theorem Derivation.expand_modal {Δ H a b m n r s}
 theorem Derivation.synchronize {Δ H a b m n}
     (h : Derivation Δ H (.modal a m) (.modal b n)) (hmn : Submode Δ m n) :
     Derivation Δ H (.modal a (.compose m n)) (.modal b (.compose m n)) := by
-  have h' := (h.congr (Submode.refl hmn.compose_between.1.defined.2)).flatten_modal
-  exact ((Derivation.refl ((carrier_modal_total hmn.defined.1).mp h.carriers.1)
-    h.shaped.1).congr (submode_compose_absorb hmn).1).trans (h'.trans
-      ((Derivation.refl ((carrier_modal_total hmn.defined.2).mp h.carriers.2)
-        h.shaped.2).congr (submode_compose_absorb hmn).2))
+  have h' := (h.congr_modal (Submode.refl hmn.compose_between.1.defined.2)).flatten_modal
+  exact (Derivation.mode_order ((carrier_modal_total hmn.defined.1).mp h.carriers.1)
+    h.shaped.1 (submode_compose_absorb hmn).1).trans (h'.trans
+      (Derivation.mode_order ((carrier_modal_total hmn.defined.2).mp h.carriers.2)
+        h.shaped.2 (submode_compose_absorb hmn).2))
 
 theorem Derivation.inherited_prefix_ordered {Δ H a b c d p m n}
     (op : CompareTy → CompareTy → CompareTy)
@@ -52,10 +65,10 @@ theorem Derivation.inherited_prefix_ordered {Δ H a b c d p m n}
     (carrier_compose.mpr ((carrier_modal_total hmn.compose_between.1.defined.2).mpr
       ((carrier_modal_total hmn.defined.2).mp hr)))
     (hac.synchronize hmn).flatten_modal (hbd.synchronize hmn).flatten_modal
-  exact ((Derivation.refl ((carrier_modal_total hmn.defined.1).mp hl)
-    h.shaped.1).congr hmn.compose_between.1).trans
-      (h.expand_modal.trans ((Derivation.refl ((carrier_modal_total hmn.defined.2).mp hr)
-        h.shaped.2).congr hmn.compose_between.2))
+  exact (Derivation.mode_order ((carrier_modal_total hmn.defined.1).mp hl)
+    h.shaped.1 hmn.compose_between.1).trans
+      (h.expand_modal.trans (Derivation.mode_order ((carrier_modal_total hmn.defined.2).mp hr)
+        h.shaped.2 hmn.compose_between.2))
 
 theorem Derivation.inherited_ordered {Δ H a b c d m n}
     (op : CompareTy → CompareTy → CompareTy)
@@ -75,10 +88,10 @@ theorem Derivation.inherited_ordered {Δ H a b c d m n}
     ((carrier_modal_total hmn.compose_between.1.defined.2).mpr
       ((carrier_modal_total hmn.defined.2).mp hr))
     (hac.synchronize hmn) (hbd.synchronize hmn)
-  exact ((Derivation.refl ((carrier_modal_total hmn.defined.1).mp hl)
-    h.shaped.1).congr hmn.compose_between.1).trans
-      (h.trans ((Derivation.refl ((carrier_modal_total hmn.defined.2).mp hr)
-        h.shaped.2).congr hmn.compose_between.2))
+  exact (Derivation.mode_order ((carrier_modal_total hmn.defined.1).mp hl)
+    h.shaped.1 hmn.compose_between.1).trans
+      (h.trans (Derivation.mode_order ((carrier_modal_total hmn.defined.2).mp hr)
+        h.shaped.2 hmn.compose_between.2))
 
 open ComparisonPartialStructuredCapsule
 

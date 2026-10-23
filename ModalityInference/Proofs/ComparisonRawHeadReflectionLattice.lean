@@ -81,8 +81,8 @@ theorem Represents.modal_join {Δ H S T a b m}
   have he : ComparisonAlgebra.Equation Δ (.modal (.join a b) m)
       (.join (.modal a m) (.modal b m)) := .modal true hab hm
   have hd := ComparisonDefinedCovers.equation_defined he
-  apply (hs.join ht ((carrier_modal_total hm).mpr (carrier_defined hab.2.1))
-    ((carrier_modal_total hm).mpr (carrier_defined hab.2.2)) hab.1).equiv
+  apply (hs.join ht (carrier_modal_defined hab.2.1 hm)
+    (carrier_modal_defined hab.2.2 hm) hab.1).equiv
   exact ⟨.atom (carrier_defined hd.2) (carrier_defined hd.1) (.equationRev he),
     .atom (carrier_defined hd.1) (carrier_defined hd.2) (.equation he)⟩
 
@@ -93,8 +93,8 @@ theorem Represents.modal_meet {Δ H S T a b m}
   have he : ComparisonAlgebra.Equation Δ (.modal (.meet a b) m)
       (.meet (.modal a m) (.modal b m)) := .modal false hab hm
   have hd := ComparisonDefinedCovers.equation_defined he
-  apply (hs.meet ht ((carrier_modal_total hm).mpr (carrier_defined hab.2.1))
-    ((carrier_modal_total hm).mpr (carrier_defined hab.2.2)) hab.1).equiv
+  apply (hs.meet ht (carrier_modal_defined hab.2.1 hm)
+    (carrier_modal_defined hab.2.2 hm) hab.1).equiv
   exact ⟨.atom (carrier_defined hd.2) (carrier_defined hd.1) (.equationRev he),
     .atom (carrier_defined hd.1) (carrier_defined hd.2) (.equation he)⟩
 

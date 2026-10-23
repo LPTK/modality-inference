@@ -68,11 +68,11 @@ theorem principal_modal_mono {Δ H a m n} (h : Submode Δ m n) :
     (principal Δ H (.modal a m)).Le (principal Δ H (.modal a n)) := by
   constructor
   · intro c hc
-    exact hc.trans ((Derivation.refl ((carrier_modal_total h.defined.1).mp hc.carriers.2)
-      hc.shaped.2).congr h)
+    exact hc.trans (Derivation.mode_order ((carrier_modal_total h.defined.1).mp hc.carriers.2)
+      hc.shaped.2 h)
   · intro c hc
-    exact ((Derivation.refl ((carrier_modal_total h.defined.2).mp hc.carriers.1)
-      hc.shaped.1).congr h).trans hc
+    exact (Derivation.mode_order ((carrier_modal_total h.defined.2).mp hc.carriers.1)
+      hc.shaped.1 h).trans hc
 
 end Interpretation
 
