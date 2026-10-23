@@ -302,6 +302,14 @@ For contexts without such a model, `ComparisonRankedBasis` and
 constructor rank for every admissible witness. The general terminating
 comparison algorithm still needs an effective bound or decision for those ranks,
 as well as the arbitrary-ambient-context bridge.
+`ComparisonRankedOrderSimulation` gives exact recursive positivity and
+constant-boundary tests for that basis, retaining different constructor choices,
+function-domain variance, and modal controls. Saturating their interleaving with
+the original constraint edges across all ranks remains unproved.
+`ComparisonLeastPropagationLimitation` proves that finite witness existence
+cannot be reduced to finite stabilization of least forward propagation: a
+defined finite prefixed witness can exist while every ascending lower iterate
+fails the required inequality.
 `ComparisonAmbientDriver.run` accepts explicit ambient bounds and proves
 unconditional successful-result soundness, termination, and fuel stability.
 Complete acceptance under raw partial ambient bounds still requires preserving
@@ -320,6 +328,12 @@ these are internal transfer theorems, not an extension of the public driver.
 The regression module covers a non-reflexive partial edge, retention of shape
 information, and why bounds crossing between defined and partial endpoints
 cannot simply be deleted.
+`ComparisonRawCarrierCountermodel` refutes the proposed general product rule
+for the current partial-carrier interpretation under mixed bounds. Both child
+premises hold, and the product comparison is derivable in the original algebra,
+but the interpretation loses that comparison. The interpretation of partial
+intermediate expressions must be redesigned; this result does not refute the
+intended comparison reconstruction theorem.
 Finite observer machines decide fixed defined-endpoint comparisons
 under defined type bounds without a finite shape model. Their boundary and state
 bound are computed from those endpoints, and finite coordinate certificates have

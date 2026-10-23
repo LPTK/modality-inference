@@ -575,5 +575,8 @@ import ModalityInference.Proofs.ComparisonBalancedContext
 import ModalityInference.Proofs.ComparisonBalancedProjection
 import ModalityInference.Proofs.ComparisonBalancedDecision
 import ModalityInference.Proofs.ComparisonBalancedContextRegression
+import ModalityInference.Proofs.ComparisonLeastPropagationLimitation
+import ModalityInference.Proofs.ComparisonRawCarrierCountermodel
+import ModalityInference.Proofs.ComparisonRankedOrderSimulation
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/
