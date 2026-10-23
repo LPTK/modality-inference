@@ -312,8 +312,8 @@ defined finite prefixed witness can exist while every ascending lower iterate
 fails the required inequality.
 `ComparisonAmbientDriver.run` accepts explicit ambient bounds and proves
 unconditional successful-result soundness, termination, and fuel stability.
-Complete acceptance under raw partial ambient bounds still requires preserving
-their partial endpoints without demanding additional guards.
+Complete acceptance under raw partial ambient bounds still needs a finite
+comparison procedure preserving their partial endpoints and original guards.
 `ComparisonBalancedDerivation` extracts fully defined derivations when each
 declared subtype edge has either two defined endpoints or two partial endpoints.
 `ComparisonBalancedContext` supplies guarded context transport, and
@@ -328,12 +328,23 @@ these are internal transfer theorems, not an extension of the public driver.
 The regression module covers a non-reflexive partial edge, retention of shape
 information, and why bounds crossing between defined and partial endpoints
 cannot simply be deleted.
-`ComparisonRawCarrierCountermodel` refutes the proposed general product rule
-for the current partial-carrier interpretation under mixed bounds. Both child
-premises hold, and the product comparison is derivable in the original algebra,
-but the interpretation loses that comparison. The interpretation of partial
-intermediate expressions must be redesigned; this result does not refute the
-intended comparison reconstruction theorem.
+In `ComparisonRawCarrierSoundness`,
+`ComparisonRawCarrierRestriction.finite_capsule_locality` proves an exact
+restriction of arbitrary mixed-bound comparisons to a finite set of literal
+partial capsules determined by the raw bounds and requested endpoints.
+Its independent restricted calculus permits all well-shaped joins and meets
+of partial terms. Carrier ideals factor finite covers through monotone actions
+and structural constructors; this validates every original rule, including
+partial products, literal composition, function variance, and guarded equations.
+The guarded-join carrier refuted by `ComparisonRawCarrierCountermodel` remains
+separate from this replacement.
+In `ComparisonRawCarrierPrepared`,
+`ComparisonRawCarrierRestriction.prepared_witnessUnder_iff_restricted` preserves
+the same prepared type and modality substitution, exact domains, and original
+body/image guards with a capsule boundary depending only on the prepared input.
+The restriction leaves defined constructor structure and partial lattice
+expressions unbounded; it does not yet supply an arbitrary-context order checker
+or the input-only rank bound needed for complete witness synthesis.
 Finite observer machines decide fixed defined-endpoint comparisons
 under defined type bounds without a finite shape model. Their boundary and state
 bound are computed from those endpoints, and finite coordinate certificates have
