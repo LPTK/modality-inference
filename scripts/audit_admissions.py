@@ -74,6 +74,17 @@ for path in paths:
 assert admissions == 0, f'The development must remain admission-free: {admissions} admissions found'
 
 constants = [
+    'ModalityInference.ComparisonRawCarrierIdeals.BinaryTable.lower_mem',
+    'ModalityInference.ComparisonRawCarrierIdeals.BinaryTable.upper_mem',
+    'ModalityInference.ComparisonRawCarrierIdeals.BinaryTable.lower_mono',
+    'ModalityInference.ComparisonRawCarrierIdeals.BinaryTable.upper_mono',
+    'ModalityInference.ComparisonRawCarrierIdeals.BinaryTable.lower_sound',
+    'ModalityInference.ComparisonRawCarrierIdeals.BinaryTable.upper_sound',
+    'ModalityInference.ComparisonRawCarrierIdeals.BinaryTable.lower_principal',
+    'ModalityInference.ComparisonRawCarrierIdeals.BinaryTable.upper_principal',
+    'ModalityInference.ComparisonRawCarrierRestriction.actedTable',
+    'ModalityInference.ComparisonRawCarrierRestriction.prodTable',
+    'ModalityInference.ComparisonRawCarrierRestriction.sumTable',
     'ModalityInference.ComparisonRawCarrierIdeals.LowerClosure.carrier',
     'ModalityInference.ComparisonRawCarrierIdeals.UpperClosure.carrier',
     'ModalityInference.ComparisonRawCarrierIdeals.LowerClosure.shaped',
@@ -4992,6 +5003,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonRankedOrderSimulation\n'
                     'import ModalityInference.Proofs.ComparisonRawCarrierCountermodel\n'
                     'import ModalityInference.Proofs.ComparisonRawCarrierPrepared\n'
+                    'import ModalityInference.Proofs.ComparisonRawCarrierTables\n'
                     'import ModalityInference.Proofs.ComparisonObserverPorts\n'
                     'import ModalityInference.Proofs.ComparisonSignedGraph\n'
                     'import ModalityInference.Proofs.ComparisonSignedImplications\n'

@@ -587,5 +587,6 @@ import ModalityInference.Proofs.ComparisonRawCarrierInterpretationPartial
 import ModalityInference.Proofs.ComparisonRawCarrierLattice
 import ModalityInference.Proofs.ComparisonRawCarrierSoundness
 import ModalityInference.Proofs.ComparisonRawCarrierPrepared
+import ModalityInference.Proofs.ComparisonRawCarrierTables
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

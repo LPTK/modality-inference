@@ -345,6 +345,14 @@ body/image guards with a capsule boundary depending only on the prepared input.
 The restriction leaves defined constructor structure and partial lattice
 expressions unbounded; it does not yet supply an arbitrary-context order checker
 or the input-only rank bound needed for complete witness synthesis.
+`ComparisonRawCarrierTables` supplies ideal interpretations of partial
+constructor tables: the carrier need not contain every constructor application.
+The interpretations are monotone and reflect the original restricted comparison
+exactly at recorded input/output triples. Product and sum tables retain a common
+literal annotation, including a partial one, and allow an arbitrary predicate
+selecting output rows. This is a local lemma for a possible finite-head
+restriction; coherence with composition and ordering of modality actions remains
+unproved, so it does not establish that restriction or a finite checker.
 Finite observer machines decide fixed defined-endpoint comparisons
 under defined type bounds without a finite shape model. Their boundary and state
 bound are computed from those endpoints, and finite coordinate certificates have
