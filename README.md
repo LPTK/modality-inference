@@ -370,8 +370,16 @@ joint query patterns through finite extraction, including arbitrary defined
 internal lattice terms. `ComparisonObserverShadowQueryModel` constructs one
 finite interpreter reflecting raw/raw, defined/defined, and both mixed query
 directions. These results assume the original context has no finite shape model.
-Effective finite-model certificate checking and public integration remain
-necessary; the rank of unknown witnesses is still unbounded.
+Executable certificate components are now proved: symbolic scalar decisions
+with a structural completion budget, finite control encoding, checked machine
+extraction, admitted range-vector enumeration, exact row-table checks and
+extensions, finite prefix/frozen lookup, syntax evaluation, and finite defined
+embedding checks. Their bridges preserve the semantic model and its guarded
+operations. A single assembled certificate validator and its extraction theorem,
+the fixed-endpoint symbolic query, and public integration remain necessary;
+the rank of unknown witnesses is still unbounded. See
+[`comparison-finite-model-checker.md`](docs/comparison-finite-model-checker.md)
+for the current interfaces and remaining assembly.
 Finite observer machines decide fixed defined-endpoint comparisons
 under defined type bounds without a finite shape model. Their boundary and state
 bound are computed from those endpoints, and finite coordinate certificates have

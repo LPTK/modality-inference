@@ -1,131 +1,155 @@
 # Finite mixed-comparison certificates
 
-The next implementation target is a finite certificate for a failed **fixed**
-comparison in an ambient context that may contain partial raw type bounds.
-The finite diagram construction supplies the existence argument. A certificate
-checker must inspect finite data, without deciding the original head order or
-trusting the source diagram's cut predicates.
+The finite diagram construction supplies a separating model for a failed
+**fixed** comparison under mixed raw type bounds, assuming there is no finite
+shape model. Executable encodings and local validators are now proved. The
+remaining implementation target is to assemble them into one finite certificate,
+prove extraction and validation together, and connect the fixed-endpoint query
+to the symbolic backend.
 
-This is a reference encoding and proof plan. The production intent in
+This is a reference encoding and integration plan. The production intent in
 [`TODO.md`](../../TODO.md) remains symbolic elimination and propagation, with no
-exhaustive Boolean valuation expansion or rigid-representative search. Finite
-valuation and representative enumeration below establishes an effective finite
-presentation; the production query should compile its obligations to the
-existing Boolean backend rather than implement that enumeration as its solver.
+exhaustive Boolean valuation expansion or rigid-representative search. Reference
+finite enumeration establishes effective presentation; it is not a replacement
+for the intended production solver.
 
-## First API: executable finite controls
+## Executable scalar decisions and finite controls
 
-Add a reference `ComparisonFiniteControlEncoding` with a finite control type
-and an order/monoid equivalence to `ComparisonFiniteControls.Control Δ names`.
-Assume the retained names contain `Δ.modVars`.
+`ScalarDecision` supplies total `defined` and `submode` Boolean decisions using
+the existing symbolic backend. A structural budget bounds CNF normalization;
+the proof guarantees a successful validity report, including negative answers.
+No valuation enumeration or proof-valued search supplies these decisions.
 
-1. Enumerate assignments of the retained names to the eight concrete modes,
-   extending unlisted names by identity; retain the assignments satisfying the
-   original scalar assumptions.
-2. Evaluate each member of `ComparisonRawHeadModeOrbits.representatives names`
-   on those assignments and deduplicate the resulting finite lists of modes.
-3. Use distinct-list indices as controls. Order is pointwise `Mode.le`;
-   multiplication is pointwise `Mode.compose`, followed by lookup. Identity and
-   top have constant lists. `representatives_complete` proves lookup closure
-   and coverage of every supported total label.
-4. Export executable control lookup and proofs for identity, composition,
-   submode, and the function relation `m ≤ n * top`. Restrict names absent from
-   the input before encoding an arbitrary total annotation, as in the existing
-   `ComparisonFiniteControlProjection`.
+`ComparisonControlForms` exposes the existing finite total-control syntax
+family without importing proof modules. Its bridge is exact syntax equality,
+so the established totality, support, completeness, and size theorems transfer.
+`ComparisonFiniteControlEncoding` removes semantically equivalent labels using
+the symbolic decisions. A control is a finite list index; equality, order,
+identity, composition, top, and lookup are executable. The decode proofs give
+an order and monoid equivalence with `ComparisonFiniteControls.Control`.
+Lookup's fallback is unreachable for a total supported label. Projected lookup
+replaces names outside the boundary by identity before normalization, matching
+`ComparisonFiniteControlProjection`; it does not assert that an unsupported
+label is globally equivalent to its projection.
 
-This finite presentation avoids putting functions on infinitely many scalar
-worlds in a serialized certificate. Its symbolic replacement should reuse
-`modeFormula`, `boundsModeFormula`, `ConcreteBackend.decideFormula`, and their
-soundness/completeness theorems. The reference and symbolic representations
-must agree before the latter is used by the public checker.
+The representative family can be very large. Its role here is a finite
+reference control presentation, while scalar order/equivalence already use
+symbolic elimination.
 
-## Certificate data and finite checks
+## Checked machines and finite range values
 
-The certificate needs no source preorder, optional cuts, or subtyping proofs.
-It contains:
+`ComparisonObserverRangeDescriptions.finite_rows` chooses finite machine data
+through `MachineSerialization.bounded_descriptions_on`. It retains the complete
+query pattern at one shared state per source observer, checks the description
+for the shadow-row context, and checks the same data for `shapeShadow Δ`.
+Mode transport supplies `ModalValid`, `RangeClosed`, and `Coherent` for the
+original scalar assumptions.
 
-- A finite `ComparisonObserverMachineCheck.Description` array, with retained
-  type and mode names. Validate it using `MachineCheck.check` on
-  `ComparisonBalancedProjection.shapeShadow Δ`: this preserves the original
-  scalar assumptions and has no raw subtype edges. Mode transport supplies
-  `ModalValid`, `RangeClosed`, and `Coherent` for the original `Δ`.
-- Finite tag and observation indices `A` and `O`, and a Boolean matrix
-  `embed : A → O → Bool`.
-- Finite constructor row lists indexed by finite controls: ordinary product
-  and sum, function, and product/sum lists for each explicitly listed literal
-  prefix. An absent literal prefix denotes the empty table. Check the table
-  order conditions on all finite row pairs: control order for product/sum,
-  `FutureLe` for function, and the correct argument variance.
-- A finite frozen lookup list of exact comparison syntax and coordinate
-  arrays. Check that each array is monotone in the control. Missing keys denote
-  bottom; duplicate keys retain the interpreter's first-match behavior.
-- A finite table `j : D → (M → O → Bool)`, where `D` is the range product of the
-  checked machine. Check that `j` preserves join and meet, reflects order, and
-  commutes with control shifts. Check the three primitive constructor
-  agreement equations on every pair of values in `D`. Atoms, unit, and credit
-  are derived as `j` of the corresponding machine values.
+`ComparisonObserverShadowQueryDescriptions.exists_realization` rebuilds the
+optional cuts from these checked descriptions. It returns the same bounded
+realization and query-coverage interface, plus the actual description and the
+machine equality needed by serialization. No converse from arbitrary
+`Certified` to `Coordinates` is assumed.
 
-These checks instantiate `RelativeTables.IndexedTable`,
-`RelativeSyntax.Model`, and `RelativeSyntax.DefinedAgreement`. They are finite:
-`D` consists of the Boolean vectors admitted by the machine's range flags.
-There is no requirement that every tag denote a defined type, or that partial
-constructor rows satisfy the defined constructor equations.
+`ComparisonObserverRangeEncoding` represents range values by Boolean vectors
+on the finite state indices. It enumerates exactly the vectors admitted by the
+range flags and proves an order equivalence with `FiniteRange.Value`.
+Executable unit, credit, atom, modal, constructor, join, meet, and term
+operations agree with the semantic operations. Modal admittedness requires a
+total label and range closure. The `values`/`all_values` adapter enumerates the
+semantic range values directly using proof-erased admittedness witnesses, so
+finite embedding checks need no noncomputable `Fintype` instance.
 
-Finally evaluate each **original whole raw subtype bound** of `Δ` in this
-outer interpreter and check its inequality. Together with the finite agreement
-checks, `DefinedAgreement.algebra_sound` gives soundness for every original
-algebra rule. The inner machine is not required to satisfy the original partial
-raw bounds, and no `Δ.TypeBoundsDefined` premise is introduced.
+## Row tables, coordinates, and syntax
 
-## Supported evaluation and finite prefixes
+`ComparisonExecutableTables` stores indexed constructor rows and checks every
+row pair for compatibility with the Boolean index order and argument variance.
+Full observation coverage makes the finite vector order exact. A successful
+check constructs a semantic `IndexedTable`; the executable extension agrees
+with its semantic extension at every input. `TableSerialization` proves that
+every finite semantic table has such a row-list presentation.
 
-The current semantic suffix normalizer uses classical totality. Supply a
-reference supported evaluator whose totality tests use the finite scalar
-presentation, and prove agreement with `normalize` and `Model.denote` on the
-checked inputs. The production evaluator should obtain the same completed
-scalar decisions through the verified backend. Literal composition and the
-prefix tree must stay exact; do not reassociate through a partial outer label.
+`TableTransport` renames controls, tags, and observations through equivalences
+without dropping rows. `ExecutableCoordinates` gives the corresponding
+order-reflecting lattice map and proves compatibility with shifts and pair and
+function operations. The function proof requires the control renaming to
+preserve identity, since function inputs are read at that coordinate.
+`ExecutableCoordinateOperations` evaluates the finite row extension directly
+while preserving monotone-coordinate invariants; its proof fields erase.
 
-Unlisted type atoms already default to unit in `MachineSerialization`.
-Unlisted mode names use the fixed identity projection. Query support markers
-in `ComparisonObserverShadowQuerySupport` ensure that every checked endpoint's
-names are retained and its fresh shadow names are disjoint.
+`ComparisonExecutableSuffix` uses a supplied Boolean totality test and
+preserves the exact literal partial prefix. `ExecutableSyntax.Data` supplies
+executable operations and finite frozen lookup. Agreement with the semantic
+interpreter requires totality and control correctness only on the finite lists
+`totalTests` and `controlLabels`. `ExecutableScalarSyntax` discharges the
+totality side with `ScalarDecision.defined`.
 
-For the constructed model, the active literal-prefix set is bounded by
-`ComparisonRawHeadPrefixRows.prefixes B`, the root labels of its finite head
-list. `extend_eq_bot_of_not_mem` proves that every other prefix table is empty.
-Thus the apparently infinite `Option ModExpr` table family has an exact finite
-serialization, including its default behavior.
+`ComparisonExecutableFamilies` serializes the literal-prefix family as a
+finite list with empty-table default. For the constructed model this family is
+exactly the original one, including all unlisted prefixes. Frozen values use
+the same first-matching-key lookup; mapping stored values preserves that
+behavior, including duplicate keys. No reassociation through a partial label
+is introduced.
 
-## Completeness bridge and remaining scope
+## Defined embedding checks
 
-Choose the extraction machine through
-`MachineSerialization.bounded_descriptions_on`, then rebuild the same diagram
-from its finite range algebra. Apply the theorem's observer coverage to the
-source machine's certified observer, preserving the joint query/shadow pattern.
-This is an additional extraction adapter: `serialize_checked` requires an
-explicit `Coordinates` witness, which has not been inferred from an arbitrary
-`Certified` machine. Do not assume the latter implication.
+`ComparisonExecutableAgreement` checks a supplied finite table
+`j : D → M → O → Bool`. Its finite loops exactly characterize:
 
-Serialize the resulting model with `A = D ⊕ P`, its Boolean embedding, `j`, all
-finite table entries, and frozen entries. The construction proves each finite
-validation condition. Serialization preserves branches, ranges, unit/credit,
-retained atoms, and all total actions on admitted range values; these are the
-defined operations used by `j` and the tables. A small adapter checks the
-description on `shapeShadow Δ`, with vacuous subtype-bound checks. Retain all
-declared raw names, selected query names, and shadow names during this step.
+- monotonicity in controls;
+- preservation of defined joins and meets;
+- reflection of the defined order;
+- commutation with control shifts;
+- product, sum, and function agreement on every pair of defined values.
 
-`ComparisonObserverShadowQueries.exists_realization_queries` retains each
-selected defined `CompareTy` and all shadow names at one common finite state
-per source observer. Its `compare_reflect`, `defined_boundary_reflect`, and
-`boundary_defined_reflect` cover the selected defined/defined and both mixed
-comparison directions. Raw trace reflection covers raw/raw endpoints. This
-provides the route from a failed selected comparison to an accepted separating
-certificate; the executable serialization and validator bridge are still to
-be implemented.
+The proofs construct a lattice homomorphism into monotone coordinates and
+`RelativeSyntax.DefinedAgreement` when the supplied operations match the
+checked machine and the outer model. Control, atom, unit, and credit ties are
+explicit premises; the assembled certificate must construct them, not assume
+them without validation or definition. All enumeration lists require proved
+coverage of their respective finite types.
 
-After this bridge, finite certificate search is an effective refutation method
-for fixed endpoints. It does **not** bound the structural rank of an unknown
-substitution, prove that no higher-rank witness exists, or complete the public
-comparison stopping contract. That independent obligation is recorded in
+## Remaining assembly and public integration
+
+A certificate should contain checked machine descriptions, finite control/tag/
+observation indices, the embedding matrix, ordinary and literal-prefix row
+lists, frozen arrays, and the defined embedding table. Assemble the existing
+local checks into a single executable validator and a syntax evaluator. Validate
+every **original whole raw subtype bound** in the outer interpreter. The inner
+machine only checks `shapeShadow Δ`; it need not satisfy the original partial
+bounds. Primitive agreement and these outer checks then give all-rule soundness.
+
+For the next assembly step, keep `D` literally `FiniteRange.Value` of the
+checked description and enumerate it with `RangeEncoding.values`. Store `j`
+using raw bit-vector keys composed with `pack`. Validate on finite control
+codes, construct `Valid.embedding`, and compose with the inverse control
+`orderIso` coordinate map to obtain the semantic-control embedding. Transfer
+shift and constructor laws using `coordinates_shift`, `coordinates_pair`, and
+`coordinates_fn`. Define atoms, unit, and credit from this embedding, avoiding
+an infinite atom check. Frozen arrays also need a finite control-monotonicity
+check before they can inhabit `Coordinates`.
+
+Two small assembly adapters can keep this step local. First construct a
+`ControlMap` on finite codes using projected lookup, with Boolean function
+order `order m (n * top)`; transport its laws through `decode_project` and the
+order/monoid equivalences. Second transport a whole `RelativeSyntax.Model`
+through a control order equivalence preserving multiplication and identity.
+Its tables use `TableTransport`, its base/frozen coordinates use `coordinates`,
+and its control lookup uses the inverse equivalence. Prove denotation
+commutation once, including exact frozen lookup. The existing finite embedding
+checks then transfer into the semantic-control `DefinedAgreement` without
+re-proving the algebra rules.
+
+Prove that the query-preserving constructed model serializes to an accepted
+certificate and that serialization preserves both selected endpoint values.
+The ingredients are proved separately; a theorem combining them with the
+single certificate format is still required. The raw/raw, defined/defined,
+and both mixed reflection theorems remain the completeness source. Arbitrary
+partial lattice query terms are outside that reflection interface.
+
+Then implement the fixed-endpoint decision/refutation query and connect it to
+the symbolic backend and the finite-shape branch. Neither these encodings nor
+fixed-endpoint separation bound the structural rank of an unknown substitution.
+The independent input-only stopping argument and the public comparison
+contract remain unfinished; see
 [`comparison-stopping-bound.md`](comparison-stopping-bound.md).
