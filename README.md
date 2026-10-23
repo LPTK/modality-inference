@@ -358,10 +358,20 @@ The tightened carrier excludes total actions on naked partial lattice nodes;
 supported total controls on partial heads. Optional-cut separation and the
 observer range product provide exact lower/upper shadow constraints, including
 contravariant function rows and empty cuts. `ComparisonRelativeIntervals` and
-the relative-table modules prove finite lattice and constructor extensions once
-a finite shadow diagram is supplied. Constructing that diagram and the coherent
-finite control interpretation remains necessary for a mixed-context checker;
-these results do not bound the rank of unknown witnesses.
+the relative-table modules extend the defined algebra and recorded boundary
+rows simultaneously. `ComparisonObserverShadowActions` constructs a finite
+optional-cut diagram carrying the finite monoid of supported total controls.
+The constructor tables preserve both the whole defined range algebra and every
+recorded raw row, including contravariant function inputs and literal partial
+prefixes. `ComparisonObserverShadowModelReflection` proves all-rule soundness
+and exact order reflection at the finitely many raw interpreter calls, without
+requiring defined ambient type bounds. `ComparisonObserverShadowQueries` retains
+joint query patterns through finite extraction, including arbitrary defined
+internal lattice terms. `ComparisonObserverShadowQueryModel` constructs one
+finite interpreter reflecting raw/raw, defined/defined, and both mixed query
+directions. These results assume the original context has no finite shape model.
+Effective finite-model certificate checking and public integration remain
+necessary; the rank of unknown witnesses is still unbounded.
 Finite observer machines decide fixed defined-endpoint comparisons
 under defined type bounds without a finite shape model. Their boundary and state
 bound are computed from those endpoints, and finite coordinate certificates have
