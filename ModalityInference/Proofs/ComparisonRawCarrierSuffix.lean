@@ -1,3 +1,4 @@
+import ModalityInference.ComparisonSuffixSyntax
 import ModalityInference.Proofs.ComparisonRawHeadSupport
 
 /-! A modal suffix consists of an exact literal partial prefix followed by a
@@ -9,19 +10,6 @@ open ComparisonRawCarrierRestriction
 
 noncomputable section
 attribute [local instance] Classical.propDecidable
-
-structure Normalized where
-  literal : Option ModExpr
-  control : ModExpr
-  deriving DecidableEq
-
-def prefixApply (p : Option ModExpr) (a : CompareTy) : CompareTy :=
-  match p with
-  | none => a
-  | some m => .modal a m
-
-def Normalized.apply (s : Normalized) (a : CompareTy) : CompareTy :=
-  .modal (prefixApply s.literal a) s.control
 
 def normalize (Δ : Bounds) (m : ModExpr) : Normalized :=
   if Entails Δ (.defined m) then ⟨none,m⟩ else

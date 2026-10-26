@@ -1,13 +1,17 @@
 # Finite mixed-comparison certificates
 
-The finite diagram construction supplies a separating model for a failed
-**fixed** comparison under mixed raw type bounds, assuming there is no finite
-shape model. Executable encodings and local validators are now proved. The
-remaining implementation target is to assemble them into one finite certificate,
-prove extraction and validation together, and connect the fixed-endpoint query
-to the symbolic backend.
+The finite diagram construction now serializes separating models into an
+executable `ComparisonFiniteCertificate.Candidate` accepted by its Boolean
+validator. Accepted separation refutes the original comparison under arbitrary
+raw type bounds. Conversely, for a **fixed** comparison with raw or defined
+internal endpoints, absence of a finite shape model makes non-subtyping
+equivalent to existence of an accepted separating certificate. These are
+certificate correctness and completeness results; an input-derived certificate
+bound, terminating certificate search, and symbolic public integration remain
+unfinished.
 
-This is a reference encoding and integration plan. The production intent in
+This documents the reference encoding and its integration boundary. The
+production intent in
 [`TODO.md`](../../TODO.md) remains symbolic elimination and propagation, with no
 exhaustive Boolean valuation expansion or rigid-representative search. Reference
 finite enumeration establishes effective presentation; it is not a replacement
@@ -76,6 +80,10 @@ function operations. The function proof requires the control renaming to
 preserve identity, since function inputs are read at that coordinate.
 `ExecutableCoordinateOperations` evaluates the finite row extension directly
 while preserving monotone-coordinate invariants; its proof fields erase.
+`ExecutableModelTransport` transports the whole model through a control order
+equivalence preserving multiplication and identity. `ExecutableObservationTransport`
+renames tags and observations. Both preserve denotation and reflect `Related`,
+including exact first-matching-key frozen lookup.
 
 `ComparisonExecutableSuffix` uses a supplied Boolean totality test and
 preserves the exact literal partial prefix. `ExecutableSyntax.Data` supplies
@@ -104,52 +112,82 @@ is introduced.
 
 The proofs construct a lattice homomorphism into monotone coordinates and
 `RelativeSyntax.DefinedAgreement` when the supplied operations match the
-checked machine and the outer model. Control, atom, unit, and credit ties are
-explicit premises; the assembled certificate must construct them, not assume
-them without validation or definition. All enumeration lists require proved
-coverage of their respective finite types.
+checked machine and the outer model. The assembled `Candidate` constructs
+control, atom, unit, and credit ties by definition. Its `CodeDefinedAgreement`
+transfers through the control order equivalence to the semantic agreement used
+by the all-rule soundness theorem. `ExecutableAgreementEncoding` also transfers
+agreement in the reverse direction and through tag/observation renaming for
+serialization. All enumeration lists have proved coverage of their respective
+finite types.
 
-## Remaining assembly and public integration
+## Validator, serialization, and endpoint completeness
 
-A certificate should contain checked machine descriptions, finite control/tag/
-observation indices, the embedding matrix, ordinary and literal-prefix row
-lists, frozen arrays, and the defined embedding table. Assemble the existing
-local checks into a single executable validator and a syntax evaluator. Validate
-every **original whole raw subtype bound** in the outer interpreter. The inner
-machine only checks `shapeShadow Δ`; it need not satisfy the original partial
-bounds. Primitive agreement and these outer checks then give all-rule soundness.
+`ComparisonFiniteCertificate.Candidate` contains machine descriptions,
+finite state/tag/observation counts, an embedding matrix, ordinary and
+literal-prefix row lists, frozen arrays, and a defined embedding table keyed by
+raw state vectors. Controls use `FiniteControlEncoding.Code`. The executable
+validator combines these checks:
 
-For the next assembly step, keep `D` literally `FiniteRange.Value` of the
-checked description and enumerate it with `RangeEncoding.values`. Store `j`
-using raw bit-vector keys composed with `pack`. Validate on finite control
-codes, construct `Valid.embedding`, and compose with the inverse control
-`orderIso` coordinate map to obtain the semantic-control embedding. Transfer
-shift and constructor laws using `coordinates_shift`, `coordinates_pair`, and
-`coordinates_fn`. Define atoms, unit, and credit from this embedding, avoiding
-an infinite atom check. Frozen arrays also need a finite control-monotonicity
-check before they can inhabit `Coordinates`.
+- `structureCheck` checks support of context modality names, the machine on
+  `shapeShadow Δ`, all ordinary and literal row tables, the defined embedding,
+  and monotonicity of every frozen array.
+- `boundsCheck` checks every **original whole raw subtype bound** in the outer
+  interpreter. The inner machine need not satisfy the original partial bounds.
+- `check` combines both checks; `separates a b` additionally checks that the
+  interpreted endpoints fail the coordinate inequality.
 
-Two small assembly adapters can keep this step local. First construct a
-`ControlMap` on finite codes using projected lookup, with Boolean function
-order `order m (n * top)`; transport its laws through `decode_project` and the
-order/monoid equivalences. Second transport a whole `RelativeSyntax.Model`
-through a control order equivalence preserving multiplication and identity.
-Its tables use `TableTransport`, its base/frozen coordinates use `coordinates`,
-and its control lookup uses the inverse equivalence. Prove denotation
-commutation once, including exact frozen lookup. The existing finite embedding
-checks then transfer into the semantic-control `DefinedAgreement` without
-re-proving the algebra rules.
+The embedding is checked on exactly the admitted vectors of the machine and
+then interpreted on `FiniteRange.Value`. Atoms, unit, and credit come from this
+embedding, so no infinite atom check is needed. Projected control lookup and
+finite code multiplication supply the actions. Ordinary and literal-prefix
+tables retain their exact defaults, and functions use the future-control
+relation and contravariant domain rows.
 
-Prove that the query-preserving constructed model serializes to an accepted
-certificate and that serialization preserves both selected endpoint values.
-The ingredients are proved separately; a theorem combining them with the
-single certificate format is still required. The raw/raw, defined/defined,
-and both mixed reflection theorems remain the completeness source. Arbitrary
-partial lattice query terms are outside that reflection interface.
+`ComparisonFiniteCertificateInterpretation` proves that the actual executable
+syntax evaluator agrees with the semantic code model for every syntax term and
+prefix. `ComparisonFiniteCertificateSoundness` proves `Candidate.algebra_sound`
+for every original algebra rule and `Candidate.separates_sound`: an accepted
+separating certificate implies `¬ AlgebraSubtype Δ a b`. These results allow
+arbitrary raw subtype assumptions in `Δ` and arbitrary `CompareTy` endpoints;
+they require neither endpoint `DefinedUnder` guards nor the no-finite-shape-model
+hypothesis.
 
-Then implement the fixed-endpoint decision/refutation query and connect it to
-the symbolic backend and the finite-shape branch. Neither these encodings nor
-fixed-endpoint separation bound the structural rank of an unknown substitution.
-The independent input-only stopping argument and the public comparison
-contract remain unfinished; see
+`Serialization.Source` in `ComparisonFiniteCertificateSerialization` packages
+a described machine, finite model, finite literal-prefix support, exact table
+relations, and the defined agreement needed to serialize it. `Source.candidate` passes
+`structureCheck`; `Source.eval_eq` preserves every endpoint denotation at every
+prefix, including frozen lookup. `Source.checked_of_bounds` supplies acceptance
+from the original outer bounds, and `Source.separates_of_not_related` transfers
+semantic separation to the Boolean checker.
+
+`SourceConstruction.exists_source` in `ComparisonFiniteCertificateSource`
+presents the constructed finite model on code controls and finite
+tag/observation indices while preserving `Related` for every pair of terms.
+`ComparisonFiniteCertificateQueries` chooses a query-preserving realization
+with its checked machine description and proves all four reflection forms.
+Together these give the following theorems in
+`ComparisonFiniteCertificate.Completeness`, each equating non-subtyping with
+`∃ names, ∃ C : Candidate Δ names, C.separates a b = true`:
+
+| Theorem | Endpoints | Endpoint hypotheses |
+| --- | --- | --- |
+| `raw_non_subtype_iff` | `Ty` / `Ty`, embedded by `ofTy` | None |
+| `defined_raw_non_subtype_iff` | `CompareTy` / `Ty` | Left endpoint `DefinedUnder Δ` |
+| `raw_defined_non_subtype_iff` | `Ty` / `CompareTy` | Right endpoint `DefinedUnder Δ` |
+| `defined_non_subtype_iff` | `CompareTy` / `CompareTy` | Both endpoints `DefinedUnder Δ` |
+
+All four equivalences assume `¬ ∃ ρ, ComparisonShape.Models Δ ρ`: the original
+context has no finite shape model. Raw endpoints may be partial. The guards on
+internal endpoints are essential to the proved reflection interface; these
+theorems do not cover arbitrary partial internal lattice terms.
+
+## Remaining algorithmic obligations
+
+The existence theorems do not supply an effective input-derived bound on the
+certificate dimensions or a terminating certificate search. The fixed-endpoint
+mixed-context query still needs a symbolic implementation, connection to the
+public backend, and integration with the finite-shape branch. Neither accepted
+certificate completeness nor fixed-endpoint separation bounds the structural
+rank of an unknown substitution. The independent input-only stopping argument
+and the public comparison contract remain unfinished; see
 [`comparison-stopping-bound.md`](comparison-stopping-bound.md).

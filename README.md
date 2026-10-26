@@ -370,16 +370,24 @@ joint query patterns through finite extraction, including arbitrary defined
 internal lattice terms. `ComparisonObserverShadowQueryModel` constructs one
 finite interpreter reflecting raw/raw, defined/defined, and both mixed query
 directions. These results assume the original context has no finite shape model.
-Executable certificate components are now proved: symbolic scalar decisions
-with a structural completion budget, finite control encoding, checked machine
-extraction, admitted range-vector enumeration, exact row-table checks and
-extensions, finite prefix/frozen lookup, syntax evaluation, and finite defined
-embedding checks. Their bridges preserve the semantic model and its guarded
-operations. A single assembled certificate validator and its extraction theorem,
-the fixed-endpoint symbolic query, and public integration remain necessary;
-the rank of unknown witnesses is still unbounded. See
+`ComparisonFiniteCertificate.Candidate` now assembles those finite models into
+an executable validator: it checks the shadow machine, constructor rows,
+defined embedding, frozen arrays, and every original whole raw subtype bound
+in the outer interpreter. Its syntax evaluator agrees with the semantic model,
+and `Candidate.separates_sound` refutes the original algebra comparison from
+an accepted separating certificate under arbitrary raw bounds, without endpoint
+definedness guards or a no-finite-shape-model assumption. Serialization and
+source extraction preserve denotation and separation. Under the no-finite-shape-model
+hypothesis, `ComparisonFiniteCertificate.Completeness` proves four equivalences
+between non-subtyping and existence of an accepted certificate: raw/raw,
+defined/raw, raw/defined, and defined/defined. Every internal `CompareTy`
+endpoint in these completeness results requires `DefinedUnder Δ`; raw `Ty`
+endpoints may be partial. This does not supply an effective input-derived
+certificate bound or terminating search. The mixed-context fixed-endpoint
+symbolic query, public integration, and an unknown-witness rank stopping bound
+remain unfinished. See
 [`comparison-finite-model-checker.md`](docs/comparison-finite-model-checker.md)
-for the current interfaces and remaining assembly.
+for the validator, extraction, and endpoint theorem interfaces.
 Finite observer machines decide fixed defined-endpoint comparisons
 under defined type bounds without a finite shape model. Their boundary and state
 bound are computed from those endpoints, and finite coordinate certificates have
