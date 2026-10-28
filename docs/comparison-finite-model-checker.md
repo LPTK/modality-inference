@@ -5,10 +5,11 @@ executable `ComparisonFiniteCertificate.Candidate` accepted by its Boolean
 validator. Accepted separation refutes the original comparison under arbitrary
 raw type bounds. Conversely, for a **fixed** comparison with raw or defined
 internal endpoints, absence of a finite shape model makes non-subtyping
-equivalent to existence of an accepted separating certificate. These are
-certificate correctness and completeness results; an input-derived certificate
-bound, terminating certificate search, and symbolic public integration remain
-unfinished.
+equivalent to existence of an accepted separating certificate within computable
+input-derived carrier and control-name bounds. The lookup keys, machine name
+tables, and constructor row lists also admit bounded representations preserving
+the selected queries. A symbolic finite-certificate query, terminating
+certificate search, and public integration remain unfinished.
 
 This documents the reference encoding and its integration boundary. The
 production intent in
@@ -167,27 +168,89 @@ tag/observation indices while preserving `Related` for every pair of terms.
 with its checked machine description and proves all four reflection forms.
 Together these give the following theorems in
 `ComparisonFiniteCertificate.Completeness`, each equating non-subtyping with
-`∃ names, ∃ C : Candidate Δ names, C.separates a b = true`:
+`∃ names, ∃ C : Candidate Δ names, C.separates a b = true`.
+The same-named theorems in `ComparisonFiniteCertificate.BoundedCompleteness`
+strengthen the certificate side with `WithinDimensions raw queries C`, using
+the input lists shown below:
 
-| Theorem | Endpoints | Endpoint hypotheses |
-| --- | --- | --- |
-| `raw_non_subtype_iff` | `Ty` / `Ty`, embedded by `ofTy` | None |
-| `defined_raw_non_subtype_iff` | `CompareTy` / `Ty` | Left endpoint `DefinedUnder Δ` |
-| `raw_defined_non_subtype_iff` | `Ty` / `CompareTy` | Right endpoint `DefinedUnder Δ` |
-| `defined_non_subtype_iff` | `CompareTy` / `CompareTy` | Both endpoints `DefinedUnder Δ` |
+| Theorem | Endpoints `a` / `b` | Endpoint hypotheses | Bound inputs `(raw, queries)` |
+| --- | --- | --- | --- |
+| `raw_non_subtype_iff` | `Ty` / `Ty`, embedded by `ofTy` | None | `([a,b], [])` |
+| `defined_raw_non_subtype_iff` | `CompareTy` / `Ty` | Left endpoint `DefinedUnder Δ` | `([b], [a])` |
+| `raw_defined_non_subtype_iff` | `Ty` / `CompareTy` | Right endpoint `DefinedUnder Δ` | `([a], [b])` |
+| `defined_non_subtype_iff` | `CompareTy` / `CompareTy` | Both endpoints `DefinedUnder Δ` | `([], [a,b])` |
 
 All four equivalences assume `¬ ∃ ρ, ComparisonShape.Models Δ ρ`: the original
 context has no finite shape model. Raw endpoints may be partial. The guards on
 internal endpoints are essential to the proved reflection interface; these
 theorems do not cover arbitrary partial internal lattice terms.
 
+## Computable bounds and canonical representations
+
+`ComparisonFiniteCertificateBounds` defines the bounds from the original
+context, raw endpoints, and internal queries. Its definitions use finite syntax
+and arithmetic, independently of the choices used in the existence proofs.
+`inputModes` contains only modality names occurring in those inputs.
+`inputNodes` bounds the retained heads, including the query-support markers.
+The control-name list has length at most
+`nameBound = (1 + 2 * inputNodes) * inputModes.card` and contains only names in
+`inputModes`. A list of length `n` has at most
+`controlBound n = 2^(2^n + 2 * 2^(2*n))` representative controls;
+`controlsBound` applies this estimate to `nameBound`.
+
+`Proofs/ComparisonFiniteCertificateBounds` bounds the actual query-preserving
+realization by `stateBound`, which accounts for the scalar names and the entire
+finite diagram. For a realization with `s` states and `h` heads, the defined
+range has at most `2^s` values and the head/control point carrier has
+`h * (labels Δ names).length` elements. `ComparisonFiniteCertificateDimensions`
+therefore bounds the tag count by their sum and the observation count by the
+number of subsets of those tags. The input-only estimates are
+`tagsBound = 2^stateBound + inputNodes * controlsBound` and
+`observationsBound = 2^tagsBound`. `WithinDimensions` records the name support
+and the name, state, tag, and observation bounds used by the four bounded
+completeness theorems.
+
+The remaining certificate fields have separate representation theorems:
+
+- `ComparisonExecutableSyntaxSupport` computes the exact interpreter accesses,
+  including normalized literal prefixes and frozen keys.
+  `Candidate.restrictQueries` retains the keys needed by every original raw
+  subtype bound and the supplied query family. It preserves those evaluations,
+  bound checks, acceptance, and separation at selected endpoints. The literal
+  and frozen table lengths are bounded by the corresponding input-derived key
+  lists; first-matching-key behavior is preserved.
+- `ComparisonObserverMachineRestriction` reindexes a description by copying
+  atom and mode lookups into chosen name lists. Applied with
+  `inputTypes Δ queries`, `Candidate.restrictMachine` uses these fixed type
+  names and `names` for mode names, with exactly one table entry per listed
+  name. It preserves the range and
+  constructor data, all supported actions and atom lookups, the checked shadow
+  machine, and the original bounds and selected queries. No arbitrary fresh
+  machine names or excess table entries are needed.
+- `Candidate.canonicalizeRows` enumerates the finite row universe and retains
+  exactly the rows present in each original table. Every ordinary and literal
+  table then has length at most `(labels Δ names).length * tags^3`.
+  All evaluations and Boolean checks are unchanged, including functions and
+  literal-prefix lookup.
+
+`Candidate.canonicalize` composes machine restriction, query-key restriction,
+and row canonicalization. `canonicalize_canonicalFor` proves all fields of
+`CanonicalFor`; `canonicalize_check` and `canonicalize_separates` preserve
+acceptance and selected separation, and `canonicalize_withinDimensions`
+preserves the original dimension bounds. Combining these facts into canonical
+versions of the four completeness equivalences remains an interface task.
+
+These are bounds on reference certificate dimensions and representations.
+They do not give a practical complexity estimate or implement the symbolic
+solver that must consume those representations.
+
 ## Remaining algorithmic obligations
 
-The existence theorems do not supply an effective input-derived bound on the
-certificate dimensions or a terminating certificate search. The fixed-endpoint
-mixed-context query still needs a symbolic implementation, connection to the
-public backend, and integration with the finite-shape branch. Neither accepted
-certificate completeness nor fixed-endpoint separation bounds the structural
-rank of an unknown substitution. The independent input-only stopping argument
-and the public comparison contract remain unfinished; see
+The input-derived dimension bounds and representation reductions are proved.
+The fixed-endpoint mixed-context finite-certificate query still needs a symbolic
+encoding, a terminating decision or search procedure with proved correctness,
+connection to the public backend, and integration with the finite-shape branch.
+Neither bounded certificate completeness nor fixed-endpoint separation bounds
+the structural rank of an unknown substitution. The independent input-only
+stopping argument and the public comparison contract remain unfinished; see
 [`comparison-stopping-bound.md`](comparison-stopping-bound.md).

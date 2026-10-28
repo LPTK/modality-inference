@@ -380,12 +380,22 @@ definedness guards or a no-finite-shape-model assumption. Serialization and
 source extraction preserve denotation and separation. Under the no-finite-shape-model
 hypothesis, `ComparisonFiniteCertificate.Completeness` proves four equivalences
 between non-subtyping and existence of an accepted certificate: raw/raw,
-defined/raw, raw/defined, and defined/defined. Every internal `CompareTy`
-endpoint in these completeness results requires `DefinedUnder Δ`; raw `Ty`
-endpoints may be partial. This does not supply an effective input-derived
-certificate bound or terminating search. The mixed-context fixed-endpoint
-symbolic query, public integration, and an unknown-witness rank stopping bound
-remain unfinished. See
+defined/raw, raw/defined, and defined/defined.
+`ComparisonFiniteCertificate.BoundedCompleteness` strengthens all four results
+with computable input-derived bounds on control names, states, tags, and
+observations; `ComparisonFiniteCertificateBounds` also bounds the control
+carrier. Every internal `CompareTy` endpoint in these completeness results
+requires `DefinedUnder Δ`; raw `Ty` endpoints may be partial.
+Certificate restriction retains only literal-prefix and frozen keys reached by
+the original raw bounds and supplied queries. Machine descriptions can use the
+fixed input type-name list and the certificate's control names as their mode
+list, with one entry per name. Canonical row tables contain at most
+`(labels Δ names).length * tags^3` rows each. These transformations preserve
+acceptance and the selected endpoint evaluations. `Candidate.canonicalize`
+combines them, satisfies `CanonicalFor`, and preserves the dimension bounds.
+The computed dimension and representation bounds do not provide a production solver: the mixed-context
+finite-certificate symbolic query, terminating search, public integration, and
+an unknown-witness rank stopping theorem remain unfinished. See
 [`comparison-finite-model-checker.md`](docs/comparison-finite-model-checker.md)
 for the validator, extraction, and endpoint theorem interfaces.
 Finite observer machines decide fixed defined-endpoint comparisons
@@ -418,9 +428,9 @@ Each fixed-rank call terminates and completed results are fuel-stable. These
 internal interfaces do not yet decide when to stop increasing the rank, do not
 cover arbitrary partial ambient bounds, and are not the public scheme checker.
 Finite forgetting-machine criteria preserve shared outputs, monotonicity, and
-constant boundaries; general comparison still requires a complete bound on the
-machines synthesized from the input. Exact raw-token abstraction preserves the
-same admissible substitution and original guards for partial ambient bounds.
+constant boundaries; general scheme comparison still requires the independent
+input-only witness-rank stopping argument. Exact raw-token abstraction preserves
+the same admissible substitution and original guards for partial ambient bounds.
 `ComparisonNormalizedAmbientDriver` conservatively removes reflexive ambient
 edges while preserving names and fresh indices. Its results are certified under
 the original context; an unused partial annotation no longer prevents the
