@@ -1,12 +1,13 @@
 import ModalityInference.Proofs.ComparisonFiniteCertificateQueries
 import ModalityInference.ComparisonFiniteCertificateBounds
+import ModalityInference.Proofs.ComparisonVariableListSupport
 
 /-! The finite certificate diagram introduces fresh type names, but retains
 only the input's modality names. Suffix normalization preserves this support. -/
 namespace ModalityInference.ComparisonFiniteCertificateSupport
 
 open ComparisonRawCarrierSuffix ComparisonRawHeadTrace ComparisonObserverBoundary
-  ComparisonFiniteCertificateBounds
+  ComparisonFiniteCertificateBounds ComparisonVariableListSupport
 
 noncomputable section
 attribute [local instance] Classical.propDecidable
@@ -53,7 +54,7 @@ theorem controlNames_support {Δ : Bounds} {N : Finset ModVar} (s : Site)
   rcases s with ⟨a,p⟩
   cases a <;> cases p <;> simp only [controlNames,List.toFinset_nil,Finset.empty_subset]
   case modal.none a m =>
-    simpa only [Finset.toList_toFinset] using
+    simpa only [dedup_toFinset, freeVariables_toFinset] using
       ((Finset.subset_union_right.trans (normalize_support Δ m)).trans
         (Finset.subset_union_right.trans hs))
 
@@ -72,9 +73,9 @@ theorem modeNames_support {Δ : Bounds} {sites : List Site} {N : Finset ModVar}
   intro v hv
   rcases List.mem_append.mp (List.mem_toFinset.mp hv) with hv | hv
   · rcases List.mem_append.mp hv with hv | hv
-    · exact hΔ (Finset.mem_toList.mp hv)
+    · exact hΔ ((Bounds.mem_modeVariables Δ v).mp (List.mem_dedup.mp hv))
     · obtain ⟨a,ha,hv⟩ := List.mem_flatMap.mp hv
-      exact rawHeads_support hs a ha (Finset.mem_toList.mp hv)
+      exact rawHeads_support hs a ha ((TypeExpr.mem_modeVariables a v).mp (List.mem_dedup.mp hv))
   · obtain ⟨s,h,hv⟩ := List.mem_flatMap.mp hv
     exact controlNames_support s (hs s h).1 (List.mem_toFinset.mpr hv)
 
@@ -93,7 +94,7 @@ theorem rawInputs_support {raw : List Ty} {queries : List CompareTy} {N : Finset
       exact Finset.empty_subset _
     · obtain ⟨v,hv,rfl⟩ := List.mem_map.mp ha
       simpa only [TypeExpr.modVars,ModExpr.vars,Finset.empty_union,Finset.singleton_subset_iff]
-        using hq q hq' (Finset.mem_toList.mp hv)
+        using hq q hq' ((mem_modeList q v).mp (List.mem_dedup.mp hv))
 
 theorem boundInputs_support (Δ : Bounds) :
     ∀ a ∈ ComparisonObserverShadowModel.RawInput.boundInputs Δ, a.modVars ⊆ Δ.modVars := by
@@ -132,7 +133,7 @@ theorem controlNames_length {Δ : Bounds} {N : Finset ModVar} (s : Site)
     (hs : s.1.modVars ⊆ N) : (controlNames Δ s).length ≤ N.card := by
   have hnd : (controlNames Δ s).Nodup := by
     rcases s with ⟨a,p⟩
-    cases a <;> cases p <;> simp [controlNames,Finset.nodup_toList]
+    cases a <;> cases p <;> simp [controlNames, List.nodup_dedup]
   rw [← List.toFinset_card_of_nodup hnd]
   exact Finset.card_le_card (controlNames_support s hs)
 
@@ -149,7 +150,7 @@ theorem modeNames_length {Δ : Bounds} {sites : List Site} {N : Finset ModVar}
       (rawHeads_support hs _ (List.mem_map.mpr ⟨s,List.mem_cons_self,rfl⟩))
     have hc := controlNames_length (Δ := Δ) s (hs s List.mem_cons_self).1
     simp only [modeNames,rawHeads,List.map_cons,List.flatMap_cons,List.length_append,
-      Finset.length_toList,List.length_cons] at hi ⊢
+      boundsModeVariables_dedup_length, typeModeVariables_dedup_length, List.length_cons] at hi ⊢
     simp only [Nat.mul_add,Nat.add_mul,Nat.one_mul,Nat.mul_one] at hi ⊢
     omega
 

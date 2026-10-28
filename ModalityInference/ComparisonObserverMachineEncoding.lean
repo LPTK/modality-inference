@@ -14,6 +14,31 @@ def code : Constructor → Nat
 def constructor : Nat → Constructor
   | 0 => .prod | 1 => .sum | _ => .fn
 
+abbrev Description (count : Nat) := ComparisonObserverMachineCheck.Description (Fin count)
+
+def normalize {count} (typeCount modeCount : Nat) (d : Description count) : Description count :=
+  { d with
+    atoms := (List.range typeCount).map (fun j => d.atoms[j]?.getD d.unitValue)
+    modes := (List.range modeCount).map (fun j => d.modes[j]?.getD Mode.identity) }
+
+def payload {count} (d : Description count) (field index : Nat) : Bool :=
+  match field with
+  | 0 => d.atoms[index]?.getD d.unitValue
+  | 1 =>
+    let m := d.modes[(Nat.unpair index).1]?.getD Mode.identity
+    match (Nat.unpair index).2 with | 0 => m.isLocal | 1 => m.once | _ => m.unique
+  | 2 => if index = 0 then (coordinateBits d.coordinate).1 else (coordinateBits d.coordinate).2
+  | 3 => if index = 0 then d.unitValue else d.creditValue
+  | 4 => (d.branch (constructor index)).left
+  | 5 => decide ((Nat.unpair index).2 = (d.branch (constructor (Nat.unpair index).1)).next.val)
+  | 6 => d.range (index != 0)
+  | _ => false
+
+def encode {count} (data : Fin count → Description count) (u : Nat) : Bool :=
+  let state := (Nat.unpair u).1
+  let field := Nat.unpair (Nat.unpair u).2
+  if h : state < count then payload (data ⟨state,h⟩) field.1 field.2 else false
+
 def slot (state field index : Nat) : Nat := Nat.pair state (Nat.pair field index)
 
 def allocate (typeCount modeCount count : Nat) (i : Fin count) : Fields count :=

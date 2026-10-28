@@ -1,5 +1,6 @@
 import ModalityInference.Proofs.ComparisonRawHeadFiniteOrbits
 import ModalityInference.Proofs.ComparisonRawCarrierSuffix
+import ModalityInference.Proofs.VariableOccurrences
 
 /-! A finite raw boundary records the calls made by the coordinate interpreter.
 Inherited partial prefixes are recorded at products and sums; functions under
@@ -150,23 +151,23 @@ theorem memberPoint_le_iff (Δ : Bounds) {sites : List Site} (names : List ModVa
       (h.trans (memberPoint_equivalent Δ names ht).2)
 
 def controlNames (Δ : Bounds) : Site → List ModVar
-  | (.modal _ m,none) => (normalize Δ m).control.vars.toList
+  | (.modal _ m,none) => (normalize Δ m).control.freeVariables.dedup
   | _ => []
 
 def modeNames (Δ : Bounds) (sites : List Site) : List ModVar :=
-  Δ.modVars.toList ++ (rawHeads sites).flatMap (fun a => a.modVars.toList) ++
+  Δ.modeVariables.dedup ++ (rawHeads sites).flatMap (fun a => a.modeVariables.dedup) ++
     sites.flatMap (controlNames Δ)
 
 theorem context_names (Δ : Bounds) (sites : List Site) : Δ.modVars ⊆ (modeNames Δ sites).toFinset := by
   intro v hv
-  simp only [modeNames,List.mem_toFinset,List.mem_append,Finset.mem_toList]
+  simp only [modeNames,List.mem_toFinset,List.mem_append,List.mem_dedup,Bounds.mem_modeVariables]
   exact Or.inl (Or.inl hv)
 
 theorem head_names {Δ : Bounds} {sites : List Site} {a : Ty} (ha : a ∈ rawHeads sites) :
     a.modVars ⊆ (modeNames Δ sites).toFinset := by
   intro v hv
-  have hh : v ∈ (rawHeads sites).flatMap (fun a => a.modVars.toList) :=
-    List.mem_flatMap.mpr ⟨a,ha,Finset.mem_toList.mpr hv⟩
+  have hh : v ∈ (rawHeads sites).flatMap (fun a => a.modeVariables.dedup) :=
+    List.mem_flatMap.mpr ⟨a,ha,List.mem_dedup.mpr ((TypeExpr.mem_modeVariables _ _).mpr hv)⟩
   simp [modeNames,hh]
 
 theorem control_names {Δ : Bounds} {sites : List Site} {a : Ty} {m : ModExpr}
@@ -174,7 +175,7 @@ theorem control_names {Δ : Bounds} {sites : List Site} {a : Ty} {m : ModExpr}
     (normalize Δ m).control.vars ⊆ (modeNames Δ sites).toFinset := by
   intro v hv
   have hh : v ∈ sites.flatMap (controlNames Δ) :=
-    List.mem_flatMap.mpr ⟨(.modal a m,none),ha,Finset.mem_toList.mpr hv⟩
+    List.mem_flatMap.mpr ⟨(.modal a m,none),ha,List.mem_dedup.mpr ((ModExpr.mem_freeVariables _ _).mpr hv)⟩
   simp [modeNames,hh]
 
 @[simp] theorem ofTy_applyPrefix (p : Option ModExpr) (a : Ty) :

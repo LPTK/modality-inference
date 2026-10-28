@@ -11,7 +11,7 @@ open ComparisonObserverBoundary ComparisonRawHeadTrace
 noncomputable section
 
 def support (queries : List CompareTy) : List Ty := queries.flatMap fun a =>
-  (types a).toList.map (fun v => (show Ty from .var v)) ++ (modes a).toList.map fun v => (show Ty from .modal .unit (.var v))
+  (typeList a).dedup.map (fun v => (show Ty from .var v)) ++ (modeList a).dedup.map fun v => (show Ty from .modal .unit (.var v))
 
 def rawInputs (raw : List Ty) (queries : List CompareTy) : List Ty := raw ++ support queries
 
@@ -26,13 +26,13 @@ theorem type_marker_mem {raw : List Ty} {queries : List CompareTy} {a : CompareT
     (ha : a ∈ queries) {v : TypeVar} (hv : v ∈ types a) :
     (show Ty from .var v) ∈ rawInputs raw queries :=
   List.mem_append_right _ (List.mem_flatMap.mpr ⟨a,ha,
-    List.mem_append_left _ (List.mem_map.mpr ⟨v,Finset.mem_toList.mpr hv,rfl⟩)⟩)
+    List.mem_append_left _ (List.mem_map.mpr ⟨v,List.mem_dedup.mpr ((mem_typeList a v).mpr hv),rfl⟩)⟩)
 
 theorem mode_marker_mem {raw : List Ty} {queries : List CompareTy} {a : CompareTy}
     (ha : a ∈ queries) {v : ModVar} (hv : v ∈ modes a) :
     (show Ty from .modal .unit (.var v)) ∈ rawInputs raw queries :=
   List.mem_append_right _ (List.mem_flatMap.mpr ⟨a,ha,
-    List.mem_append_right _ (List.mem_map.mpr ⟨v,Finset.mem_toList.mpr hv,rfl⟩)⟩)
+    List.mem_append_right _ (List.mem_map.mpr ⟨v,List.mem_dedup.mpr ((mem_modeList a v).mpr hv),rfl⟩)⟩)
 
 theorem head_mem_of_input {Δ : Bounds} {raw : List Ty} {queries : List CompareTy} {a : Ty}
     (ha : a ∈ rawInputs raw queries) : a ∈ rawHeads (sites Δ raw queries) :=

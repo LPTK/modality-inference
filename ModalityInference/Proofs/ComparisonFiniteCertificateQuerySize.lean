@@ -1,6 +1,7 @@
 import ModalityInference.Proofs.ComparisonFiniteCertificateQueries
 import ModalityInference.Proofs.ComparisonFiniteCertificateDimensions
 import ModalityInference.ComparisonFiniteCertificateBounds
+import ModalityInference.Proofs.ComparisonVariableListSupport
 import Mathlib.Algebra.Order.BigOperators.Group.List
 
 /-! Syntactic size bounds for the shadow diagram used by finite comparison

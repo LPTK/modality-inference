@@ -386,6 +386,12 @@ with computable input-derived bounds on control names, states, tags, and
 observations; `ComparisonFiniteCertificateBounds` also bounds the control
 carrier. Every internal `CompareTy` endpoint in these completeness results
 requires `DefinedUnder Δ`; raw `Ty` endpoints may be partial.
+`ComparisonFiniteCertificateInputs` computes deterministic support markers,
+interpreter call sites, and source control names from syntax. Its `sourceNames_eq`
+identifies the resulting list exactly with the source construction's names.
+The construction now uses deduplicated occurrence lists, preserving all existing
+support and cardinality bounds. The completeness statements still quantify over
+control-name lists; their fixed-name strengthening remains unfinished.
 Certificate restriction retains only literal-prefix and frozen keys reached by
 the original raw bounds and supplied queries. Machine descriptions can use the
 fixed input type-name list and the certificate's control names as their mode
@@ -408,11 +414,19 @@ embedding checks have exact evaluation proofs. The assembled formula's
 candidate's validator and separating check, without additional hypotheses.
 These formulas can iterate finite table addresses while keeping the global
 Boolean field assignment symbolic.
-The production query still needs finite disjoint atom allocation, coverage of
-canonical certificates by those assignments, and integration of the bounded
-headers and names. The complete symbolic decision interface, its finite-shape
-and public integration, and an unknown-witness rank stopping theorem remain
-unfinished. See
+`ComparisonFiniteCertificateFormulaEncoding` supplies disjoint atom addresses
+at supplied names and dimensions. `allocate_decode` reconstructs exactly
+`C.densify queries` when machine names and array lengths match the allocation;
+`query_encode` represents every such accepted separator at the supplied
+endpoints by an explicit assignment. `query_sound` refutes the original
+comparison from any satisfying assignment. Tag and observation padding preserve
+the complete validator and separating check exactly for every larger target
+count, including zero-sized inputs.
+Fixed-name completeness, state padding, a single input-bounded symbolic query,
+the backend connection, finite-shape and public integration, and an
+unknown-witness rank stopping theorem remain unfinished. No existential
+satisfiability equivalence for the fixed-dimension allocation has yet been
+packaged. See
 [`comparison-finite-model-checker.md`](docs/comparison-finite-model-checker.md)
 for the validator, extraction, and endpoint theorem interfaces.
 Finite observer machines decide fixed defined-endpoint comparisons

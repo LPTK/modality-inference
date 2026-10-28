@@ -11,8 +11,11 @@ tables, and constructor row lists also admit bounded representations preserving
 the selected queries. These certificates have an exact computable packed
 representation and a proved finite carrier. Symbolic table, range, and
 embedding components assemble into a validator whose evaluation exactly matches
-the decoded candidate. The complete input-driven symbolic query and public
-integration remain unfinished.
+the decoded candidate. A disjoint atom allocation at supplied names and
+dimensions represents accepted separators and proves soundness for every
+satisfying assignment. Tag and observation padding preserve all checks.
+Fixed-name completeness, state padding, the complete input-driven symbolic
+query, and public integration remain unfinished.
 
 This documents the reference encoding and its integration boundary. The
 production intent in
@@ -213,6 +216,14 @@ number of subsets of those tags. The input-only estimates are
 and the name, state, tag, and observation bounds used by the four bounded
 completeness theorems.
 
+`ComparisonFiniteCertificateInputs` computes support markers, interpreter call
+sites, and control-name lists using executable suffix normalization and
+deduplicated syntactic occurrence lists. `support_eq`, `sites_eq`, and
+`sourceNames_eq` identify these lists exactly with the source construction.
+The support and size estimates are unchanged. The existing completeness
+statements still existentially quantify over names; carrying this exact source
+name list into their conclusions is a remaining proof step.
+
 The remaining certificate fields have separate representation theorems:
 
 - `ComparisonExecutableSyntaxSupport` computes the exact interpreter accesses,
@@ -302,7 +313,7 @@ evaluate to their decoded executable counterpart. `check_eval` and
 `separates_eval` give exact equalities for the full validator and separating
 query under every Boolean field assignment, without consistency, endpoint, or
 shape-model hypotheses. This evaluation bridge applies to the supplied fields;
-the input-driven allocation and completeness bridge remain below.
+the concrete allocation bridge is described below.
 
 The fixed address sets can be large: embedding constraints iterate
 `allBits states`, the addresses of the finite defined-value table. This is
@@ -311,13 +322,58 @@ formula atoms; the construction does not expand all global assignments to
 those atoms. The production decision path must retain symbolic elimination
 and propagation.
 
+## Fixed-dimension allocation and padding
+
+`ComparisonFiniteCertificateFormulaEncoding.allocate` uses disjoint
+`Nat.pair family payload` addresses for machine fields, tag embeddings,
+ordinary and literal row selectors, frozen vectors, and defined vectors.
+Literal and frozen addresses include their position in the retained input key
+lists, so repeated keys are preserved. `ComparisonObserverBitsCode` gives an
+injective binary address below `2^states` for each state-bit vector and an exact
+decoder. Machine normalization returns the original description when its atom
+and mode arrays already have the required lengths.
+
+`allocate_decode C queries ht hm hat hmo` identifies the allocated fields'
+decoded candidate exactly with `C.densify queries`. The hypotheses align
+`C.types` with `inputTypes Δ queries`, `C.modes` with the supplied control names,
+and each machine array with those list lengths. Given these hypotheses,
+endpoint membership in `queries`, and accepted separation, `query_encode`
+proves that the explicit assignment `encode C queries` satisfies the allocated
+query. `query_sound` refutes `AlgebraSubtype` from every satisfying assignment,
+without additional context or endpoint guards. These results do not yet expose
+a fixed-dimension existential satisfiability equivalence or a backend call.
+
+`Candidate.padTags h` injects existing row tags into a larger tag carrier and
+assigns bottom embeddings to unused tags. `Candidate.padObservations h`
+zero-extends embeddings, defined values, and frozen values. The respective
+`padTags_check`, `padTags_separates`, `padObservations_check`, and
+`padObservations_separates` theorems are exact Boolean equalities for any target
+count at least the original count; no positivity premise is needed.
+Observation evaluation commutes with the same zero-extension map.
+
 ## Remaining algorithmic obligations
 
-The bounded canonical and packed completeness results are proved. The symbolic
-field interface still needs a finite disjoint atom allocation and a surjective
-encoding of accepted canonical certificates into its assignments. Bounded
-headers and control-name lists must be integrated into that query, followed by
-the symbolic decision backend, the finite-shape branch, and the public contract.
+The bounded canonical and packed completeness results are proved. Strengthen
+their name existential to the exact executable `sourceNames` list, and package
+the allocated query's existential coverage. State padding is still unimplemented;
+it is needed with the proved tag/observation padding to choose one input-computed
+dimension tuple without enumerating bounded headers.
+
+The intended state extension injects old branch targets and adds neutral nodes:
+coordinate `unaffected`, false atom/unit/credit values, identity mode entries
+at the required array length, a range admitting only false, and every constructor
+branch selecting its right input at the same new node. Define the new embedding
+through projection to old state coordinates.
+The crucial proof is that admitted padded vectors correspond exactly to old
+admitted vectors, with all added bits forced false; this must also cover an
+original state count of zero. The existing `ComparisonObserverMachinePadding`
+duplicates old descriptions but does not force duplicated range bits to agree.
+It also needs an existing-state fallback, so it neither supplies this embedding
+reflection argument nor handles the zero-state case directly.
+
+After these representation steps, assemble the global input-only query and
+connect the symbolic decision backend, the finite-shape branch, and the public
+contract, including correctness and termination.
 Neither packed certificate completeness nor fixed-endpoint separation bounds
 the structural rank of an unknown substitution. The independent input-only
 stopping argument remains unfinished; see
