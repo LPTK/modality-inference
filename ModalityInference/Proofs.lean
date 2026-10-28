@@ -702,5 +702,15 @@ import ModalityInference.Proofs.ComparisonFiniteCertificateRows
 import ModalityInference.Proofs.ComparisonFiniteCertificateSupport
 import ModalityInference.Proofs.ComparisonObserverMachineRestriction
 
+import ModalityInference.Proofs.ComparisonExecutableAgreementFormula
+import ModalityInference.Proofs.ComparisonExecutableTableFormula
+import ModalityInference.Proofs.ComparisonFiniteCertificateCanonicalCompleteness
+import ModalityInference.Proofs.ComparisonFiniteCertificateDense
+import ModalityInference.Proofs.ComparisonFiniteCertificateFormula
+import ModalityInference.Proofs.ComparisonFiniteCertificateFormulaEmbedding
+import ModalityInference.Proofs.ComparisonFiniteCertificatePacked
+import ModalityInference.Proofs.ComparisonFiniteCertificatePackedCompleteness
+import ModalityInference.Proofs.ComparisonObserverRangeFormula
+
 /-! Optional proof worklist, established results, and semantic counterexamples.
 Never import this from the executable library. -/

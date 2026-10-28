@@ -393,9 +393,26 @@ list, with one entry per name. Canonical row tables contain at most
 `(labels Δ names).length * tags^3` rows each. These transformations preserve
 acceptance and the selected endpoint evaluations. `Candidate.canonicalize`
 combines them, satisfies `CanonicalFor`, and preserves the dimension bounds.
-The computed dimension and representation bounds do not provide a production solver: the mixed-context
-finite-certificate symbolic query, terminating search, public integration, and
-an unknown-witness rank stopping theorem remain unfinished. See
+`CanonicalCompleteness` proves all four corresponding existence equivalences.
+`ComparisonFiniteCertificate.Packed.Certificate` represents the bounded
+certificate by finite arrays and indices into input-name and lookup-key lists.
+Its computable encoding and decoding preserve the complete canonical candidate,
+including duplicate key order, acceptance, and separation. Proof-only `Finite`
+instances establish finiteness, and `PackedCompleteness` gives all four
+non-subtyping equivalences with packed certificates under the same hypotheses.
+`Candidate.densify` fills every retained literal and frozen key with its original
+lookup result or default, preserving accepted checks and selected separation.
+Symbolic row-table checks, range operations and address lookup, and defined
+embedding checks have exact evaluation proofs. The assembled formula's
+`Fields.check_eval` and `Fields.separates_eval` agree exactly with the decoded
+candidate's validator and separating check, without additional hypotheses.
+These formulas can iterate finite table addresses while keeping the global
+Boolean field assignment symbolic.
+The production query still needs finite disjoint atom allocation, coverage of
+canonical certificates by those assignments, and integration of the bounded
+headers and names. The complete symbolic decision interface, its finite-shape
+and public integration, and an unknown-witness rank stopping theorem remain
+unfinished. See
 [`comparison-finite-model-checker.md`](docs/comparison-finite-model-checker.md)
 for the validator, extraction, and endpoint theorem interfaces.
 Finite observer machines decide fixed defined-endpoint comparisons

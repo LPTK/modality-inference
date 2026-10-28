@@ -8,8 +8,11 @@ internal endpoints, absence of a finite shape model makes non-subtyping
 equivalent to existence of an accepted separating certificate within computable
 input-derived carrier and control-name bounds. The lookup keys, machine name
 tables, and constructor row lists also admit bounded representations preserving
-the selected queries. A symbolic finite-certificate query, terminating
-certificate search, and public integration remain unfinished.
+the selected queries. These certificates have an exact computable packed
+representation and a proved finite carrier. Symbolic table, range, and
+embedding components assemble into a validator whose evaluation exactly matches
+the decoded candidate. The complete input-driven symbolic query and public
+integration remain unfinished.
 
 This documents the reference encoding and its integration boundary. The
 production intent in
@@ -237,20 +240,85 @@ The remaining certificate fields have separate representation theorems:
 and row canonicalization. `canonicalize_canonicalFor` proves all fields of
 `CanonicalFor`; `canonicalize_check` and `canonicalize_separates` preserve
 acceptance and selected separation, and `canonicalize_withinDimensions`
-preserves the original dimension bounds. Combining these facts into canonical
-versions of the four completeness equivalences remains an interface task.
+preserves the original dimension bounds.
+`ComparisonFiniteCertificate.CanonicalCompleteness` proves the four canonical
+versions of the completeness equivalences. Its certificate witnesses
+satisfy both `WithinDimensions` and `CanonicalFor` for the original raw and
+internal endpoint lists.
 
 These are bounds on reference certificate dimensions and representations.
 They do not give a practical complexity estimate or implement the symbolic
 solver that must consume those representations.
 
+## Packed finite certificates
+
+`ComparisonFiniteCertificate.Packed.Certificate Δ raw queries` contains a
+bounded header and a payload of finite arrays. The header stores the dimension
+counts and control names as bounded indices into a syntactically computed input
+name list. Machine coordinates and mode values use Boolean fields, and branch
+targets use finite state indices. Ordinary rows are bounded arrays of control
+and tag indices. Literal and frozen keys are indices into the retained input
+lists; the embedding and frozen values are finite Boolean tables.
+
+`Payload.decode_encode` and `Certificate.decode_encode` give exact round trips,
+with the reconstructed name-list equality accounted for in the dependent
+certificate type. Duplicate keys and list order are preserved.
+`Certificate.check_encode` and `Certificate.separates_encode` preserve the
+actual Boolean checks. Every decoded packed value satisfies `WithinDimensions`
+and `CanonicalFor`. Proof-only `Finite` instances establish finiteness of the
+payload, header, and complete certificate type; they do not implement a search.
+
+`ComparisonFiniteCertificate.PackedCompleteness` exposes the same four theorem
+names and endpoint hypotheses listed above. Each right-hand side is now
+`∃ p : Packed.Certificate Δ raw queries, p.separates a b = true`, using the same
+bound inputs. The no-finite-shape-model premise and each internal endpoint's
+`DefinedUnder Δ` guard remain explicit.
+
+## Symbolic fields and validation
+
+`Candidate.densify` supplies the complete retained literal-prefix and frozen-key
+lists. Each key receives the original first matching table or value, with an
+empty row table or bottom value when the key was absent. It canonicalizes the
+ordinary and literal row lists and preserves original bound checks, acceptance,
+and separation at selected endpoints. These fixed key slots support the
+symbolic field interface. For a `CanonicalFor` input, `densify_eval_all`
+preserves evaluation of every internal term and prefix.
+
+`ComparisonExecutableTableFormula` gives each possible row a presence formula.
+Compatibility and extension evaluate exactly to the executable operations on
+the rows selected by the same assignment. Function rows retain their future
+control relation and domain variance.
+
+`ComparisonObserverRangeFormula` compiles admittedness, primitive range
+operations, and lookup in the defined-value table. Lookup uses a recursive
+address decoder on the state bits. `ComparisonExecutableAgreementFormula`
+guards embedding checks by symbolic admittedness and preserves lattice,
+order-reflection, action, and constructor checks.
+
+`ComparisonFiniteCertificateFormula.Fields` assembles the complete symbolic
+validator. `dataMap`, `eval_eq`, and `evalRaw_eq` preserve the syntax interpreter;
+the table, embedding, monotonicity, original-bound, and structure checks each
+evaluate to their decoded executable counterpart. `check_eval` and
+`separates_eval` give exact equalities for the full validator and separating
+query under every Boolean field assignment, without consistency, endpoint, or
+shape-model hypotheses. This evaluation bridge applies to the supplied fields;
+the input-driven allocation and completeness bridge remain below.
+
+The fixed address sets can be large: embedding constraints iterate
+`allBits states`, the addresses of the finite defined-value table. This is
+finite table-address enumeration. The surrounding Boolean field choices remain
+formula atoms; the construction does not expand all global assignments to
+those atoms. The production decision path must retain symbolic elimination
+and propagation.
+
 ## Remaining algorithmic obligations
 
-The input-derived dimension bounds and representation reductions are proved.
-The fixed-endpoint mixed-context finite-certificate query still needs a symbolic
-encoding, a terminating decision or search procedure with proved correctness,
-connection to the public backend, and integration with the finite-shape branch.
-Neither bounded certificate completeness nor fixed-endpoint separation bounds
+The bounded canonical and packed completeness results are proved. The symbolic
+field interface still needs a finite disjoint atom allocation and a surjective
+encoding of accepted canonical certificates into its assignments. Bounded
+headers and control-name lists must be integrated into that query, followed by
+the symbolic decision backend, the finite-shape branch, and the public contract.
+Neither packed certificate completeness nor fixed-endpoint separation bounds
 the structural rank of an unknown substitution. The independent input-only
-stopping argument and the public comparison contract remain unfinished; see
+stopping argument remains unfinished; see
 [`comparison-stopping-bound.md`](comparison-stopping-bound.md).
