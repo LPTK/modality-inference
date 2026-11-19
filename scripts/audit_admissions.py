@@ -2920,6 +2920,13 @@ constants = [
     'ModalityInference.ComparisonFiniteGraphLimitation.no_finite_fixed_point',
     'ModalityInference.ComparisonFiniteGraphLimitation.finite_interval_solution',
     'ModalityInference.ComparisonFiniteGraphLimitation.finite_candidate',
+    'ModalityInference.ComparisonWindowPumping.Trees.prefix_refl',
+    'ModalityInference.ComparisonWindowPumping.Trees.prefix_trim',
+    'ModalityInference.ComparisonWindowPumping.Trees.Reads.mono',
+    'ModalityInference.ComparisonWindowPumping.Trees.mem_menu',
+    'ModalityInference.ComparisonWindowPumping.Trees.mem_family',
+    'ModalityInference.ComparisonWindowPumping.Trees.family_step',
+    'ModalityInference.ComparisonWindowPumping.Trees.finite_window_bound',
     'ModalityInference.ComparisonSchemeMemory.bounds_defined',
     'ModalityInference.ComparisonSchemeMemory.no_finite_shape_model',
     'ModalityInference.ComparisonSchemeMemory.nodes_certified',
@@ -6851,6 +6858,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonRawModalTokens\n'
                     'import ModalityInference.Proofs.ComparisonRawModeTransport\n'
                     'import ModalityInference.Proofs.ComparisonFiniteWindowMachines\n'
+                    'import ModalityInference.Proofs.ComparisonWindowPumping\n'
                     'import ModalityInference.Proofs.ComparisonObserverCoordinateAlignment\n'
                     'import ModalityInference.Proofs.ComparisonObserverMachineSerialization\n'
                     'import ModalityInference.Proofs.ComparisonObserverMachinePadding\n'

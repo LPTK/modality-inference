@@ -466,6 +466,14 @@ when the transition sees the current declared-bound subterm observations.
 Retaining one additional input-subterm bit suffices for this example, with
 frontier forgetting after three steps.
 
+`ComparisonWindowPumping.Trees.finite_window_bound`
+bounds the radius of a shared Boolean solution for guarded binary constraints
+on labelled trees whose children can be replaced independently at a matching
+root label. The proof allows multiple constructor routes. For `a` root labels
+and `q` output tuples, the radius is at most `2 * ((2^(2^q))^a + 1)`.
+Positive type reconstruction also needs order between different observers.
+The window bound for the local clauses alone leaves this requirement open.
+
 Exact raw-token abstraction preserves the same admissible substitution and
 original guards for partial ambient bounds.
 `ComparisonNormalizedAmbientDriver` conservatively removes reflexive ambient
