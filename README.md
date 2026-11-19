@@ -477,7 +477,9 @@ occurrence. Every checked finite observer embeds into the tree domain with
 the same value for every internal type. The construction assumes defined
 declared type bounds and also covers recursive bounds without a finite shape
 model. Reconstructing positive type images requires a bounded solution that
-respects order between different observers.
+respects order between different observers. `ComparisonRawOrderBoundary`
+exhibits public schemes with a constant-preserving Boolean solution at radius
+zero and two ordered observer states that rule out every positive type image.
 
 Exact raw-token abstraction preserves the same admissible substitution and
 original guards for partial ambient bounds.
