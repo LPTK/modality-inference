@@ -471,8 +471,13 @@ bounds the radius of a shared Boolean solution for guarded binary constraints
 on labelled trees whose children can be replaced independently at a matching
 root label. The proof allows multiple constructor routes. For `a` root labels
 and `q` output tuples, the radius is at most `2 * ((2^(2^q))^a + 1)`.
-Positive type reconstruction also needs order between different observers.
-The window bound for the local clauses alone leaves this requirement open.
+`ComparisonWindowObservers.prepared_window` applies this bound to the actual
+prepared body and bounds. It uses the original mode substitution for every
+occurrence. Every checked finite observer embeds into the tree domain with
+the same value for every internal type. The construction assumes defined
+declared type bounds and also covers recursive bounds without a finite shape
+model. Reconstructing positive type images requires a bounded solution that
+respects order between different observers.
 
 Exact raw-token abstraction preserves the same admissible substitution and
 original guards for partial ambient bounds.
