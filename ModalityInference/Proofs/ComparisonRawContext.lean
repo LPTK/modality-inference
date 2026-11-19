@@ -4,18 +4,17 @@ import ModalityInference.Proofs.ComparisonDefinedPreparation
 
 namespace ModalityInference.ComparisonRawContext
 
-/-- A raw context maps to another by preserving scalar and shape models and
-certifying its whole declared edges. No endpoint guard is added. -/
-structure Hom (Δ Γ : Bounds) : Prop where
+/-- Scalar and structural information needed to transport defined types and
+guarded algebraic equations. -/
+structure Frame (Δ Γ : Bounds) : Prop where
   modes : ∀ η, ModeModels Γ η → ModeModels Δ η
   shapes : ∀ ρ, ComparisonShape.Models Γ ρ → ComparisonShape.Models Δ ρ
-  bounds : ∀ a b, Constraint.sub a b ∈ Δ → AlgebraSubtype Γ (.ofTy a) (.ofTy b)
 
-theorem Hom.equivalent {Δ Γ} (h : Hom Δ Γ) {a b : ComparisonShape}
+theorem Frame.equivalent {Δ Γ} (h : Frame Δ Γ) {a b : ComparisonShape}
     (he : ComparisonShape.Equivalent Δ a b) : ComparisonShape.Equivalent Γ a b :=
   fun ρ hρ => he ρ (h.shapes ρ hρ)
 
-theorem Hom.wellShaped {Δ Γ} (h : Hom Δ Γ) {a : CompareTy}
+theorem Frame.wellShaped {Δ Γ} (h : Frame Δ Γ) {a : CompareTy}
     (ha : a.WellShaped Δ) : a.WellShaped Γ := by
   induction a with
   | var | unit | credit => trivial
@@ -24,23 +23,23 @@ theorem Hom.wellShaped {Δ Γ} (h : Hom Δ Γ) {a : CompareTy}
   | join _ _ iha ihb | meet _ _ iha ihb =>
     exact ⟨iha ha.1,ihb ha.2.1,h.equivalent ha.2.2⟩
 
-theorem Hom.defined {Δ Γ} (h : Hom Δ Γ) {a : CompareTy}
+theorem Frame.defined {Δ Γ} (h : Frame Δ Γ) {a : CompareTy}
     (ha : a.DefinedUnder Δ) : a.DefinedUnder Γ :=
   fun η hη => ha η (h.modes η hη)
 
-theorem Hom.mode_defined {Δ Γ} (h : Hom Δ Γ) {m : ModExpr}
+theorem Frame.mode_defined {Δ Γ} (h : Frame Δ Γ) {m : ModExpr}
     (hm : Entails Δ (.defined m)) : Entails Γ (.defined m) :=
   fun η hη => hm η (h.modes η hη)
 
-theorem Hom.submode {Δ Γ} (h : Hom Δ Γ) {m n : ModExpr}
+theorem Frame.submode {Δ Γ} (h : Frame Δ Γ) {m n : ModExpr}
     (hm : Submode Δ m n) : Submode Γ m n :=
   .valid fun η hη => hm.denote (h.modes η hη)
 
-theorem Hom.compatible {Δ Γ} (h : Hom Δ Γ) {a b : CompareTy}
+theorem Frame.compatible {Δ Γ} (h : Frame Δ Γ) {a b : CompareTy}
     (hc : ComparisonAlgebra.Compatible Δ a b) : ComparisonAlgebra.Compatible Γ a b :=
   ⟨h.wellShaped hc.1,h.defined hc.2.1,h.defined hc.2.2⟩
 
-theorem Hom.equation {Δ Γ} (h : Hom Δ Γ) {a b : CompareTy}
+theorem Frame.equation {Δ Γ} (h : Frame Δ Γ) {a b : CompareTy}
     (he : ComparisonAlgebra.Equation Δ a b) : ComparisonAlgebra.Equation Γ a b := by
   cases he with
   | distrib p hab hac => exact .distrib p (h.compatible hab) (h.compatible hac)
@@ -50,6 +49,34 @@ theorem Hom.equation {Δ Γ} (h : Hom Δ Γ) {a b : CompareTy}
   | prod p hac hbd => exact .prod p (h.compatible hac) (h.compatible hbd)
   | sum p hac hbd => exact .sum p (h.compatible hac) (h.compatible hbd)
   | fn p hac hbd => exact .fn p (h.compatible hac) (h.compatible hbd)
+
+/-- A raw context additionally certifies every whole declared edge. -/
+structure Hom (Δ Γ : Bounds) : Prop extends Frame Δ Γ where
+  bounds : ∀ a b, Constraint.sub a b ∈ Δ → AlgebraSubtype Γ (.ofTy a) (.ofTy b)
+
+theorem Hom.equivalent {Δ Γ} (h : Hom Δ Γ) {a b : ComparisonShape}
+    (he : ComparisonShape.Equivalent Δ a b) : ComparisonShape.Equivalent Γ a b :=
+  h.toFrame.equivalent he
+
+theorem Hom.wellShaped {Δ Γ} (h : Hom Δ Γ) {a : CompareTy}
+    (ha : a.WellShaped Δ) : a.WellShaped Γ := h.toFrame.wellShaped ha
+
+theorem Hom.defined {Δ Γ} (h : Hom Δ Γ) {a : CompareTy}
+    (ha : a.DefinedUnder Δ) : a.DefinedUnder Γ := h.toFrame.defined ha
+
+theorem Hom.mode_defined {Δ Γ} (h : Hom Δ Γ) {m : ModExpr}
+    (hm : Entails Δ (.defined m)) : Entails Γ (.defined m) := h.toFrame.mode_defined hm
+
+theorem Hom.submode {Δ Γ} (h : Hom Δ Γ) {m n : ModExpr}
+    (hm : Submode Δ m n) : Submode Γ m n := h.toFrame.submode hm
+
+theorem Hom.compatible {Δ Γ} (h : Hom Δ Γ) {a b : CompareTy}
+    (hc : ComparisonAlgebra.Compatible Δ a b) : ComparisonAlgebra.Compatible Γ a b :=
+  h.toFrame.compatible hc
+
+theorem Hom.equation {Δ Γ} (h : Hom Δ Γ) {a b : CompareTy}
+    (he : ComparisonAlgebra.Equation Δ a b) : ComparisonAlgebra.Equation Γ a b :=
+  h.toFrame.equation he
 
 theorem Hom.shaped {Δ Γ} (h : Hom Δ Γ) {a b : CompareTy}
     (hab : ShapedSubtype Δ a b) : AlgebraSubtype Γ a b := by

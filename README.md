@@ -302,10 +302,133 @@ For contexts without such a model, `ComparisonRankedBasis` and
 constructor rank for every admissible witness. The general terminating
 comparison algorithm still needs an effective bound or decision for those ranks,
 as well as the arbitrary-ambient-context bridge.
+`ComparisonRankedOrderSimulation` gives exact recursive positivity and
+constant-boundary tests for that basis, retaining different constructor choices,
+function-domain variance, and modal controls. Saturating their interleaving with
+the original constraint edges across all ranks remains unproved.
+`ComparisonLeastPropagationLimitation` proves that finite witness existence
+cannot be reduced to finite stabilization of least forward propagation: a
+defined finite prefixed witness can exist while every ascending lower iterate
+fails the required inequality.
 `ComparisonAmbientDriver.run` accepts explicit ambient bounds and proves
 unconditional successful-result soundness, termination, and fuel stability.
-Complete acceptance under raw partial ambient bounds still requires preserving
-their partial endpoints without demanding additional guards.
+Complete acceptance under raw partial ambient bounds still needs a finite
+comparison procedure preserving their partial endpoints and original guards.
+`ComparisonBalancedDerivation` extracts fully defined derivations when each
+declared subtype edge has either two defined endpoints or two partial endpoints.
+`ComparisonBalancedContext` supplies guarded context transport, and
+`ComparisonBalancedProjection` removes partial subtype edges while separately
+retaining every original shape equation. Defined comparisons and the same
+prepared substitution are preserved in both directions, with identical scalar
+models, exact domains, and body/image guards.
+`ComparisonBalancedDecision` connects this mathematical projection to the exact
+fixed-endpoint observer checker when the original context has no finite shape
+model. The projection is noncomputable as defined;
+these are internal transfer theorems, not an extension of the public driver.
+The regression module covers a non-reflexive partial edge, retention of shape
+information, and why bounds crossing between defined and partial endpoints
+cannot simply be deleted.
+In `ComparisonRawCarrierSoundness`,
+`ComparisonRawCarrierRestriction.finite_capsule_locality` proves an exact
+restriction of arbitrary mixed-bound comparisons to a finite set of literal
+partial capsules determined by the raw bounds and requested endpoints.
+Its independent restricted calculus permits all well-shaped joins and meets
+of partial terms. Carrier ideals factor finite covers through monotone actions
+and structural constructors; this validates every original rule, including
+partial products, literal composition, function variance, and guarded equations.
+The guarded-join carrier refuted by `ComparisonRawCarrierCountermodel` remains
+separate from this replacement.
+In `ComparisonRawCarrierPrepared`,
+`ComparisonRawCarrierRestriction.prepared_witnessUnder_iff_restricted` preserves
+the same prepared type and modality substitution, exact domains, and original
+body/image guards with a capsule boundary depending only on the prepared input.
+The restriction leaves defined constructor structure and partial lattice
+expressions unbounded; it does not yet supply an arbitrary-context order checker
+or the input-only rank bound needed for complete witness synthesis.
+`ComparisonRawHeadLocality` strengthens this to a finite boundary of whole
+partial constructor heads for raw types and defined witnesses. Its independent
+restricted calculus explicitly checks constructor and congruence outputs. Indexed sparse tables
+synchronize ordered total controls, retain exact partial prefixes, and handle
+function-domain variance. The coordinate interpretation validates every original
+rule and reflects guarded endpoints; raw types and defined witnesses satisfy
+that guard automatically. `ComparisonRawHeadPrepared` preserves the same
+admissible substitution and original guards with an input-only head boundary.
+The tightened carrier excludes total actions on naked partial lattice nodes;
+`ComparisonRawHeadModeOrbits` gives executable finite representatives for the
+supported total controls on partial heads. Optional-cut separation and the
+observer range product provide exact lower/upper shadow constraints, including
+contravariant function rows and empty cuts. `ComparisonRelativeIntervals` and
+the relative-table modules extend the defined algebra and recorded boundary
+rows simultaneously. `ComparisonObserverShadowActions` constructs a finite
+optional-cut diagram carrying the finite monoid of supported total controls.
+The constructor tables preserve both the whole defined range algebra and every
+recorded raw row, including contravariant function inputs and literal partial
+prefixes. `ComparisonObserverShadowModelReflection` proves all-rule soundness
+and exact order reflection at the finitely many raw interpreter calls, without
+requiring defined ambient type bounds. `ComparisonObserverShadowQueries` retains
+joint query patterns through finite extraction, including arbitrary defined
+internal lattice terms. `ComparisonObserverShadowQueryModel` constructs one
+finite interpreter reflecting raw/raw, defined/defined, and both mixed query
+directions. These results assume the original context has no finite shape model.
+`ComparisonFiniteCertificate.Candidate` now assembles those finite models into
+an executable validator: it checks the shadow machine, constructor rows,
+defined embedding, frozen arrays, and every original whole raw subtype bound
+in the outer interpreter. Its syntax evaluator agrees with the semantic model,
+and `Candidate.separates_sound` refutes the original algebra comparison from
+an accepted separating certificate under arbitrary raw bounds, without endpoint
+definedness guards or a no-finite-shape-model assumption. Serialization and
+source extraction preserve denotation and separation. Under the no-finite-shape-model
+hypothesis, `ComparisonFiniteCertificate.Completeness` proves four equivalences
+between non-subtyping and existence of an accepted certificate: raw/raw,
+defined/raw, raw/defined, and defined/defined.
+`ComparisonFiniteCertificate.BoundedCompleteness` strengthens all four results
+with computable input-derived bounds on control names, states, tags, and
+observations; `ComparisonFiniteCertificateBounds` also bounds the control
+carrier. Every internal `CompareTy` endpoint in these completeness results
+requires `DefinedUnder Δ`; raw `Ty` endpoints may be partial.
+`ComparisonFiniteCertificateInputs` computes deterministic support markers,
+interpreter call sites, and source control names from syntax. Its `sourceNames_eq`
+identifies the resulting list exactly with the source construction's names.
+The construction now uses deduplicated occurrence lists, preserving all existing
+support and cardinality bounds. The completeness statements still quantify over
+control-name lists; their fixed-name strengthening remains unfinished.
+Certificate restriction retains only literal-prefix and frozen keys reached by
+the original raw bounds and supplied queries. Machine descriptions can use the
+fixed input type-name list and the certificate's control names as their mode
+list, with one entry per name. Canonical row tables contain at most
+`(labels Δ names).length * tags^3` rows each. These transformations preserve
+acceptance and the selected endpoint evaluations. `Candidate.canonicalize`
+combines them, satisfies `CanonicalFor`, and preserves the dimension bounds.
+`CanonicalCompleteness` proves all four corresponding existence equivalences.
+`ComparisonFiniteCertificate.Packed.Certificate` represents the bounded
+certificate by finite arrays and indices into input-name and lookup-key lists.
+Its computable encoding and decoding preserve the complete canonical candidate,
+including duplicate key order, acceptance, and separation. Proof-only `Finite`
+instances establish finiteness, and `PackedCompleteness` gives all four
+non-subtyping equivalences with packed certificates under the same hypotheses.
+`Candidate.densify` fills every retained literal and frozen key with its original
+lookup result or default, preserving accepted checks and selected separation.
+Symbolic row-table checks, range operations and address lookup, and defined
+embedding checks have exact evaluation proofs. The assembled formula's
+`Fields.check_eval` and `Fields.separates_eval` agree exactly with the decoded
+candidate's validator and separating check, without additional hypotheses.
+These formulas can iterate finite table addresses while keeping the global
+Boolean field assignment symbolic.
+`ComparisonFiniteCertificateFormulaEncoding` supplies disjoint atom addresses
+at supplied names and dimensions. `allocate_decode` reconstructs exactly
+`C.densify queries` when machine names and array lengths match the allocation;
+`query_encode` represents every such accepted separator at the supplied
+endpoints by an explicit assignment. `query_sound` refutes the original
+comparison from any satisfying assignment. Tag and observation padding preserve
+the complete validator and separating check exactly for every larger target
+count, including zero-sized inputs.
+Fixed-name completeness, state padding, a single input-bounded symbolic query,
+the backend connection, finite-shape and public integration, and an
+unknown-witness rank stopping theorem remain unfinished. No existential
+satisfiability equivalence for the fixed-dimension allocation has yet been
+packaged. See
+[`comparison-finite-model-checker.md`](docs/comparison-finite-model-checker.md)
+for the validator, extraction, and endpoint theorem interfaces.
 Finite observer machines decide fixed defined-endpoint comparisons
 under defined type bounds without a finite shape model. Their boundary and state
 bound are computed from those endpoints, and finite coordinate certificates have
@@ -336,15 +459,15 @@ Each fixed-rank call terminates and completed results are fuel-stable. These
 internal interfaces do not yet decide when to stop increasing the rank, do not
 cover arbitrary partial ambient bounds, and are not the public scheme checker.
 Finite forgetting-machine criteria preserve shared outputs, monotonicity, and
-constant boundaries; general comparison still requires a complete bound on the
-machines synthesized from the input. `ComparisonSchemeMemory` realizes an
-obstruction with actual join-free schemes: no admissible solution's image-output
-tuple alone determines transitions, even with the current declared-bound
-subterm observations available. Retaining one additional input-subterm bit
-repairs that example, with frontier forgetting after three steps. This does
-not establish or refute a general input-only state or rank bound.
-Exact raw-token abstraction preserves the
-same admissible substitution and original guards for partial ambient bounds.
+constant boundaries. General comparison still needs an input-only bound on the
+rank of a shared witness. `ComparisonSchemeMemory` exhibits join-free schemes
+for which every solution requires more state than its image-output tuple, even
+when the transition sees the current declared-bound subterm observations.
+Retaining one additional input-subterm bit suffices for this example, with
+frontier forgetting after three steps.
+
+Exact raw-token abstraction preserves the same admissible substitution and
+original guards for partial ambient bounds.
 `ComparisonNormalizedAmbientDriver` conservatively removes reflexive ambient
 edges while preserving names and fresh indices. Its results are certified under
 the original context; an unused partial annotation no longer prevents the

@@ -259,18 +259,15 @@ theorem normal_sum {Δ a b c d m}
     exact modal_binary Derivation.sum h₁ h₂ h₃ h₄
   · simp [normal, hm, Lift]
 
-theorem normal_shaped {Δ a b} (hΔ : Bounds.TypeBoundsDefined Δ)
+theorem normal_shaped_of_bounds {Δ a b}
+    (hΔ : ∀ x y, Constraint.sub x y ∈ Δ → ∀ lower,
+      Lift Δ lower (normal Δ lower (.ofTy x)) (normal Δ lower (.ofTy y)))
     (h : ShapedSubtype Δ a b) :
     ∀ lower, Lift Δ lower (normal Δ lower a) (normal Δ lower b) := by
   induction h with
   | refl hs => exact fun lower => Lift.refl lower (Ready.normal hs lower)
   | trans _ _ ih₁ ih₂ => exact fun lower => (ih₁ lower).trans (ih₂ lower)
-  | bound h =>
-    intro lower
-    have h₁ := (CompareTy.definedUnder_ofTy _ _).mpr (hΔ _ _ h).1
-    have h₂ := (CompareTy.definedUnder_ofTy _ _).mpr (hΔ _ _ h).2
-    rw [normal_defined h₁, normal_defined h₂]
-    exact Derivation.bound h h₁ h₂
+  | bound h => exact hΔ _ _ h
   | identity hs => exact fun lower => (normal_identity hs lower).1
   | identityRev hs => exact fun lower => (normal_identity hs lower).2
   | compose hs => exact fun lower => (normal_compose hs lower _ _).1
@@ -300,11 +297,13 @@ theorem normal_shaped {Δ a b} (hΔ : Bounds.TypeBoundsDefined Δ)
       ((Ready.normal hs.2.1 lower).rebase hs.2.2.symm)
   | meetGreatest _ _ ih₁ ih₂ => exact fun lower => (ih₁ lower).meet_greatest (ih₂ lower)
 
-theorem normal_derivation {Δ a b} (hΔ : Bounds.TypeBoundsDefined Δ)
+theorem normal_derivation_of_bounds {Δ a b}
+    (hΔ : ∀ x y, Constraint.sub x y ∈ Δ → ∀ lower,
+      Lift Δ lower (normal Δ lower (.ofTy x)) (normal Δ lower (.ofTy y)))
     (h : AlgebraSubtype Δ a b) :
     ∀ lower, Lift Δ lower (normal Δ lower a) (normal Δ lower b) := by
   induction h with
-  | shaped h => exact normal_shaped hΔ h
+  | shaped h => exact normal_shaped_of_bounds hΔ h
   | trans _ _ ih₁ ih₂ => exact fun lower => (ih₁ lower).trans (ih₂ lower)
   | equation h =>
     intro lower
@@ -340,6 +339,33 @@ theorem normal_derivation {Δ a b} (hΔ : Bounds.TypeBoundsDefined Δ)
     rw [normal_defined h₁.2.1, normal_defined h₁.2.2] at ih₁
     rw [normal_defined h₂.2.1, normal_defined h₂.2.2] at ih₂
     exact Derivation.clampRev h₁ h₂ hm ih₁ ih₂
+
+/-- The context enters normalization only through its original subtype edges. -/
+theorem normal_bound {Δ a b} (hΔ : Bounds.TypeBoundsDefined Δ)
+    (h : Constraint.sub a b ∈ Δ) (lower : Bool) :
+    Lift Δ lower (normal Δ lower (.ofTy a)) (normal Δ lower (.ofTy b)) := by
+  simpa only [normal_defined ((CompareTy.definedUnder_ofTy _ _).mpr (hΔ _ _ h).1),
+    normal_defined ((CompareTy.definedUnder_ofTy _ _).mpr (hΔ _ _ h).2), Lift] using
+      Derivation.bound h ((CompareTy.definedUnder_ofTy _ _).mpr (hΔ _ _ h).1)
+        ((CompareTy.definedUnder_ofTy _ _).mpr (hΔ _ _ h).2)
+
+theorem normal_shaped {Δ a b} (hΔ : Bounds.TypeBoundsDefined Δ)
+    (h : ShapedSubtype Δ a b) :
+    ∀ lower, Lift Δ lower (normal Δ lower a) (normal Δ lower b) :=
+  normal_shaped_of_bounds (fun _ _ => normal_bound hΔ) h
+
+theorem normal_derivation {Δ a b} (hΔ : Bounds.TypeBoundsDefined Δ)
+    (h : AlgebraSubtype Δ a b) :
+    ∀ lower, Lift Δ lower (normal Δ lower a) (normal Δ lower b) :=
+  normal_derivation_of_bounds (fun _ _ => normal_bound hΔ) h
+
+theorem derivation_of_bounds {Δ a b}
+    (hΔ : ∀ x y, Constraint.sub x y ∈ Δ → ∀ lower,
+      Lift Δ lower (normal Δ lower (.ofTy x)) (normal Δ lower (.ofTy y)))
+    (ha : CompareTy.DefinedUnder a Δ) (hb : CompareTy.DefinedUnder b Δ)
+    (h : AlgebraSubtype Δ a b) : Derivation Δ a b := by
+  simpa only [normal_defined ha, normal_defined hb, Lift] using
+    normal_derivation_of_bounds hΔ h true
 
 /-- Defined endpoints admit a derivation with defined terms throughout, also
 inside every structural child premise. -/
