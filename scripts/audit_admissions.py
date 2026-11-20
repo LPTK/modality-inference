@@ -2960,6 +2960,10 @@ constants = [
     'ModalityInference.ComparisonRawOrderBoundary.nodes_valid',
     'ModalityInference.ComparisonRawOrderBoundary.not_admissible',
     'ModalityInference.ComparisonRawOrderBoundary.no_finite_shape_model',
+    'ModalityInference.ComparisonWindowSections.admissible',
+    'ModalityInference.ComparisonWindowSections.no_finite_shape',
+    'ModalityInference.ComparisonWindowSections.leading_image',
+    'ModalityInference.ComparisonWindowSections.no_section_at_any_depth',
     'ModalityInference.ComparisonSchemeMemory.bounds_defined',
     'ModalityInference.ComparisonSchemeMemory.no_finite_shape_model',
     'ModalityInference.ComparisonSchemeMemory.nodes_certified',
@@ -6900,6 +6904,7 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonWindowReflection\n'
                     'import ModalityInference.Proofs.ComparisonWindowWitness\n'
                     'import ModalityInference.Proofs.ComparisonRawOrderBoundary\n'
+                    'import ModalityInference.Proofs.ComparisonWindowSections\n'
                     'import ModalityInference.Proofs.ComparisonObserverCoordinateAlignment\n'
                     'import ModalityInference.Proofs.ComparisonObserverMachineSerialization\n'
                     'import ModalityInference.Proofs.ComparisonObserverMachinePadding\n'

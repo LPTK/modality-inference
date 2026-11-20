@@ -496,6 +496,13 @@ at `imageRank p d` for every such solution of radius `d`; rejection at that
 rank excludes every solution of radius at most `d`. The remaining stopping
 argument must bound `d` from the prepared input.
 
+`ComparisonWindowSections.no_section_at_any_depth` rules out one proposed
+construction. For one admissible public input, no finite prefix depth permits
+choosing an observer completion for each prefix while preserving the order of
+all supported, defined types. This holds even when the prefix records every
+written subterm at each node. Every admissible first image has the same
+observations as the explicit rank-four image.
+
 Exact raw-token abstraction preserves the same admissible substitution and
 original guards for partial ambient bounds.
 `ComparisonNormalizedAmbientDriver` conservatively removes reflexive ambient
