@@ -488,9 +488,13 @@ zero and two ordered observer states that rule out every positive type image.
 function of radius `d` that preserves order and constant values on all
 observers. For `a` possible observer root labels the function is represented by
 a defined, supported, shape-compatible type of rank at most `d + 16*a²` when
-the declared shapes have no finite model. The remaining stopping argument
-must bound the radius of a shared solution satisfying those order conditions
-and all scheme endpoints simultaneously.
+the declared shapes have no finite model.
+`ComparisonWindowWitness.subsumes_iff_positive_window` characterizes original
+scheme admissibility by a common positive solution of some finite radius under
+the original declared-bound definedness condition. The joint comparator accepts
+at `imageRank p d` for every such solution of radius `d`; rejection at that
+rank excludes every solution of radius at most `d`. The remaining stopping
+argument must bound `d` from the prepared input.
 
 Exact raw-token abstraction preserves the same admissible substitution and
 original guards for partial ambient bounds.
