@@ -481,6 +481,14 @@ respects order between different observers. `ComparisonRawOrderBoundary`
 exhibits public schemes with a constant-preserving Boolean solution at radius
 zero and two ordered observer states that rule out every positive type image.
 
+`ComparisonWindowRank.positive_iff_bounded` gives a rank bound for a Boolean
+function of radius `d` that preserves order and constant values on all
+observers. For `a` possible observer root labels the function is represented by
+a defined, supported, shape-compatible type of rank at most `d + 16*a²` when
+the declared shapes have no finite model. The remaining stopping argument
+must bound the radius of a shared solution satisfying those order conditions
+and all scheme endpoints simultaneously.
+
 Exact raw-token abstraction preserves the same admissible substitution and
 original guards for partial ambient bounds.
 `ComparisonNormalizedAmbientDriver` conservatively removes reflexive ambient

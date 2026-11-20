@@ -2935,6 +2935,11 @@ constants = [
     'ModalityInference.ComparisonWindowObservers.embed_value',
     'ModalityInference.ComparisonWindowObservers.certified',
     'ModalityInference.ComparisonWindowObservers.prepared_window',
+    'ModalityInference.ComparisonWindowTerms.mem_profile',
+    'ModalityInference.ComparisonWindowTerms.profile_transfer',
+    'ModalityInference.ComparisonWindowTerms.positive_reify',
+    'ModalityInference.ComparisonWindowLimits.closed_pair_compact',
+    'ModalityInference.ComparisonWindowRank.positive_iff_bounded',
     'ModalityInference.ComparisonRawOrderBoundary.classifier_constant',
     'ModalityInference.ComparisonRawOrderBoundary.raw_solves',
     'ModalityInference.ComparisonRawOrderBoundary.ordered',
@@ -6875,6 +6880,9 @@ with tempfile.TemporaryDirectory(prefix='modality-audit-') as directory:
                     'import ModalityInference.Proofs.ComparisonWindowPumping\n'
                     'import ModalityInference.Proofs.ComparisonWindowEndpoints\n'
                     'import ModalityInference.Proofs.ComparisonWindowObservers\n'
+                    'import ModalityInference.Proofs.ComparisonWindowTerms\n'
+                    'import ModalityInference.Proofs.ComparisonWindowLimits\n'
+                    'import ModalityInference.Proofs.ComparisonWindowRank\n'
                     'import ModalityInference.Proofs.ComparisonRawOrderBoundary\n'
                     'import ModalityInference.Proofs.ComparisonObserverCoordinateAlignment\n'
                     'import ModalityInference.Proofs.ComparisonObserverMachineSerialization\n'
