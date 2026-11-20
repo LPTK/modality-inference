@@ -455,7 +455,10 @@ conditions, `synthesize_complete` derives eventual success at some rank from
 every admissible witness; `synthesize_sound` proves the actual returned action
 admissible under the original assumptions. `compare` restores exact source
 domains, including unused parameters, with all body and image guards.
-Each fixed-rank call terminates and completed results are fuel-stable. These
+The fixed-mode and joint comparators both succeed at the supplied rank
+whenever a supported admissible witness has all selected image ranks within
+that bound (`compare_complete_at`). Each fixed-rank call terminates and
+completed results are fuel-stable. These
 internal interfaces do not yet decide when to stop increasing the rank, do not
 cover arbitrary partial ambient bounds, and are not the public scheme checker.
 Finite forgetting-machine criteria preserve shared outputs, monotonicity, and

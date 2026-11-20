@@ -222,6 +222,27 @@ private theorem supports_inter {P : TypeVar → Prop} {Q R : ModVar → Prop} {a
     Supports P (fun v => Q v ∧ R v) a := by
   induction a <;> simp_all [Supports]
 
+theorem normalize_fixed_at {p : SchemePreparation.Prepared} {σ : CompareSubstitution}
+    (hn : ¬ ∃ ρ, ComparisonShape.Models p.assumptions ρ)
+    (hw : PreparedWitnessUnder p σ)
+    (hs : ComparisonWitnessRestriction.Supported p σ)
+    (hf : ComparisonFixedModeWitness.FixedImages p.firstMode σ) (n : Nat)
+    (hr : ∀ v ∈ ComparisonWitnessRestriction.inputTypes p, rank (σ.type v) ≤ n) :
+    ∃ τ, PreparedWitnessUnder p τ ∧ τ.modes = σ.modes ∧
+      ComparisonWitnessRestriction.Supported p τ ∧
+      ∀ v ∈ ComparisonWitnessRestriction.inputTypes p,
+        LatticeForm (imageBasis p n).types (τ.type v) := by
+  have scopedImages (v) (hv : v ∈ ComparisonWitnessRestriction.inputTypes p) :
+      Supports (· ∈ inputNames p) (· ∈ fixedNames p) (σ.type v) :=
+    (supports_inter (hs.type hv) (hf.1 v)).mono
+      (fun v h => (mem_inputNames p v).mpr h)
+      (fun v h => mem_fixedNames.mpr ⟨(mem_inputModes p v).mpr h.1,h.2⟩)
+  obtain ⟨τ, ht, _, hm, hs', _, forms⟩ := prepared_ranked_witness_lists_at
+    (inputNames p) (fixedNames p) (mem_inputNames p)
+    (fun v h => (mem_inputModes p v).mp (mem_fixedNames.mp h).1)
+    hn hw hs n scopedImages hr
+  exact ⟨τ, ht, hm, hs', fun v hv => (forms v hv).1⟩
+
 theorem normalize_fixed {p : SchemePreparation.Prepared} {σ : CompareSubstitution}
     (hn : ¬ ∃ ρ, ComparisonShape.Models p.assumptions ρ)
     (hw : PreparedWitnessUnder p σ)
@@ -231,68 +252,9 @@ theorem normalize_fixed {p : SchemePreparation.Prepared} {σ : CompareSubstituti
       ComparisonWitnessRestriction.Supported p τ ∧
       ∀ v ∈ ComparisonWitnessRestriction.inputTypes p,
         LatticeForm (imageBasis p n).types (τ.type v) := by
-  classical
   let n := (ComparisonWitnessRestriction.inputTypes p).sup (fun v => rank (σ.type v))
-  have hnormal (v : TypeVar) (hv : v ∈ ComparisonWitnessRestriction.inputTypes p) :
-      Normal p.assumptions (inputNames p) (fixedNames p) n (σ.type v) := by
-    apply (normal_of_supported hn _ _ (hw.2.1.types v) ?_).mono
-      (Finset.le_sup (f := fun v => rank (σ.type v)) hv)
-    exact (supports_inter (hs.type hv) (hf.1 v)).mono
-      (fun v hv => (mem_inputNames p v).mpr hv)
-      (fun v hv => mem_fixedNames.mpr ⟨(mem_inputModes p v).mpr hv.1,hv.2⟩)
-  have hchoose : ∀ v, ∃ a, ComparisonStructuralLattice.Equiv p.assumptions (σ.type v) a ∧
-      a.DefinedUnder p.assumptions ∧
-      (v ∈ ComparisonWitnessRestriction.inputTypes p →
-        LatticeForm (imageBasis p n).types a) ∧
-      (v ∉ ComparisonWitnessRestriction.inputTypes p → a = σ.type v) := by
-    intro v
-    by_cases hv : v ∈ ComparisonWitnessRestriction.inputTypes p
-    · obtain ⟨a,ha,har,he⟩ := hnormal v hv
-      exact ⟨a,he,har.2.1,fun _ => ha,fun h => (h hv).elim⟩
-    · exact ⟨σ.type v,.refl (hw.1.2.1.type v),hw.2.1.types v,
-        fun h => (hv h).elim,fun _ => rfl⟩
-  choose images hi using hchoose
-  let τ := ComparisonPartialCarrier.reimage σ images
-  have hreplace : ComparisonStructuralBasis.Replacement p.assumptions σ τ := by
-    refine ⟨?_,?_,fun v => by cases v <;> rfl⟩
-    · intro v
-      rcases ComparisonPartialCarrier.reimage_type_cases σ images v with he | he
-      · exact he ▸ (hi v).1
-      · change ComparisonStructuralLattice.Equiv p.assumptions (σ.type v)
-          ((ComparisonPartialCarrier.reimage σ images).type v)
-        rw [he.1]
-        exact .refl (hw.1.2.1.type v)
-    · intro v
-      rcases ComparisonPartialCarrier.reimage_type_cases σ images v with he | he
-      · exact he ▸ (hi v).2.1
-      · exact he.1 ▸ hw.2.1.types v
-  have hshaped : τ.WellShaped p.assumptions :=
-    ComparisonPartialCarrier.reimage_wellShaped (fun v => (hi v).1.1.wellShaped_right)
-  refine ⟨n,τ,hreplace.prepared rfl hw
-    (ComparisonPartialCarrier.reimage_domainsAbove hw.1.1 images) hshaped,rfl,?_,?_⟩
-  · refine ⟨?_,hs.2⟩
-    intro entry he
-    change entry ∈ (σ.types.map Prod.fst).map (fun n => (n,images (.flex n))) at he
-    obtain ⟨key,hkey,rfl⟩ := List.mem_map.mp he
-    by_cases hv : TypeVar.flex key ∈ ComparisonWitnessRestriction.inputTypes p
-    · exact (ComparisonStructuralBasis.lattice_support ((hi (.flex key)).2.2.1 hv)
-        (types_support (inputNames p) (fixedNames p) n)).mono
-        (fun v hv => (mem_inputNames p v).mp hv)
-        (fun v hv => (mem_inputModes p v).mp (mem_fixedNames.mp hv).1)
-    · change Supports _ _ (images (.flex key))
-      rw [(hi (.flex key)).2.2.2 hv]
-      exact ComparisonStructuralBasis.supported_type_of_key hs hkey
-  · intro v hv
-    rcases ComparisonPartialCarrier.reimage_type_cases σ images v with he | he
-    · change LatticeForm (imageBasis p n).types ((ComparisonPartialCarrier.reimage σ images).type v)
-      rw [he]
-      exact (hi v).2.2.1 hv
-    · change LatticeForm (imageBasis p n).types ((ComparisonPartialCarrier.reimage σ images).type v)
-      rw [he.1,he.2]
-      apply LatticeForm.atom
-      exact types_mono (Nat.zero_le n) (head_mem_types (by
-        simp only [basis,Basis.heads,List.mem_cons,List.mem_map]
-        exact .inr (.inr ⟨v,(mem_inputNames p v).mpr hv,rfl⟩)))
+  exact ⟨n, normalize_fixed_at hn hw hs hf n
+    (fun _ hv => Finset.le_sup (f := fun v => rank (σ.type v)) hv)⟩
 
 theorem action_forms {p : SchemePreparation.Prepared} {n : Nat} {σ : CompareSubstitution}
     (hforms : ∀ image ∈ σ.types, LatticeForm (imageBasis p n).types image.2) :
@@ -397,19 +359,28 @@ theorem machine_prepared {ambient : Bounds} {source target : Scheme}
   · exact hscalar
   · exact fun pair hp => hpair pair (List.mem_append_right _ hp)
 
-theorem prepared_complete {ambient : Bounds} {source target : Scheme} {σ : CompareSubstitution}
+private theorem rank_subst_modes (modes : ModVar → ModExpr) (a : CompareTy) :
+    rank (a.subst CompareTy.var modes) = rank a := by
+  induction a <;> simp_all [CompareTy.subst, rank]
+
+theorem prepared_complete_at {ambient : Bounds} {source target : Scheme} {σ : CompareSubstitution}
     (hn : ¬ ∃ ρ, ComparisonShape.Models
       (SchemePreparation.prepare ambient source target).assumptions ρ)
     (hΔ : (SchemePreparation.prepare ambient source target).assumptions.TypeBoundsDefined)
-    (hw : PreparedWitnessUnder (SchemePreparation.prepare ambient source target) σ) :
-    ∃ n threshold result, ∀ fuel ≥ threshold,
+    (hw : PreparedWitnessUnder (SchemePreparation.prepare ambient source target) σ)
+    (hsp : ComparisonWitnessRestriction.Supported (SchemePreparation.prepare ambient source target) σ)
+    (n : Nat) (hr : ∀ k ∈ inputTypeKeys (SchemePreparation.prepare ambient source target),
+      rank (σ.type (.flex k)) ≤ n) :
+    ∃ threshold result, ∀ fuel ≥ threshold,
       run fuel (SchemePreparation.prepare ambient source target) n = .success result := by
   let p := SchemePreparation.prepare ambient source target
-  obtain ⟨σ',hσ',_,_,hsp⟩ := ComparisonWitnessRestriction.prepared_supported_under hw
-  let core := ComparisonFixedModeWitness.project p.firstMode p.sourceBounds p.sourceType σ'
-  have hcore := ComparisonFixedModeWitness.prepared_project hσ'
-  obtain ⟨n,τ,hτ,hmodes,hs,hi⟩ := normalize_fixed hn hcore.1
-    (ComparisonFixedModeWitness.project_supported hsp) hcore.2
+  let core := ComparisonFixedModeWitness.project p.firstMode p.sourceBounds p.sourceType σ
+  have hcore := ComparisonFixedModeWitness.prepared_project hw
+  have coreRank (v) (hv : v ∈ ComparisonWitnessRestriction.inputTypes p) : rank (core.type v) ≤ n := by
+    rw [show core.type v = _ from ComparisonFixedModeWitness.project_type _ _ _ _ v, rank_subst_modes]
+    exact ComparisonRankedPrepared.input_rank_bound hw.1.1 hr v hv
+  obtain ⟨τ,hτ,hmodes,hs,hi⟩ := normalize_fixed_at hn hcore.1
+    (ComparisonFixedModeWitness.project_supported hsp) hcore.2 n coreRank
   change τ.modes = core.modes at hmodes
   have heq : τ.mode = core.mode := by
     funext v
@@ -440,10 +411,10 @@ theorem prepared_complete {ambient : Bounds} {source target : Scheme} {σ : Comp
     · obtain ⟨k,hk,rfl⟩ := List.mem_map.mp hv
       have hi := hs.mode ((mem_inputModes p _).mp (mem_modeIds.mp hk).1) hw
       have hm : (τ.mode (.flex k)) =
-          (σ'.mode (.flex k)).subst
+          (σ.mode (.flex k)).subst
             (ComparisonModeRestriction.restrict (ComparisonFixedModeWitness.names p.firstMode)) := by
         rw [heq]
-        exact ComparisonFixedModeWitness.project_mode_at σ' (project_keys.mpr hk)
+        exact ComparisonFixedModeWitness.project_mode_at σ (project_keys.mpr hk)
       rw [hm] at hw
       have hl := (ComparisonFixedModeWitness.mem_names w p.firstMode).mp
         (ComparisonModeRestriction.restrict_support _ _ w hw)
@@ -477,11 +448,24 @@ theorem prepared_complete {ambient : Bounds} {source target : Scheme} {σ : Comp
     (by simpa using ComparisonPreparedScalar.run_binary hscalarAt)
     (by simpa using ComparisonPreparedScalar.run_allowed hscalarAt (inputTypeKeys p))
     (fun family _ => by simpa using scalarValid family)
-  refine ⟨n,max scalarFuel jointFuel,result,?_⟩
+  refine ⟨max scalarFuel jointFuel,result,?_⟩
   intro fuel hf
   change run fuel p n = _
   simp only [run,hscalar fuel ((Nat.le_max_left _ _).trans hf),bind,RunResult.bind]
   exact hjoint fuel ((Nat.le_max_right _ _).trans hf)
+
+theorem prepared_complete {ambient : Bounds} {source target : Scheme} {σ : CompareSubstitution}
+    (hn : ¬ ∃ ρ, ComparisonShape.Models
+      (SchemePreparation.prepare ambient source target).assumptions ρ)
+    (hΔ : (SchemePreparation.prepare ambient source target).assumptions.TypeBoundsDefined)
+    (hw : PreparedWitnessUnder (SchemePreparation.prepare ambient source target) σ) :
+    ∃ n threshold result, ∀ fuel ≥ threshold,
+      run fuel (SchemePreparation.prepare ambient source target) n = .success result := by
+  obtain ⟨τ, ht, _, _, hs⟩ := ComparisonWitnessRestriction.prepared_supported_under hw
+  let keys := inputTypeKeys (SchemePreparation.prepare ambient source target)
+  let n := keys.toFinset.sup (fun k => rank (τ.type (.flex k)))
+  exact ⟨n, prepared_complete_at hn hΔ ht hs n
+    (fun k hk => Finset.le_sup (f := fun k => rank (τ.type (.flex k))) (List.mem_toFinset.mpr hk))⟩
 
 theorem synthesize_spec {fuel p n result} (h : synthesize fuel p n = .success result) :
     ∃ scalar, ComparisonPreparedScalar.run fuel p = .success scalar ∧
@@ -518,15 +502,10 @@ theorem synthesize_sound {ambient : Bounds} {source target : Scheme}
   · exact hscalarOriginal
   · exact hmachine
 
-theorem synthesize_complete {ambient : Bounds} {source target : Scheme} {σ : CompareSubstitution}
-    (hn : ¬ ∃ ρ, ComparisonShape.Models
-      (SchemePreparation.prepare ambient source target).assumptions ρ)
-    (hΔ : (SchemePreparation.prepare ambient source target).assumptions.TypeBoundsDefined)
-    (hw : PreparedWitnessUnder (SchemePreparation.prepare ambient source target) σ) :
-    ∃ n threshold result, ∀ fuel ≥ threshold,
-      synthesize fuel (SchemePreparation.prepare ambient source target) n = .success result := by
-  let p := SchemePreparation.prepare ambient source target
-  obtain ⟨n,threshold,raw,hraw⟩ := prepared_complete hn hΔ hw
+private theorem synthesize_of_run {p : SchemePreparation.Prepared} {n : Nat}
+    (h : ∃ threshold result, ∀ fuel ≥ threshold, run fuel p n = .success result) :
+    ∃ threshold result, ∀ fuel ≥ threshold, synthesize fuel p n = .success result := by
+  obtain ⟨threshold,raw,hraw⟩ := h
   obtain ⟨scalarFuel,scalar,hscalar⟩ := ComparisonPreparedScalar.run_complete p
   have hrawCore : ∃ threshold result, ∀ fuel ≥ threshold,
       ComparisonRankedModes.run fuel p.assumptions (inputTypeKeys p)
@@ -538,11 +517,32 @@ theorem synthesize_complete {ambient : Bounds} {source target : Scheme} {σ : Co
     change run fuel p n = _ at hh
     simpa only [run,hscalar fuel ((Nat.le_max_right _ _).trans hf),bind,RunResult.bind] using hh
   obtain ⟨jointFuel,result,hjoint⟩ := ComparisonRankedModes.synthesize_eventual hrawCore
-  refine ⟨n,max scalarFuel jointFuel,result,?_⟩
+  refine ⟨max scalarFuel jointFuel,result,?_⟩
   intro fuel hf
-  change synthesize fuel p n = _
   simp only [synthesize,hscalar fuel ((Nat.le_max_left _ _).trans hf),bind,RunResult.bind]
   exact hjoint fuel ((Nat.le_max_right _ _).trans hf)
+
+theorem synthesize_complete_at {ambient : Bounds} {source target : Scheme} {σ : CompareSubstitution}
+    (hn : ¬ ∃ ρ, ComparisonShape.Models
+      (SchemePreparation.prepare ambient source target).assumptions ρ)
+    (hΔ : (SchemePreparation.prepare ambient source target).assumptions.TypeBoundsDefined)
+    (hw : PreparedWitnessUnder (SchemePreparation.prepare ambient source target) σ)
+    (hsp : ComparisonWitnessRestriction.Supported (SchemePreparation.prepare ambient source target) σ)
+    (n : Nat) (hr : ∀ k ∈ inputTypeKeys (SchemePreparation.prepare ambient source target),
+      rank (σ.type (.flex k)) ≤ n) :
+    ∃ threshold result, ∀ fuel ≥ threshold,
+      synthesize fuel (SchemePreparation.prepare ambient source target) n = .success result :=
+  synthesize_of_run (prepared_complete_at hn hΔ hw hsp n hr)
+
+theorem synthesize_complete {ambient : Bounds} {source target : Scheme} {σ : CompareSubstitution}
+    (hn : ¬ ∃ ρ, ComparisonShape.Models
+      (SchemePreparation.prepare ambient source target).assumptions ρ)
+    (hΔ : (SchemePreparation.prepare ambient source target).assumptions.TypeBoundsDefined)
+    (hw : PreparedWitnessUnder (SchemePreparation.prepare ambient source target) σ) :
+    ∃ n threshold result, ∀ fuel ≥ threshold,
+      synthesize fuel (SchemePreparation.prepare ambient source target) n = .success result := by
+  obtain ⟨n, h⟩ := prepared_complete hn hΔ hw
+  exact ⟨n, synthesize_of_run h⟩
 
 theorem synthesize_success_iff {ambient : Bounds} {source target : Scheme}
     (hn : ¬ ∃ ρ, ComparisonShape.Models
@@ -575,6 +575,21 @@ theorem compare_sound {ambient : Bounds} {source target : Scheme}
     simp only [compare,hr,bind,RunResult.bind,pure,RunResult.success.injEq] at h
     subst result
     exact ComparisonPreparedDriver.reconstruct_result (synthesize_sound hn hΔ hr)
+
+theorem compare_complete_at {ambient : Bounds} {source target : Scheme} {σ : CompareSubstitution}
+    (hn : ¬ ∃ ρ, ComparisonShape.Models
+      (SchemePreparation.prepare ambient source target).assumptions ρ)
+    (hΔ : (SchemePreparation.prepare ambient source target).assumptions.TypeBoundsDefined)
+    (hw : PreparedWitnessUnder (SchemePreparation.prepare ambient source target) σ)
+    (hsp : ComparisonWitnessRestriction.Supported (SchemePreparation.prepare ambient source target) σ)
+    (n : Nat) (hr : ∀ k ∈ inputTypeKeys (SchemePreparation.prepare ambient source target),
+      rank (σ.type (.flex k)) ≤ n) :
+    ∃ threshold result, ∀ fuel ≥ threshold,
+      compare fuel ambient source target n = .success result := by
+  obtain ⟨threshold,result,h⟩ := synthesize_complete_at hn hΔ hw hsp n hr
+  exact ⟨threshold,ComparisonPreparation.reconstruct
+    (SchemePreparation.prepare ambient source target) result,
+    fun fuel hf => by simp only [compare,h fuel hf,bind,RunResult.bind,pure]⟩
 
 theorem compare_complete {ambient : Bounds} {source target : Scheme} {σ : CompareSubstitution}
     (hn : ¬ ∃ ρ, ComparisonShape.Models

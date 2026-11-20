@@ -242,30 +242,51 @@ theorem prepared_scalar {ambient : Bounds} {source target : Scheme} {σ : Compar
     obtain ⟨n,_,rfl⟩ := List.mem_map.mp he
     exact hw.2.1.modes (.flex n)
 
-theorem prepared_complete {ambient : Bounds} {source target : Scheme} {σ : CompareSubstitution}
+theorem input_rank_bound {p : SchemePreparation.Prepared} {σ : CompareSubstitution} {n : Nat}
+    (hd : σ.DomainsAbove p.firstType p.firstMode)
+    (hr : ∀ k ∈ inputTypeKeys p, ComparisonRankedBasis.rank (σ.type (.flex k)) ≤ n) :
+    ∀ v ∈ ComparisonWitnessRestriction.inputTypes p, ComparisonRankedBasis.rank (σ.type v) ≤ n := by
+  intro v hv
+  cases v with
+  | rigid => exact Nat.zero_le _
+  | flex k =>
+    by_cases hk : p.firstType ≤ k
+    · exact hr k ((mem_inputTypeKeys p k).mpr ⟨(mem_inputNames p _).mpr hv, hk⟩)
+    · rw [hd.type_fixed (.flex k) (by simpa only [TypeVar.index] using Nat.lt_of_not_ge hk)]
+      exact Nat.zero_le _
+
+theorem prepared_complete_at {ambient : Bounds} {source target : Scheme} {σ : CompareSubstitution}
     (hn : ¬ ∃ ρ, ComparisonShape.Models
       (SchemePreparation.prepare ambient source target).assumptions ρ)
     (hΔ : (SchemePreparation.prepare ambient source target).assumptions.TypeBoundsDefined)
-    (hw : PreparedWitnessUnder (SchemePreparation.prepare ambient source target) σ) :
-    ∃ rank modes threshold result, ∀ fuel ≥ threshold,
-      run fuel (SchemePreparation.prepare ambient source target) rank modes = .success result := by
+    (hw : PreparedWitnessUnder (SchemePreparation.prepare ambient source target) σ)
+    (hs : ComparisonWitnessRestriction.Supported (SchemePreparation.prepare ambient source target) σ)
+    (rank : Nat) (hr : ∀ k ∈ inputTypeKeys (SchemePreparation.prepare ambient source target),
+      ComparisonRankedBasis.rank (σ.type (.flex k)) ≤ rank) :
+    ∃ threshold result, ∀ fuel ≥ threshold,
+      run fuel (SchemePreparation.prepare ambient source target) rank (normalModes σ) = .success result := by
   let p := SchemePreparation.prepare ambient source target
-  obtain ⟨rank,τ,hτ,_,_,hs,himages⟩ := prepared_ranked_lists_complete hn hw
-  have hscalar := prepared_scalar hτ hs hΔ
+  obtain ⟨τ,hτ,_,hm,hst,_,himages⟩ := prepared_ranked_witness_lists_at
+    (inputNames p) (inputModes p) (mem_inputNames p) (fun v h => (mem_inputModes p v).mp h)
+    hn hw hs rank (fun _ hv => (hs.type hv).mono (fun v h => (mem_inputNames p v).mpr h)
+      (fun v h => (mem_inputModes p v).mpr h)) (input_rank_bound hw.1.1 hr)
+  have same : normalModes σ = normalModes τ := by simp [normalModes, CompareSubstitution.mode, hm]
+  rw [same]
+  have hscalar := prepared_scalar hτ hst hΔ
   obtain ⟨scalarFuel,report,hreport⟩ := ConcreteBackend.decideFormula_complete
     (scalarQuery p (normalModes τ))
   have hv : report.valid = true :=
     (ConcreteBackend.decideFormula_correct (hreport scalarFuel le_rfl)).mpr hscalar.2.2
   have hmachine := machineValid_of_endpoints hΔ (inputTypeKeys p)
     (typeNames p rank) (modeNames p rank) (count p rank) τ.mode (endpoints p)
-    (fun n => τ.type (.flex n)) (prepared_witness_endpoints hτ hs hΔ)
+    (fun n => τ.type (.flex n)) (prepared_witness_endpoints hτ hst hΔ)
   obtain ⟨typeFuel,result,hresult⟩ := ComparisonRankedDecision.run_complete p.assumptions
     (inputTypeKeys p) (fun _ => imageBasis p rank)
     (typeNames p rank) (modeNames p rank) (count p rank) τ.mode (endpoints p)
     (fun n => τ.type (.flex n))
     (fun n hn => (himages (.flex n)
       ((mem_inputNames p _).mp ((mem_inputTypeKeys p n).mp hn).1)).1) hmachine
-  refine ⟨rank,normalModes τ,max scalarFuel typeFuel,
+  refine ⟨max scalarFuel typeFuel,
     {types := result.images, modes := normalModes τ},?_⟩
   intro fuel hf
   have hsf := hreport fuel ((Nat.le_max_left _ _).trans hf)
@@ -278,6 +299,19 @@ theorem prepared_complete {ambient : Bounds} {source target : Scheme} {σ : Comp
     hsf,bind,RunResult.bind,hv]
   rw [normalModes_mode,htf]
   rfl
+
+theorem prepared_complete {ambient : Bounds} {source target : Scheme} {σ : CompareSubstitution}
+    (hn : ¬ ∃ ρ, ComparisonShape.Models
+      (SchemePreparation.prepare ambient source target).assumptions ρ)
+    (hΔ : (SchemePreparation.prepare ambient source target).assumptions.TypeBoundsDefined)
+    (hw : PreparedWitnessUnder (SchemePreparation.prepare ambient source target) σ) :
+    ∃ rank modes threshold result, ∀ fuel ≥ threshold,
+      run fuel (SchemePreparation.prepare ambient source target) rank modes = .success result := by
+  obtain ⟨τ, ht, _, _, hs⟩ := ComparisonWitnessRestriction.prepared_supported_under hw
+  let keys := inputTypeKeys (SchemePreparation.prepare ambient source target)
+  let n := keys.toFinset.sup (fun k => rank (τ.type (.flex k)))
+  exact ⟨n, normalModes τ, prepared_complete_at hn hΔ ht hs n
+    (fun k hk => Finset.le_sup (f := fun k => rank (τ.type (.flex k))) (List.mem_toFinset.mpr hk))⟩
 
 theorem prepared_success_iff {ambient : Bounds} {source target : Scheme}
     (hn : ¬ ∃ ρ, ComparisonShape.Models
@@ -309,6 +343,20 @@ theorem compare_sound {fuel rank modes result ambient source target}
     simp only [compare,hr,bind,RunResult.bind,pure,RunResult.success.injEq] at h
     subst result
     exact ComparisonPreparedDriver.reconstruct_result (run_sound hn hΔ hr)
+
+theorem compare_complete_at {ambient : Bounds} {source target : Scheme} {σ : CompareSubstitution}
+    (hn : ¬ ∃ ρ, ComparisonShape.Models
+      (SchemePreparation.prepare ambient source target).assumptions ρ)
+    (hΔ : (SchemePreparation.prepare ambient source target).assumptions.TypeBoundsDefined)
+    (hw : PreparedWitnessUnder (SchemePreparation.prepare ambient source target) σ)
+    (hs : ComparisonWitnessRestriction.Supported (SchemePreparation.prepare ambient source target) σ)
+    (n : Nat) (hr : ∀ k ∈ inputTypeKeys (SchemePreparation.prepare ambient source target),
+      rank (σ.type (.flex k)) ≤ n) :
+    ∃ threshold result, ∀ fuel ≥ threshold,
+      compare fuel ambient source target n (normalModes σ) = .success result := by
+  obtain ⟨threshold,result,h⟩ := prepared_complete_at hn hΔ hw hs n hr
+  exact ⟨threshold, ComparisonPreparation.reconstruct (SchemePreparation.prepare ambient source target) result,
+    fun fuel hf => by simp only [compare,h fuel hf,bind,RunResult.bind,pure]⟩
 
 theorem compare_complete {ambient : Bounds} {source target : Scheme} {σ : CompareSubstitution}
     (hn : ¬ ∃ ρ, ComparisonShape.Models
