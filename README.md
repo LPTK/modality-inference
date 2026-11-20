@@ -503,6 +503,14 @@ all supported, defined types. This holds even when the prefix records every
 written subterm at each node. Every admissible first image has the same
 observations as the explicit rank-four image.
 
+`ComparisonWindowExcursions.prepared_rectangle` bounds one part of the
+stopping argument. When signed implications follow the same constructor route
+up to one observer-order comparison and back down, a route of length at least
+`16 * a² * j²` forces the inequality for every pair of fillings of its terminal
+headers. Here `a` counts headers and `j` counts signed written subterms. The
+bound is independent of the witness radius. Paths with different routes or
+repeated order comparisons still need a general stopping argument.
+
 Exact raw-token abstraction preserves the same admissible substitution and
 original guards for partial ambient bounds.
 `ComparisonNormalizedAmbientDriver` conservatively removes reflexive ambient

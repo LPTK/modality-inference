@@ -556,6 +556,7 @@ import ModalityInference.Proofs.ComparisonWindowLimits
 import ModalityInference.Proofs.ComparisonWindowRank
 import ModalityInference.Proofs.ComparisonWindowReflection
 import ModalityInference.Proofs.ComparisonWindowWitness
+import ModalityInference.Proofs.ComparisonWindowExcursions
 import ModalityInference.Proofs.ComparisonRawOrderBoundary
 import ModalityInference.Proofs.ComparisonWindowSections
 import ModalityInference.Proofs.ComparisonObserverCoordinateAlignment

@@ -190,6 +190,11 @@ private theorem card_letter (p : SchemePreparation.Prepared) :
 def rootLabelCount (p : SchemePreparation.Prepared) : Nat :=
   windowCount (letterCount p) (radius p.assumptions + 1)
 
+theorem rootLabelCount_eq_card (p : SchemePreparation.Prepared) :
+    rootLabelCount p = Fintype.card (Window (Letter (typeNames p) (modeNames p)) Constructor
+      (radius p.assumptions + 1)) := by
+  simp only [card_window, card_letter, rootLabelCount]
+
 /-- Compute the local-clause radius without enumerating the observer alphabet. -/
 def rawRadius (p : SchemePreparation.Prepared) : Nat :=
   Trees.windowBound (rootLabelCount p) (2 ^ (written (ComparisonSignedObservation.endpoints p)).card)
@@ -203,10 +208,7 @@ theorem raw_window {ambient : Bounds} {source target : Scheme} {σ : CompareSubs
         eval (trees p) (fields p) (inputTypeKeys p) σ.mode bits a t ≤
           eval (trees p) (fields p) (inputTypeKeys p) σ.mode bits b t := by
   intro p
-  have count : rootLabelCount p =
-      Fintype.card (Window (Letter (typeNames p) (modeNames p)) Constructor (radius p.assumptions + 1)) := by
-    simp only [card_window, card_letter, rootLabelCount]
-  simpa only [rawRadius, count, observationBound, typeNames, modeNames] using prepared_window hw hΔ
+  simpa only [rawRadius, rootLabelCount_eq_card, observationBound, typeNames, modeNames] using prepared_window hw hΔ
 
 def imageRank (p : SchemePreparation.Prepared) (d : Nat) : Nat :=
   pairBound (rootLabelCount p) + d
